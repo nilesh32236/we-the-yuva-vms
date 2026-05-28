@@ -20,9 +20,10 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nodeuser
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./
 COPY --from=build /app/pnpm-lock.yaml ./
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/prisma ./prisma
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install --prod --frozen-lockfile
+RUN corepack enable && corepack prepare pnpm@9.0.0 --activate \
+ && pnpm install --prod --frozen-lockfile \
+ && npx --yes prisma generate
 EXPOSE 4000
 USER nodeuser
-CMD ["sh", "-c", "npx prisma db push --skip-generate && npx --yes tsx prisma/seed.ts && node dist/index.js"]
+CMD ["sh", "-c", "npx --yes prisma db push --skip-generate && npx --yes tsx prisma/seed.ts && node dist/index.js"]
