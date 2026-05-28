@@ -23,32 +23,18 @@ async function main() {
     logger.info(`API server running on port ${env.PORT} [${env.NODE_ENV}]`);
     logger.info(`Health check: http://localhost:${env.PORT}/api/v1/health`);
     logger.info('BullMQ notification worker started');
-    // Worker is imported and auto-starts on import
     void notificationWorker;
   });
 
-  // Register repeatable jobs
-  await notificationsQueue.add(
-    'check-event-reminders',
-    {},
-    {
-      repeat: { every: 60 * 60 * 1000 },
-    }
-  );
-  await notificationsQueue.add(
-    'clean-expired-qr-tokens',
-    {},
-    {
-      repeat: { every: 60 * 60 * 1000 },
-    }
-  );
-  await notificationsQueue.add(
-    'daily-metrics-snapshot',
-    {},
-    {
-      repeat: { pattern: '0 0 * * *' }, // every day at midnight
-    }
-  );
+  // Register repeatable jobs (graceful if Redis unavailable)
+  try {
+    await notificationsQueue.add('check-event-reminders', {}, { repeat: { every: 60 * 60 * 1000 } });
+    await notificationsQueue.add('clean-expired-qr-tokens', {}, { repeat: { every: 60 * 60 * 1000 } });
+    await notificationsQueue.add('daily-metrics-snapshot', {}, { repeat: { pattern: '0 0 * * *' } });
+    logger.info('BullMQ repeatable jobs registered');
+  } catch (error) {
+    logger.warn('BullMQ/Redis unavailable — repeatable jobs skipped', { error: (error as Error).message });
+  }
 
   // Graceful shutdown
   const shutdown = async (signal: string) => {
