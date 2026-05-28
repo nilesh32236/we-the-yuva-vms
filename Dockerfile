@@ -10,7 +10,7 @@ FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY prisma/ ./prisma/
-RUN npx prisma generate
+RUN npx --yes prisma@5.22.0 generate
 COPY . .
 RUN pnpm build
 
@@ -23,7 +23,7 @@ COPY --from=build /app/pnpm-lock.yaml ./
 COPY --from=build /app/prisma ./prisma
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate \
  && pnpm install --prod --frozen-lockfile \
- && npx --yes prisma generate
+ && npx --yes prisma@5.22.0 generate
 EXPOSE 4000
 USER nodeuser
-CMD ["sh", "-c", "npx --yes prisma db push --skip-generate && npx --yes tsx prisma/seed.ts && node dist/index.js"]
+CMD ["sh", "-c", "npx --yes prisma@5.22.0 db push --skip-generate && npx --yes tsx prisma/seed.ts && node dist/index.js"]
