@@ -2,7 +2,7 @@
 title: WeTheYuva API
 emoji: 🌿
 colorFrom: green
-colorTo: teal
+colorTo: green
 sdk: docker
 app_port: 4000
 pinned: false
