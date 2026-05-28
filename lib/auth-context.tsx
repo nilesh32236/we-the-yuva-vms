@@ -1,0 +1,82 @@
+'use client';
+
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { api, setAccessToken } from './api';
+
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string | null;
+  role: 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER';
+  status: string;
+  profile?: {
+    skills: string[];
+    interests: string[];
+    availability: { days: string[]; timeSlots: string[] };
+    bio?: string | null;
+    avatarUrl?: string | null;
+    totalHours: number;
+  } | null;
+  consent?: {
+    privacyPolicyAccepted: boolean;
+    mediaConsentAccepted: boolean;
+    acceptedAt: string;
+  } | null;
+  locationId?: string | null;
+}
+
+interface AuthContextValue {
+  user: AuthUser | null;
+  isLoading: boolean;
+  setUser: (user: AuthUser | null) => void;
+  refetch: () => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchUser = useCallback(async () => {
+    try {
+      const response = await api.get<AuthUser>('/users/me');
+      setUser(response.data);
+    } catch {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Ignore errors — clear state regardless
+    } finally {
+      setUser(null);
+      setAccessToken(null);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, isLoading, setUser, refetch: fetchUser, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}

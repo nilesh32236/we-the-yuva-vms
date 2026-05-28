@@ -1,0 +1,43 @@
+'use client';
+
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+interface HoursBarChartProps {
+  data: { month: string; hours: number }[];
+}
+
+export function HoursBarChart({ data }: HoursBarChartProps) {
+  if (!data.length)
+    return <p className="text-center text-brand-muted text-sm py-8">No data available</p>;
+
+  return (
+    <div>
+      <ResponsiveContainer width="100%" height={240} aria-label="Hours served by month bar chart">
+        <BarChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#d1fae5" />
+          <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} />
+          <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} />
+          <Tooltip />
+          <Bar dataKey="hours" fill="#059669" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+      <table className="sr-only">
+        <caption>Hours served by month</caption>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((d) => (
+            <tr key={d.month}>
+              <td>{d.month}</td>
+              <td>{d.hours}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

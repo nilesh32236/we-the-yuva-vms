@@ -1,0 +1,77 @@
+import axios from 'axios';
+
+export const api = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1`,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export async function downloadCsv(url: string, filename = 'export.csv') {
+  const res = await api.get(url, { responseType: 'blob' });
+  const blob = new Blob([res.data], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+// In-memory token — set immediately after login so next request has it
+let memoryToken: string | null = null;
+
+export function setAccessToken(token: string | null) {
+  memoryToken = token;
+}
+
+// Read access_token: memory first, then cookie fallback
+function getAccessToken(): string | null {
+  if (memoryToken) return memoryToken;
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)access_token=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+// Request interceptor — attach Bearer token
+api.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// Response interceptor — auto-refresh on 401
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+      originalRequest._retry = true;
+
+      try {
+        const { data } = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        if (data.accessToken) {
+          setAccessToken(data.accessToken);
+          if (typeof document !== 'undefined') {
+            const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
+          }
+          originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        }
+        return api(originalRequest);
+      } catch {
+        return Promise.reject(error);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
