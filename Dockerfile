@@ -27,4 +27,4 @@ RUN corepack enable && corepack prepare pnpm@9.0.0 --activate \
  && npx --yes prisma@5.22.0 generate
 ENV REDIS_URL=redis://127.0.0.1:6379
 EXPOSE 4000
-CMD ["sh", "-c", "redis-server --daemonize yes && sleep 1 && npx --yes prisma@5.22.0 db push --skip-generate && npx --yes tsx prisma/seed.ts && exec node dist/index.js"]
+CMD ["sh", "-c", "redis-server --daemonize yes && sleep 1 && npx --yes prisma@5.22.0 db push --accept-data-loss --skip-generate && npx --yes tsx prisma/seed.ts && exec node dist/index.js"]
