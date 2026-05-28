@@ -1,0 +1,208 @@
+import type { NextFunction, Request, Response } from 'express';
+import {
+  cancelEvent,
+  checkIn,
+  checkOut,
+  createEvent,
+  exportEventsCsv,
+  getAttendanceList,
+  getEventById,
+  getMyEvents,
+  getOrCreateEventQrToken,
+  listAllEvents,
+  listEventsByOpportunity,
+  markAttendance,
+  updateEvent,
+} from './events.service';
+
+// ─── Event Handlers ───────────────────────────────────────────────
+
+export async function createEventHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const event = await createEvent(
+      req.params.opportunityId,
+      req.user!.id,
+      req.user!.role,
+      req.body
+    );
+    res.status(201).json(event);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listEventsByOpportunityHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const events = await listEventsByOpportunity(req.params.opportunityId);
+    res.status(200).json(events);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listAllEventsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const result = await listAllEvents({ page, limit });
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getEventHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const event = await getEventById(req.params.id);
+    res.status(200).json(event);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateEventHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const event = await updateEvent(req.params.id, req.user!.id, req.user!.role, req.body);
+    res.status(200).json(event);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function cancelEventHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await cancelEvent(req.params.id, req.user!.id, req.user!.role);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ─── QR Code Handlers ────────────────────────────────────────────
+
+export async function getEventQrCodeHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const qrData = await getOrCreateEventQrToken(req.params.id);
+    res.status(200).json(qrData);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ─── Attendance Handlers ──────────────────────────────────────────
+
+export async function markAttendanceHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const count = await markAttendance(req.params.id, req.body.attendances);
+    res.status(200).json({ attended: count });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getAttendanceListHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const list = await getAttendanceList(req.params.id);
+    res.status(200).json(list);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ─── Volunteer "My Events" Handler ───────────────────────────────
+
+export async function getMyEventsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const events = await getMyEvents(req.user!.id);
+    res.status(200).json(events);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function checkInHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { lat, lng, qrToken } = req.body;
+    const location =
+      lat != null && lng != null ? { lat: Number(lat), lng: Number(lng) } : undefined;
+    const record = await checkIn(req.params.id, req.user!.id, location, qrToken);
+    res.status(200).json(record);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function checkOutHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { lat, lng } = req.body;
+    const location =
+      lat != null && lng != null ? { lat: Number(lat), lng: Number(lng) } : undefined;
+    const record = await checkOut(req.params.id, req.user!.id, location);
+    res.status(200).json(record);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function exportEventsCsvHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const csv = await exportEventsCsv();
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="events-export.csv"');
+    res.status(200).send(csv);
+  } catch (err) {
+    next(err);
+  }
+}
