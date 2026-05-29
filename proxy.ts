@@ -11,7 +11,7 @@ const ROLE_ROUTES: Record<string, string> = {
   OBSERVER: '/observer',
 };
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Skip middleware for static assets
