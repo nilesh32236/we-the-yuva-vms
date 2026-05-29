@@ -69,6 +69,18 @@ export async function getNotifications(userId: string, page = 1, limit = 20) {
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
+export async function getNotification(userId: string, notificationId: string) {
+  const n = await prisma.notification.findFirst({ where: { id: notificationId, userId } });
+  if (!n) throw new AppError('Notification not found', 404);
+  return n;
+}
+
+export async function deleteNotification(userId: string, notificationId: string) {
+  const n = await prisma.notification.findFirst({ where: { id: notificationId, userId } });
+  if (!n) throw new AppError('Notification not found', 404);
+  return prisma.notification.delete({ where: { id: notificationId } });
+}
+
 export async function markRead(userId: string, notificationId: string) {
   const n = await prisma.notification.findFirst({ where: { id: notificationId, userId } });
   if (!n) throw new AppError('Notification not found', 404);

@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { ConsentSchema, RegisterSchema, SendOtpSchema, VerifyOtpSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -12,6 +13,9 @@ import {
 } from './auth.controller';
 
 export const authRouter: IRouter = Router();
+
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
+authRouter.use(authLimiter);
 
 // Public routes
 /**

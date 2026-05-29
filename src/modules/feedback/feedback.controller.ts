@@ -12,8 +12,28 @@ export async function submitFeedbackHandler(req: Request, res: Response, next: N
 
 export async function getMyFeedbackHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const result = await service.getMyFeedback(req.user!.id);
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const result = await service.getMyFeedback(req.user!.id, { page, limit });
     res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateFeedbackHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await service.updateFeedback(req.params.eventId, req.user!.id, req.body);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteFeedbackHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    await service.deleteFeedback(req.params.eventId, req.user!.id);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

@@ -8,7 +8,7 @@ export async function createUserHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const user = await createUser(req.body);
+    const user = await createUser(req.user!.id, req.body);
     res.status(201).json(user);
   } catch (err) {
     next(err);

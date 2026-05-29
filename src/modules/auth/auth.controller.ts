@@ -1,4 +1,6 @@
+import crypto from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
+import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import {
@@ -91,6 +93,8 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
     const refreshToken = signRefreshToken(user.id);
     await storeRefreshToken(user.id, refreshToken);
 
+    await logAudit({ userId: user.id, action: 'LOGIN' });
+
     // Set cookies
     res.cookie('access_token', accessToken, ACCESS_COOKIE_OPTIONS);
     res.cookie('refresh_token', refreshToken, REFRESH_COOKIE_OPTIONS);
@@ -135,6 +139,11 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
     const refreshToken = req.cookies?.refresh_token;
     if (refreshToken) {
+      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+      const record = await prisma.refreshToken.findUnique({ where: { tokenHash } });
+      if (record) {
+        await logAudit({ userId: record.userId, action: 'LOGOUT' });
+      }
       await revokeRefreshToken(refreshToken);
     }
 

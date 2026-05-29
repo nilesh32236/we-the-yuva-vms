@@ -1,5 +1,5 @@
 import { type IRouter, Router } from 'express';
-import { StaffProfileSchema, VolunteerProfileSchema } from '@/shared';
+import { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requireRole } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -11,6 +11,7 @@ import {
   getCoordinatorVolunteersHandler,
   getMeHandler,
   getUserProfileHandler,
+  updateMeHandler,
   updateStaffProfile,
   updateVolunteerProfile,
 } from './users.controller';
@@ -32,6 +33,19 @@ usersRouter.use(requireAuth);
  *         description: Current user profile retrieved
  */
 usersRouter.get('/me', getMeHandler);
+
+/**
+ * @openapi
+ * /users/me:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Update current user's name/email
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: User updated
+ */
+usersRouter.patch('/me', requireAuth, validate(UpdateMeSchema), updateMeHandler);
 
 /**
  * @openapi

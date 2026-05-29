@@ -14,6 +14,7 @@ import {
   recommendedHandler,
   updateApplicationStatusHandler,
   updateOpportunityHandler,
+  withdrawApplicationHandler,
 } from './opportunities.controller';
 
 export const opportunitiesRouter: IRouter = Router();
@@ -88,6 +89,31 @@ opportunitiesRouter.get(
   requireAuth,
   requireRole('VOLUNTEER'),
   listMyApplicationsHandler
+);
+
+/**
+ * @openapi
+ * /applications/{id}:
+ *   delete:
+ *     tags: [Opportunities]
+ *     summary: Withdraw a pending application
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Application ID
+ *     responses:
+ *       204:
+ *         description: Application withdrawn
+ */
+opportunitiesRouter.delete(
+  '/applications/:id',
+  requireAuth,
+  requireRole('VOLUNTEER'),
+  withdrawApplicationHandler
 );
 
 /**

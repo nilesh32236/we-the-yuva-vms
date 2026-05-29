@@ -30,6 +30,24 @@ export async function listNotificationsHandler(req: Request, res: Response, next
   }
 }
 
+export async function getNotificationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await service.getNotification(req.user!.id, req.params.id);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteNotificationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    await service.deleteNotification(req.user!.id, req.params.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function markReadHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.markRead(req.user!.id, req.params.id);

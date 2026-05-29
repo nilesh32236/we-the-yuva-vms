@@ -1,3 +1,4 @@
+import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -63,12 +64,14 @@ export async function deleteStory(id: string, userId: string, callerRole: string
   return prisma.story.delete({ where: { id } });
 }
 
-export async function moderateStory(id: string, callerRole: string, published: boolean) {
+export async function moderateStory(id: string, adminId: string, callerRole: string, published: boolean) {
   if (callerRole !== 'ADMIN')
     throw new AppError('Forbidden: only admins can moderate stories', 403);
   const story = await prisma.story.findUnique({ where: { id } });
   if (!story) throw new AppError('Story not found', 404);
-  return prisma.story.update({ where: { id }, data: { published } });
+  const updated = await prisma.story.update({ where: { id }, data: { published } });
+  await logAudit({ userId: adminId, action: 'SYSTEM', targetId: id, targetType: 'Story', metadata: { action: published ? 'publish' : 'unpublish', published: String(published) } });
+  return updated;
 }
 
 export async function listAllStories(page = 1, limit = 50) {

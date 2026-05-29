@@ -1,13 +1,15 @@
 import { type IRouter, Router } from 'express';
-import { FeedbackSchema } from '@/shared';
+import { FeedbackSchema, UpdateFeedbackSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requireRole } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import {
+  deleteFeedbackHandler,
   getEventFeedbackHandler,
   getEventFeedbackSummaryHandler,
   getMyFeedbackHandler,
   submitFeedbackHandler,
+  updateFeedbackHandler,
 } from './feedback.controller';
 
 export const feedbackRouter: IRouter = Router();
@@ -36,6 +38,43 @@ feedbackRouter.post(
   requireRole('VOLUNTEER'),
   validate(FeedbackSchema),
   submitFeedbackHandler
+);
+
+/**
+ * @openapi
+ * /feedback/events/{eventId}:
+ *   patch:
+ *     tags: [Feedback]
+ *     summary: Update own feedback (Volunteer)
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Feedback updated
+ */
+feedbackRouter.patch(
+  '/events/:eventId',
+  requireAuth,
+  requireRole('VOLUNTEER'),
+  validate(UpdateFeedbackSchema),
+  updateFeedbackHandler
+);
+
+/**
+ * @openapi
+ * /feedback/events/{eventId}:
+ *   delete:
+ *     tags: [Feedback]
+ *     summary: Delete own feedback (Volunteer)
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       204:
+ *         description: Feedback deleted
+ */
+feedbackRouter.delete(
+  '/events/:eventId',
+  requireAuth,
+  requireRole('VOLUNTEER'),
+  deleteFeedbackHandler
 );
 
 /**

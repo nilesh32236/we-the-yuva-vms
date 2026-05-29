@@ -118,6 +118,7 @@ model User {
   profile       VolunteerProfile?
   refreshTokens RefreshToken[]
   consent       ConsentRecord?
+  staffProfile  StaffProfile?
 
   createdOpportunities Opportunity[] @relation("CreatedOpportunities")
   applications         Application[] @relation("VolunteerApplications")
@@ -146,6 +147,16 @@ model VolunteerProfile {
   avatarUrl    String?
   totalHours   Float    @default(0)
   updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model StaffProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  department  String?
+  designation String?
+  updatedAt   DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

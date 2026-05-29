@@ -10,6 +10,7 @@ import {
   listOpportunities,
   updateApplicationStatus,
   updateOpportunity,
+  withdrawApplication,
 } from './opportunities.service';
 
 // ─── Opportunity Handlers ─────────────────────────────────────────
@@ -130,7 +131,9 @@ export async function listApplicationsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const applications = await listApplications(req.params.id);
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const applications = await listApplications(req.params.id, { page, limit });
     res.status(200).json(applications);
   } catch (err) {
     next(err);
@@ -150,6 +153,19 @@ export async function updateApplicationStatusHandler(
       req.user!.role
     );
     res.status(200).json(application);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function withdrawApplicationHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await withdrawApplication(req.params.id, req.user!.id);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

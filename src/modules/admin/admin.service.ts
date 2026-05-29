@@ -14,7 +14,7 @@ interface Pagination {
   limit: number;
 }
 
-export async function createUser(data: {
+export async function createUser(adminId: string, data: {
   name: string;
   email: string;
   role: string;
@@ -36,7 +36,7 @@ export async function createUser(data: {
     locationId = loc.id;
   }
 
-  return prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
@@ -51,6 +51,10 @@ export async function createUser(data: {
       }),
     },
   });
+
+  await logAudit({ userId: adminId, action: 'USER_CREATE', targetId: user.id, targetType: 'User', metadata: { role: data.role } });
+
+  return user;
 }
 
 export async function listUsers(filters: ListUsersFilters, pagination: Pagination) {
@@ -111,19 +115,19 @@ export async function updateUser(
     },
   });
 
-  // Audit log
-  const changes: Record<string, string> = {};
-  if (data.status && data.status !== existing.status)
-    changes.status = `${existing.status} → ${data.status}`;
-  if (data.role && data.role !== existing.role) changes.role = `${existing.role} → ${data.role}`;
-  if (Object.keys(changes).length > 0 && adminId) {
-    await logAudit({
-      userId: adminId,
-      action: 'USER_UPDATE',
-      targetId: id,
-      targetType: 'User',
-      metadata: changes,
-    });
+  if (adminId) {
+    const changes: Record<string, string> = {};
+    if (data.status && data.status !== existing.status)
+      changes.status = `${existing.status} → ${data.status}`;
+    if (data.role && data.role !== existing.role) changes.role = `${existing.role} → ${data.role}`;
+
+    if (data.status === 'SUSPENDED' && existing.status !== 'SUSPENDED') {
+      await logAudit({ userId: adminId, action: 'USER_SUSPEND', targetId: id, targetType: 'User', metadata: changes });
+    } else if (data.role && data.role !== existing.role) {
+      await logAudit({ userId: adminId, action: 'USER_CHANGE_ROLE', targetId: id, targetType: 'User', metadata: changes });
+    } else if (Object.keys(changes).length > 0) {
+      await logAudit({ userId: adminId, action: 'USER_UPDATE', targetId: id, targetType: 'User', metadata: changes });
+    }
   }
 
   if (data.status === 'SUSPENDED') {

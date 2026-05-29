@@ -10,7 +10,7 @@ import type {
   SendOtpSchema,
   VerifyOtpSchema,
 } from '../schemas/auth.schemas';
-import type { FeedbackSchema } from '../schemas/feedback.schemas';
+import type { FeedbackSchema, UpdateFeedbackSchema } from '../schemas/feedback.schemas';
 import type {
   NotificationPreferenceSchema,
   PushSubscriptionSchema,
@@ -24,7 +24,13 @@ import type {
   EventSchema,
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
-import type { StaffProfileSchema, VolunteerProfileSchema } from '../schemas/profile.schemas';
+import type { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema } from '../schemas/profile.schemas';
+import type {
+  CreateCourseSchema,
+  CreateLessonSchema,
+  UpdateCourseSchema,
+  UpdateLessonSchema,
+} from '../schemas/training.schemas';
 import type {
   CreateStorySchema,
   ModerateStorySchema,
@@ -37,6 +43,7 @@ export type VerifyOtpInput = z.infer<typeof VerifyOtpSchema>;
 export type ConsentInput = z.infer<typeof ConsentSchema>;
 export type VolunteerProfileInput = z.infer<typeof VolunteerProfileSchema>;
 export type StaffProfileInput = z.infer<typeof StaffProfileSchema>;
+export type UpdateMeInput = z.infer<typeof UpdateMeSchema>;
 export type OpportunityInput = z.infer<typeof OpportunitySchema>;
 export type EventInput = z.infer<typeof EventSchema>;
 export type ApplicationStatusInput = z.infer<typeof ApplicationStatusSchema>;
@@ -47,6 +54,7 @@ export type CreateStoryInput = z.infer<typeof CreateStorySchema>;
 export type UpdateStoryInput = z.infer<typeof UpdateStorySchema>;
 export type ModerateStoryInput = z.infer<typeof ModerateStorySchema>;
 export type FeedbackInput = z.infer<typeof FeedbackSchema>;
+export type UpdateFeedbackInput = z.infer<typeof UpdateFeedbackSchema>;
 export type PushSubscriptionInput = z.infer<typeof PushSubscriptionSchema>;
 export type PushUnsubscribeInput = z.infer<typeof PushUnsubscribeSchema>;
 export type NotificationPreferenceInput = z.infer<typeof NotificationPreferenceSchema>;
@@ -54,6 +62,10 @@ export type AlertSubscriptionInput = z.infer<typeof AlertSubscriptionSchema>;
 export type AlertSubscriptionUpdateInput = z.infer<typeof AlertSubscriptionUpdateSchema>;
 export type CheckInInput = z.infer<typeof CheckInSchema>;
 export type CheckOutInput = z.infer<typeof CheckOutSchema>;
+export type CreateCourseInput = z.infer<typeof CreateCourseSchema>;
+export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
+export type CreateLessonInput = z.infer<typeof CreateLessonSchema>;
+export type UpdateLessonInput = z.infer<typeof UpdateLessonSchema>;
 
 export type UserRole = 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';

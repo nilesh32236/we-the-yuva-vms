@@ -1,4 +1,5 @@
 import type { OpportunityInput } from '@/shared';
+import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { redis } from '../../lib/redis';
@@ -37,6 +38,8 @@ export async function createOpportunity(coordinatorId: string, data: Opportunity
   });
 
   await invalidateListCache();
+
+  await logAudit({ userId: coordinatorId, action: 'OPPORTUNITY_CREATE', targetId: opportunity.id, targetType: 'Opportunity' });
 
   await notificationsQueue
     .add('match-alert-subscriptions', { opportunityId: opportunity.id })
@@ -160,6 +163,8 @@ export async function updateOpportunity(
     },
   });
 
+  await logAudit({ userId: callerId, action: 'OPPORTUNITY_UPDATE', targetId: id, targetType: 'Opportunity' });
+
   await invalidateListCache();
   return updated;
 }
@@ -179,6 +184,8 @@ export async function closeOpportunity(id: string, callerId: string, callerRole:
     where: { id },
     data: { status: 'CLOSED' },
   });
+
+  await logAudit({ userId: callerId, action: 'OPPORTUNITY_DELETE', targetId: id, targetType: 'Opportunity', metadata: { status: 'CLOSED' } });
 
   await invalidateListCache();
   return closed;
@@ -215,6 +222,7 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
             status: 'PENDING',
           },
         });
+        await logAudit({ userId: volunteerId, action: 'APPLICATION_CREATE', targetId: application.id, targetType: 'Application', metadata: { opportunityId } });
         return application;
       } catch (err: unknown) {
         if ((err as { code?: string })?.code === 'P2002') {
@@ -235,20 +243,37 @@ export async function listMyApplications(volunteerId: string) {
   });
 }
 
-export async function listApplications(opportunityId: string) {
-  return prisma.application.findMany({
-    where: { opportunityId },
-    include: {
-      volunteer: {
-        select: {
-          name: true,
-          email: true,
-          profile: { select: { skills: true } },
+export async function listApplications(opportunityId: string, pagination: { page: number; limit: number }) {
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const where = { opportunityId };
+  const [data, total] = await Promise.all([
+    prisma.application.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        volunteer: {
+          select: {
+            name: true,
+            email: true,
+            profile: { select: { skills: true } },
+          },
         },
       },
-    },
-    orderBy: { appliedAt: 'desc' },
-  });
+      orderBy: { appliedAt: 'desc' },
+    }),
+    prisma.application.count({ where }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+}
+
+export async function withdrawApplication(applicationId: string, userId: string) {
+  const application = await prisma.application.findUnique({ where: { id: applicationId } });
+  if (!application) throw new AppError('Application not found', 404);
+  if (application.volunteerId !== userId) throw new AppError('Forbidden', 403);
+  if (application.status !== 'PENDING') throw new AppError('Only pending applications can be withdrawn', 400);
+  return prisma.application.delete({ where: { id: applicationId } });
 }
 
 export async function updateApplicationStatus(
@@ -274,6 +299,8 @@ export async function updateApplicationStatus(
     where: { id: applicationId },
     data: { status },
   });
+
+  await logAudit({ userId: callerId, action: 'APPLICATION_UPDATE', targetId: applicationId, targetType: 'Application', metadata: { status } });
 
   // Enqueue notification
   await notificationsQueue.add(`application-${status.toLowerCase()}`, {

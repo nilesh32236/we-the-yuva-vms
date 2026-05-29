@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import type { EventInput } from '@/shared';
+import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
@@ -35,6 +36,8 @@ export async function createEvent(
       qrExpiresAt: new Date(eventDate.getTime() + 24 * 60 * 60 * 1000),
     },
   });
+
+  await logAudit({ userId: coordinatorId, action: 'EVENT_CREATE', targetId: event.id, targetType: 'Event', metadata: { opportunityId } });
 
   // Enqueue event-invitation jobs for all ACCEPTED volunteers
   const acceptedApplications = await prisma.application.findMany({
@@ -130,13 +133,17 @@ export async function updateEvent(
     throw new AppError('Forbidden', 403);
   }
 
-  return prisma.event.update({
+  const updated = await prisma.event.update({
     where: { id },
     data: {
       ...data,
       eventDate: new Date(data.eventDate),
     },
   });
+
+  await logAudit({ userId: callerId, action: 'EVENT_UPDATE', targetId: id, targetType: 'Event' });
+
+  return updated;
 }
 
 export async function cancelEvent(id: string, callerId: string, callerRole: string) {
@@ -153,10 +160,14 @@ export async function cancelEvent(id: string, callerId: string, callerRole: stri
     throw new AppError('Forbidden', 403);
   }
 
-  return prisma.event.update({
+  const cancelled = await prisma.event.update({
     where: { id },
     data: { status: 'CANCELLED' },
   });
+
+  await logAudit({ userId: callerId, action: 'EVENT_DELETE', targetId: id, targetType: 'Event', metadata: { status: 'CANCELLED' } });
+
+  return cancelled;
 }
 
 // ─── Attendance ───────────────────────────────────────────────────
@@ -237,32 +248,50 @@ export async function markAttendance(
   return prisma.attendance.count({ where: { eventId, attended: true } });
 }
 
-export async function getAttendanceList(eventId: string) {
-  return prisma.attendance.findMany({
-    where: { eventId },
-    include: {
-      volunteer: { select: { name: true, email: true } },
-    },
-    orderBy: { volunteer: { name: 'asc' } },
-  });
+export async function getAttendanceList(eventId: string, pagination: { page: number; limit: number }) {
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const where = { eventId };
+  const [data, total] = await Promise.all([
+    prisma.attendance.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        volunteer: { select: { name: true, email: true } },
+      },
+      orderBy: { volunteer: { name: 'asc' } },
+    }),
+    prisma.attendance.count({ where }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function getMyEvents(volunteerId: string) {
-  return prisma.event.findMany({
-    where: {
-      opportunity: {
-        applications: {
-          some: { volunteerId, status: 'ACCEPTED' },
-        },
+export async function getMyEvents(volunteerId: string, pagination: { page: number; limit: number }) {
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const where = {
+    opportunity: {
+      applications: {
+        some: { volunteerId, status: 'ACCEPTED' },
       },
-      status: { not: 'CANCELLED' },
     },
-    include: {
-      opportunity: { select: { title: true } },
-      attendances: { where: { volunteerId } },
-    },
-    orderBy: { eventDate: 'asc' },
-  });
+    status: { not: 'CANCELLED' },
+  };
+  const [data, total] = await Promise.all([
+    prisma.event.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        opportunity: { select: { title: true } },
+        attendances: { where: { volunteerId } },
+      },
+      orderBy: { eventDate: 'asc' },
+    }),
+    prisma.event.count({ where }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 // ─── QR Code ──────────────────────────────────────────────────────

@@ -7,6 +7,8 @@ import {
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import {
+  deleteNotificationHandler,
+  getNotificationHandler,
   listNotificationsHandler,
   markAllReadHandler,
   markReadHandler,
@@ -99,6 +101,32 @@ notificationsRouter.get('/unread-count', requireAuth, unreadCountHandler);
  *         description: Notification marked as read
  */
 notificationsRouter.post('/:id/read', requireAuth, markReadHandler);
+
+/**
+ * @openapi
+ * /notifications/{id}:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: Get a single notification
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Notification details
+ */
+notificationsRouter.get('/:id', requireAuth, getNotificationHandler);
+
+/**
+ * @openapi
+ * /notifications/{id}:
+ *   delete:
+ *     tags: [Notifications]
+ *     summary: Delete a notification
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       204:
+ *         description: Notification deleted
+ */
+notificationsRouter.delete('/:id', requireAuth, deleteNotificationHandler);
 
 /**
  * @openapi

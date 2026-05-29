@@ -4,6 +4,7 @@ import {
   getCoordinatorVolunteers,
   getMe,
   getUserProfile,
+  updateUser,
   upsertStaffProfile,
   upsertVolunteerProfile,
 } from './users.service';
@@ -11,6 +12,15 @@ import {
 export async function getMeHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const user = await getMe(req.user!.id);
+    res.status(200).json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateMeHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await updateUser(req.user!.id, req.body);
     res.status(200).json(user);
   } catch (err) {
     next(err);

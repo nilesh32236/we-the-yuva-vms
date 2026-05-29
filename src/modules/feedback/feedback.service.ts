@@ -34,18 +34,52 @@ export async function submitFeedback(
   });
 }
 
-export async function getMyFeedback(volunteerId: string) {
-  return prisma.eventFeedback.findMany({
-    where: { volunteerId },
-    orderBy: { createdAt: 'desc' },
-    include: { event: { select: { title: true, eventDate: true } } },
-  });
+export async function getMyFeedback(volunteerId: string, pagination: { page: number; limit: number }) {
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const where = { volunteerId };
+  const [data, total] = await Promise.all([
+    prisma.eventFeedback.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: { event: { select: { title: true, eventDate: true } } },
+    }),
+    prisma.eventFeedback.count({ where }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function getEventFeedback(eventId: string) {
   return prisma.eventFeedback.findMany({
     where: { eventId },
     include: { volunteer: { select: { name: true } } },
+  });
+}
+
+export async function updateFeedback(
+  eventId: string,
+  volunteerId: string,
+  data: { rating?: number; comments?: string; learnings?: string; confidenceLevel?: number }
+) {
+  const existing = await prisma.eventFeedback.findUnique({
+    where: { eventId_volunteerId: { eventId, volunteerId } },
+  });
+  if (!existing) throw new AppError('Feedback not found', 404);
+  return prisma.eventFeedback.update({
+    where: { eventId_volunteerId: { eventId, volunteerId } },
+    data,
+  });
+}
+
+export async function deleteFeedback(eventId: string, volunteerId: string) {
+  const existing = await prisma.eventFeedback.findUnique({
+    where: { eventId_volunteerId: { eventId, volunteerId } },
+  });
+  if (!existing) throw new AppError('Feedback not found', 404);
+  return prisma.eventFeedback.delete({
+    where: { eventId_volunteerId: { eventId, volunteerId } },
   });
 }
 

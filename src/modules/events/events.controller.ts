@@ -138,7 +138,9 @@ export async function getAttendanceListHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const list = await getAttendanceList(req.params.id);
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const list = await getAttendanceList(req.params.id, { page, limit });
     res.status(200).json(list);
   } catch (err) {
     next(err);
@@ -153,7 +155,9 @@ export async function getMyEventsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const events = await getMyEvents(req.user!.id);
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const events = await getMyEvents(req.user!.id, { page, limit });
     res.status(200).json(events);
   } catch (err) {
     next(err);

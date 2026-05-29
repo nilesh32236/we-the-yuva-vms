@@ -1,5 +1,42 @@
+import type { CreateCourseInput, CreateLessonInput, UpdateCourseInput, UpdateLessonInput } from '@/shared';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
+
+export async function createCourse(data: CreateCourseInput) {
+  return prisma.course.create({ data });
+}
+
+export async function updateCourse(id: string, data: UpdateCourseInput) {
+  const course = await prisma.course.findUnique({ where: { id } });
+  if (!course) throw new AppError('Course not found', 404);
+  return prisma.course.update({ where: { id }, data });
+}
+
+export async function deleteCourse(id: string) {
+  const course = await prisma.course.findUnique({ where: { id } });
+  if (!course) throw new AppError('Course not found', 404);
+  return prisma.course.delete({ where: { id } });
+}
+
+export async function createLesson(courseId: string, data: CreateLessonInput) {
+  const course = await prisma.course.findUnique({ where: { id: courseId } });
+  if (!course) throw new AppError('Course not found', 404);
+  return prisma.lesson.create({ data: { ...data, courseId } });
+}
+
+export async function updateLesson(courseId: string, id: string, data: UpdateLessonInput) {
+  const lesson = await prisma.lesson.findUnique({ where: { id } });
+  if (!lesson) throw new AppError('Lesson not found', 404);
+  if (lesson.courseId !== courseId) throw new AppError('Lesson does not belong to this course', 400);
+  return prisma.lesson.update({ where: { id }, data });
+}
+
+export async function deleteLesson(courseId: string, id: string) {
+  const lesson = await prisma.lesson.findUnique({ where: { id } });
+  if (!lesson) throw new AppError('Lesson not found', 404);
+  if (lesson.courseId !== courseId) throw new AppError('Lesson does not belong to this course', 400);
+  return prisma.lesson.delete({ where: { id } });
+}
 
 export async function listCourses(userId: string) {
   const courses = await prisma.course.findMany({

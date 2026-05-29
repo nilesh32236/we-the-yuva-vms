@@ -142,11 +142,23 @@ export async function upsertVolunteerProfile(userId: string, data: VolunteerProf
   });
 }
 
+export async function updateUser(userId: string, data: { name?: string; email?: string }) {
+  if (data.email) {
+    const existing = await prisma.user.findUnique({ where: { email: data.email } });
+    if (existing && existing.id !== userId) {
+      throw new AppError('Email already in use', 409);
+    }
+  }
+  return prisma.user.update({
+    where: { id: userId },
+    data,
+    include: { profile: true, location: true },
+  });
+}
+
 export async function upsertStaffProfile(userId: string, data: StaffProfileInput) {
-  // Find or create location
   const location = await prisma.location.upsert({
     where: {
-      // Use a composite-like approach: find by name+district+state
       id: `loc-${data.locationName.toLowerCase().replace(/\s+/g, '-')}-${(data.district ?? '').toLowerCase()}-${(data.state ?? '').toLowerCase()}`,
     },
     update: {},
@@ -158,10 +170,26 @@ export async function upsertStaffProfile(userId: string, data: StaffProfileInput
     },
   });
 
-  // Associate user with location
-  return prisma.user.update({
+  await prisma.user.update({
     where: { id: userId },
     data: { locationId: location.id },
-    include: { location: true },
+  });
+
+  await prisma.staffProfile.upsert({
+    where: { userId },
+    create: {
+      userId,
+      department: data.department,
+      designation: data.designation,
+    },
+    update: {
+      department: data.department,
+      designation: data.designation,
+    },
+  });
+
+  return prisma.user.findUnique({
+    where: { id: userId },
+    include: { location: true, staffProfile: true },
   });
 }

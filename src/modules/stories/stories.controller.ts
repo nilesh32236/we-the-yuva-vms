@@ -50,7 +50,7 @@ export async function deleteStoryHandler(req: Request, res: Response, next: Next
 
 export async function moderateStoryHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const story = await service.moderateStory(req.params.id, req.user!.role, req.body.published);
+    const story = await service.moderateStory(req.params.id, req.user!.id, req.user!.role, req.body.published);
     res.json(story);
   } catch (err) {
     next(err);
