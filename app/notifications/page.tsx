@@ -51,6 +51,7 @@ export default function NotificationsPage() {
   const { data, isLoading } = useQuery<NotifResponse>({
     queryKey: ['notifications', 'list'],
     queryFn: () => api.get('/notifications?limit=50').then((r) => r.data),
+    staleTime: 30_000,
   });
 
   const { data: unreadData } = useQuery({
@@ -120,7 +121,7 @@ export default function NotificationsPage() {
                 <div
                   className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}
                 >
-                  <Icon className={`w-4.5 h-4.5 ${!n.read ? 'text-white' : 'text-brand-muted'}`} />
+                  <Icon className={`w-4 h-4 ${!n.read ? 'text-white' : 'text-brand-muted'}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p

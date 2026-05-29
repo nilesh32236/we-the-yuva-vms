@@ -42,6 +42,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+let refreshPromise: Promise<any> | null = null;
+
 // Response interceptor — auto-refresh on 401
 api.interceptors.response.use(
   (response) => response,
@@ -53,11 +55,14 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
+        if (!refreshPromise) {
+          refreshPromise = axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
+            {},
+            { withCredentials: true }
+          ).then(r => r.data).finally(() => { refreshPromise = null; });
+        }
+        const data = await refreshPromise;
         if (data.accessToken) {
           setAccessToken(data.accessToken);
           if (typeof document !== 'undefined') {

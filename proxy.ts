@@ -1,7 +1,7 @@
 import { jwtVerify } from 'jose';
 import { type NextRequest, NextResponse } from 'next/server';
 
-const PUBLIC_ROUTES = ['/', '/login', '/register', '/verify-otp', '/offline', '/scan', '/notifications'];
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/verify-otp', '/offline', '/scan', '/notifications', '/consent', '/setup-profile'];
 const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
 
 const ROLE_ROUTES: Record<string, string> = {
@@ -71,6 +71,6 @@ export async function proxy(req: NextRequest) {
 export const config = {
   // Exclude: Next.js internals, static files, PWA assets (sw.js, workbox, manifest, icons)
   matcher: [
-    '/((?!api|_next/static|_next/image|icons|manifest\\.json|sw\\.js|workbox-.*|.*\\.png$|.*\\.ico$|.*\\.webmanifest$).*)',
+    '/((?!api|_next/static|_next/image|icons|manifest\\.json|sw\\.js|workbox-.*|.*\\.png$|.*\\.svg$|.*\\.ico$|.*\\.webmanifest$).*)',
   ],
 };

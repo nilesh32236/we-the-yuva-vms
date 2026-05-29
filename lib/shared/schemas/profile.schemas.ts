@@ -24,4 +24,11 @@ export const StaffProfileSchema = z.object({
   locationName: z.string().min(1, 'Location name is required').max(100, 'Location name too long'),
   district: z.string().max(100, 'District name too long').optional(),
   state: z.string().max(100, 'State name too long').optional(),
+  department: z.string().max(100).optional(),
+  designation: z.string().max(100).optional(),
+});
+
+export const UpdateMeSchema = z.object({
+  name: z.string().min(2).max(100).optional(),
+  email: z.string().email().optional(),
 });

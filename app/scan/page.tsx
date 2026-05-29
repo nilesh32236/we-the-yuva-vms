@@ -3,17 +3,15 @@
 import { useMutation } from '@tanstack/react-query';
 import { Camera, CheckCircle, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 
 function ScanInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [scanning, setScanning] = useState(false);
+  const [manualToken, setManualToken] = useState('');
   const [result, setResult] = useState<'success' | 'error' | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
-  const streamRef = useRef<MediaStream | null>(null);
 
   const token = searchParams.get('token');
   const eventId = searchParams.get('eventId');
@@ -23,44 +21,27 @@ function ScanInner() {
       api.post(`/events/${eventId}/checkin`, { qrToken }).then((r) => r.data),
     onSuccess: () => {
       setResult('success');
-      stopCamera();
       setTimeout(() => router.push('/volunteer/events'), 2000);
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {
       setResult('error');
       setErrorMsg(err.response?.data?.error ?? 'Check-in failed');
-      stopCamera();
     },
   });
 
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setScanning(true);
-    } catch {
-      setErrorMsg('Camera access denied. Please allow camera permissions.');
+  const handleManualSubmit = () => {
+    if (!manualToken.trim()) {
+      setErrorMsg('Please enter a check-in code');
+      return;
     }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
-    }
-    setScanning(false);
+    setErrorMsg('');
+    checkinMutation.mutate(manualToken.trim());
   };
 
   useEffect(() => {
     if (token && eventId) {
       checkinMutation.mutate(token);
     }
-    return () => stopCamera();
   }, []);
 
   if (token && eventId) {
@@ -98,41 +79,41 @@ function ScanInner() {
     <div className="max-w-md mx-auto mt-12 space-y-6">
       <div className="text-center space-y-2">
         <Camera className="w-10 h-10 text-brand-primary mx-auto" />
-        <h1 className="font-heading font-bold text-xl text-brand-text">Scan QR Code</h1>
+        <h1 className="font-heading font-bold text-xl text-brand-text">Event Check-in</h1>
         <p className="text-sm text-brand-muted">
-          Point your camera at the event QR code to check in
+          Enter the check-in code from your event QR code
         </p>
       </div>
 
-      {errorMsg && !scanning && (
+      {errorMsg && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
           {errorMsg}
         </div>
       )}
 
-      <div className="bg-black rounded-2xl overflow-hidden aspect-[3/4] flex items-center justify-center relative">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {!scanning && (
-          <button
-            onClick={startCamera}
-            className="z-10 bg-white px-6 py-3 rounded-xl font-medium text-brand-text shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-          >
-            Start Camera
-          </button>
-        )}
-        {scanning && (
-          <div className="absolute inset-0 border-[3px] border-brand-primary/60 rounded-2xl m-8" />
-        )}
+      <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="token" className="text-sm font-medium text-brand-text">
+            Check-in Code
+          </label>
+          <input
+            id="token"
+            type="text"
+            value={manualToken}
+            onChange={(e) => setManualToken(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') handleManualSubmit(); }}
+            placeholder="Paste or type the check-in code"
+            className="w-full px-4 py-3 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          />
+        </div>
+        <button
+          onClick={handleManualSubmit}
+          disabled={checkinMutation.isPending}
+          className="w-full bg-brand-primary text-white font-medium py-3 rounded-xl hover:bg-brand-secondary transition-colors disabled:opacity-60 cursor-pointer"
+        >
+          {checkinMutation.isPending ? 'Checking in...' : 'Check In'}
+        </button>
       </div>
-
-      <p className="text-xs text-brand-muted text-center">
-        Position the QR code within the frame to auto-scan
-      </p>
     </div>
   );
 }

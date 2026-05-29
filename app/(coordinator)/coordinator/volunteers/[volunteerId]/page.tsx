@@ -17,6 +17,8 @@ export default function VolunteerDetailPage({
   const { data: profile, isLoading } = useQuery({
     queryKey: ['volunteer-profile', volunteerId],
     queryFn: () => api.get(`/users/${volunteerId}/profile`).then((r) => r.data),
+    staleTime: 60_000,
+    enabled: !!volunteerId,
   });
 
   if (isLoading)

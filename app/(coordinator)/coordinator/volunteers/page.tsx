@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Download, Search } from 'lucide-react';
 import Link from 'next/link';
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api, downloadCsv } from '../../../../lib/api';
 
@@ -27,7 +27,6 @@ export default function CoordinatorVolunteersPage() {
   };
 
   return (
-    <Suspense fallback={<div className="space-y-5 max-w-5xl"><div className="space-y-3">{[1, 2, 3].map((i) => (<SkeletonCard key={i} />))}</div></div>}>
       <div className="space-y-5 max-w-5xl">
         <div className="flex items-center justify-between gap-3">
           <h1 className="font-heading font-bold text-xl text-brand-text">Volunteers</h1>
@@ -154,6 +153,5 @@ export default function CoordinatorVolunteersPage() {
           </>
         )}
       </div>
-    </Suspense>
   );
 }

@@ -32,6 +32,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
   const { data: event } = useQuery({
     queryKey: ['event', id],
     queryFn: () => api.get(`/events/${id}`).then((r) => r.data),
+    staleTime: 60_000,
   });
 
   const { data: attendance, isLoading } = useQuery({

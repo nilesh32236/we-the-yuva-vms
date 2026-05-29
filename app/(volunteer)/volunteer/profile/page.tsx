@@ -18,9 +18,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { api } from '../../../../lib/api';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useToast } from '../../../../hooks/use-toast';
 
 export default function VolunteerProfilePage() {
   const { user: authUser } = useAuth();
+  const { toast } = useToast();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [bio, setBio] = useState('');
@@ -38,6 +40,9 @@ export default function VolunteerProfilePage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['me'] });
       setEditing(false);
+    },
+    onError: (err: { response?: { data?: { error?: string } } }) => {
+      toast({ title: 'Error', description: err?.response?.data?.error || 'Failed to update profile', variant: 'destructive' });
     },
   });
 

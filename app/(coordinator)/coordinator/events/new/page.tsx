@@ -25,7 +25,10 @@ export default function NewEventPage() {
     oppData?.data?.filter((o: { status: string }) => o.status === 'ACTIVE') ?? [];
 
   const handleSubmit = async (data: EventInput) => {
-    if (!opportunityId) return;
+    if (!opportunityId) {
+      toast({ title: 'Error', description: 'Please select an opportunity first', variant: 'destructive' });
+      return;
+    }
     try {
       await api.post(`/opportunities/${opportunityId}/events`, data);
       toast({ title: 'Event created!' });

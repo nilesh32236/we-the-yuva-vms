@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { api, setAccessToken } from './api';
+import { queryClient } from './query-client';
 
 export interface AuthUser {
   id: string;
@@ -62,6 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null);
       setAccessToken(null);
+      queryClient.clear();
+      if (typeof document !== 'undefined') {
+        document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict';
+      }
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }

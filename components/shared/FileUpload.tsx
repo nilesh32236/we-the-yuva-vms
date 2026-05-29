@@ -24,6 +24,10 @@ export function FileUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      setError('Only image files are allowed');
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
       setError('File too large (max 10MB)');
       return;

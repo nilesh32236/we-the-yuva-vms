@@ -66,7 +66,12 @@ export default function TrainingPage() {
 
       {/* Course list */}
       <div className="space-y-3">
-        {(courses ?? []).map((course: TrainingCourse, idx: number) => {
+        {!courses?.length ? (
+          <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+            <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" />
+            <p className="text-brand-muted text-sm">No training courses available</p>
+          </div>
+        ) : (courses ?? []).map((course: TrainingCourse, idx: number) => {
           const isCompleted = course.progress?.completed;
           // Lock non-required courses until required ones are done
           const requiredBefore = (courses ?? [])
