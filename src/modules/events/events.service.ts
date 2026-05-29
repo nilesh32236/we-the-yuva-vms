@@ -46,13 +46,13 @@ export async function createEvent(
   });
 
   for (const { volunteerId } of acceptedApplications) {
-    await notificationsQueue.add('event-invitation', {
+    notificationsQueue?.add('event-invitation', {
       volunteerId,
       eventId: event.id,
       eventTitle: event.title,
       eventDate: event.eventDate,
       venue: event.venue ?? event.meetingLink,
-    });
+    }).catch(() => {});
   }
 
   return event;
@@ -185,7 +185,9 @@ export async function markAttendance(
   // Calculate event duration in hours from "HH:MM" strings
   const [startH, startM] = event.startTime.split(':').map(Number);
   const [endH, endM] = event.endTime.split(':').map(Number);
-  const durationHours = (endH * 60 + endM - (startH * 60 + startM)) / 60;
+  const startMins = startH * 60 + startM;
+  const endMins = endH * 60 + endM;
+  const durationHours = (endMins < startMins ? endMins + 24 * 60 - startMins : endMins - startMins) / 60;
 
   const volunteerIds = attendances.map((a) => a.volunteerId);
 
@@ -224,13 +226,16 @@ export async function markAttendance(
       })
     );
 
-    // Determine hour adjustment
-    if (!existing && attended) {
-      hourAdjustments.push({ userId: volunteerId, increment: durationHours });
-    } else if (existing?.attended && !attended) {
-      hourAdjustments.push({ userId: volunteerId, increment: -durationHours });
-    } else if (existing && !existing.attended && attended) {
-      hourAdjustments.push({ userId: volunteerId, increment: durationHours });
+    // Determine hour adjustment (skip if volunteer has self-checked-in/out to avoid double-counting)
+    const hasSelfCheckIn = existing?.checkedInAt || existing?.checkedOutAt;
+    if (!hasSelfCheckIn) {
+      if (!existing && attended) {
+        hourAdjustments.push({ userId: volunteerId, increment: durationHours });
+      } else if (existing?.attended && !attended) {
+        hourAdjustments.push({ userId: volunteerId, increment: -durationHours });
+      } else if (existing && !existing.attended && attended) {
+        hourAdjustments.push({ userId: volunteerId, increment: durationHours });
+      }
     }
   }
 
@@ -273,14 +278,14 @@ export async function getMyEvents(volunteerId: string, pagination: { page: numbe
   const where = {
     opportunity: {
       applications: {
-        some: { volunteerId, status: 'ACCEPTED' },
+        some: { volunteerId, status: 'ACCEPTED' as const },
       },
     },
-    status: { not: 'CANCELLED' },
-  };
+    status: { not: 'CANCELLED' as const },
+  } as const;
   const [data, total] = await Promise.all([
     prisma.event.findMany({
-      where,
+      where: where as any,
       skip,
       take: limit,
       include: {
@@ -289,7 +294,7 @@ export async function getMyEvents(volunteerId: string, pagination: { page: numbe
       },
       orderBy: { eventDate: 'asc' },
     }),
-    prisma.event.count({ where }),
+    prisma.event.count({ where: where as any }),
   ]);
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
@@ -430,10 +435,11 @@ export async function checkOut(
 }
 
 function sanitizeCsvCell(value: string): string {
-  if (/^[=+\-@]/.test(value)) {
-    return `'${value}`;
+  const escaped = value.replace(/"/g, '""');
+  if (/^[=+\-@]/.test(escaped)) {
+    return `"'${escaped}"`;
   }
-  return value;
+  return `"${escaped}"`;
 }
 
 export async function exportEventsCsv() {
@@ -449,8 +455,8 @@ export async function exportEventsCsv() {
   const rows = events
     .map((e) =>
       [
-        `"${sanitizeCsvCell(e.title)}"`,
-        `"${sanitizeCsvCell(e.opportunity.title)}"`,
+        sanitizeCsvCell(e.title),
+        sanitizeCsvCell(e.opportunity.title),
         e.eventDate.toISOString().split('T')[0],
         e.startTime,
         e.endTime,

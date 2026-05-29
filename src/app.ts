@@ -3,10 +3,12 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { env } from './config/env';
+import { prisma } from './lib/prisma';
 import { swaggerSpec } from './lib/swagger';
 import { errorMiddleware } from './middleware/error.middleware';
 import { adminRouter } from './modules/admin/admin.routes';
@@ -55,13 +57,35 @@ export function createApp(): Express {
   // HTTP request logging
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
+  // Global rate limiter (100 requests per minute)
+  app.use(
+    rateLimit({
+      windowMs: 60 * 1000,
+      max: 100,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { error: 'Too many requests, please try again later' },
+    })
+  );
+
   // Health check — used by Railway
-  app.get('/api/v1/health', (_req, res) => {
-    res.status(200).json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      environment: env.NODE_ENV,
-    });
+  app.get('/api/v1/health', async (_req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.status(200).json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        environment: env.NODE_ENV,
+        database: 'connected',
+      });
+    } catch {
+      res.status(503).json({
+        status: 'error',
+        timestamp: new Date().toISOString(),
+        environment: env.NODE_ENV,
+        database: 'disconnected',
+      });
+    }
   });
 
   // Routes

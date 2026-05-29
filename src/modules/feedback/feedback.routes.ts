@@ -108,7 +108,7 @@ feedbackRouter.get('/mine', requireAuth, requireRole('VOLUNTEER'), getMyFeedback
  *       200:
  *         description: List of feedback
  */
-feedbackRouter.get('/events/:eventId', requireAuth, getEventFeedbackHandler);
+feedbackRouter.get('/events/:eventId', requireAuth, requireRole('COORDINATOR', 'ADMIN'), getEventFeedbackHandler);
 
 /**
  * @openapi

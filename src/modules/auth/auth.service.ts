@@ -14,6 +14,7 @@ const OTP_RATE_LIMIT = 3;
 const OTP_RATE_WINDOW = 15 * 60; // 15 minutes in seconds
 
 export async function checkOtpRateLimit(email: string): Promise<void> {
+  if (!redis) return;
   const key = `otp:ratelimit:${email.toLowerCase()}`;
   const count = await redis.incr(key);
   if (count === 1) {
@@ -50,9 +51,6 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
 }
 
 export async function verifyOtp(email: string, otp: string): Promise<void> {
-  // Demo bypass — OTP 000000 always works (remove before go-live)
-  if (otp === '000000') return;
-
   const record = await prisma.otpRecord.findFirst({
     where: {
       email: email.toLowerCase(),
@@ -79,11 +77,11 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {
-  await notificationsQueue.add(
+  await notificationsQueue?.add(
     'send-otp',
     { email, otp },
     { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
-  );
+  ).catch(() => {});
 }
 
 // ─── JWT ─────────────────────────────────────────────────────────
@@ -100,19 +98,20 @@ export function signRefreshToken(userId: string): string {
   });
 }
 
-export async function storeRefreshToken(userId: string, token: string): Promise<void> {
+export async function storeRefreshToken(userId: string, token: string): Promise<string> {
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
   try {
     await prisma.refreshToken.create({ data: { userId, tokenHash, expiresAt } });
+    return token;
   } catch (err: unknown) {
     // P2002 = unique constraint — token hash collision, retry with a fresh token
     if ((err as { code?: string })?.code === 'P2002') {
       const freshToken = signRefreshToken(userId);
       const freshHash = crypto.createHash('sha256').update(freshToken).digest('hex');
       await prisma.refreshToken.create({ data: { userId, tokenHash: freshHash, expiresAt } });
-      return;
+      return freshToken;
     }
     throw err;
   }
@@ -152,9 +151,9 @@ export async function rotateRefreshToken(
   // Issue new tokens
   const accessToken = signAccessToken(user.id, user.role);
   const refreshToken = signRefreshToken(user.id);
-  await storeRefreshToken(user.id, refreshToken);
+  const storedToken = await storeRefreshToken(user.id, refreshToken);
 
-  return { accessToken, refreshToken, userId: user.id, role: user.role };
+  return { accessToken, refreshToken: storedToken, userId: user.id, role: user.role };
 }
 
 export async function revokeRefreshToken(token: string): Promise<void> {

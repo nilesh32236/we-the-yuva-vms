@@ -28,9 +28,9 @@ async function main() {
 
   // Register repeatable jobs (graceful if Redis unavailable)
   try {
-    await notificationsQueue.add('check-event-reminders', {}, { repeat: { every: 60 * 60 * 1000 } });
-    await notificationsQueue.add('clean-expired-qr-tokens', {}, { repeat: { every: 60 * 60 * 1000 } });
-    await notificationsQueue.add('daily-metrics-snapshot', {}, { repeat: { pattern: '0 0 * * *' } });
+    await notificationsQueue?.add('check-event-reminders', {}, { repeat: { every: 60 * 60 * 1000 } });
+    await notificationsQueue?.add('clean-expired-qr-tokens', {}, { repeat: { every: 60 * 60 * 1000 } });
+    await notificationsQueue?.add('daily-metrics-snapshot', {}, { repeat: { pattern: '0 0 * * *' } });
     logger.info('BullMQ repeatable jobs registered');
   } catch (error) {
     logger.warn('BullMQ/Redis unavailable — repeatable jobs skipped', { error: (error as Error).message });
@@ -40,7 +40,7 @@ async function main() {
   const shutdown = async (signal: string) => {
     logger.info(`${signal} received — shutting down gracefully`);
     server.close(async () => {
-      await notificationWorker.close();
+      await notificationWorker?.close();
       await prisma.$disconnect();
       logger.info('Server closed');
       process.exit(0);

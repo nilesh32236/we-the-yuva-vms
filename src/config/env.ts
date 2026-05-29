@@ -18,12 +18,8 @@ const envSchema = z.object({
   SMTP_PASS: z.string().default(''),
   SMTP_FROM: z.string().email().default('noreply@example.com'),
   RESEND_API_KEY: z.string().optional(),
-  VAPID_PUBLIC_KEY: z
-    .string()
-    .default(
-      'BDFh4qFJNvCz9GJvG2XsZGnx_7YMfJatM6DDSWCldXSM82-O8PH6_dJPIVH5uGq_Ym5PP7jq5V6klhIfZth_sVQ'
-    ),
-  VAPID_PRIVATE_KEY: z.string().default('z0JScxL4OQT5QyWj-gSBEHFgD-D1xTuQKHjW2LctWHY'),
+  VAPID_PUBLIC_KEY: z.string().min(1, 'VAPID_PUBLIC_KEY is required'),
+  VAPID_PRIVATE_KEY: z.string().min(1, 'VAPID_PRIVATE_KEY is required'),
   FRONTEND_URL: z.string(),
 });
 

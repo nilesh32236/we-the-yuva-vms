@@ -4,7 +4,7 @@ import * as service from './alerts.service';
 export async function getMySubscriptionsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.getMySubscriptions(req.user!.id);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -22,7 +22,7 @@ export async function createSubscriptionHandler(req: Request, res: Response, nex
 export async function updateSubscriptionHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.updateSubscription(req.params.id, req.user!.id, req.body);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -31,7 +31,7 @@ export async function updateSubscriptionHandler(req: Request, res: Response, nex
 export async function deleteSubscriptionHandler(req: Request, res: Response, next: NextFunction) {
   try {
     await service.deleteSubscription(req.params.id, req.user!.id);
-    res.json({ ok: true });
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

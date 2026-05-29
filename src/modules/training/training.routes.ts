@@ -3,7 +3,6 @@ import {
   CompleteLessonSchema,
   CreateCourseSchema,
   CreateLessonSchema,
-  GetCourseSchema,
   UpdateCourseSchema,
   UpdateLessonSchema,
 } from '@/shared';
@@ -162,7 +161,7 @@ trainingRouter.get('/', requireAuth, listCoursesHandler);
  *       200:
  *         description: Course details
  */
-trainingRouter.get('/:id', requireAuth, validate(GetCourseSchema), getCourseHandler);
+trainingRouter.get('/:id', requireAuth, getCourseHandler);
 
 /**
  * @openapi

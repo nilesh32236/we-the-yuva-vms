@@ -15,7 +15,7 @@ export async function listPublishedStoriesHandler(req: Request, res: Response, n
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const result = await service.getPublishedStories(page, limit);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -24,7 +24,7 @@ export async function listPublishedStoriesHandler(req: Request, res: Response, n
 export async function getStoryHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const story = await service.getStoryById(req.params.id);
-    res.json(story);
+    res.status(200).json(story);
   } catch (err) {
     next(err);
   }
@@ -33,7 +33,7 @@ export async function getStoryHandler(req: Request, res: Response, next: NextFun
 export async function updateStoryHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const story = await service.updateStory(req.params.id, req.user!.id, req.body);
-    res.json(story);
+    res.status(200).json(story);
   } catch (err) {
     next(err);
   }
@@ -42,7 +42,7 @@ export async function updateStoryHandler(req: Request, res: Response, next: Next
 export async function deleteStoryHandler(req: Request, res: Response, next: NextFunction) {
   try {
     await service.deleteStory(req.params.id, req.user!.id, req.user!.role);
-    res.json({ ok: true });
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
@@ -51,7 +51,7 @@ export async function deleteStoryHandler(req: Request, res: Response, next: Next
 export async function moderateStoryHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const story = await service.moderateStory(req.params.id, req.user!.id, req.user!.role, req.body.published);
-    res.json(story);
+    res.status(200).json(story);
   } catch (err) {
     next(err);
   }
@@ -62,7 +62,7 @@ export async function listAllStoriesHandler(req: Request, res: Response, next: N
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
     const result = await service.listAllStories(page, limit);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

@@ -92,6 +92,11 @@ enum AuditLogAction {
   LOGIN
   LOGOUT
   SYSTEM
+  STORY_CREATE
+  STORY_UPDATE
+  STORY_DELETE
+  STORY_PUBLISH
+  STORY_UNPUBLISH
 }
 
 enum NotificationPreferenceType {
@@ -477,4 +482,6 @@ model AlertSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([isActive])
+  @@index([isActive, categories])
 }

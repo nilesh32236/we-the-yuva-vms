@@ -1,5 +1,5 @@
 import { type IRouter, Router } from 'express';
-import { ApplicationStatusSchema, ApplySchema, OpportunitySchema } from '@/shared';
+import { ApplicationStatusSchema, OpportunitySchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requireRole } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -218,7 +218,6 @@ opportunitiesRouter.post(
   '/:id/apply',
   requireAuth,
   requireRole('VOLUNTEER'),
-  validate(ApplySchema),
   applyHandler
 );
 

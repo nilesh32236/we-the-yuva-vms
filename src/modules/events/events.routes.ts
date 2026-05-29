@@ -12,7 +12,6 @@ import {
   getAttendanceListHandler,
   getEventHandler,
   getEventQrCodeHandler,
-  getMyEventsHandler,
   listAllEventsHandler,
   listEventsByOpportunityHandler,
   markAttendanceHandler,
@@ -97,19 +96,6 @@ export const eventsRouter: IRouter = Router();
  *         description: List of events
  */
 eventsRouter.get('/', requireAuth, listAllEventsHandler);
-
-/**
- * @openapi
- * /events/me/events:
- *   get:
- *     tags: [Events]
- *     summary: Get volunteer's own events
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200:
- *         description: List of my events
- */
-eventsRouter.get('/me/events', requireAuth, requireRole('VOLUNTEER'), getMyEventsHandler);
 
 /**
  * @openapi

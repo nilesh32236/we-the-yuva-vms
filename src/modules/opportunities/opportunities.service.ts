@@ -8,6 +8,7 @@ import { AppError } from '../../middleware/error.middleware';
 // ─── Helpers ─────────────────────────────────────────────────────
 
 async function invalidateListCache(): Promise<void> {
+  if (!redis) return;
   let cursor = '0';
   do {
     const [nextCursor, keys] = await redis.scan(
@@ -41,8 +42,7 @@ export async function createOpportunity(coordinatorId: string, data: Opportunity
 
   await logAudit({ userId: coordinatorId, action: 'OPPORTUNITY_CREATE', targetId: opportunity.id, targetType: 'Opportunity' });
 
-  await notificationsQueue
-    .add('match-alert-subscriptions', { opportunityId: opportunity.id })
+  await notificationsQueue?.add('match-alert-subscriptions', { opportunityId: opportunity.id })
     .catch(() => {});
 
   return opportunity;
@@ -64,10 +64,11 @@ export interface PaginationParams {
 export async function listOpportunities(filters: OpportunityFilters, pagination: PaginationParams) {
   const cacheKey = `opportunities:list:${JSON.stringify({ filters, pagination })}`;
 
-  // Cache hit
-  const cached = await redis.get(cacheKey);
-  if (cached) {
-    return JSON.parse(cached);
+  if (redis) {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
   }
 
   const { page, limit } = pagination;
@@ -116,7 +117,9 @@ export async function listOpportunities(filters: OpportunityFilters, pagination:
   };
 
   // Cache for 60 seconds
-  await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+  if (redis) {
+    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+  }
 
   return result;
 }
@@ -273,7 +276,7 @@ export async function withdrawApplication(applicationId: string, userId: string)
   if (!application) throw new AppError('Application not found', 404);
   if (application.volunteerId !== userId) throw new AppError('Forbidden', 403);
   if (application.status !== 'PENDING') throw new AppError('Only pending applications can be withdrawn', 400);
-  return prisma.application.delete({ where: { id: applicationId } });
+  return prisma.application.update({ where: { id: applicationId }, data: { status: 'REJECTED' } });
 }
 
 export async function updateApplicationStatus(
@@ -295,6 +298,15 @@ export async function updateApplicationStatus(
     throw new AppError('Forbidden', 403);
   }
 
+  if (status === 'ACCEPTED') {
+    const acceptedCount = await prisma.application.count({
+      where: { opportunityId: application.opportunityId, status: 'ACCEPTED' },
+    });
+    if (acceptedCount >= application.opportunity.totalSlots) {
+      throw new AppError('No slots available', 400);
+    }
+  }
+
   const updated = await prisma.application.update({
     where: { id: applicationId },
     data: { status },
@@ -302,12 +314,12 @@ export async function updateApplicationStatus(
 
   await logAudit({ userId: callerId, action: 'APPLICATION_UPDATE', targetId: applicationId, targetType: 'Application', metadata: { status } });
 
-  // Enqueue notification
-  await notificationsQueue.add(`application-${status.toLowerCase()}`, {
+  // Enqueue notification (non-blocking)
+  notificationsQueue?.add(`application-${status.toLowerCase()}`, {
     volunteerId: application.volunteerId,
     opportunityTitle: application.opportunity.title,
     opportunityId: application.opportunityId,
-  });
+  }).catch(() => {});
 
   return updated;
 }

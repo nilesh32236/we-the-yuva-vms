@@ -15,7 +15,7 @@ export async function getMyFeedbackHandler(req: Request, res: Response, next: Ne
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const result = await service.getMyFeedback(req.user!.id, { page, limit });
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -24,7 +24,7 @@ export async function getMyFeedbackHandler(req: Request, res: Response, next: Ne
 export async function updateFeedbackHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.updateFeedback(req.params.eventId, req.user!.id, req.body);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -42,7 +42,7 @@ export async function deleteFeedbackHandler(req: Request, res: Response, next: N
 export async function getEventFeedbackHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.getEventFeedback(req.params.eventId);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -55,7 +55,7 @@ export async function getEventFeedbackSummaryHandler(
 ) {
   try {
     const result = await service.getEventFeedbackSummary(req.params.eventId);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

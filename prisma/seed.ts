@@ -9,6 +9,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Skipping seed in production');
+    return;
+  }
   console.log('🌱 Seeding demo data...\n');
 
   // ─── Locations ────────────────────────────────────────────────

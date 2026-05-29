@@ -12,9 +12,13 @@ const DEFAULT_PREFERENCES: NotificationPreferenceType[] = [
 export async function getPreferences(userId: string) {
   const existing = await prisma.notificationPreference.findMany({ where: { userId } });
   if (existing.length === 0) {
-    await prisma.notificationPreference.createMany({
-      data: DEFAULT_PREFERENCES.map((type) => ({ userId, type })),
-    });
+    for (const type of DEFAULT_PREFERENCES) {
+      await prisma.notificationPreference.upsert({
+        where: { userId_type: { userId, type } },
+        create: { userId, type },
+        update: {},
+      }).catch(() => {});
+    }
     return DEFAULT_PREFERENCES.map((type) => ({ type, email: true, push: true }));
   }
   return existing;

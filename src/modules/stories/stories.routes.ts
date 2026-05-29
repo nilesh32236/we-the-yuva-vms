@@ -77,7 +77,7 @@ storiesRouter.post('/', requireAuth, validate(CreateStorySchema), createStoryHan
  *       200:
  *         description: Story updated
  */
-storiesRouter.put('/:id', requireAuth, validate(UpdateStorySchema), updateStoryHandler);
+storiesRouter.put('/:id', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), validate(UpdateStorySchema), updateStoryHandler);
 
 /**
  * @openapi
@@ -97,7 +97,7 @@ storiesRouter.put('/:id', requireAuth, validate(UpdateStorySchema), updateStoryH
  *       200:
  *         description: Story deleted
  */
-storiesRouter.delete('/:id', requireAuth, deleteStoryHandler);
+storiesRouter.delete('/:id', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), deleteStoryHandler);
 
 /**
  * @openapi

@@ -13,7 +13,7 @@ export async function subscribeHandler(req: Request, res: Response, next: NextFu
 export async function unsubscribeHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.unsubscribe(req.user!.id, req.body.endpoint);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -24,7 +24,7 @@ export async function listNotificationsHandler(req: Request, res: Response, next
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const result = await service.getNotifications(req.user!.id, page, limit);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -33,7 +33,7 @@ export async function listNotificationsHandler(req: Request, res: Response, next
 export async function getNotificationHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.getNotification(req.user!.id, req.params.id);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -51,7 +51,7 @@ export async function deleteNotificationHandler(req: Request, res: Response, nex
 export async function markReadHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.markRead(req.user!.id, req.params.id);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -60,7 +60,7 @@ export async function markReadHandler(req: Request, res: Response, next: NextFun
 export async function markAllReadHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await service.markAllRead(req.user!.id);
-    res.json(result);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

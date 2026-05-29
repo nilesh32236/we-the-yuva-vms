@@ -349,9 +349,12 @@ function accountSuspendedTemplate(): string {
 
 // ─── Worker ───────────────────────────────────────────────────────
 
-export const notificationWorker = new Worker(
-  'notifications',
-  async (job: Job) => {
+export let notificationWorker: Worker | null = null;
+
+if (redis && notificationsQueue) {
+  notificationWorker = new Worker(
+    'notifications',
+    async (job: Job) => {
     if (job.name === 'send-otp') {
       const { email, otp } = job.data as { email: string; otp: string };
 
@@ -595,6 +598,7 @@ export const notificationWorker = new Worker(
           eventDate: { gte: now, lte: in24h },
           status: 'SCHEDULED',
         },
+        take: 100,
       });
 
       for (const event of upcomingEvents) {
@@ -608,7 +612,7 @@ export const notificationWorker = new Worker(
         });
 
         for (const { volunteerId } of acceptedApplications) {
-          await notificationsQueue.add(
+          await notificationsQueue!.add(
             'event-reminder',
             {
               volunteerId,
@@ -631,23 +635,26 @@ export const notificationWorker = new Worker(
       });
     }
   },
-  {
-    connection: redis,
-    concurrency: 5,
-    lockDuration: 60000, // 60s — prevents stall on slow SMTP
-  }
-);
+    {
+      connection: redis,
+      concurrency: 5,
+      lockDuration: 60000,
+    }
+  );
 
-notificationWorker.on('completed', (job) => {
-  logger.debug('Notification job completed', { jobId: job.id, name: job.name });
-});
-
-notificationWorker.on('failed', (job, err) => {
-  logger.error('Notification job failed', {
-    jobId: job?.id,
-    name: job?.name,
-    email: job?.data?.email,
-    error: err.message,
-    attempts: job?.attemptsMade,
+  notificationWorker.on('completed', (job) => {
+    logger.debug('Notification job completed', { jobId: job.id, name: job.name });
   });
-});
+
+  notificationWorker.on('failed', (job, err) => {
+    logger.error('Notification job failed', {
+      jobId: job?.id,
+      name: job?.name,
+      email: job?.data?.email,
+      error: err.message,
+      attempts: job?.attemptsMade,
+    });
+  });
+} else {
+  logger.warn('BullMQ worker not started — Redis unavailable');
+}

@@ -1,3 +1,4 @@
+import type { User } from '@prisma/client';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -20,9 +21,6 @@ export async function createUser(adminId: string, data: {
   role: string;
   locationName?: string;
 }) {
-  const existing = await prisma.user.findUnique({ where: { email: data.email } });
-  if (existing) throw new AppError('Email already registered', 409);
-
   let locationId: string | undefined;
   if (data.locationName) {
     const loc = await prisma.location.upsert({
@@ -36,21 +34,29 @@ export async function createUser(adminId: string, data: {
     locationId = loc.id;
   }
 
-  const user = await prisma.user.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      role: data.role as any,
-      status: 'ACTIVE',
-      locationId,
-      consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: false } },
-      ...(data.role === 'VOLUNTEER' && {
-        profile: {
-          create: { skills: [], interests: [], availability: { days: [], timeSlots: [] } },
-        },
-      }),
-    },
-  });
+  let user: User;
+  try {
+    user = await prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        role: data.role as any,
+        status: 'ACTIVE',
+        locationId,
+        consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: false } },
+        ...(data.role === 'VOLUNTEER' && {
+          profile: {
+            create: { skills: [], interests: [], availability: { days: [], timeSlots: [] } },
+          },
+        }),
+      },
+    });
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === 'P2002') {
+      throw new AppError('Email already registered', 409);
+    }
+    throw err;
+  }
 
   await logAudit({ userId: adminId, action: 'USER_CREATE', targetId: user.id, targetType: 'User', metadata: { role: data.role } });
 
@@ -138,10 +144,10 @@ export async function updateUser(
     });
 
     // Enqueue account-suspended notification
-    await notificationsQueue.add('account-suspended', {
+    await notificationsQueue?.add('account-suspended', {
       userId: id,
       email: user.email,
-    });
+    }).catch(() => {});
   }
 
   return user;
