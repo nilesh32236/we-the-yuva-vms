@@ -14,7 +14,12 @@ import {
 
 export const authRouter: IRouter = Router();
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 authRouter.use(authLimiter);
 
 // Public routes
@@ -79,7 +84,12 @@ authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
-const verifyOtpLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
+const verifyOtpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 authRouter.post('/verify-otp', verifyOtpLimiter, validate(VerifyOtpSchema), verifyOtpHandler);
 
 /**

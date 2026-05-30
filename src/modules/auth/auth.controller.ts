@@ -46,7 +46,12 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       data: { email: email.toLowerCase(), name, status: 'PENDING' },
     });
 
-    await logAudit({ userId: user.id, action: 'USER_CREATE', targetId: user.id, targetType: 'User' });
+    await logAudit({
+      userId: user.id,
+      action: 'USER_CREATE',
+      targetId: user.id,
+      targetType: 'User',
+    });
 
     res
       .status(201)
@@ -90,7 +95,12 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
       where: { email: email.toLowerCase() },
       data: { status: 'ACTIVE' },
       select: {
-        id: true, name: true, email: true, role: true, status: true, locationId: true,
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        locationId: true,
         consent: { select: { id: true } },
         profile: { select: { id: true } },
       },
@@ -189,7 +199,13 @@ export async function recordConsent(req: Request, res: Response, next: NextFunct
       data: { userId, privacyPolicyAccepted, mediaConsentAccepted },
     });
 
-    await logAudit({ userId, action: 'SYSTEM', targetId: userId, targetType: 'User', metadata: { consent: 'recorded', privacyPolicyAccepted, mediaConsentAccepted } });
+    await logAudit({
+      userId,
+      action: 'SYSTEM',
+      targetId: userId,
+      targetType: 'User',
+      metadata: { consent: 'recorded', privacyPolicyAccepted, mediaConsentAccepted },
+    });
 
     res.status(201).json({ message: 'Consent recorded successfully.' });
   } catch (err) {

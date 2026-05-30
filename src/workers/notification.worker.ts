@@ -10,7 +10,7 @@ import { redis } from '../lib/redis';
 
 if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:' + (env.SMTP_FROM || 'admin@wetheyuva.org'),
+    `mailto:${env.SMTP_FROM || 'admin@wetheyuva.org'}`,
     env.VAPID_PUBLIC_KEY,
     env.VAPID_PRIVATE_KEY
   );
@@ -18,7 +18,13 @@ if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
   logger.warn('VAPID keys not configured - push notifications disabled');
 }
 
-async function createInAppNotification(userId: string, title: string, body: string, link?: string, type?: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS') {
+async function createInAppNotification(
+  userId: string,
+  title: string,
+  body: string,
+  link?: string,
+  type?: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS'
+) {
   try {
     await prisma.notification.create({ data: { userId, title, body, link, type: type ?? 'INFO' } });
   } catch (err) {
@@ -359,233 +365,242 @@ if (redis && notificationsQueue) {
   notificationWorker = new Worker(
     'notifications',
     async (job: Job) => {
-    if (job.name === 'send-otp') {
-      const { email, otp } = job.data as { email: string; otp: string };
+      if (job.name === 'send-otp') {
+        const { email, otp } = job.data as { email: string; otp: string };
 
-      await sendEmail(
-        email,
-        'Your WeTheYuva verification code',
-        otpEmailTemplate(otp),
-        `Your WeTheYuva verification code is: ${otp}\n\nThis code expires in 5 minutes.`
-      );
+        await sendEmail(
+          email,
+          'Your WeTheYuva verification code',
+          otpEmailTemplate(otp),
+          `Your WeTheYuva verification code is: ${otp}\n\nThis code expires in 5 minutes.`
+        );
 
-      logger.info('OTP email sent', { email, jobId: job.id });
-    }
-
-    if (job.name === 'application-accepted') {
-      const { volunteerId, opportunityTitle } = job.data as {
-        volunteerId: string;
-        opportunityTitle: string;
-        opportunityId: string;
-      };
-
-      const user = await prisma.user.findUnique({
-        where: { id: volunteerId },
-        select: { email: true },
-      });
-      if (!user?.email) return;
-
-      await sendEmail(
-        user.email,
-        `You've been accepted — ${opportunityTitle}`,
-        applicationAcceptedTemplate(opportunityTitle),
-        `Congratulations! Your application for "${opportunityTitle}" has been accepted.`
-      );
-
-      await createInAppNotification(
-        volunteerId,
-        'Application Accepted',
-        `Your application for "${opportunityTitle}" has been accepted!`,
-        undefined,
-        'SUCCESS'
-      );
-      await sendPushToUser(
-        volunteerId,
-        'Application Accepted',
-        `Your application for "${opportunityTitle}" has been accepted!`
-      );
-
-      logger.info('Application accepted email sent', { volunteerId, jobId: job.id });
-    }
-
-    if (job.name === 'application-rejected') {
-      const { volunteerId, opportunityTitle } = job.data as {
-        volunteerId: string;
-        opportunityTitle: string;
-      };
-
-      const user = await prisma.user.findUnique({
-        where: { id: volunteerId },
-        select: { email: true },
-      });
-      if (!user?.email) return;
-
-      await sendEmail(
-        user.email,
-        `Application update — ${opportunityTitle}`,
-        applicationRejectedTemplate(opportunityTitle),
-        `Thank you for applying to "${opportunityTitle}". Unfortunately, we are unable to move forward with your application at this time.`
-      );
-
-      await createInAppNotification(
-        volunteerId,
-        'Application Update',
-        `Your application for "${opportunityTitle}" was not accepted.`,
-        undefined,
-        'INFO'
-      );
-      await sendPushToUser(
-        volunteerId,
-        'Application Update',
-        `Your application for "${opportunityTitle}" was not accepted.`
-      );
-
-      logger.info('Application rejected email sent', { volunteerId, jobId: job.id });
-    }
-
-    if (job.name === 'event-invitation') {
-      const { volunteerId, eventTitle, eventDate, venue } = job.data as {
-        volunteerId: string;
-        eventId: string;
-        eventTitle: string;
-        eventDate: string;
-        venue?: string;
-      };
-
-      const user = await prisma.user.findUnique({
-        where: { id: volunteerId },
-        select: { email: true },
-      });
-      if (!user?.email) return;
-
-      await sendEmail(
-        user.email,
-        `You're invited — ${eventTitle}`,
-        eventInvitationTemplate(eventTitle, eventDate, venue),
-        `You have been invited to "${eventTitle}" on ${eventDate}${venue ? ` at ${venue}` : ''}.`
-      );
-
-      await createInAppNotification(
-        volunteerId,
-        'Event Invitation',
-        `You're invited to "${eventTitle}"!`,
-        undefined,
-        'INFO'
-      );
-      await sendPushToUser(volunteerId, 'Event Invitation', `You're invited to "${eventTitle}"!`);
-
-      logger.info('Event invitation email sent', { volunteerId, jobId: job.id });
-    }
-
-    if (job.name === 'event-reminder') {
-      const { volunteerId, eventTitle, eventDate, venue } = job.data as {
-        volunteerId: string;
-        eventId: string;
-        eventTitle: string;
-        eventDate: string;
-        venue?: string;
-      };
-
-      const user = await prisma.user.findUnique({
-        where: { id: volunteerId },
-        select: { email: true },
-      });
-      if (!user?.email) return;
-
-      await sendEmail(
-        user.email,
-        `Reminder: ${eventTitle} is tomorrow`,
-        eventReminderTemplate(eventTitle, eventDate, venue),
-        `Reminder: "${eventTitle}" is happening tomorrow on ${eventDate}${venue ? ` at ${venue}` : ''}.`
-      );
-
-      await createInAppNotification(
-        volunteerId,
-        'Event Reminder',
-        `"${eventTitle}" is happening tomorrow!`,
-        undefined,
-        'INFO'
-      );
-      await sendPushToUser(volunteerId, 'Event Reminder', `"${eventTitle}" is happening tomorrow!`);
-
-      logger.info('Event reminder email sent', { volunteerId, jobId: job.id });
-    }
-
-    if (job.name === 'account-suspended') {
-      const { userId, email } = job.data as { userId: string; email: string };
-      if (!email) return;
-
-      await sendEmail(
-        email,
-        'Your WeTheYuva account has been suspended',
-        accountSuspendedTemplate(),
-        'Your WeTheYuva account has been suspended. If you believe this is a mistake, please contact our support team.'
-      );
-
-      if (userId) {
-        await createInAppNotification(
-          userId,
-          'Account Suspended',
-          'Your account has been suspended. Please contact support.',
-        undefined,
-        'WARNING'
-      );
-      await sendPushToUser(userId, 'Account Suspended', 'Your account has been suspended.');
+        logger.info('OTP email sent', { email, jobId: job.id });
       }
 
-      logger.info('Account suspended email sent', { email, jobId: job.id });
-    }
+      if (job.name === 'application-accepted') {
+        const { volunteerId, opportunityTitle } = job.data as {
+          volunteerId: string;
+          opportunityTitle: string;
+          opportunityId: string;
+        };
 
-    if (job.name === 'match-alert-subscriptions') {
-      const { opportunityId } = job.data as { opportunityId: string };
+        const user = await prisma.user.findUnique({
+          where: { id: volunteerId },
+          select: { email: true },
+        });
+        if (!user?.email) return;
 
-      const opportunity = await prisma.opportunity.findUnique({
-        where: { id: opportunityId },
-        select: { title: true, category: true, skills: true },
-      });
-      if (!opportunity) return;
+        await sendEmail(
+          user.email,
+          `You've been accepted — ${opportunityTitle}`,
+          applicationAcceptedTemplate(opportunityTitle),
+          `Congratulations! Your application for "${opportunityTitle}" has been accepted.`
+        );
 
-      const subscriptions = await prisma.alertSubscription.findMany({
-        where: {
-          isActive: true,
-          OR: [
-            { categories: { has: opportunity.category } },
-            { skills: { hasSome: opportunity.skills } },
-          ],
-        },
-        select: { userId: true },
-      });
-
-      for (const sub of subscriptions) {
         await createInAppNotification(
-          sub.userId,
-          'New Opportunity Match',
-          `"${opportunity.title}" matches your alert preferences!`,
-          `/volunteer/opportunities/${opportunityId}`,
+          volunteerId,
+          'Application Accepted',
+          `Your application for "${opportunityTitle}" has been accepted!`,
+          undefined,
+          'SUCCESS'
+        );
+        await sendPushToUser(
+          volunteerId,
+          'Application Accepted',
+          `Your application for "${opportunityTitle}" has been accepted!`
+        );
+
+        logger.info('Application accepted email sent', { volunteerId, jobId: job.id });
+      }
+
+      if (job.name === 'application-rejected') {
+        const { volunteerId, opportunityTitle } = job.data as {
+          volunteerId: string;
+          opportunityTitle: string;
+        };
+
+        const user = await prisma.user.findUnique({
+          where: { id: volunteerId },
+          select: { email: true },
+        });
+        if (!user?.email) return;
+
+        await sendEmail(
+          user.email,
+          `Application update — ${opportunityTitle}`,
+          applicationRejectedTemplate(opportunityTitle),
+          `Thank you for applying to "${opportunityTitle}". Unfortunately, we are unable to move forward with your application at this time.`
+        );
+
+        await createInAppNotification(
+          volunteerId,
+          'Application Update',
+          `Your application for "${opportunityTitle}" was not accepted.`,
+          undefined,
           'INFO'
         );
+        await sendPushToUser(
+          volunteerId,
+          'Application Update',
+          `Your application for "${opportunityTitle}" was not accepted.`
+        );
+
+        logger.info('Application rejected email sent', { volunteerId, jobId: job.id });
       }
 
-      logger.info('Alert subscriptions matched', {
-        opportunityId,
-        matches: subscriptions.length,
-        jobId: job.id,
-      });
-    }
+      if (job.name === 'event-invitation') {
+        const { volunteerId, eventTitle, eventDate, venue } = job.data as {
+          volunteerId: string;
+          eventId: string;
+          eventTitle: string;
+          eventDate: string;
+          venue?: string;
+        };
 
-    if (job.name === 'clean-expired-qr-tokens') {
-      const now = new Date();
-      const result = await prisma.event.updateMany({
-        where: { qrExpiresAt: { lt: now }, qrToken: { not: null } },
-        data: { qrToken: null, qrExpiresAt: null },
-      });
+        const user = await prisma.user.findUnique({
+          where: { id: volunteerId },
+          select: { email: true },
+        });
+        if (!user?.email) return;
 
-      logger.info('Expired QR tokens cleaned', { count: result.count, jobId: job.id });
-    }
+        await sendEmail(
+          user.email,
+          `You're invited — ${eventTitle}`,
+          eventInvitationTemplate(eventTitle, eventDate, venue),
+          `You have been invited to "${eventTitle}" on ${eventDate}${venue ? ` at ${venue}` : ''}.`
+        );
 
-    if (job.name === 'daily-metrics-snapshot') {
-      const [totalUsers, activeVolunteers, totalHoursResult, activeOpportunities, scheduledEvents] =
-        await Promise.all([
+        await createInAppNotification(
+          volunteerId,
+          'Event Invitation',
+          `You're invited to "${eventTitle}"!`,
+          undefined,
+          'INFO'
+        );
+        await sendPushToUser(volunteerId, 'Event Invitation', `You're invited to "${eventTitle}"!`);
+
+        logger.info('Event invitation email sent', { volunteerId, jobId: job.id });
+      }
+
+      if (job.name === 'event-reminder') {
+        const { volunteerId, eventTitle, eventDate, venue } = job.data as {
+          volunteerId: string;
+          eventId: string;
+          eventTitle: string;
+          eventDate: string;
+          venue?: string;
+        };
+
+        const user = await prisma.user.findUnique({
+          where: { id: volunteerId },
+          select: { email: true },
+        });
+        if (!user?.email) return;
+
+        await sendEmail(
+          user.email,
+          `Reminder: ${eventTitle} is tomorrow`,
+          eventReminderTemplate(eventTitle, eventDate, venue),
+          `Reminder: "${eventTitle}" is happening tomorrow on ${eventDate}${venue ? ` at ${venue}` : ''}.`
+        );
+
+        await createInAppNotification(
+          volunteerId,
+          'Event Reminder',
+          `"${eventTitle}" is happening tomorrow!`,
+          undefined,
+          'INFO'
+        );
+        await sendPushToUser(
+          volunteerId,
+          'Event Reminder',
+          `"${eventTitle}" is happening tomorrow!`
+        );
+
+        logger.info('Event reminder email sent', { volunteerId, jobId: job.id });
+      }
+
+      if (job.name === 'account-suspended') {
+        const { userId, email } = job.data as { userId: string; email: string };
+        if (!email) return;
+
+        await sendEmail(
+          email,
+          'Your WeTheYuva account has been suspended',
+          accountSuspendedTemplate(),
+          'Your WeTheYuva account has been suspended. If you believe this is a mistake, please contact our support team.'
+        );
+
+        if (userId) {
+          await createInAppNotification(
+            userId,
+            'Account Suspended',
+            'Your account has been suspended. Please contact support.',
+            undefined,
+            'WARNING'
+          );
+          await sendPushToUser(userId, 'Account Suspended', 'Your account has been suspended.');
+        }
+
+        logger.info('Account suspended email sent', { email, jobId: job.id });
+      }
+
+      if (job.name === 'match-alert-subscriptions') {
+        const { opportunityId } = job.data as { opportunityId: string };
+
+        const opportunity = await prisma.opportunity.findUnique({
+          where: { id: opportunityId },
+          select: { title: true, category: true, skills: true },
+        });
+        if (!opportunity) return;
+
+        const subscriptions = await prisma.alertSubscription.findMany({
+          where: {
+            isActive: true,
+            OR: [
+              { categories: { has: opportunity.category } },
+              { skills: { hasSome: opportunity.skills } },
+            ],
+          },
+          select: { userId: true },
+        });
+
+        for (const sub of subscriptions) {
+          await createInAppNotification(
+            sub.userId,
+            'New Opportunity Match',
+            `"${opportunity.title}" matches your alert preferences!`,
+            `/volunteer/opportunities/${opportunityId}`,
+            'INFO'
+          );
+        }
+
+        logger.info('Alert subscriptions matched', {
+          opportunityId,
+          matches: subscriptions.length,
+          jobId: job.id,
+        });
+      }
+
+      if (job.name === 'clean-expired-qr-tokens') {
+        const now = new Date();
+        const result = await prisma.event.updateMany({
+          where: { qrExpiresAt: { lt: now }, qrToken: { not: null } },
+          data: { qrToken: null, qrExpiresAt: null },
+        });
+
+        logger.info('Expired QR tokens cleaned', { count: result.count, jobId: job.id });
+      }
+
+      if (job.name === 'daily-metrics-snapshot') {
+        const [
+          totalUsers,
+          activeVolunteers,
+          totalHoursResult,
+          activeOpportunities,
+          scheduledEvents,
+        ] = await Promise.all([
           prisma.user.count(),
           prisma.user.count({ where: { role: 'VOLUNTEER', status: 'ACTIVE' } }),
           prisma.volunteerProfile.aggregate({ _sum: { totalHours: true } }),
@@ -593,63 +608,63 @@ if (redis && notificationsQueue) {
           prisma.event.count({ where: { status: 'SCHEDULED', eventDate: { gte: new Date() } } }),
         ]);
 
-      logger.info('Daily metrics snapshot', {
-        date: new Date().toISOString().slice(0, 10),
-        totalUsers,
-        activeVolunteers,
-        totalHours: totalHoursResult._sum.totalHours ?? 0,
-        activeOpportunities,
-        scheduledEvents,
-      });
-    }
-
-    if (job.name === 'check-event-reminders') {
-      const now = new Date();
-      const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
-      // Find all SCHEDULED events within the next 24 hours
-      const upcomingEvents = await prisma.event.findMany({
-        where: {
-          eventDate: { gte: now, lte: in24h },
-          status: 'SCHEDULED',
-        },
-        take: 100,
-      });
-
-      for (const event of upcomingEvents) {
-        // Find all volunteers with ACCEPTED applications for this event's opportunity
-        const acceptedApplications = await prisma.application.findMany({
-          where: {
-            opportunityId: event.opportunityId,
-            status: 'ACCEPTED',
-          },
-          select: { volunteerId: true },
+        logger.info('Daily metrics snapshot', {
+          date: new Date().toISOString().slice(0, 10),
+          totalUsers,
+          activeVolunteers,
+          totalHours: totalHoursResult._sum.totalHours ?? 0,
+          activeOpportunities,
+          scheduledEvents,
         });
-
-        for (const { volunteerId } of acceptedApplications) {
-          await notificationsQueue!.add(
-            'event-reminder',
-            {
-              volunteerId,
-              eventId: event.id,
-              eventTitle: event.title,
-              eventDate: event.eventDate.toISOString(),
-              venue: event.venue ?? undefined,
-            },
-            {
-              // Deduplicate: same event+volunteer pair won't be enqueued twice
-              jobId: `event-reminder-${event.id}-${volunteerId}`,
-            }
-          );
-        }
       }
 
-      logger.info('Event reminders enqueued', {
-        eventsChecked: upcomingEvents.length,
-        jobId: job.id,
-      });
-    }
-  },
+      if (job.name === 'check-event-reminders') {
+        const now = new Date();
+        const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+        // Find all SCHEDULED events within the next 24 hours
+        const upcomingEvents = await prisma.event.findMany({
+          where: {
+            eventDate: { gte: now, lte: in24h },
+            status: 'SCHEDULED',
+          },
+          take: 100,
+        });
+
+        for (const event of upcomingEvents) {
+          // Find all volunteers with ACCEPTED applications for this event's opportunity
+          const acceptedApplications = await prisma.application.findMany({
+            where: {
+              opportunityId: event.opportunityId,
+              status: 'ACCEPTED',
+            },
+            select: { volunteerId: true },
+          });
+
+          for (const { volunteerId } of acceptedApplications) {
+            await notificationsQueue!.add(
+              'event-reminder',
+              {
+                volunteerId,
+                eventId: event.id,
+                eventTitle: event.title,
+                eventDate: event.eventDate.toISOString(),
+                venue: event.venue ?? undefined,
+              },
+              {
+                // Deduplicate: same event+volunteer pair won't be enqueued twice
+                jobId: `event-reminder-${event.id}-${volunteerId}`,
+              }
+            );
+          }
+        }
+
+        logger.info('Event reminders enqueued', {
+          eventsChecked: upcomingEvents.length,
+          jobId: job.id,
+        });
+      }
+    },
     {
       connection: redis,
       concurrency: 5,

@@ -61,7 +61,7 @@ export async function checkOtpFailedAttempts(email: string): Promise<void> {
   if (!redis) return;
   const key = `otp:failed:${email.toLowerCase()}`;
   const count = await redis.get(key);
-  if (count && Number.parseInt(count) >= OTP_MAX_FAILED_ATTEMPTS) {
+  if (count && Number.parseInt(count, 10) >= OTP_MAX_FAILED_ATTEMPTS) {
     throw new AppError('Too many failed attempts. Please request a new OTP.', 429);
   }
 }
@@ -120,11 +120,13 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {
-  await notificationsQueue?.add(
-    'send-otp',
-    { email, otp },
-    { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
-  ).catch(() => {});
+  await notificationsQueue
+    ?.add(
+      'send-otp',
+      { email, otp },
+      { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
+    )
+    .catch(() => {});
 }
 
 // ─── JWT ─────────────────────────────────────────────────────────
@@ -144,7 +146,7 @@ export function signRefreshToken(userId: string): string {
 function parseExpiry(expiry: string): number {
   const match = expiry.match(/^(\d+)([dhms])$/);
   if (!match) return 7 * 24 * 60 * 60 * 1000; // default 7 days
-  const num = Number.parseInt(match[1]);
+  const num = Number.parseInt(match[1], 10);
   const unit = match[2];
   const multipliers: Record<string, number> = { d: 86400000, h: 3600000, m: 60000, s: 1000 };
   return num * (multipliers[unit] || 86400000);

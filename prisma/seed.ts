@@ -20,24 +20,45 @@ async function main() {
     prisma.location.upsert({
       where: { id: 'loc-mumbai' },
       update: {},
-      create: { id: 'loc-mumbai', name: 'Mumbai', district: 'Mumbai City', state: 'Maharashtra', lat: 19.076, lng: 72.877 },
+      create: {
+        id: 'loc-mumbai',
+        name: 'Mumbai',
+        district: 'Mumbai City',
+        state: 'Maharashtra',
+        lat: 19.076,
+        lng: 72.877,
+      },
     }),
     prisma.location.upsert({
       where: { id: 'loc-pune' },
       update: {},
-      create: { id: 'loc-pune', name: 'Pune', district: 'Pune', state: 'Maharashtra', lat: 18.520, lng: 73.856 },
+      create: {
+        id: 'loc-pune',
+        name: 'Pune',
+        district: 'Pune',
+        state: 'Maharashtra',
+        lat: 18.52,
+        lng: 73.856,
+      },
     }),
     prisma.location.upsert({
       where: { id: 'loc-nagpur' },
       update: {},
-      create: { id: 'loc-nagpur', name: 'Nagpur', district: 'Nagpur', state: 'Maharashtra', lat: 21.145, lng: 79.088 },
+      create: {
+        id: 'loc-nagpur',
+        name: 'Nagpur',
+        district: 'Nagpur',
+        state: 'Maharashtra',
+        lat: 21.145,
+        lng: 79.088,
+      },
     }),
   ]);
   console.log(`✅ ${locations.length} locations`);
 
   // ─── Users ────────────────────────────────────────────────────
   // Admin
-  const admin = await prisma.user.upsert({
+  const _admin = await prisma.user.upsert({
     where: { email: 'admin@wetheyuva.org' },
     update: {},
     create: {
@@ -78,7 +99,7 @@ async function main() {
   });
 
   // Observer
-  const observer = await prisma.user.upsert({
+  const _observer = await prisma.user.upsert({
     where: { email: 'observer@wetheyuva.org' },
     update: {},
     create: {
@@ -174,7 +195,9 @@ async function main() {
       },
     }),
   ]);
-  console.log(`✅ ${2 + 2 + volunteers.length} users (1 admin, 2 coordinators, 1 observer, ${volunteers.length} volunteers)`);
+  console.log(
+    `✅ ${2 + 2 + volunteers.length} users (1 admin, 2 coordinators, 1 observer, ${volunteers.length} volunteers)`
+  );
 
   // ─── Opportunities ────────────────────────────────────────────
   const now = new Date();
@@ -187,7 +210,8 @@ async function main() {
       create: {
         id: 'opp-teach-mumbai',
         title: 'Digital Literacy for Senior Citizens',
-        description: 'Help senior citizens in Mumbai learn to use smartphones, video calls, and online banking. Sessions are held at community centres every Saturday morning. No prior teaching experience required — just patience and enthusiasm!',
+        description:
+          'Help senior citizens in Mumbai learn to use smartphones, video calls, and online banking. Sessions are held at community centres every Saturday morning. No prior teaching experience required — just patience and enthusiasm!',
         skills: ['Teaching', 'Communication', 'Patience'],
         category: 'EDUCATION',
         locationId: 'loc-mumbai',
@@ -206,7 +230,8 @@ async function main() {
       create: {
         id: 'opp-tree-pune',
         title: 'Urban Tree Plantation Drive',
-        description: 'Join our city-wide tree plantation initiative in Pune. We aim to plant 500 trees across 5 neighbourhoods. Volunteers will receive gloves, tools, and saplings. Great for families and groups!',
+        description:
+          'Join our city-wide tree plantation initiative in Pune. We aim to plant 500 trees across 5 neighbourhoods. Volunteers will receive gloves, tools, and saplings. Great for families and groups!',
         skills: ['Physical Fitness', 'Teamwork'],
         category: 'ENVIRONMENT',
         locationId: 'loc-pune',
@@ -225,7 +250,8 @@ async function main() {
       create: {
         id: 'opp-code-remote',
         title: 'Code Mentorship for Rural Students',
-        description: 'Mentor rural high school students learning to code via online sessions. You will guide students through Python basics, help debug their projects, and inspire them to pursue technology careers.',
+        description:
+          'Mentor rural high school students learning to code via online sessions. You will guide students through Python basics, help debug their projects, and inspire them to pursue technology careers.',
         skills: ['Coding', 'Teaching', 'Mentoring'],
         category: 'TECHNOLOGY',
         locationId: null,
@@ -244,7 +270,8 @@ async function main() {
       create: {
         id: 'opp-health-nagpur',
         title: 'Free Health Screening Camp',
-        description: 'Assist medical professionals at a free health screening camp in Nagpur. Volunteers will help with registration, patient guidance, and post-screening counselling support.',
+        description:
+          'Assist medical professionals at a free health screening camp in Nagpur. Volunteers will help with registration, patient guidance, and post-screening counselling support.',
         skills: ['Healthcare', 'Communication', 'Empathy'],
         category: 'HEALTH',
         locationId: 'loc-nagpur',
@@ -354,35 +381,85 @@ async function main() {
   // ─── Applications (accepted) ──────────────────────────────────
   const apps = await Promise.all([
     prisma.application.upsert({
-      where: { opportunityId_volunteerId: { opportunityId: 'opp-teach-mumbai', volunteerId: volunteers[0].id } },
+      where: {
+        opportunityId_volunteerId: {
+          opportunityId: 'opp-teach-mumbai',
+          volunteerId: volunteers[0].id,
+        },
+      },
       update: {},
-      create: { opportunityId: 'opp-teach-mumbai', volunteerId: volunteers[0].id, status: 'ACCEPTED' },
+      create: {
+        opportunityId: 'opp-teach-mumbai',
+        volunteerId: volunteers[0].id,
+        status: 'ACCEPTED',
+      },
     }),
     prisma.application.upsert({
-      where: { opportunityId_volunteerId: { opportunityId: 'opp-teach-mumbai', volunteerId: volunteers[2].id } },
+      where: {
+        opportunityId_volunteerId: {
+          opportunityId: 'opp-teach-mumbai',
+          volunteerId: volunteers[2].id,
+        },
+      },
       update: {},
-      create: { opportunityId: 'opp-teach-mumbai', volunteerId: volunteers[2].id, status: 'ACCEPTED' },
+      create: {
+        opportunityId: 'opp-teach-mumbai',
+        volunteerId: volunteers[2].id,
+        status: 'ACCEPTED',
+      },
     }),
     prisma.application.upsert({
-      where: { opportunityId_volunteerId: { opportunityId: 'opp-tree-pune', volunteerId: volunteers[1].id } },
+      where: {
+        opportunityId_volunteerId: {
+          opportunityId: 'opp-tree-pune',
+          volunteerId: volunteers[1].id,
+        },
+      },
       update: {},
       create: { opportunityId: 'opp-tree-pune', volunteerId: volunteers[1].id, status: 'ACCEPTED' },
     }),
     prisma.application.upsert({
-      where: { opportunityId_volunteerId: { opportunityId: 'opp-code-remote', volunteerId: volunteers[2].id } },
+      where: {
+        opportunityId_volunteerId: {
+          opportunityId: 'opp-code-remote',
+          volunteerId: volunteers[2].id,
+        },
+      },
       update: {},
-      create: { opportunityId: 'opp-code-remote', volunteerId: volunteers[2].id, status: 'ACCEPTED' },
+      create: {
+        opportunityId: 'opp-code-remote',
+        volunteerId: volunteers[2].id,
+        status: 'ACCEPTED',
+      },
     }),
     prisma.application.upsert({
-      where: { opportunityId_volunteerId: { opportunityId: 'opp-health-nagpur', volunteerId: volunteers[3].id } },
+      where: {
+        opportunityId_volunteerId: {
+          opportunityId: 'opp-health-nagpur',
+          volunteerId: volunteers[3].id,
+        },
+      },
       update: {},
-      create: { opportunityId: 'opp-health-nagpur', volunteerId: volunteers[3].id, status: 'ACCEPTED' },
+      create: {
+        opportunityId: 'opp-health-nagpur',
+        volunteerId: volunteers[3].id,
+        status: 'ACCEPTED',
+      },
     }),
     // Pending application
     prisma.application.upsert({
-      where: { opportunityId_volunteerId: { opportunityId: 'opp-code-remote', volunteerId: volunteers[0].id } },
+      where: {
+        opportunityId_volunteerId: {
+          opportunityId: 'opp-code-remote',
+          volunteerId: volunteers[0].id,
+        },
+      },
       update: {},
-      create: { opportunityId: 'opp-code-remote', volunteerId: volunteers[0].id, status: 'PENDING' },
+      create: {
+        opportunityId: 'opp-code-remote',
+        volunteerId: volunteers[0].id,
+        status: 'PENDING',
+      },
     }),
   ]);
   console.log(`✅ ${apps.length} applications`);
@@ -400,5 +477,8 @@ async function main() {
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
   .finally(() => prisma.$disconnect());

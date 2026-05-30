@@ -36,7 +36,13 @@ alertsRouter.get('/', requireAuth, getMySubscriptionsHandler);
  *       201:
  *         description: Alert subscription created
  */
-alertsRouter.post('/', requireAuth, requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'), validate(AlertSubscriptionSchema), createSubscriptionHandler);
+alertsRouter.post(
+  '/',
+  requireAuth,
+  requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'),
+  validate(AlertSubscriptionSchema),
+  createSubscriptionHandler
+);
 
 /**
  * @openapi
@@ -82,4 +88,9 @@ alertsRouter.put(
  *       204:
  *         description: Alert subscription deleted
  */
-alertsRouter.delete('/:id', requireAuth, requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'), deleteSubscriptionHandler);
+alertsRouter.delete(
+  '/:id',
+  requireAuth,
+  requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'),
+  deleteSubscriptionHandler
+);

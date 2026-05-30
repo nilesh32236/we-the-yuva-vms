@@ -40,9 +40,15 @@ export async function createOpportunity(coordinatorId: string, data: Opportunity
 
   await invalidateListCache();
 
-  await logAudit({ userId: coordinatorId, action: 'OPPORTUNITY_CREATE', targetId: opportunity.id, targetType: 'Opportunity' });
+  await logAudit({
+    userId: coordinatorId,
+    action: 'OPPORTUNITY_CREATE',
+    targetId: opportunity.id,
+    targetType: 'Opportunity',
+  });
 
-  await notificationsQueue?.add('match-alert-subscriptions', { opportunityId: opportunity.id })
+  await notificationsQueue
+    ?.add('match-alert-subscriptions', { opportunityId: opportunity.id })
     .catch(() => {});
 
   return opportunity;
@@ -168,7 +174,12 @@ export async function updateOpportunity(
     },
   });
 
-  await logAudit({ userId: callerId, action: 'OPPORTUNITY_UPDATE', targetId: id, targetType: 'Opportunity' });
+  await logAudit({
+    userId: callerId,
+    action: 'OPPORTUNITY_UPDATE',
+    targetId: id,
+    targetType: 'Opportunity',
+  });
 
   await invalidateListCache();
   return updated;
@@ -190,7 +201,13 @@ export async function closeOpportunity(id: string, callerId: string, callerRole:
     data: { status: 'CLOSED' },
   });
 
-  await logAudit({ userId: callerId, action: 'OPPORTUNITY_DELETE', targetId: id, targetType: 'Opportunity', metadata: { status: 'CLOSED' } });
+  await logAudit({
+    userId: callerId,
+    action: 'OPPORTUNITY_DELETE',
+    targetId: id,
+    targetType: 'Opportunity',
+    metadata: { status: 'CLOSED' },
+  });
 
   await invalidateListCache();
   return closed;
@@ -227,7 +244,13 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
             status: 'PENDING',
           },
         });
-        await logAudit({ userId: volunteerId, action: 'APPLICATION_CREATE', targetId: application.id, targetType: 'Application', metadata: { opportunityId } });
+        await logAudit({
+          userId: volunteerId,
+          action: 'APPLICATION_CREATE',
+          targetId: application.id,
+          targetType: 'Application',
+          metadata: { opportunityId },
+        });
         return application;
       } catch (err: unknown) {
         if ((err as { code?: string })?.code === 'P2002') {
@@ -263,7 +286,10 @@ export async function listMyApplications(volunteerId: string, pagination?: Pagin
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function listApplications(opportunityId: string, pagination: { page: number; limit: number }) {
+export async function listApplications(
+  opportunityId: string,
+  pagination: { page: number; limit: number }
+) {
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
   const where = { opportunityId };
@@ -292,10 +318,14 @@ export async function withdrawApplication(applicationId: string, userId: string)
   const application = await prisma.application.findUnique({ where: { id: applicationId } });
   if (!application) throw new AppError('Application not found', 404);
   if (application.volunteerId !== userId) throw new AppError('Forbidden', 403);
-  if (application.status !== 'PENDING') throw new AppError('Only pending applications can be withdrawn', 400);
+  if (application.status !== 'PENDING')
+    throw new AppError('Only pending applications can be withdrawn', 400);
   // TODO: use proper WITHDRAWN status in production
   // Currently sets status to REJECTED (only option in ApplicationStatus enum)
-  const updated = await prisma.application.update({ where: { id: applicationId }, data: { status: 'REJECTED' } });
+  const updated = await prisma.application.update({
+    where: { id: applicationId },
+    data: { status: 'REJECTED' },
+  });
   await logAudit({
     userId,
     action: 'APPLICATION_UPDATE',
@@ -324,34 +354,39 @@ export async function updateApplicationStatus(
     throw new AppError('Forbidden', 403);
   }
 
-  const updated = await prisma.$transaction(async (tx) => {
-    if (status === 'ACCEPTED') {
-      const acceptedCount = await tx.application.count({
-        where: { opportunityId: application.opportunityId, status: 'ACCEPTED' },
-      });
-      if (acceptedCount >= application.opportunity.totalSlots) {
-        throw new AppError('No slots available', 400);
+  const updated = await prisma.$transaction(
+    async (tx) => {
+      if (status === 'ACCEPTED') {
+        const acceptedCount = await tx.application.count({
+          where: { opportunityId: application.opportunityId, status: 'ACCEPTED' },
+        });
+        if (acceptedCount >= application.opportunity.totalSlots) {
+          throw new AppError('No slots available', 400);
+        }
       }
-    }
-    const updatedApplication = await tx.application.update({
-      where: { id: applicationId },
-      data: { status },
-    });
-    await logAudit({
-      userId: callerId,
-      action: 'APPLICATION_UPDATE',
-      targetId: applicationId,
-      metadata: { status, opportunityId: application.opportunityId },
-    });
-    return updatedApplication;
-  }, { isolationLevel: 'Serializable' });
+      const updatedApplication = await tx.application.update({
+        where: { id: applicationId },
+        data: { status },
+      });
+      await logAudit({
+        userId: callerId,
+        action: 'APPLICATION_UPDATE',
+        targetId: applicationId,
+        metadata: { status, opportunityId: application.opportunityId },
+      });
+      return updatedApplication;
+    },
+    { isolationLevel: 'Serializable' }
+  );
 
   // Enqueue notification (non-blocking)
-  notificationsQueue?.add(`application-${status.toLowerCase()}`, {
-    volunteerId: application.volunteerId,
-    opportunityTitle: application.opportunity.title,
-    opportunityId: application.opportunityId,
-  }).catch(() => {});
+  notificationsQueue
+    ?.add(`application-${status.toLowerCase()}`, {
+      volunteerId: application.volunteerId,
+      opportunityTitle: application.opportunity.title,
+      opportunityId: application.opportunityId,
+    })
+    .catch(() => {});
 
   return updated;
 }

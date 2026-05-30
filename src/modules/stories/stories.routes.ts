@@ -57,7 +57,13 @@ storiesRouter.get('/published/:id', getStoryHandler);
  *       201:
  *         description: Story created
  */
-storiesRouter.post('/', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), validate(CreateStorySchema), createStoryHandler);
+storiesRouter.post(
+  '/',
+  requireAuth,
+  requireRole('VOLUNTEER', 'ADMIN'),
+  validate(CreateStorySchema),
+  createStoryHandler
+);
 
 /**
  * @openapi
@@ -77,7 +83,13 @@ storiesRouter.post('/', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), validate
  *       200:
  *         description: Story updated
  */
-storiesRouter.put('/:id', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), validate(UpdateStorySchema), updateStoryHandler);
+storiesRouter.put(
+  '/:id',
+  requireAuth,
+  requireRole('VOLUNTEER', 'ADMIN'),
+  validate(UpdateStorySchema),
+  updateStoryHandler
+);
 
 /**
  * @openapi

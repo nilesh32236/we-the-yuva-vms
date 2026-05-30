@@ -25,7 +25,16 @@ import type {
   EventSchema,
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
-import type { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema } from '../schemas/profile.schemas';
+import type {
+  StaffProfileSchema,
+  UpdateMeSchema,
+  VolunteerProfileSchema,
+} from '../schemas/profile.schemas';
+import type {
+  CreateStorySchema,
+  ModerateStorySchema,
+  UpdateStorySchema,
+} from '../schemas/stories.schemas';
 import type {
   CompleteLessonSchema,
   CreateCourseSchema,
@@ -33,11 +42,6 @@ import type {
   UpdateCourseSchema,
   UpdateLessonSchema,
 } from '../schemas/training.schemas';
-import type {
-  CreateStorySchema,
-  ModerateStorySchema,
-  UpdateStorySchema,
-} from '../schemas/stories.schemas';
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type SendOtpInput = z.infer<typeof SendOtpSchema>;

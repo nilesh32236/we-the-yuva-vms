@@ -3,20 +3,27 @@ import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
 function stripHtml(value: string): string {
-  return value
-    // Decode HTML entities first
-    .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(Number(dec)))
-    .replace(/&#x([\da-f]+);/gi, (_: string, hex: string) => String.fromCharCode(Number.parseInt(hex, 16)))
-    // Remove script tags and their content entirely
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-    // Remove HTML tags (only actual tags starting with < followed by a letter or /)
-    .replace(/<\/?[a-z][\s\S]*?>/gi, '')
-    // Strip javascript:/data:/vbscript: protocol handlers in attributes
-    .replace(/\s+(?:href|src|action|formaction)\s*=\s*["']?\s*(?:javascript|data|vbscript):/gi, ' ')
-    // Strip event handler attributes
-    .replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, ' ')
-    .replace(/\s+on\w+\s*=\s*\S+/gi, ' ')
-    .trim();
+  return (
+    value
+      // Decode HTML entities first
+      .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(Number(dec)))
+      .replace(/&#x([\da-f]+);/gi, (_: string, hex: string) =>
+        String.fromCharCode(Number.parseInt(hex, 16))
+      )
+      // Remove script tags and their content entirely
+      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+      // Remove HTML tags (only actual tags starting with < followed by a letter or /)
+      .replace(/<\/?[a-z][\s\S]*?>/gi, '')
+      // Strip javascript:/data:/vbscript: protocol handlers in attributes
+      .replace(
+        /\s+(?:href|src|action|formaction)\s*=\s*["']?\s*(?:javascript|data|vbscript):/gi,
+        ' '
+      )
+      // Strip event handler attributes
+      .replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, ' ')
+      .replace(/\s+on\w+\s*=\s*\S+/gi, ' ')
+      .trim()
+  );
 }
 
 export async function createStory(
@@ -58,7 +65,7 @@ export async function updateStory(
   id: string,
   userId: string,
   data: { title?: string; content?: string; mediaUrl?: string },
-  callerRole?: string,
+  callerRole?: string
 ) {
   const story = await prisma.story.findUnique({ where: { id } });
   if (!story) throw new AppError('Story not found', 404);
@@ -83,13 +90,24 @@ export async function deleteStory(id: string, userId: string, callerRole: string
   await logAudit({ userId, action: 'STORY_DELETE', targetId: id, targetType: 'Story' });
 }
 
-export async function moderateStory(id: string, adminId: string, callerRole: string, published: boolean) {
+export async function moderateStory(
+  id: string,
+  adminId: string,
+  callerRole: string,
+  published: boolean
+) {
   if (callerRole !== 'ADMIN')
     throw new AppError('Forbidden: only admins can moderate stories', 403);
   const story = await prisma.story.findUnique({ where: { id } });
   if (!story) throw new AppError('Story not found', 404);
   const updated = await prisma.story.update({ where: { id }, data: { published } });
-  await logAudit({ userId: adminId, action: published ? 'STORY_PUBLISH' : 'STORY_UNPUBLISH', targetId: id, targetType: 'Story', metadata: { published: String(published) } });
+  await logAudit({
+    userId: adminId,
+    action: published ? 'STORY_PUBLISH' : 'STORY_UNPUBLISH',
+    targetId: id,
+    targetType: 'Story',
+    metadata: { published: String(published) },
+  });
   return updated;
 }
 

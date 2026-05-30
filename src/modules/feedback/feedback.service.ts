@@ -34,7 +34,10 @@ export async function submitFeedback(
   });
 }
 
-export async function getMyFeedback(volunteerId: string, pagination: { page: number; limit: number }) {
+export async function getMyFeedback(
+  volunteerId: string,
+  pagination: { page: number; limit: number }
+) {
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
   const where = { volunteerId };
@@ -51,7 +54,10 @@ export async function getMyFeedback(volunteerId: string, pagination: { page: num
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function getEventFeedback(eventId: string, pagination?: { page: number; limit: number }) {
+export async function getEventFeedback(
+  eventId: string,
+  pagination?: { page: number; limit: number }
+) {
   if (!pagination) {
     return prisma.eventFeedback.findMany({
       where: { eventId },

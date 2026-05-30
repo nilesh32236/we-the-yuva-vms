@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import type { Prisma } from '@prisma/client';
 import type { EventInput } from '@/shared';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
@@ -37,7 +38,13 @@ export async function createEvent(
     },
   });
 
-  await logAudit({ userId: coordinatorId, action: 'EVENT_CREATE', targetId: event.id, targetType: 'Event', metadata: { opportunityId } });
+  await logAudit({
+    userId: coordinatorId,
+    action: 'EVENT_CREATE',
+    targetId: event.id,
+    targetType: 'Event',
+    metadata: { opportunityId },
+  });
 
   // Enqueue event-invitation jobs for all ACCEPTED volunteers
   const acceptedApplications = await prisma.application.findMany({
@@ -46,19 +53,24 @@ export async function createEvent(
   });
 
   for (const { volunteerId } of acceptedApplications) {
-    notificationsQueue?.add('event-invitation', {
-      volunteerId,
-      eventId: event.id,
-      eventTitle: event.title,
-      eventDate: event.eventDate,
-      venue: event.venue ?? event.meetingLink,
-    }).catch(() => {});
+    notificationsQueue
+      ?.add('event-invitation', {
+        volunteerId,
+        eventId: event.id,
+        eventTitle: event.title,
+        eventDate: event.eventDate,
+        venue: event.venue ?? event.meetingLink,
+      })
+      .catch(() => {});
   }
 
   return event;
 }
 
-export async function listEventsByOpportunity(opportunityId: string, pagination?: { page: number; limit: number }) {
+export async function listEventsByOpportunity(
+  opportunityId: string,
+  pagination?: { page: number; limit: number }
+) {
   if (!pagination) {
     return prisma.event.findMany({
       where: {
@@ -179,7 +191,13 @@ export async function cancelEvent(id: string, callerId: string, callerRole: stri
     data: { status: 'CANCELLED' },
   });
 
-  await logAudit({ userId: callerId, action: 'EVENT_DELETE', targetId: id, targetType: 'Event', metadata: { status: 'CANCELLED' } });
+  await logAudit({
+    userId: callerId,
+    action: 'EVENT_DELETE',
+    targetId: id,
+    targetType: 'Event',
+    metadata: { status: 'CANCELLED' },
+  });
 
   return cancelled;
 }
@@ -201,7 +219,8 @@ export async function markAttendance(
   const [endH, endM] = event.endTime.split(':').map(Number);
   const startMins = startH * 60 + startM;
   const endMins = endH * 60 + endM;
-  const durationHours = (endMins < startMins ? endMins + 24 * 60 - startMins : endMins - startMins) / 60;
+  const durationHours =
+    (endMins < startMins ? endMins + 24 * 60 - startMins : endMins - startMins) / 60;
 
   const volunteerIds = attendances.map((a) => a.volunteerId);
 
@@ -281,7 +300,10 @@ export async function markAttendance(
   return prisma.attendance.count({ where: { eventId, attended: true } });
 }
 
-export async function getAttendanceList(eventId: string, pagination: { page: number; limit: number }) {
+export async function getAttendanceList(
+  eventId: string,
+  pagination: { page: number; limit: number }
+) {
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
   const where = { eventId };
@@ -300,7 +322,10 @@ export async function getAttendanceList(eventId: string, pagination: { page: num
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function getMyEvents(volunteerId: string, pagination: { page: number; limit: number }) {
+export async function getMyEvents(
+  volunteerId: string,
+  pagination: { page: number; limit: number }
+) {
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
   const where = {
@@ -313,7 +338,7 @@ export async function getMyEvents(volunteerId: string, pagination: { page: numbe
   } as const;
   const [data, total] = await Promise.all([
     prisma.event.findMany({
-      where: where as any,
+      where: where as Prisma.EventFindManyArgs['where'],
       skip,
       take: limit,
       include: {
@@ -322,7 +347,7 @@ export async function getMyEvents(volunteerId: string, pagination: { page: numbe
       },
       orderBy: { eventDate: 'asc' },
     }),
-    prisma.event.count({ where: where as any }),
+    prisma.event.count({ where: where as Prisma.EventFindManyArgs['where'] }),
   ]);
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }

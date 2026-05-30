@@ -1,6 +1,6 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import multer from 'multer';
-import path from 'path';
 
 // TODO: use S3/cloud storage for production - local disk is not persistent
 // HF Spaces has read-only filesystem; use /tmp/uploads or cloud storage
@@ -19,8 +19,13 @@ const storage = multer.diskStorage({
 });
 
 const ALLOWED_MIMES = new Set([
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
-  'video/mp4', 'video/webm',
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/svg+xml',
+  'video/mp4',
+  'video/webm',
   'application/pdf',
 ]);
 
@@ -29,7 +34,9 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  const extAllowed = /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|pdf)$/i.test(path.extname(file.originalname));
+  const extAllowed = /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|pdf)$/i.test(
+    path.extname(file.originalname)
+  );
   const mimeAllowed = ALLOWED_MIMES.has(file.mimetype);
   if (extAllowed && mimeAllowed) return cb(null, true);
   cb(new Error('Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed'));

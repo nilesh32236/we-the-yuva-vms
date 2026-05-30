@@ -6,7 +6,7 @@ import { AppError } from '../../middleware/error.middleware';
 
 if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:' + (env.SMTP_FROM || 'admin@wetheyuva.org'),
+    `mailto:${env.SMTP_FROM || 'admin@wetheyuva.org'}`,
     env.VAPID_PUBLIC_KEY,
     env.VAPID_PRIVATE_KEY
   );

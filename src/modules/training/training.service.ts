@@ -1,4 +1,9 @@
-import type { CreateCourseInput, CreateLessonInput, UpdateCourseInput, UpdateLessonInput } from '@/shared';
+import type {
+  CreateCourseInput,
+  CreateLessonInput,
+  UpdateCourseInput,
+  UpdateLessonInput,
+} from '@/shared';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
@@ -28,25 +33,50 @@ export async function createLesson(courseId: string, userId: string, data: Creat
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course) throw new AppError('Course not found', 404);
   const lesson = await prisma.lesson.create({ data: { ...data, courseId } });
-  await logAudit({ userId, action: 'LESSON_CREATE', targetId: lesson.id, targetType: 'Lesson', metadata: { courseId } });
+  await logAudit({
+    userId,
+    action: 'LESSON_CREATE',
+    targetId: lesson.id,
+    targetType: 'Lesson',
+    metadata: { courseId },
+  });
   return lesson;
 }
 
-export async function updateLesson(courseId: string, id: string, userId: string, data: UpdateLessonInput) {
+export async function updateLesson(
+  courseId: string,
+  id: string,
+  userId: string,
+  data: UpdateLessonInput
+) {
   const lesson = await prisma.lesson.findUnique({ where: { id } });
   if (!lesson) throw new AppError('Lesson not found', 404);
-  if (lesson.courseId !== courseId) throw new AppError('Lesson does not belong to this course', 400);
+  if (lesson.courseId !== courseId)
+    throw new AppError('Lesson does not belong to this course', 400);
   const updated = await prisma.lesson.update({ where: { id }, data });
-  await logAudit({ userId, action: 'LESSON_UPDATE', targetId: id, targetType: 'Lesson', metadata: { courseId } });
+  await logAudit({
+    userId,
+    action: 'LESSON_UPDATE',
+    targetId: id,
+    targetType: 'Lesson',
+    metadata: { courseId },
+  });
   return updated;
 }
 
 export async function deleteLesson(courseId: string, id: string, userId: string) {
   const lesson = await prisma.lesson.findUnique({ where: { id } });
   if (!lesson) throw new AppError('Lesson not found', 404);
-  if (lesson.courseId !== courseId) throw new AppError('Lesson does not belong to this course', 400);
+  if (lesson.courseId !== courseId)
+    throw new AppError('Lesson does not belong to this course', 400);
   await prisma.lesson.delete({ where: { id } });
-  await logAudit({ userId, action: 'LESSON_DELETE', targetId: id, targetType: 'Lesson', metadata: { courseId } });
+  await logAudit({
+    userId,
+    action: 'LESSON_DELETE',
+    targetId: id,
+    targetType: 'Lesson',
+    metadata: { courseId },
+  });
 }
 
 export async function listCourses(userId: string, pagination?: { page: number; limit: number }) {
@@ -79,7 +109,11 @@ export async function listCourses(userId: string, pagination?: { page: number; l
     prisma.course.count(),
   ]);
   return {
-    data: data.map((c) => ({ ...c, lessonCount: c._count.lessons, progress: c.progress[0] ?? null })),
+    data: data.map((c) => ({
+      ...c,
+      lessonCount: c._count.lessons,
+      progress: c.progress[0] ?? null,
+    })),
     total,
     page,
     limit,

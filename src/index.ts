@@ -32,12 +32,26 @@ async function main() {
 
   // Register repeatable jobs (graceful if Redis unavailable)
   try {
-    await notificationsQueue?.add('check-event-reminders', {}, { repeat: { every: 60 * 60 * 1000 } });
-    await notificationsQueue?.add('clean-expired-qr-tokens', {}, { repeat: { every: 60 * 60 * 1000 } });
-    await notificationsQueue?.add('daily-metrics-snapshot', {}, { repeat: { pattern: '0 0 * * *' } });
+    await notificationsQueue?.add(
+      'check-event-reminders',
+      {},
+      { repeat: { every: 60 * 60 * 1000 } }
+    );
+    await notificationsQueue?.add(
+      'clean-expired-qr-tokens',
+      {},
+      { repeat: { every: 60 * 60 * 1000 } }
+    );
+    await notificationsQueue?.add(
+      'daily-metrics-snapshot',
+      {},
+      { repeat: { pattern: '0 0 * * *' } }
+    );
     logger.info('BullMQ repeatable jobs registered');
   } catch (error) {
-    logger.warn('BullMQ/Redis unavailable — repeatable jobs skipped', { error: (error as Error).message });
+    logger.warn('BullMQ/Redis unavailable — repeatable jobs skipped', {
+      error: (error as Error).message,
+    });
   }
 
   // Graceful shutdown
@@ -63,7 +77,9 @@ async function main() {
   process.on('SIGINT', () => shutdown('SIGINT'));
 
   process.on('unhandledRejection', (reason) => {
-    logger.error('Unhandled Rejection', { reason: reason instanceof Error ? reason.message : reason });
+    logger.error('Unhandled Rejection', {
+      reason: reason instanceof Error ? reason.message : reason,
+    });
   });
 
   process.on('uncaughtException', (error) => {

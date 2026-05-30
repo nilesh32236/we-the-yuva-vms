@@ -12,8 +12,8 @@ export async function createStoryHandler(req: Request, res: Response, next: Next
 
 export async function listPublishedStoriesHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const result = await service.getPublishedStories(page, limit);
     res.status(200).json(result);
   } catch (err) {
@@ -50,7 +50,12 @@ export async function deleteStoryHandler(req: Request, res: Response, next: Next
 
 export async function moderateStoryHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const story = await service.moderateStory(req.params.id, req.user!.id, req.user!.role, req.body.published);
+    const story = await service.moderateStory(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.body.published
+    );
     res.status(200).json(story);
   } catch (err) {
     next(err);
@@ -59,8 +64,8 @@ export async function moderateStoryHandler(req: Request, res: Response, next: Ne
 
 export async function listAllStoriesHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const result = await service.listAllStories(page, limit);
     res.status(200).json(result);
   } catch (err) {

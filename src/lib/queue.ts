@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq';
-import { redis } from './redis';
 import { logger } from './logger';
+import { redis } from './redis';
 
 let notificationsQueue: Queue | null = null;
 

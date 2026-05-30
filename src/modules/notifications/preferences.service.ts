@@ -1,6 +1,6 @@
 import type { NotificationPreferenceType } from '@prisma/client';
-import { prisma } from '../../lib/prisma';
 import { logger } from '../../lib/logger';
+import { prisma } from '../../lib/prisma';
 
 const DEFAULT_PREFERENCES: NotificationPreferenceType[] = [
   'APPLICATION_ACCEPTED',
@@ -14,11 +14,15 @@ export async function getPreferences(userId: string) {
   const existing = await prisma.notificationPreference.findMany({ where: { userId } });
   if (existing.length === 0) {
     for (const type of DEFAULT_PREFERENCES) {
-      await prisma.notificationPreference.upsert({
-        where: { userId_type: { userId, type } },
-        create: { userId, type },
-        update: {},
-      }).catch((err) => logger.warn('Failed to initialize preferences', { error: (err as Error).message }));
+      await prisma.notificationPreference
+        .upsert({
+          where: { userId_type: { userId, type } },
+          create: { userId, type },
+          update: {},
+        })
+        .catch((err) =>
+          logger.warn('Failed to initialize preferences', { error: (err as Error).message })
+        );
     }
     return DEFAULT_PREFERENCES.map((type) => ({ type, email: true, push: true }));
   }

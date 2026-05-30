@@ -34,8 +34,8 @@ export async function listOpportunitiesHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
 
     const filters = {
       category: req.query.category as string | undefined,
@@ -131,8 +131,8 @@ export async function listApplicationsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const applications = await listApplications(req.params.id, { page, limit });
     res.status(200).json(applications);
   } catch (err) {
@@ -177,8 +177,12 @@ export async function listMyApplicationsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const page = req.query.page ? Math.max(1, parseInt(req.query.page as string) || 1) : undefined;
-    const limit = page ? Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20)) : undefined;
+    const page = req.query.page
+      ? Math.max(1, parseInt(req.query.page as string, 10) || 1)
+      : undefined;
+    const limit = page
+      ? Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20))
+      : undefined;
     const pagination = page ? { page, limit: limit! } : undefined;
     // TODO: return consistent pagination envelope even when not paginated (production)
     const applications = await listMyApplications(req.user!.id, pagination);

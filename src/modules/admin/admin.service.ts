@@ -2,6 +2,7 @@ import type { User } from '@prisma/client';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
+
 import { AppError } from '../../middleware/error.middleware';
 
 interface ListUsersFilters {
@@ -15,12 +16,15 @@ interface Pagination {
   limit: number;
 }
 
-export async function createUser(adminId: string, data: {
-  name: string;
-  email: string;
-  role: string;
-  locationName?: string;
-}) {
+export async function createUser(
+  adminId: string,
+  data: {
+    name: string;
+    email: string;
+    role: string;
+    locationName?: string;
+  }
+) {
   let locationId: string | undefined;
   if (data.locationName) {
     const loc = await prisma.location.upsert({
@@ -40,7 +44,7 @@ export async function createUser(adminId: string, data: {
       data: {
         name: data.name,
         email: data.email,
-        role: data.role as any,
+        role: data.role as 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER',
         status: 'ACTIVE',
         locationId,
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: false } },
@@ -58,7 +62,13 @@ export async function createUser(adminId: string, data: {
     throw err;
   }
 
-  await logAudit({ userId: adminId, action: 'USER_CREATE', targetId: user.id, targetType: 'User', metadata: { role: data.role } });
+  await logAudit({
+    userId: adminId,
+    action: 'USER_CREATE',
+    targetId: user.id,
+    targetType: 'User',
+    metadata: { role: data.role },
+  });
 
   return user;
 }
@@ -116,8 +126,8 @@ export async function updateUser(
   const user = await prisma.user.update({
     where: { id },
     data: {
-      ...(data.status && { status: data.status as any }),
-      ...(data.role && { role: data.role as any }),
+      ...(data.status && { status: data.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'INACTIVE' }),
+      ...(data.role && { role: data.role as 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER' }),
     },
   });
 
@@ -128,11 +138,29 @@ export async function updateUser(
     if (data.role && data.role !== existing.role) changes.role = `${existing.role} → ${data.role}`;
 
     if (data.status === 'SUSPENDED' && existing.status !== 'SUSPENDED') {
-      await logAudit({ userId: adminId, action: 'USER_SUSPEND', targetId: id, targetType: 'User', metadata: changes });
+      await logAudit({
+        userId: adminId,
+        action: 'USER_SUSPEND',
+        targetId: id,
+        targetType: 'User',
+        metadata: changes,
+      });
     } else if (data.role && data.role !== existing.role) {
-      await logAudit({ userId: adminId, action: 'USER_CHANGE_ROLE', targetId: id, targetType: 'User', metadata: changes });
+      await logAudit({
+        userId: adminId,
+        action: 'USER_CHANGE_ROLE',
+        targetId: id,
+        targetType: 'User',
+        metadata: changes,
+      });
     } else if (Object.keys(changes).length > 0) {
-      await logAudit({ userId: adminId, action: 'USER_UPDATE', targetId: id, targetType: 'User', metadata: changes });
+      await logAudit({
+        userId: adminId,
+        action: 'USER_UPDATE',
+        targetId: id,
+        targetType: 'User',
+        metadata: changes,
+      });
     }
   }
 
@@ -144,10 +172,12 @@ export async function updateUser(
     });
 
     // Enqueue account-suspended notification
-    await notificationsQueue?.add('account-suspended', {
-      userId: id,
-      email: user.email,
-    }).catch(() => {});
+    await notificationsQueue
+      ?.add('account-suspended', {
+        userId: id,
+        email: user.email,
+      })
+      .catch(() => {});
   }
 
   return user;

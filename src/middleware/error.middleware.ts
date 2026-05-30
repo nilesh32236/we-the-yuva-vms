@@ -1,5 +1,5 @@
-import type { NextFunction, Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
+import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { logger } from '../lib/logger';
 
@@ -48,7 +48,8 @@ export function errorMiddleware(
     return;
   }
 
-  if ((err as any).code === 'LIMIT_FILE_SIZE' || (err as any).name === 'MulterError') {
+  const multerErr = err as { code?: string; name?: string };
+  if (multerErr.code === 'LIMIT_FILE_SIZE' || multerErr.name === 'MulterError') {
     res.status(400).json({ error: (err as Error).message || 'File upload error' });
     return;
   }

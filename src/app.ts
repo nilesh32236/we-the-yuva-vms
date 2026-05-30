@@ -1,11 +1,11 @@
+import path from 'node:path';
 import { setupExpressErrorHandler } from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import morgan from 'morgan';
-import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { env } from './config/env';
 import { prisma } from './lib/prisma';

@@ -20,7 +20,9 @@ export const CreateCourseSchema = z.object({
 export const UpdateCourseSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
   description: z.string().min(1, 'Description is required').optional(),
-  category: z.enum(['GENERAL', 'ORIENTATION', 'SAFETY', 'LEADERSHIP', 'SKILLS', 'OTHER']).optional(),
+  category: z
+    .enum(['GENERAL', 'ORIENTATION', 'SAFETY', 'LEADERSHIP', 'SKILLS', 'OTHER'])
+    .optional(),
   isRequired: z.boolean().optional(),
   order: z.number().int().optional(),
 });

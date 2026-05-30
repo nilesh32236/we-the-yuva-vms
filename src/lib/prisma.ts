@@ -11,9 +11,12 @@ export const prisma =
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
-prisma.$on('error' as never, ((e: unknown) => {
-  logger.error('Prisma client error', { error: e });
-}) as never);
+prisma.$on(
+  'error' as never,
+  ((e: unknown) => {
+    logger.error('Prisma client error', { error: e });
+  }) as never
+);
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;

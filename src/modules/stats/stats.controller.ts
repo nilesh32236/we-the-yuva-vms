@@ -46,7 +46,7 @@ export async function coordinatorStatsHandler(
 }
 
 export async function observerStatsHandler(
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
