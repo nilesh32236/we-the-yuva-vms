@@ -22,13 +22,14 @@ export async function getCoordinatorStats(coordinatorId: string) {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-  const [activeVolunteersGroups, eventsThisMonth, opportunities] = await Promise.all([
-    prisma.application.groupBy({
-      by: ['volunteerId'],
+  const [applications, eventsThisMonth, opportunities] = await Promise.all([
+    prisma.application.findMany({
       where: {
-        status: 'ACCEPTED',
         opportunity: { createdById: coordinatorId },
+        status: 'ACCEPTED',
       },
+      select: { volunteerId: true },
+      distinct: ['volunteerId'],
     }),
     prisma.event.count({
       where: {
@@ -43,7 +44,7 @@ export async function getCoordinatorStats(coordinatorId: string) {
   ]);
 
   return {
-    activeVolunteers: activeVolunteersGroups.length,
+    activeVolunteers: applications.length,
     eventsThisMonth,
     opportunities,
   };
@@ -71,13 +72,12 @@ export async function getVolunteerImpactData(volunteerId: string) {
 
   const now = new Date();
 
-  const [profile, eventsAttended, applications, attendances, storiesCount, feedbackCount] =
+  const [profile, applications, attendances, storiesCount, feedbackCount] =
     await Promise.all([
       prisma.volunteerProfile.findUnique({
         where: { userId: volunteerId },
         select: { totalHours: true },
       }),
-      prisma.attendance.count({ where: { volunteerId, attended: true } }),
       prisma.application.count({ where: { volunteerId } }),
       prisma.attendance.findMany({
         where: {
@@ -102,9 +102,9 @@ export async function getVolunteerImpactData(volunteerId: string) {
     ]);
 
   const monthLabels: string[] = [];
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
+  const now2 = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now2.getFullYear(), now2.getMonth() - i, 1);
     monthLabels.push(d.toLocaleString('default', { month: 'short', year: '2-digit' }));
   }
 
@@ -138,6 +138,8 @@ export async function getVolunteerImpactData(volunteerId: string) {
     category,
     count,
   }));
+
+  const eventsAttended = attendances.length;
 
   return {
     totalHours: profile?.totalHours ?? 0,

@@ -82,11 +82,13 @@ export async function getCoordinatorVolunteersHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
+    const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
     const search = req.query.search as string | undefined;
-    const skills = req.query.skills
-      ? (req.query.skills as string)
+    const raw = req.query.skills;
+    const skillsStr = Array.isArray(raw) ? String(raw) : (raw as string);
+    const skills = skillsStr
+      ? skillsStr
           .split(',')
           .map((s) => s.trim())
           .filter(Boolean)

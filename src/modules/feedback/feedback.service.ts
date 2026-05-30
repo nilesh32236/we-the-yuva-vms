@@ -12,7 +12,7 @@ export async function submitFeedback(
   const attendance = await prisma.attendance.findUnique({
     where: { eventId_volunteerId: { eventId, volunteerId } },
   });
-  if (!attendance) throw new AppError('You have not attended this event', 403);
+  if (!attendance?.attended) throw new AppError('You have not attended this event', 403);
 
   if (data.rating < 1 || data.rating > 5) throw new AppError('Rating must be between 1 and 5', 400);
   if (

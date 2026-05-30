@@ -4,6 +4,7 @@ import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
 import { notificationsQueue } from './lib/queue';
 import { initSentry } from './lib/sentry';
+import { seedCoursesIfEmpty } from './modules/training/training.service';
 import { notificationWorker } from './workers/notification.worker';
 
 async function main() {
@@ -18,6 +19,9 @@ async function main() {
     logger.error('Database connection failed', { error });
     process.exit(1);
   }
+
+  // Seed default training courses if DB is empty (dev mode only)
+  await seedCoursesIfEmpty();
 
   if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
     logger.warn('VAPID keys not configured — push notifications will be disabled');

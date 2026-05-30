@@ -121,7 +121,20 @@ notificationsRouter.put(
   updatePreferenceHandler
 );
 
-// Then :id routes
+// IMPORTANT: /read-all must be registered BEFORE /:id routes to avoid Express capturing "read-all" as an :id
+/**
+ * @openapi
+ * /notifications/read-all:
+ *   post:
+ *     tags: [Notifications]
+ *     summary: Mark all notifications as read
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: All notifications marked as read
+ */
+notificationsRouter.post('/read-all', requireAuth, markAllReadHandler);
+
 /**
  * @openapi
  * /notifications/{id}/read:
@@ -167,16 +180,3 @@ notificationsRouter.get('/:id', requireAuth, getNotificationHandler);
  *         description: Notification deleted
  */
 notificationsRouter.delete('/:id', requireAuth, deleteNotificationHandler);
-
-/**
- * @openapi
- * /notifications/read-all:
- *   post:
- *     tags: [Notifications]
- *     summary: Mark all notifications as read
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200:
- *         description: All notifications marked as read
- */
-notificationsRouter.post('/read-all', requireAuth, markAllReadHandler);

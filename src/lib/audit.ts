@@ -1,5 +1,6 @@
 import type { AuditLogAction, Prisma } from '@prisma/client';
 import { prisma } from './prisma';
+import { logger } from './logger';
 
 export async function logAudit(data: {
   userId: string;
@@ -8,12 +9,16 @@ export async function logAudit(data: {
   targetType?: string;
   metadata?: Record<string, string>;
 }) {
-  const createData: Prisma.AuditLogUncheckedCreateInput = {
-    userId: data.userId,
-    action: data.action,
-    targetId: data.targetId,
-    targetType: data.targetType,
-    metadata: data.metadata as Prisma.InputJsonValue,
-  };
-  await prisma.auditLog.create({ data: createData });
+  try {
+    const createData: Prisma.AuditLogUncheckedCreateInput = {
+      userId: data.userId,
+      action: data.action,
+      targetId: data.targetId,
+      targetType: data.targetType,
+      metadata: data.metadata as Prisma.InputJsonValue,
+    };
+    await prisma.auditLog.create({ data: createData });
+  } catch (err) {
+    logger.warn('Audit log write failed', { error: (err as Error).message, action: data.action });
+  }
 }

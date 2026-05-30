@@ -3,6 +3,7 @@ import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { redis } from '../../lib/redis';
+import { logger } from '../../lib/logger';
 import { AppError } from '../../middleware/error.middleware';
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -49,7 +50,7 @@ export async function createOpportunity(coordinatorId: string, data: Opportunity
 
   await notificationsQueue
     ?.add('match-alert-subscriptions', { opportunityId: opportunity.id })
-    .catch(() => {});
+    .catch((err) => logger.warn('Failed to enqueue match-alert notification', { error: (err as Error).message }));
 
   return opportunity;
 }
@@ -386,7 +387,7 @@ export async function updateApplicationStatus(
       opportunityTitle: application.opportunity.title,
       opportunityId: application.opportunityId,
     })
-    .catch(() => {});
+    .catch((err) => logger.warn('Failed to enqueue application status notification', { error: (err as Error).message }));
 
   return updated;
 }

@@ -20,7 +20,7 @@ const isProd = process.env.NODE_ENV === 'production';
 const ACCESS_COOKIE_OPTIONS = {
   httpOnly: false, // Must be readable by Next.js Edge middleware
   secure: isProd,
-  sameSite: (isProd ? 'none' : 'strict') as 'none' | 'strict',
+  sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 15 * 60 * 1000, // 15 minutes
   path: '/',
 };
@@ -28,7 +28,7 @@ const ACCESS_COOKIE_OPTIONS = {
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: isProd,
-  sameSite: (isProd ? 'none' : 'strict') as 'none' | 'strict',
+  sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/', // TODO: scope to /api/v1/auth/* in production
 };

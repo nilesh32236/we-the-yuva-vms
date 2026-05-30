@@ -1,3 +1,4 @@
+import type { NotificationType } from '@prisma/client';
 import webpush from 'web-push';
 import { env } from '../../config/env';
 import { logger } from '../../lib/logger';
@@ -36,10 +37,18 @@ export async function unsubscribe(userId: string, endpoint: string) {
   return { ok: true };
 }
 
-export async function sendPushToUser(userId: string, title: string, body: string, link?: string) {
+// TODO: consult NotificationPreference before sending push in production
+// Currently sends push to all subscribers regardless of user preferences
+export async function sendPushToUser(
+  userId: string,
+  title: string,
+  body: string,
+  link?: string,
+  type: NotificationType = 'INFO'
+) {
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
 
-  await prisma.notification.create({ data: { userId, title, body, link, type: 'INFO' } });
+  await prisma.notification.create({ data: { userId, title, body, link, type } });
 
   for (const sub of subs) {
     try {
@@ -54,7 +63,7 @@ export async function sendPushToUser(userId: string, title: string, body: string
       });
       await prisma.pushSubscription
         .deleteMany({ where: { endpoint: sub.endpoint } })
-        .catch(() => {});
+        .catch((err) => logger.warn('Failed to clean up push subscription', { error: (err as Error).message }));
     }
   }
 }

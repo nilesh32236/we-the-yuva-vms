@@ -4,6 +4,7 @@ import type { EventInput } from '@/shared';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
+import { logger } from '../../lib/logger';
 import { AppError } from '../../middleware/error.middleware';
 
 // ─── Event CRUD ───────────────────────────────────────────────────
@@ -61,7 +62,7 @@ export async function createEvent(
         eventDate: event.eventDate,
         venue: event.venue ?? event.meetingLink,
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue event invitation', { error: (err as Error).message }));
   }
 
   return event;
@@ -215,6 +216,9 @@ export async function markAttendance(
   }
 
   // Calculate event duration in hours from "HH:MM" strings
+  if (!event.startTime || !event.endTime) {
+    throw new AppError('Event has no start/end time configured', 400);
+  }
   const [startH, startM] = event.startTime.split(':').map(Number);
   const [endH, endM] = event.endTime.split(':').map(Number);
   const startMins = startH * 60 + startM;
@@ -419,6 +423,18 @@ export async function checkIn(
   if (!event) throw new AppError('Event not found', 404);
   if (event.status === 'CANCELLED') throw new AppError('Event is cancelled', 400);
 
+  // TEMPORARY: broad date window for dev testing (7 days before to 7 days after)
+  // TODO: tighten this window in production (e.g., event day only)
+  const now = new Date();
+  const eventDate = new Date(event.eventDate);
+  const msDevWindow = 7 * 24 * 60 * 60 * 1000;
+  if (now.getTime() < eventDate.getTime() - msDevWindow) {
+    throw new AppError('Event is too far in the future for check-in', 400);
+  }
+  if (now.getTime() > eventDate.getTime() + msDevWindow) {
+    throw new AppError('Event has already passed the check-in window', 400);
+  }
+
   if (qrToken) {
     if (event.qrToken !== qrToken) throw new AppError('Invalid QR code', 400);
     if (event.qrExpiresAt && new Date() > event.qrExpiresAt) {
@@ -470,7 +486,9 @@ export async function checkOut(
   if (attendance.checkedOutAt) throw new AppError('Already checked out', 400);
 
   const now = new Date();
-  const hoursWorked = (now.getTime() - attendance.checkedInAt.getTime()) / 3_600_000;
+  const rawHours = (now.getTime() - attendance.checkedInAt.getTime()) / 3_600_000;
+  // TODO: remove 16h cap in production — should use event duration instead
+  const hoursWorked = Math.min(Math.max(0, rawHours), 16);
 
   const [updated] = await prisma.$transaction([
     prisma.attendance.update({

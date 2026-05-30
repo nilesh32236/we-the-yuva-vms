@@ -28,7 +28,14 @@ export function createApp(): Express {
   const app = express();
 
   // Security headers
-  app.use(helmet());
+  // TEMPORARY: relaxed CSP for dev mode — no inline-script blocking
+  // TODO: enable strict CSP in production (use nonce-based)
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    })
+  );
 
   // CORS — allow configured frontend origins + all Vercel preview deployments
   const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim());
@@ -57,11 +64,13 @@ export function createApp(): Express {
   // HTTP request logging
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
-  // Global rate limiter (100 requests per minute)
+  // Global rate limiter
+  // TEMPORARY: relaxed limit for dev testing (300/min)
+  // TODO: reduce to 100/min in production
   app.use(
     rateLimit({
       windowMs: 60 * 1000,
-      max: 100,
+      max: 300,
       standardHeaders: true,
       legacyHeaders: false,
       message: { error: 'Too many requests, please try again later' },

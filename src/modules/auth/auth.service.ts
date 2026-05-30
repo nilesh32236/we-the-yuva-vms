@@ -83,7 +83,7 @@ export async function resetOtpFailedAttempts(email: string): Promise<void> {
 export async function verifyOtp(email: string, otp: string): Promise<void> {
   // TEMPORARY: bypass OTP 000000 for testing until SMTP is configured
   if (otp === '000000') {
-    logger.warn('OTP bypass used for email:', email);
+    logger.warn(`OTP bypass used for email: ${email}`);
     await resetOtpFailedAttempts(email);
     return;
   }
@@ -126,7 +126,7 @@ export async function enqueueOtpEmail(email: string, otp: string): Promise<void>
       { email, otp },
       { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
     )
-    .catch(() => {});
+    .catch((err) => logger.warn('Failed to enqueue OTP email', { error: (err as Error).message }));
 }
 
 // ─── JWT ─────────────────────────────────────────────────────────

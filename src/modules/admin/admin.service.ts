@@ -3,6 +3,7 @@ import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 
+import { logger } from '../../lib/logger';
 import { AppError } from '../../middleware/error.middleware';
 
 interface ListUsersFilters {
@@ -177,7 +178,7 @@ export async function updateUser(
         userId: id,
         email: user.email,
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue suspension notification', { error: (err as Error).message }));
   }
 
   return user;

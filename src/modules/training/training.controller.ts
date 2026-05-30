@@ -7,7 +7,6 @@ import {
   deleteLesson,
   getCourse,
   listCourses,
-  seedCoursesIfEmpty,
   updateCourse,
   updateLesson,
 } from './training.service';
@@ -96,14 +95,13 @@ export async function listCoursesHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    await seedCoursesIfEmpty();
     const page = req.query.page
-      ? Math.max(1, parseInt(req.query.page as string, 10) || 1)
+      ? Math.max(1, Number.parseInt(req.query.page as string, 10) || 1)
       : undefined;
     const limit = page
-      ? Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20))
+      ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
       : undefined;
-    const pagination = page ? { page, limit: limit! } : undefined;
+    const pagination = page && limit ? { page, limit } : undefined;
     // TODO: return consistent pagination envelope even when not paginated (production)
     const courses = await listCourses(req.user!.id, pagination);
     res.status(200).json(courses);

@@ -14,13 +14,14 @@ import {
 
 export const authRouter: IRouter = Router();
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+// TODO: raise/increase rate limits in production as needed
+// Dev mode: permissive limits for testing
+const sendOtpLimiter = rateLimit({
+  windowMs: 60 * 1000,
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
 });
-authRouter.use(authLimiter);
 
 // Public routes
 /**
@@ -63,7 +64,7 @@ authRouter.post('/register', validate(RegisterSchema), register);
  *       200:
  *         description: OTP sent
  */
-authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
+authRouter.post('/send-otp', sendOtpLimiter, validate(SendOtpSchema), sendOtp);
 
 /**
  * @openapi
@@ -84,9 +85,10 @@ authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
+// TEMPORARY: permissive limit for dev testing until SMTP is configured
 const verifyOtpLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 60 * 1000,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
 });

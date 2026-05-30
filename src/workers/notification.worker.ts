@@ -32,6 +32,8 @@ async function createInAppNotification(
   }
 }
 
+// TODO: consult NotificationPreference before sending push in production
+// Currently sends push to all subscribers regardless of user preferences
 async function sendPushToUser(userId: string, title: string, body: string, link?: string) {
   try {
     const subs = await prisma.pushSubscription.findMany({ where: { userId } });
@@ -41,10 +43,11 @@ async function sendPushToUser(userId: string, title: string, body: string, link?
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           JSON.stringify({ title, body, link })
         );
-      } catch {
+      } catch (err) {
+        logger.warn('Push subscription send failed, removing', { endpoint: sub.endpoint.slice(0, 30), error: (err as Error).message });
         await prisma.pushSubscription
           .deleteMany({ where: { endpoint: sub.endpoint } })
-          .catch(() => {});
+          .catch((cleanupErr) => logger.warn('Failed to clean up expired push subscription', { error: (cleanupErr as Error).message }));
       }
     }
   } catch (err) {
@@ -642,7 +645,7 @@ if (redis && notificationsQueue) {
           });
 
           for (const { volunteerId } of acceptedApplications) {
-            await notificationsQueue!.add(
+            await notificationsQueue?.add(
               'event-reminder',
               {
                 volunteerId,
