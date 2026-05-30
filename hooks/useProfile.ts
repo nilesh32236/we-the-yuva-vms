@@ -1,6 +1,6 @@
 import { useAuth } from './useAuth';
 
 export function useProfile() {
-  const { user, refetch } = useAuth();
-  return { data: user, refetch, isLoading: !user };
+  const { user, refetch, isLoading: authLoading } = useAuth();
+  return { data: user, refetch, isLoading: authLoading };
 }

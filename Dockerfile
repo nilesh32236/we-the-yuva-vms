@@ -10,6 +10,7 @@ FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV DOCKER_BUILD=true
 RUN pnpm build
 
 FROM base AS runner

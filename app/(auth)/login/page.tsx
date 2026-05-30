@@ -28,7 +28,11 @@ export default function LoginPage() {
   const onSubmit = async (data: SendOtpInput) => {
     setIsLoading(true);
     try {
-      await api.post('/auth/send-otp', data);
+      const res = await api.post('/auth/send-otp', data);
+      // TEMPORARY: store dev OTP so verify page can display it
+      if (res.data?.devOtp) {
+        sessionStorage.setItem('devOtp', res.data.devOtp);
+      }
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       const message =

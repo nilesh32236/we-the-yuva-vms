@@ -19,7 +19,17 @@ function VerifyOtpContent() {
   const email = searchParams.get('email') ?? '';
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [isVerifying, setIsVerifying] = useState(false);
+  const [devOtp, setDevOtp] = useState<string | null>(null);
   const submitted = useRef(false);
+
+  // TEMPORARY: read dev OTP from sessionStorage
+  useEffect(() => {
+    const stored = sessionStorage.getItem('devOtp');
+    if (stored) {
+      setDevOtp(stored);
+      sessionStorage.removeItem('devOtp');
+    }
+  }, []);
 
   const handleVerify = useCallback(
     async (digits: string[]) => {
@@ -113,6 +123,21 @@ function VerifyOtpContent() {
           <p className="text-brand-muted text-sm">We sent a 6-digit code to</p>
           <p className="font-medium text-brand-text text-sm">{email}</p>
         </div>
+
+        {/* TEMPORARY: dev OTP display for testing */}
+        {devOtp && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
+            <p className="text-yellow-800 text-sm font-medium">
+              ⚠️ Dev OTP (temporary — remove before production)
+            </p>
+            <p className="text-yellow-900 text-2xl font-mono font-bold tracking-widest mt-1">
+              {devOtp}
+            </p>
+            <p className="text-yellow-700 text-xs mt-1">
+              Or use bypass code <span className="font-mono font-bold">000000</span>
+            </p>
+          </div>
+        )}
 
         <div className="space-y-4">
           <OtpInput value={otp} onChange={setOtp} disabled={isVerifying} />

@@ -3,8 +3,6 @@ import { Open_Sans, Poppins } from 'next/font/google';
 import 'nprogress/nprogress.css';
 import './globals.css';
 import { Providers } from './providers';
-import { Suspense } from 'react';
-import { NavigationLoader } from '../components/shared/NavigationLoader';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -51,9 +49,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${poppins.variable} ${openSans.variable}`}>
       <body className="bg-brand-bg text-brand-text font-body antialiased">
         <Providers>
-          <Suspense fallback={null}>
-            <NavigationLoader />
-          </Suspense>
           {children}
         </Providers>
       </body>
