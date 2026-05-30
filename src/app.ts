@@ -106,7 +106,7 @@ export function createApp(): Express {
   app.use('/api/v1/upload', uploadRouter);
 
   // Serve uploaded files
-  app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
+  app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
   // Swagger/OpenAPI docs
   app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

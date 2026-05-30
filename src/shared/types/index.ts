@@ -18,6 +18,7 @@ import type {
 } from '../schemas/notifications.schemas';
 import type {
   ApplicationStatusSchema,
+  ApplySchema,
   AttendanceSchema,
   CheckInSchema,
   CheckOutSchema,
@@ -26,6 +27,7 @@ import type {
 } from '../schemas/opportunity.schemas';
 import type { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema } from '../schemas/profile.schemas';
 import type {
+  CompleteLessonSchema,
   CreateCourseSchema,
   CreateLessonSchema,
   UpdateCourseSchema,
@@ -62,6 +64,8 @@ export type AlertSubscriptionInput = z.infer<typeof AlertSubscriptionSchema>;
 export type AlertSubscriptionUpdateInput = z.infer<typeof AlertSubscriptionUpdateSchema>;
 export type CheckInInput = z.infer<typeof CheckInSchema>;
 export type CheckOutInput = z.infer<typeof CheckOutSchema>;
+export type ApplyInput = z.infer<typeof ApplySchema>;
+export type CompleteLessonInput = z.infer<typeof CompleteLessonSchema>;
 export type CreateCourseInput = z.infer<typeof CreateCourseSchema>;
 export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
 export type CreateLessonInput = z.infer<typeof CreateLessonSchema>;

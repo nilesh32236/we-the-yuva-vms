@@ -117,7 +117,7 @@ enum NotificationPreferenceType {
 
 model User {
   id         String     @id @default(cuid())
-  email      String?    @unique
+  email      String?    @unique // TODO: make required in production - currently optional for testing flexibility
   name       String
   role       Role       @default(VOLUNTEER)
   status     UserStatus @default(PENDING)

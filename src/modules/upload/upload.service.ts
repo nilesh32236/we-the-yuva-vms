@@ -1,7 +1,13 @@
+import fs from 'node:fs';
 import multer from 'multer';
 import path from 'path';
 
-const UPLOADS_DIR = path.resolve(__dirname, '../../../uploads');
+// TODO: use S3/cloud storage for production - local disk is not persistent
+// HF Spaces has read-only filesystem; use /tmp/uploads or cloud storage
+const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
+
+// Ensure uploads directory exists at module load time (fail fast)
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),

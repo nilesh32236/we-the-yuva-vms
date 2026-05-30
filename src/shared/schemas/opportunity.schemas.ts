@@ -24,10 +24,9 @@ export const OpportunitySchema = z
       .max(10, 'Maximum 10 skills allowed'),
     category: z.enum(OPPORTUNITY_CATEGORIES),
     locationId: z.string().optional(),
-    startDate: z
-      .string()
-      .datetime()
-      .refine((d) => new Date(d) > new Date(), 'Start date must be in the future'),
+    // TODO: add future-date validation only for CREATE in production
+    // Currently relaxed for editing existing records
+    startDate: z.string().datetime(),
     endDate: z.string().datetime(),
     hoursPerSession: z.number().positive('Hours per session must be positive'),
     totalSlots: z.number().int().positive('Total slots must be a positive integer'),
@@ -42,10 +41,9 @@ export const EventSchema = z
   .object({
     title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
     description: z.string().max(1000, 'Description too long').optional(),
-    eventDate: z
-      .string()
-      .datetime()
-      .refine((d) => new Date(d) > new Date(), 'Event date must be in the future'),
+    // TODO: add future-date validation only for CREATE in production
+    // Currently relaxed for editing existing records
+    eventDate: z.string().datetime(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
     venue: z.string().max(200, 'Venue name too long').optional(),

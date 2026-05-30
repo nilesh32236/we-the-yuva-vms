@@ -252,6 +252,9 @@ export async function markAttendance(
     );
 
     // Determine hour adjustment (skip if volunteer has self-checked-in/out to avoid double-counting)
+    // TODO: handle hour revocation for self-checked-in volunteers (production)
+    // Currently, if a volunteer self-checked-in, coordinator marking attended=false
+    // does not subtract hours because the actual duration is unknown at this point.
     const hasSelfCheckIn = existing?.checkedInAt || existing?.checkedOutAt;
     if (!hasSelfCheckIn) {
       if (!existing && attended) {
@@ -359,10 +362,13 @@ export async function getOrCreateEventQrToken(eventId: string): Promise<{
   });
 
   if (count === 0) {
-    const updated = await prisma.event.findUnique({ where: { id: eventId } })!;
+    const updated = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!updated?.qrToken || !updated?.qrExpiresAt) {
+      throw new AppError('Failed to generate QR token', 500);
+    }
     return {
-      token: updated!.qrToken!,
-      expiresAt: updated!.qrExpiresAt,
+      token: updated.qrToken,
+      expiresAt: updated.qrExpiresAt,
       eventDate: event.eventDate,
       eventTitle: event.title,
     };

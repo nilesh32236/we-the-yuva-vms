@@ -4,18 +4,18 @@ import { AppError } from '../../middleware/error.middleware';
 
 function stripHtml(value: string): string {
   return value
-    // First, decode HTML entities to prevent encoded XSS
+    // Decode HTML entities first
     .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(Number(dec)))
     .replace(/&#x([\da-f]+);/gi, (_: string, hex: string) => String.fromCharCode(Number.parseInt(hex, 16)))
-    // Remove script tags and their content
+    // Remove script tags and their content entirely
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-    // Remove remaining HTML tags
-    .replace(/<[^>]*>/g, '')
-    // Strip javascript:/data:/vbscript: protocol handlers
-    .replace(/['"]?\s*=\s*['"]?\s*(?:javascript|data|vbscript):/gi, '')
-    // Strip event handlers (onclick, onerror, etc.)
-    .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/\bon\w+\s*=\s*\S+/gi, '')
+    // Remove HTML tags (only actual tags starting with < followed by a letter or /)
+    .replace(/<\/?[a-z][\s\S]*?>/gi, '')
+    // Strip javascript:/data:/vbscript: protocol handlers in attributes
+    .replace(/\s+(?:href|src|action|formaction)\s*=\s*["']?\s*(?:javascript|data|vbscript):/gi, ' ')
+    // Strip event handler attributes
+    .replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, ' ')
+    .replace(/\s+on\w+\s*=\s*\S+/gi, ' ')
     .trim();
 }
 
@@ -57,11 +57,12 @@ export async function getStoryById(id: string) {
 export async function updateStory(
   id: string,
   userId: string,
-  data: { title?: string; content?: string; mediaUrl?: string }
+  data: { title?: string; content?: string; mediaUrl?: string },
+  callerRole?: string,
 ) {
   const story = await prisma.story.findUnique({ where: { id } });
   if (!story) throw new AppError('Story not found', 404);
-  if (story.userId !== userId) throw new AppError('Forbidden', 403);
+  if (story.userId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
   const updated = await prisma.story.update({
     where: { id },
     data: {

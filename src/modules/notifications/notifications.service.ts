@@ -4,11 +4,15 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
-webpush.setVapidDetails(
-  'mailto:' + (env.SMTP_FROM || 'admin@wetheyuva.org'),
-  env.VAPID_PUBLIC_KEY,
-  env.VAPID_PRIVATE_KEY
-);
+if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:' + (env.SMTP_FROM || 'admin@wetheyuva.org'),
+    env.VAPID_PUBLIC_KEY,
+    env.VAPID_PRIVATE_KEY
+  );
+} else {
+  logger.warn('VAPID keys not configured - push notifications disabled');
+}
 
 export async function subscribe(
   userId: string,
@@ -35,7 +39,7 @@ export async function unsubscribe(userId: string, endpoint: string) {
 export async function sendPushToUser(userId: string, title: string, body: string, link?: string) {
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
 
-  await prisma.notification.create({ data: { userId, title, body, link } });
+  await prisma.notification.create({ data: { userId, title, body, link, type: 'INFO' } });
 
   for (const sub of subs) {
     try {

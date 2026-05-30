@@ -84,6 +84,46 @@ notificationsRouter.get('/unread-count', requireAuth, unreadCountHandler);
 
 /**
  * @openapi
+ * /notifications/preferences:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: Get notification preferences
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Notification preferences
+ */
+// Register preference routes first (before :id catch-all)
+notificationsRouter.get('/preferences', requireAuth, getPreferencesHandler);
+
+/**
+ * @openapi
+ * /notifications/preferences/{type}:
+ *   put:
+ *     tags: [Notifications]
+ *     summary: Update notification preference for a type
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Notification type
+ *     responses:
+ *       200:
+ *         description: Preference updated
+ */
+notificationsRouter.put(
+  '/preferences/:type',
+  requireAuth,
+  validate(NotificationPreferenceSchema),
+  updatePreferenceHandler
+);
+
+// Then :id routes
+/**
+ * @openapi
  * /notifications/{id}/read:
  *   post:
  *     tags: [Notifications]
@@ -140,41 +180,3 @@ notificationsRouter.delete('/:id', requireAuth, deleteNotificationHandler);
  *         description: All notifications marked as read
  */
 notificationsRouter.post('/read-all', requireAuth, markAllReadHandler);
-
-/**
- * @openapi
- * /notifications/preferences:
- *   get:
- *     tags: [Notifications]
- *     summary: Get notification preferences
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Notification preferences
- */
-notificationsRouter.get('/preferences', requireAuth, getPreferencesHandler);
-
-/**
- * @openapi
- * /notifications/preferences/{type}:
- *   put:
- *     tags: [Notifications]
- *     summary: Update notification preference for a type
- *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: type
- *         required: true
- *         schema:
- *           type: string
- *         description: Notification type
- *     responses:
- *       200:
- *         description: Preference updated
- */
-notificationsRouter.put(
-  '/preferences/:type',
-  requireAuth,
-  validate(NotificationPreferenceSchema),
-  updatePreferenceHandler
-);

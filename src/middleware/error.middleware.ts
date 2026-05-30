@@ -53,6 +53,13 @@ export function errorMiddleware(
     return;
   }
 
+  // Multer/file upload errors
+  const errorMsg = (err as Error).message?.toLowerCase() ?? '';
+  if (errorMsg.includes('file type') || errorMsg.includes('only')) {
+    res.status(400).json({ error: (err as Error).message });
+    return;
+  }
+
   const error = err as Error;
   logger.error('Unhandled error', {
     path: req.path,

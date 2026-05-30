@@ -30,7 +30,7 @@ const REFRESH_COOKIE_OPTIONS = {
   secure: isProd,
   sameSite: (isProd ? 'none' : 'strict') as 'none' | 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  path: '/api/v1/auth/refresh',
+  path: '/', // TODO: scope to /api/v1/auth/* in production
 };
 
 export async function register(req: Request, res: Response, next: NextFunction) {
@@ -89,7 +89,11 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
     const user = await prisma.user.update({
       where: { email: email.toLowerCase() },
       data: { status: 'ACTIVE' },
-      select: { id: true, name: true, role: true, status: true, locationId: true },
+      select: {
+        id: true, name: true, email: true, role: true, status: true, locationId: true,
+        consent: { select: { id: true } },
+        profile: { select: { id: true } },
+      },
     });
 
     const accessToken = signAccessToken(user.id, user.role);
@@ -130,7 +134,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
       sameSite: isProd ? 'none' : 'strict',
     });
     res.clearCookie('refresh_token', {
-      path: '/api/v1/auth/refresh',
+      path: '/',
       secure: isProd,
       sameSite: isProd ? 'none' : 'strict',
     });
@@ -140,7 +144,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
-    const refreshToken = req.cookies?.refresh_token;
+    const refreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
     if (refreshToken) {
       const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
       const record = await prisma.refreshToken.findUnique({ where: { tokenHash } });
@@ -156,7 +160,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
       sameSite: isProd ? 'none' : 'strict',
     });
     res.clearCookie('refresh_token', {
-      path: '/api/v1/auth/refresh',
+      path: '/',
       secure: isProd,
       sameSite: isProd ? 'none' : 'strict',
     });

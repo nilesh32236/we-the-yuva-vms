@@ -27,5 +27,9 @@ RUN corepack enable && corepack prepare pnpm@9.0.0 --activate \
  && pnpm add -P tsx \
  && npx prisma generate
 ENV REDIS_URL=redis://127.0.0.1:6379
+ENV NODE_ENV=production
+# TODO: remove seed from CMD for production - currently runs on every start
 EXPOSE 4000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/v1/health || exit 1
 CMD ["sh", "-c", "redis-server --daemonize yes && sleep 1 && npx prisma db push --accept-data-loss --skip-generate && npx tsx prisma/seed.ts && exec node dist/index.js"]

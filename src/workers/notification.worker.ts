@@ -8,15 +8,19 @@ import { prisma } from '../lib/prisma';
 import { notificationsQueue } from '../lib/queue';
 import { redis } from '../lib/redis';
 
-webpush.setVapidDetails(
-  'mailto:' + (env.SMTP_FROM || 'admin@wetheyuva.org'),
-  env.VAPID_PUBLIC_KEY,
-  env.VAPID_PRIVATE_KEY
-);
+if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:' + (env.SMTP_FROM || 'admin@wetheyuva.org'),
+    env.VAPID_PUBLIC_KEY,
+    env.VAPID_PRIVATE_KEY
+  );
+} else {
+  logger.warn('VAPID keys not configured - push notifications disabled');
+}
 
-async function createInAppNotification(userId: string, title: string, body: string, link?: string) {
+async function createInAppNotification(userId: string, title: string, body: string, link?: string, type?: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS') {
   try {
-    await prisma.notification.create({ data: { userId, title, body, link } });
+    await prisma.notification.create({ data: { userId, title, body, link, type: type ?? 'INFO' } });
   } catch (err) {
     logger.error('Failed to create in-app notification', { userId, error: (err as Error).message });
   }
@@ -391,7 +395,9 @@ if (redis && notificationsQueue) {
       await createInAppNotification(
         volunteerId,
         'Application Accepted',
-        `Your application for "${opportunityTitle}" has been accepted!`
+        `Your application for "${opportunityTitle}" has been accepted!`,
+        undefined,
+        'SUCCESS'
       );
       await sendPushToUser(
         volunteerId,
@@ -424,7 +430,9 @@ if (redis && notificationsQueue) {
       await createInAppNotification(
         volunteerId,
         'Application Update',
-        `Your application for "${opportunityTitle}" was not accepted.`
+        `Your application for "${opportunityTitle}" was not accepted.`,
+        undefined,
+        'INFO'
       );
       await sendPushToUser(
         volunteerId,
@@ -460,7 +468,9 @@ if (redis && notificationsQueue) {
       await createInAppNotification(
         volunteerId,
         'Event Invitation',
-        `You're invited to "${eventTitle}"!`
+        `You're invited to "${eventTitle}"!`,
+        undefined,
+        'INFO'
       );
       await sendPushToUser(volunteerId, 'Event Invitation', `You're invited to "${eventTitle}"!`);
 
@@ -492,7 +502,9 @@ if (redis && notificationsQueue) {
       await createInAppNotification(
         volunteerId,
         'Event Reminder',
-        `"${eventTitle}" is happening tomorrow!`
+        `"${eventTitle}" is happening tomorrow!`,
+        undefined,
+        'INFO'
       );
       await sendPushToUser(volunteerId, 'Event Reminder', `"${eventTitle}" is happening tomorrow!`);
 
@@ -514,9 +526,11 @@ if (redis && notificationsQueue) {
         await createInAppNotification(
           userId,
           'Account Suspended',
-          'Your account has been suspended. Please contact support.'
-        );
-        await sendPushToUser(userId, 'Account Suspended', 'Your account has been suspended.');
+          'Your account has been suspended. Please contact support.',
+        undefined,
+        'WARNING'
+      );
+      await sendPushToUser(userId, 'Account Suspended', 'Your account has been suspended.');
       }
 
       logger.info('Account suspended email sent', { email, jobId: job.id });
@@ -547,7 +561,8 @@ if (redis && notificationsQueue) {
           sub.userId,
           'New Opportunity Match',
           `"${opportunity.title}" matches your alert preferences!`,
-          `/volunteer/opportunities/${opportunityId}`
+          `/volunteer/opportunities/${opportunityId}`,
+          'INFO'
         );
       }
 

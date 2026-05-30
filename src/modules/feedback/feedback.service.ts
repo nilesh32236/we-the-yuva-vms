@@ -22,15 +22,15 @@ export async function submitFeedback(
     throw new AppError('Confidence level must be between 1 and 5', 400);
   }
 
-  return prisma.eventFeedback.upsert({
+  const existing = await prisma.eventFeedback.findUnique({
     where: { eventId_volunteerId: { eventId, volunteerId } },
-    create: { eventId, volunteerId, ...data },
-    update: {
-      rating: data.rating,
-      comments: data.comments,
-      learnings: data.learnings,
-      confidenceLevel: data.confidenceLevel,
-    },
+  });
+  if (existing) {
+    throw new AppError('You have already submitted feedback for this event', 409);
+  }
+
+  return prisma.eventFeedback.create({
+    data: { eventId, volunteerId, ...data },
   });
 }
 

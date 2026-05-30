@@ -32,7 +32,7 @@ export async function getStoryHandler(req: Request, res: Response, next: NextFun
 
 export async function updateStoryHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const story = await service.updateStory(req.params.id, req.user!.id, req.body);
+    const story = await service.updateStory(req.params.id, req.user!.id, req.body, req.user!.role);
     res.status(200).json(story);
   } catch (err) {
     next(err);

@@ -6,6 +6,7 @@ export async function getMySubscriptionsHandler(req: Request, res: Response, nex
     const page = req.query.page ? Math.max(1, parseInt(req.query.page as string) || 1) : undefined;
     const limit = page ? Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20)) : undefined;
     const pagination = page ? { page, limit: limit! } : undefined;
+    // TODO: return consistent pagination envelope even when not paginated (production)
     const result = await service.getMySubscriptions(req.user!.id, pagination);
     res.status(200).json(result);
   } catch (err) {

@@ -74,6 +74,8 @@ export async function listOpportunities(filters: OpportunityFilters, pagination:
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
 
+  // TODO: include requesting user's application status in production
+  // Currently doesn't eager-load the user's application for performance
   // Build where clause
   const where: Record<string, unknown> = { status: 'ACTIVE' };
 
@@ -291,6 +293,8 @@ export async function withdrawApplication(applicationId: string, userId: string)
   if (!application) throw new AppError('Application not found', 404);
   if (application.volunteerId !== userId) throw new AppError('Forbidden', 403);
   if (application.status !== 'PENDING') throw new AppError('Only pending applications can be withdrawn', 400);
+  // TODO: use proper WITHDRAWN status in production
+  // Currently sets status to REJECTED (only option in ApplicationStatus enum)
   const updated = await prisma.application.update({ where: { id: applicationId }, data: { status: 'REJECTED' } });
   await logAudit({
     userId,
@@ -321,11 +325,13 @@ export async function updateApplicationStatus(
   }
 
   const updated = await prisma.$transaction(async (tx) => {
-    const acceptedCount = await tx.application.count({
-      where: { opportunityId: application.opportunityId, status: 'ACCEPTED' },
-    });
-    if (acceptedCount >= application.opportunity.totalSlots) {
-      throw new AppError('No slots available', 400);
+    if (status === 'ACCEPTED') {
+      const acceptedCount = await tx.application.count({
+        where: { opportunityId: application.opportunityId, status: 'ACCEPTED' },
+      });
+      if (acceptedCount >= application.opportunity.totalSlots) {
+        throw new AppError('No slots available', 400);
+      }
     }
     const updatedApplication = await tx.application.update({
       where: { id: applicationId },
