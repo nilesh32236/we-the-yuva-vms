@@ -31,6 +31,15 @@ function VerifyOtpContent() {
     }
   }, []);
 
+  // Redirect to login if no email provided (useEffect to avoid render-phase redirect with Suspense)
+  const [redirected, setRedirected] = useState(false);
+  useEffect(() => {
+    if (!email && !redirected) {
+      setRedirected(true);
+      router.push('/login');
+    }
+  }, [email, redirected, router]);
+
   const handleVerify = useCallback(
     async (digits: string[]) => {
       const code = digits.join('');
@@ -42,6 +51,9 @@ function VerifyOtpContent() {
       setIsVerifying(true);
       try {
         const response = await api.post('/auth/verify-otp', { email, otp: code });
+        if (!response.data?.accessToken || !response.data?.user) {
+          throw new Error('Invalid server response');
+        }
         const { user, accessToken } = response.data;
 
         // Store in memory for immediate API calls (cross-domain Bearer)
@@ -96,14 +108,15 @@ function VerifyOtpContent() {
   }, [otp, isVerifying, handleVerify]);
 
   const handleResend = async () => {
-    await api.post('/auth/send-otp', { email });
+    const res = await api.post('/auth/send-otp', { email });
+    if (res.data?.devOtp) {
+      sessionStorage.setItem('devOtp', res.data.devOtp);
+      setDevOtp(res.data.devOtp);
+    }
     toast({ title: 'Code sent', description: `A new code has been sent to ${email}` });
   };
 
-  if (!email) {
-    router.push('/login');
-    return null;
-  }
+  if (!email && redirected) return null;
 
   return (
     <div className="space-y-6">

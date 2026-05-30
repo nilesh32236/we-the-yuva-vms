@@ -29,7 +29,7 @@ export default function VolunteerDashboardPage() {
           <div>
             <p className="text-white/70 text-sm font-medium mb-1">{greeting}</p>
             <h1 className="font-heading font-bold text-2xl md:text-3xl text-white">
-              {user?.name?.split(' ')[0]}!
+              {user?.name?.split(' ')?.[0]}!
             </h1>
             <span className="inline-block mt-2 text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full">
               Volunteer
@@ -42,7 +42,7 @@ export default function VolunteerDashboardPage() {
             <span className="font-heading font-bold text-xl text-white">
               {user?.name
                 ?.split(' ')
-                .map((n: string) => n[0])
+                ?.map((n: string) => n[0])
                 .join('')
                 .toUpperCase()
                 .slice(0, 2) ?? '?'}

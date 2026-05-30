@@ -57,8 +57,11 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
           id="description"
           {...register('description')}
           rows={3}
-          className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
         />
+        {errors.description && (
+          <p className="text-xs text-brand-error">{errors.description.message as string}</p>
+        )}
       </div>
 
       <div className="space-y-1.5">

@@ -3,7 +3,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { Camera, CheckCircle, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 
 function ScanInner() {
@@ -15,6 +15,8 @@ function ScanInner() {
 
   const token = searchParams.get('token');
   const eventId = searchParams.get('eventId');
+
+  const submitted = useRef(false);
 
   const checkinMutation = useMutation({
     mutationFn: (qrToken: string) =>
@@ -30,6 +32,7 @@ function ScanInner() {
   });
 
   const handleManualSubmit = () => {
+    if (!eventId) { setErrorMsg('Missing event ID. Scan the QR code from your event page.'); return; }
     if (!manualToken.trim()) {
       setErrorMsg('Please enter a check-in code');
       return;
@@ -39,7 +42,9 @@ function ScanInner() {
   };
 
   useEffect(() => {
+    if (submitted.current) return;
     if (token && eventId) {
+      submitted.current = true;
       checkinMutation.mutate(token);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,7 +130,7 @@ function ScanInner() {
 
 export default function ScanPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="text-center text-brand-muted py-8">Loading scan page...</div>}>
       <ScanInner />
     </Suspense>
   );

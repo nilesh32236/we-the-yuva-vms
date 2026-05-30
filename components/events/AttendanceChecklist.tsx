@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/Button';
 
 interface Volunteer {
@@ -20,6 +20,10 @@ export function AttendanceChecklist({ volunteers, onSave }: AttendanceChecklistP
     Object.fromEntries(volunteers.map((v) => [v.volunteerId, v.attended]))
   );
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, v.attended])));
+  }, [volunteers]);
 
   const attended = Object.values(state).filter(Boolean).length;
 

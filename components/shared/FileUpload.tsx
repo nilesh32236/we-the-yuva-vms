@@ -25,6 +25,7 @@ export function FileUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
+    if (uploading) return;
     if (!file.type.startsWith('image/')) {
       setError('Only image files are allowed');
       return;

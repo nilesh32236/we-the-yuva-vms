@@ -28,7 +28,8 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       await api.post('/auth/register', data);
-      await api.post('/auth/send-otp', { email: data.email });
+      const otpRes = await api.post('/auth/send-otp', { email: data.email });
+      if (otpRes.data?.devOtp) sessionStorage.setItem('devOtp', otpRes.data.devOtp);
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       const err = error as { response?: { status?: number; data?: { error?: string } } };

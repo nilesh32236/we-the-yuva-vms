@@ -51,6 +51,7 @@ export default function NotificationsPage() {
     queryKey: ['notifications', 'list'],
     queryFn: () => api.get('/notifications?limit=50').then((r) => r.data),
     staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 
   const { data: unreadData } = useQuery({

@@ -354,7 +354,8 @@ export default function SetupProfilePage() {
       ADMIN: '/admin/dashboard',
       OBSERVER: '/observer/dashboard',
     };
-    // user.role is stable — role doesn't change during profile setup
+    // TEMPORARY: role is set during registration/OTP verification, doesn't change during profile setup
+    // TODO: read from refetch result in production for accuracy
     router.push(roleRoutes[user?.role ?? ''] ?? '/login');
   };
 
