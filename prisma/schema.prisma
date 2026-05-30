@@ -97,6 +97,12 @@ enum AuditLogAction {
   STORY_DELETE
   STORY_PUBLISH
   STORY_UNPUBLISH
+  COURSE_CREATE
+  COURSE_UPDATE
+  COURSE_DELETE
+  LESSON_CREATE
+  LESSON_UPDATE
+  LESSON_DELETE
 }
 
 enum NotificationPreferenceType {
@@ -140,6 +146,7 @@ model User {
 
   @@index([role])
   @@index([status])
+  @@index([locationId])
 }
 
 model VolunteerProfile {
@@ -243,6 +250,7 @@ model Opportunity {
   @@index([category])
   @@index([createdById])
   @@index([startDate])
+  @@index([locationId])
 }
 
 model Application {

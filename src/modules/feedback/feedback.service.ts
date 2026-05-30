@@ -51,11 +51,26 @@ export async function getMyFeedback(volunteerId: string, pagination: { page: num
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function getEventFeedback(eventId: string) {
-  return prisma.eventFeedback.findMany({
-    where: { eventId },
-    include: { volunteer: { select: { name: true } } },
-  });
+export async function getEventFeedback(eventId: string, pagination?: { page: number; limit: number }) {
+  if (!pagination) {
+    return prisma.eventFeedback.findMany({
+      where: { eventId },
+      include: { volunteer: { select: { name: true } } },
+    });
+  }
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.eventFeedback.findMany({
+      where: { eventId },
+      skip,
+      take: limit,
+      include: { volunteer: { select: { name: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.eventFeedback.count({ where: { eventId } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function updateFeedback(

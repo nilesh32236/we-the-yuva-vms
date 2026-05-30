@@ -1,6 +1,7 @@
 import { type IRouter, Router } from 'express';
 import { AlertSubscriptionSchema, AlertSubscriptionUpdateSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
+import { requireRole } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import {
   createSubscriptionHandler,
@@ -35,7 +36,7 @@ alertsRouter.get('/', requireAuth, getMySubscriptionsHandler);
  *       201:
  *         description: Alert subscription created
  */
-alertsRouter.post('/', requireAuth, validate(AlertSubscriptionSchema), createSubscriptionHandler);
+alertsRouter.post('/', requireAuth, requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'), validate(AlertSubscriptionSchema), createSubscriptionHandler);
 
 /**
  * @openapi
@@ -58,6 +59,7 @@ alertsRouter.post('/', requireAuth, validate(AlertSubscriptionSchema), createSub
 alertsRouter.put(
   '/:id',
   requireAuth,
+  requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'),
   validate(AlertSubscriptionUpdateSchema),
   updateSubscriptionHandler
 );
@@ -77,7 +79,7 @@ alertsRouter.put(
  *           type: string
  *         description: Alert subscription ID
  *     responses:
- *       200:
+ *       204:
  *         description: Alert subscription deleted
  */
-alertsRouter.delete('/:id', requireAuth, deleteSubscriptionHandler);
+alertsRouter.delete('/:id', requireAuth, requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'), deleteSubscriptionHandler);

@@ -12,13 +12,20 @@ const storage = multer.diskStorage({
   },
 });
 
+const ALLOWED_MIMES = new Set([
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+  'video/mp4', 'video/webm',
+  'application/pdf',
+]);
+
 const fileFilter = (
   _req: Express.Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  const allowed = /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|pdf)$/i;
-  if (allowed.test(path.extname(file.originalname))) return cb(null, true);
+  const extAllowed = /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|pdf)$/i.test(path.extname(file.originalname));
+  const mimeAllowed = ALLOWED_MIMES.has(file.mimetype);
+  if (extAllowed && mimeAllowed) return cb(null, true);
   cb(new Error('Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed'));
 };
 

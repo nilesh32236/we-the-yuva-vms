@@ -107,8 +107,8 @@ export async function closeOpportunityHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const closed = await closeOpportunity(req.params.id, req.user!.id, req.user!.role);
-    res.status(200).json(closed);
+    await closeOpportunity(req.params.id, req.user!.id, req.user!.role);
+    res.status(204).send();
   } catch (err) {
     next(err);
   }
@@ -177,7 +177,10 @@ export async function listMyApplicationsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const applications = await listMyApplications(req.user!.id);
+    const page = req.query.page ? Math.max(1, parseInt(req.query.page as string) || 1) : undefined;
+    const limit = page ? Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20)) : undefined;
+    const pagination = page ? { page, limit: limit! } : undefined;
+    const applications = await listMyApplications(req.user!.id, pagination);
     res.status(200).json(applications);
   } catch (err) {
     next(err);

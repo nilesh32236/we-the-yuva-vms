@@ -79,7 +79,8 @@ authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
-authRouter.post('/verify-otp', validate(VerifyOtpSchema), verifyOtpHandler);
+const verifyOtpLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
+authRouter.post('/verify-otp', verifyOtpLimiter, validate(VerifyOtpSchema), verifyOtpHandler);
 
 /**
  * @openapi
@@ -100,7 +101,7 @@ authRouter.post('/refresh', refresh);
  *     tags: [Auth]
  *     summary: Logout user
  *     responses:
- *       200:
+ *       204:
  *         description: Logged out
  */
 authRouter.post('/logout', logout);

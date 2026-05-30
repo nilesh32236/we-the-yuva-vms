@@ -4,10 +4,19 @@ import { AppError } from '../../middleware/error.middleware';
 
 function stripHtml(value: string): string {
   return value
+    // First, decode HTML entities to prevent encoded XSS
+    .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(Number(dec)))
+    .replace(/&#x([\da-f]+);/gi, (_: string, hex: string) => String.fromCharCode(Number.parseInt(hex, 16)))
+    // Remove script tags and their content
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+    // Remove remaining HTML tags
     .replace(/<[^>]*>/g, '')
+    // Strip javascript:/data:/vbscript: protocol handlers
+    .replace(/['"]?\s*=\s*['"]?\s*(?:javascript|data|vbscript):/gi, '')
+    // Strip event handlers (onclick, onerror, etc.)
     .replace(/\bon\w+\s*=\s*["'][^"']*["']/gi, '')
     .replace(/\bon\w+\s*=\s*\S+/gi, '')
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+    .trim();
 }
 
 export async function createStory(

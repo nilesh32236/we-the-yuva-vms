@@ -190,6 +190,7 @@ trainingRouter.get('/:id', requireAuth, getCourseHandler);
 trainingRouter.post(
   '/:id/lessons/:lessonId/complete',
   requireAuth,
+  requireRole('VOLUNTEER'),
   validate(CompleteLessonSchema),
   completeLessonHandler
 );

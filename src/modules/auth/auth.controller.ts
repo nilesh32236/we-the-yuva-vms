@@ -46,6 +46,8 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       data: { email: email.toLowerCase(), name, status: 'PENDING' },
     });
 
+    await logAudit({ userId: user.id, action: 'USER_CREATE', targetId: user.id, targetType: 'User' });
+
     res
       .status(201)
       .json({ userId: user.id, message: 'Account created. Please verify your email.' });
@@ -70,7 +72,8 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     const otp = await generateAndStoreOtp(email);
     await enqueueOtpEmail(email, otp);
 
-    res.status(200).json({ message: 'Verification code sent to your email.' });
+    // TEMPORARY: return OTP for testing until SMTP is configured
+    res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
   } catch (err) {
     next(err);
   }
@@ -181,6 +184,8 @@ export async function recordConsent(req: Request, res: Response, next: NextFunct
     await prisma.consentRecord.create({
       data: { userId, privacyPolicyAccepted, mediaConsentAccepted },
     });
+
+    await logAudit({ userId, action: 'SYSTEM', targetId: userId, targetType: 'User', metadata: { consent: 'recorded', privacyPolicyAccepted, mediaConsentAccepted } });
 
     res.status(201).json({ message: 'Consent recorded successfully.' });
   } catch (err) {

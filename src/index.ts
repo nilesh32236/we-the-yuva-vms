@@ -19,6 +19,10 @@ async function main() {
     process.exit(1);
   }
 
+  if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
+    logger.warn('VAPID keys not configured — push notifications will be disabled');
+  }
+
   const server = app.listen(Number(env.PORT), () => {
     logger.info(`API server running on port ${env.PORT} [${env.NODE_ENV}]`);
     logger.info(`Health check: http://localhost:${env.PORT}/api/v1/health`);
@@ -39,7 +43,15 @@ async function main() {
   // Graceful shutdown
   const shutdown = async (signal: string) => {
     logger.info(`${signal} received — shutting down gracefully`);
+
+    const forceExit = setTimeout(() => {
+      logger.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 10000);
+    forceExit.unref();
+
     server.close(async () => {
+      clearTimeout(forceExit);
       await notificationWorker?.close();
       await prisma.$disconnect();
       logger.info('Server closed');
@@ -49,6 +61,15 @@ async function main() {
 
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
+
+  process.on('unhandledRejection', (reason) => {
+    logger.error('Unhandled Rejection', { reason: reason instanceof Error ? reason.message : reason });
+  });
+
+  process.on('uncaughtException', (error) => {
+    logger.error('Uncaught Exception', { error: error.message });
+    process.exit(1);
+  });
 }
 
 main().catch((error) => {

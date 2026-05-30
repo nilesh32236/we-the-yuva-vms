@@ -11,7 +11,7 @@ export async function uploadFileHandler(
       return;
     }
     const fullUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    res.status(200).json({ url: fullUrl, filename: req.file.filename });
+    res.status(201).json({ url: fullUrl, filename: req.file.filename });
   } catch (err) {
     next(err);
   }

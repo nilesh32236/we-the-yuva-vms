@@ -10,7 +10,7 @@ FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY prisma/ ./prisma/
-RUN npx --yes prisma@5.22.0 generate
+RUN npx prisma generate
 COPY . .
 RUN pnpm build
 
@@ -24,7 +24,8 @@ COPY --from=build /app/pnpm-lock.yaml ./
 COPY --from=build /app/prisma ./prisma
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate \
  && pnpm install --prod --frozen-lockfile \
- && npx --yes prisma@5.22.0 generate
+ && pnpm add -P tsx \
+ && npx prisma generate
 ENV REDIS_URL=redis://127.0.0.1:6379
 EXPOSE 4000
-CMD ["sh", "-c", "redis-server --daemonize yes && sleep 1 && npx --yes prisma@5.22.0 db push --accept-data-loss --skip-generate && npx --yes tsx prisma/seed.ts && exec node dist/index.js"]
+CMD ["sh", "-c", "redis-server --daemonize yes && sleep 1 && npx prisma db push --accept-data-loss --skip-generate && npx tsx prisma/seed.ts && exec node dist/index.js"]

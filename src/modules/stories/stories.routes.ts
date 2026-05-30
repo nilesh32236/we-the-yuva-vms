@@ -57,7 +57,7 @@ storiesRouter.get('/published/:id', getStoryHandler);
  *       201:
  *         description: Story created
  */
-storiesRouter.post('/', requireAuth, validate(CreateStorySchema), createStoryHandler);
+storiesRouter.post('/', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), validate(CreateStorySchema), createStoryHandler);
 
 /**
  * @openapi
@@ -94,7 +94,7 @@ storiesRouter.put('/:id', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), valida
  *           type: string
  *         description: Story ID
  *     responses:
- *       200:
+ *       204:
  *         description: Story deleted
  */
 storiesRouter.delete('/:id', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), deleteStoryHandler);

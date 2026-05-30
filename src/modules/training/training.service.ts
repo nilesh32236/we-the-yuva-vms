@@ -1,57 +1,90 @@
 import type { CreateCourseInput, CreateLessonInput, UpdateCourseInput, UpdateLessonInput } from '@/shared';
+import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
-export async function createCourse(data: CreateCourseInput) {
-  return prisma.course.create({ data });
+export async function createCourse(userId: string, data: CreateCourseInput) {
+  const course = await prisma.course.create({ data });
+  await logAudit({ userId, action: 'COURSE_CREATE', targetId: course.id, targetType: 'Course' });
+  return course;
 }
 
-export async function updateCourse(id: string, data: UpdateCourseInput) {
+export async function updateCourse(id: string, userId: string, data: UpdateCourseInput) {
   const course = await prisma.course.findUnique({ where: { id } });
   if (!course) throw new AppError('Course not found', 404);
-  return prisma.course.update({ where: { id }, data });
+  const updated = await prisma.course.update({ where: { id }, data });
+  await logAudit({ userId, action: 'COURSE_UPDATE', targetId: id, targetType: 'Course' });
+  return updated;
 }
 
-export async function deleteCourse(id: string) {
+export async function deleteCourse(id: string, userId: string) {
   const course = await prisma.course.findUnique({ where: { id } });
   if (!course) throw new AppError('Course not found', 404);
-  return prisma.course.delete({ where: { id } });
+  await prisma.course.delete({ where: { id } });
+  await logAudit({ userId, action: 'COURSE_DELETE', targetId: id, targetType: 'Course' });
 }
 
-export async function createLesson(courseId: string, data: CreateLessonInput) {
+export async function createLesson(courseId: string, userId: string, data: CreateLessonInput) {
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course) throw new AppError('Course not found', 404);
-  return prisma.lesson.create({ data: { ...data, courseId } });
+  const lesson = await prisma.lesson.create({ data: { ...data, courseId } });
+  await logAudit({ userId, action: 'LESSON_CREATE', targetId: lesson.id, targetType: 'Lesson', metadata: { courseId } });
+  return lesson;
 }
 
-export async function updateLesson(courseId: string, id: string, data: UpdateLessonInput) {
+export async function updateLesson(courseId: string, id: string, userId: string, data: UpdateLessonInput) {
   const lesson = await prisma.lesson.findUnique({ where: { id } });
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId) throw new AppError('Lesson does not belong to this course', 400);
-  return prisma.lesson.update({ where: { id }, data });
+  const updated = await prisma.lesson.update({ where: { id }, data });
+  await logAudit({ userId, action: 'LESSON_UPDATE', targetId: id, targetType: 'Lesson', metadata: { courseId } });
+  return updated;
 }
 
-export async function deleteLesson(courseId: string, id: string) {
+export async function deleteLesson(courseId: string, id: string, userId: string) {
   const lesson = await prisma.lesson.findUnique({ where: { id } });
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId) throw new AppError('Lesson does not belong to this course', 400);
-  return prisma.lesson.delete({ where: { id } });
+  await prisma.lesson.delete({ where: { id } });
+  await logAudit({ userId, action: 'LESSON_DELETE', targetId: id, targetType: 'Lesson', metadata: { courseId } });
 }
 
-export async function listCourses(userId: string) {
-  const courses = await prisma.course.findMany({
-    orderBy: { order: 'asc' },
-    include: {
-      _count: { select: { lessons: true } },
-      progress: { where: { userId }, select: { completed: true, completedAt: true } },
-    },
-  });
-
-  return courses.map((c) => ({
-    ...c,
-    lessonCount: c._count.lessons,
-    progress: c.progress[0] ?? null,
-  }));
+export async function listCourses(userId: string, pagination?: { page: number; limit: number }) {
+  if (!pagination) {
+    const courses = await prisma.course.findMany({
+      orderBy: { order: 'asc' },
+      include: {
+        _count: { select: { lessons: true } },
+        progress: { where: { userId }, select: { completed: true, completedAt: true } },
+      },
+    });
+    return courses.map((c) => ({
+      ...c,
+      lessonCount: c._count.lessons,
+      progress: c.progress[0] ?? null,
+    }));
+  }
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.course.findMany({
+      skip,
+      take: limit,
+      orderBy: { order: 'asc' },
+      include: {
+        _count: { select: { lessons: true } },
+        progress: { where: { userId }, select: { completed: true, completedAt: true } },
+      },
+    }),
+    prisma.course.count(),
+  ]);
+  return {
+    data: data.map((c) => ({ ...c, lessonCount: c._count.lessons, progress: c.progress[0] ?? null })),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 export async function getCourse(courseId: string, userId: string) {
@@ -117,6 +150,7 @@ export async function completeLesson(lessonId: string, userId: string) {
 
 // Seed default courses if none exist
 export async function seedCoursesIfEmpty() {
+  if (process.env.NODE_ENV === 'production') return;
   const count = await prisma.course.count();
   if (count > 0) return;
 

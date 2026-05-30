@@ -27,7 +27,7 @@ uploadRouter.use(uploadLimiter);
  *                 type: string
  *                 format: binary
  *     responses:
- *       200:
+ *       201:
  *         description: File uploaded
  */
 uploadRouter.post('/', requireAuth, upload.single('file'), uploadFileHandler);

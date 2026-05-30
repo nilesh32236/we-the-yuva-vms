@@ -28,7 +28,7 @@ export const notificationsRouter: IRouter = Router();
  *     summary: Subscribe to push notifications
  *     security: [{ bearerAuth: [] }]
  *     responses:
- *       200:
+ *       201:
  *         description: Subscribed
  */
 notificationsRouter.post(

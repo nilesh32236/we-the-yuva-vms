@@ -238,12 +238,27 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
   );
 }
 
-export async function listMyApplications(volunteerId: string) {
-  return prisma.application.findMany({
-    where: { volunteerId },
-    select: { id: true, opportunityId: true, status: true, appliedAt: true },
-    orderBy: { appliedAt: 'desc' },
-  });
+export async function listMyApplications(volunteerId: string, pagination?: PaginationParams) {
+  if (!pagination) {
+    return prisma.application.findMany({
+      where: { volunteerId },
+      select: { id: true, opportunityId: true, status: true, appliedAt: true },
+      orderBy: { appliedAt: 'desc' },
+    });
+  }
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.application.findMany({
+      where: { volunteerId },
+      skip,
+      take: limit,
+      select: { id: true, opportunityId: true, status: true, appliedAt: true },
+      orderBy: { appliedAt: 'desc' },
+    }),
+    prisma.application.count({ where: { volunteerId } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function listApplications(opportunityId: string, pagination: { page: number; limit: number }) {
@@ -276,7 +291,14 @@ export async function withdrawApplication(applicationId: string, userId: string)
   if (!application) throw new AppError('Application not found', 404);
   if (application.volunteerId !== userId) throw new AppError('Forbidden', 403);
   if (application.status !== 'PENDING') throw new AppError('Only pending applications can be withdrawn', 400);
-  return prisma.application.update({ where: { id: applicationId }, data: { status: 'REJECTED' } });
+  const updated = await prisma.application.update({ where: { id: applicationId }, data: { status: 'REJECTED' } });
+  await logAudit({
+    userId,
+    action: 'APPLICATION_UPDATE',
+    targetId: applicationId,
+    metadata: { status: 'WITHDRAWN', opportunityId: application.opportunityId },
+  });
+  return updated;
 }
 
 export async function updateApplicationStatus(
@@ -298,21 +320,25 @@ export async function updateApplicationStatus(
     throw new AppError('Forbidden', 403);
   }
 
-  if (status === 'ACCEPTED') {
-    const acceptedCount = await prisma.application.count({
+  const updated = await prisma.$transaction(async (tx) => {
+    const acceptedCount = await tx.application.count({
       where: { opportunityId: application.opportunityId, status: 'ACCEPTED' },
     });
     if (acceptedCount >= application.opportunity.totalSlots) {
       throw new AppError('No slots available', 400);
     }
-  }
-
-  const updated = await prisma.application.update({
-    where: { id: applicationId },
-    data: { status },
-  });
-
-  await logAudit({ userId: callerId, action: 'APPLICATION_UPDATE', targetId: applicationId, targetType: 'Application', metadata: { status } });
+    const updatedApplication = await tx.application.update({
+      where: { id: applicationId },
+      data: { status },
+    });
+    await logAudit({
+      userId: callerId,
+      action: 'APPLICATION_UPDATE',
+      targetId: applicationId,
+      metadata: { status, opportunityId: application.opportunityId },
+    });
+    return updatedApplication;
+  }, { isolationLevel: 'Serializable' });
 
   // Enqueue notification (non-blocking)
   notificationsQueue?.add(`application-${status.toLowerCase()}`, {

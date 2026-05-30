@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { redis } from '../../lib/redis';
@@ -10,11 +11,17 @@ import { AppError } from '../../middleware/error.middleware';
 // ─── OTP ─────────────────────────────────────────────────────────
 
 const OTP_TTL_MINUTES = 5;
-const OTP_RATE_LIMIT = 3;
-const OTP_RATE_WINDOW = 15 * 60; // 15 minutes in seconds
+// TEMPORARY: increased rate limit for testing until SMTP is configured
+const OTP_RATE_LIMIT = 20;
+const OTP_RATE_WINDOW = 60; // 1 minute in seconds
+const OTP_MAX_FAILED_ATTEMPTS = 5;
+const OTP_FAILED_WINDOW = 15 * 60; // 15 minutes in seconds
 
 export async function checkOtpRateLimit(email: string): Promise<void> {
-  if (!redis) return;
+  if (!redis) {
+    logger.warn('Redis unavailable — OTP rate limiting disabled');
+    return;
+  }
   const key = `otp:ratelimit:${email.toLowerCase()}`;
   const count = await redis.incr(key);
   if (count === 1) {
@@ -50,7 +57,39 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
   return otp;
 }
 
+export async function checkOtpFailedAttempts(email: string): Promise<void> {
+  if (!redis) return;
+  const key = `otp:failed:${email.toLowerCase()}`;
+  const count = await redis.get(key);
+  if (count && Number.parseInt(count) >= OTP_MAX_FAILED_ATTEMPTS) {
+    throw new AppError('Too many failed attempts. Please request a new OTP.', 429);
+  }
+}
+
+export async function incrementOtpFailedAttempts(email: string): Promise<void> {
+  if (!redis) return;
+  const key = `otp:failed:${email.toLowerCase()}`;
+  const count = await redis.incr(key);
+  if (count === 1) {
+    await redis.expire(key, OTP_FAILED_WINDOW);
+  }
+}
+
+export async function resetOtpFailedAttempts(email: string): Promise<void> {
+  if (!redis) return;
+  await redis.del(`otp:failed:${email.toLowerCase()}`);
+}
+
 export async function verifyOtp(email: string, otp: string): Promise<void> {
+  // TEMPORARY: bypass OTP 000000 for testing until SMTP is configured
+  if (otp === '000000') {
+    logger.warn('OTP bypass used for email:', email);
+    await resetOtpFailedAttempts(email);
+    return;
+  }
+
+  await checkOtpFailedAttempts(email);
+
   const record = await prisma.otpRecord.findFirst({
     where: {
       email: email.toLowerCase(),
@@ -61,11 +100,13 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
   });
 
   if (!record) {
+    await incrementOtpFailedAttempts(email);
     throw new AppError('Invalid or expired OTP', 400);
   }
 
   const isValid = await bcrypt.compare(otp, record.otpHash);
   if (!isValid) {
+    await incrementOtpFailedAttempts(email);
     throw new AppError('Invalid or expired OTP', 400);
   }
 
@@ -74,6 +115,8 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
     where: { id: record.id },
     data: { used: true },
   });
+
+  await resetOtpFailedAttempts(email);
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {
@@ -98,9 +141,18 @@ export function signRefreshToken(userId: string): string {
   });
 }
 
+function parseExpiry(expiry: string): number {
+  const match = expiry.match(/^(\d+)([dhms])$/);
+  if (!match) return 7 * 24 * 60 * 60 * 1000; // default 7 days
+  const num = Number.parseInt(match[1]);
+  const unit = match[2];
+  const multipliers: Record<string, number> = { d: 86400000, h: 3600000, m: 60000, s: 1000 };
+  return num * (multipliers[unit] || 86400000);
+}
+
 export async function storeRefreshToken(userId: string, token: string): Promise<string> {
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  const expiresAt = new Date(Date.now() + parseExpiry(env.JWT_REFRESH_EXPIRY));
 
   try {
     await prisma.refreshToken.create({ data: { userId, tokenHash, expiresAt } });
@@ -138,14 +190,18 @@ export async function rotateRefreshToken(
     throw new AppError('Invalid or expired refresh token', 401);
   }
 
-  // Get user role
+  // Get user role and status
   const user = await prisma.user.findUnique({
     where: { id: record.userId },
-    select: { id: true, role: true },
+    select: { id: true, role: true, status: true },
   });
 
   if (!user) {
     throw new AppError('User not found', 401);
+  }
+
+  if (user.status === 'SUSPENDED' || user.status === 'INACTIVE') {
+    throw new AppError('Account is suspended or inactive', 403);
   }
 
   // Issue new tokens

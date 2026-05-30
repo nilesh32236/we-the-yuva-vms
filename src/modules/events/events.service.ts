@@ -58,14 +58,28 @@ export async function createEvent(
   return event;
 }
 
-export async function listEventsByOpportunity(opportunityId: string) {
-  return prisma.event.findMany({
-    where: {
-      opportunityId,
-      status: { not: 'CANCELLED' },
-    },
-    orderBy: { eventDate: 'asc' },
-  });
+export async function listEventsByOpportunity(opportunityId: string, pagination?: { page: number; limit: number }) {
+  if (!pagination) {
+    return prisma.event.findMany({
+      where: {
+        opportunityId,
+        status: { not: 'CANCELLED' },
+      },
+      orderBy: { eventDate: 'asc' },
+    });
+  }
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.event.findMany({
+      where: { opportunityId, status: { not: 'CANCELLED' } },
+      skip,
+      take: limit,
+      orderBy: { eventDate: 'asc' },
+    }),
+    prisma.event.count({ where: { opportunityId, status: { not: 'CANCELLED' } } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function listAllEvents(pagination: { page: number; limit: number }) {
@@ -218,11 +232,22 @@ export async function markAttendance(
 
     const existing = existingByVolunteer.get(volunteerId);
 
+    // When marking attended, also set checkedInAt to prevent double-counting via self check-in
     upsertOps.push(
       prisma.attendance.upsert({
         where: { eventId_volunteerId: { eventId, volunteerId } },
-        create: { eventId, volunteerId, applicationId, attended },
-        update: { attended, updatedAt: new Date() },
+        create: {
+          eventId,
+          volunteerId,
+          applicationId,
+          attended,
+          ...(attended && !existing?.checkedInAt ? { checkedInAt: new Date() } : {}),
+        },
+        update: {
+          attended,
+          updatedAt: new Date(),
+          ...(attended && !existing?.checkedInAt ? { checkedInAt: new Date() } : {}),
+        },
       })
     );
 

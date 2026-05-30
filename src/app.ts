@@ -50,7 +50,7 @@ export function createApp(): Express {
   );
 
   // Body parsing
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
@@ -114,6 +114,7 @@ export function createApp(): Express {
 
   // VAPID public key endpoint (no auth required for service worker)
   app.get('/api/v1/vapid-public-key', (_req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
     res.json({ publicKey: env.VAPID_PUBLIC_KEY });
   });
 
