@@ -41,6 +41,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = useCallback(async () => {
+    // Skip if user just logged out (sessionStorage flag set during logout)
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
+      sessionStorage.removeItem('logged_out');
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
     try {
       const response = await api.get<AuthUser>('/users/me');
       setUser(response.data);
@@ -66,8 +73,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       queryClient.clear();
       if (typeof document !== 'undefined') {
         // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-        document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict';
+        document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict; Secure';
       }
+      // Flag to prevent auto-refresh from re-authenticating after redirect
+      sessionStorage.setItem('logged_out', 'true');
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }
