@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Bell,
   BellRing,
@@ -16,12 +16,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { api } from '../../../../lib/api';
-import { useAuth } from '../../../../hooks/useAuth';
 import { useToast } from '../../../../hooks/use-toast';
+import { useAuth } from '../../../../hooks/useAuth';
+import { api } from '../../../../lib/api';
 
 export default function VolunteerProfilePage() {
-  const { user: authUser } = useAuth();
+  const { user: _authUser } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
@@ -42,7 +42,11 @@ export default function VolunteerProfilePage() {
       setEditing(false);
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {
-      toast({ title: 'Error', description: err?.response?.data?.error || 'Failed to update profile', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: err?.response?.data?.error || 'Failed to update profile',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -93,6 +97,7 @@ export default function VolunteerProfilePage() {
             </div>
             {!editing ? (
               <button
+                type="button"
                 onClick={startEdit}
                 className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:bg-brand-bg px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
               >
@@ -101,12 +106,14 @@ export default function VolunteerProfilePage() {
             ) : (
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => setEditing(false)}
                   className="flex items-center gap-1 text-sm text-brand-muted hover:text-brand-text px-3 py-1.5 rounded-lg border border-brand-border transition-colors cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" /> Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={save}
                   disabled={mutation.isPending}
                   className="flex items-center gap-1 text-sm font-medium text-white bg-brand-primary hover:bg-brand-secondary px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-60"

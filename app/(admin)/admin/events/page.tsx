@@ -23,6 +23,7 @@ export default function AdminEventsPage() {
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">All Events</h1>
         <button
+          type="button"
           onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
           className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
         >

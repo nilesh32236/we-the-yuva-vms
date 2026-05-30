@@ -3,9 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Activity, Clock, Users } from 'lucide-react';
 import Link from 'next/link';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { StatsCard } from '../../../../components/charts/StatsCard';
 import { Suspense } from 'react';
+import { StatsCard } from '../../../../components/charts/StatsCard';
+import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
 
@@ -21,7 +21,17 @@ export default function AdminDashboardPage() {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
-    <Suspense fallback={<div className="space-y-6 max-w-5xl"><div className="grid grid-cols-1 sm:grid-cols-3 gap-4">{[1, 2, 3].map((i) => (<SkeletonCard key={i} />))}</div></div>}>
+    <Suspense
+      fallback={
+        <div className="space-y-6 max-w-5xl">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        </div>
+      }
+    >
       <div className="space-y-6 max-w-5xl">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-violet-500 p-6 md:p-8">
           <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />

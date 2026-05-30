@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, type DragEvent } from 'react';
 import { Loader2, Upload, X } from 'lucide-react';
+import Image from 'next/image';
+import { type DragEvent, useRef, useState } from 'react';
 import { api } from '../../lib/api';
 
 interface FileUploadProps {
@@ -72,13 +73,17 @@ export function FileUpload({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-brand-text">{label}</label>
+      <label htmlFor="file-upload-input" className="block text-sm font-medium text-brand-text">
+        {label}
+      </label>
 
       {preview ? (
         <div className="relative inline-block">
-          <img
+          <Image
             src={preview}
             alt="Preview"
+            width={128}
+            height={128}
             className="h-32 w-32 rounded-xl object-cover border border-brand-border"
           />
           <button
@@ -91,9 +96,8 @@ export function FileUpload({
           </button>
         </div>
       ) : (
-        <div
-          role="button"
-          tabIndex={0}
+        <button
+          type="button"
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
@@ -104,7 +108,7 @@ export function FileUpload({
               inputRef.current?.click();
             }
           }}
-          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
+          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
         >
           {uploading ? (
             <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
@@ -115,11 +119,12 @@ export function FileUpload({
             {uploading ? 'Uploading...' : 'Click or drag to upload'}
           </p>
           <p className="text-xs text-brand-muted/60">Max 10MB</p>
-        </div>
+        </button>
       )}
 
       <input
         ref={inputRef}
+        id="file-upload-input"
         type="file"
         accept={accept}
         className="hidden"

@@ -1,11 +1,11 @@
 'use client';
 
-import type { EventInput } from '@/lib/shared';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import type { EventInput } from '@/lib/shared';
 import { EventForm } from '../../../../../components/events/EventForm';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
@@ -26,7 +26,11 @@ export default function NewEventPage() {
 
   const handleSubmit = async (data: EventInput) => {
     if (!opportunityId) {
-      toast({ title: 'Error', description: 'Please select an opportunity first', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Please select an opportunity first',
+        variant: 'destructive',
+      });
       return;
     }
     try {

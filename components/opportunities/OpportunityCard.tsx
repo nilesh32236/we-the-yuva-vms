@@ -165,6 +165,7 @@ const OpportunityCard = memo(function OpportunityCard({
       {/* Apply button */}
       {showApply && (
         <button
+          type="button"
           onClick={handleApply}
           disabled={applying || applied || isFull}
           className={`mt-1 w-full py-2 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer

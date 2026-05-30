@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { User, Mail, MapPin, Calendar, Eye } from 'lucide-react';
+import { Calendar, Eye, Mail, MapPin, User } from 'lucide-react';
 import { api } from '../../../../lib/api';
 
 export default function ObserverProfilePage() {

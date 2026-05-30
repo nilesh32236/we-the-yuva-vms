@@ -1,14 +1,14 @@
 'use client';
 
 export default function GlobalError({
-  error,
+  error: _error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
   return (
-    <html>
+    <html lang="en">
       <body className="bg-brand-bg">
         <div className="min-h-dvh flex items-center justify-center p-6">
           <div className="max-w-md text-center space-y-4">
@@ -19,6 +19,7 @@ export default function GlobalError({
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
+                aria-label="Error"
               >
                 <path
                   strokeLinecap="round"
@@ -32,6 +33,7 @@ export default function GlobalError({
               A critical error occurred. Please reload the page.
             </p>
             <button
+              type="button"
               onClick={reset}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary transition-colors"
             >

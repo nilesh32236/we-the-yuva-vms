@@ -53,41 +53,22 @@ export function AttendanceChecklist({ volunteers, onSave }: AttendanceChecklistP
 
       <div className="space-y-2">
         {volunteers.map((v) => (
-          <label
+          <div
             key={v.volunteerId}
             className="flex items-center gap-3 p-3 rounded-xl border border-brand-border hover:bg-brand-bg cursor-pointer transition-colors"
           >
-            <div
-              role="checkbox"
-              aria-checked={state[v.volunteerId]}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }));
-                }
-              }}
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors
-              ${state[v.volunteerId] ? 'bg-brand-primary border-brand-primary' : 'border-brand-border'}`}
-              onClick={() => setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }))}
-            >
-              {state[v.volunteerId] && (
-                <svg
-                  className="w-3 h-3 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={3}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
+            <input
+              type="checkbox"
+              id={`attendance-${v.volunteerId}`}
+              checked={state[v.volunteerId]}
+              onChange={() => setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }))}
+              className="w-5 h-5 rounded accent-brand-primary cursor-pointer"
+            />
+            <label htmlFor={`attendance-${v.volunteerId}`} className="flex-1 min-w-0 cursor-pointer">
               <p className="text-sm font-medium text-brand-text truncate">{v.name}</p>
               <p className="text-xs text-brand-muted truncate">{v.email}</p>
-            </div>
-          </label>
+            </label>
+          </div>
         ))}
       </div>
 

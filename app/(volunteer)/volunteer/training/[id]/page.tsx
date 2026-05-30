@@ -78,7 +78,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             <div className="space-y-1">
               {course.lessons.map(
                 (lesson: { id: string; completed: boolean; title: string }, idx: number) => (
-                  <button
+                  <button type="button"
                     key={lesson.id}
                     onClick={() => setActiveLesson(lesson.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer
@@ -125,7 +125,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               {!currentLesson.completed && (
-                <button
+                <button type="button"
                   onClick={() => complete.mutate(currentLesson.id)}
                   disabled={complete.isPending}
                   className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
@@ -135,7 +135,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               )}
 
               {currentLesson.completed && completedCount < course.lessons.length && (
-                <button
+                <button type="button"
                   onClick={() => {
                     const idx = course.lessons.findIndex(
                       (l: { id: string }) => l.id === currentLesson.id

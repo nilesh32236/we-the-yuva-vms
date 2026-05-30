@@ -11,6 +11,7 @@ export default function NotFoundPage() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
+            aria-label="Not found"
           >
             <path
               strokeLinecap="round"

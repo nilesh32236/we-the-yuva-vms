@@ -1,9 +1,8 @@
 'use client';
 
-import { AlertTriangle, ArrowLeft, Bell, CheckCheck, Info, Megaphone, Star } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AlertTriangle, ArrowLeft, Bell, CheckCheck, Info, Megaphone, Star } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 
 const TYPE_ICON: Record<string, React.ElementType> = {
@@ -77,6 +76,7 @@ export default function NotificationsPage() {
       {/* Header */}
       <header className="h-16 bg-white border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
         <button
+          type="button"
           onClick={() => router.back()}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
         >
@@ -85,6 +85,7 @@ export default function NotificationsPage() {
         <h1 className="font-heading font-bold text-lg text-brand-text flex-1">Notifications</h1>
         {unreadCount > 0 && (
           <button
+            type="button"
             onClick={() => markAllReadMut.mutate()}
             className="text-xs text-brand-primary hover:underline cursor-pointer font-medium"
           >
@@ -105,17 +106,19 @@ export default function NotificationsPage() {
           notifications.map((n) => {
             const Icon = TYPE_ICON[n.type] ?? Bell;
             return (
-              <div
+              <button
                 key={n.id}
-                className={`flex items-start gap-3 px-4 py-3 rounded-xl transition-colors ${!n.read ? 'bg-white' : ''} ${n.link ? 'cursor-pointer hover:bg-brand-bg' : ''}`}
+                type="button"
+                className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full ${!n.read ? 'bg-white' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
                 onClick={() => {
                   if (!n.read) markReadMut.mutate(n.id);
                   if (n.link) router.push(n.link);
                 }}
-                role={n.link ? 'button' : undefined}
-                tabIndex={n.link ? 0 : undefined}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && n.link) router.push(n.link);
+                  if (e.key === 'Enter') {
+                    if (!n.read) markReadMut.mutate(n.id);
+                    if (n.link) router.push(n.link);
+                  }
                 }}
               >
                 <div
@@ -135,7 +138,7 @@ export default function NotificationsPage() {
                 {!n.read && (
                   <span className="w-2 h-2 rounded-full bg-brand-primary flex-shrink-0 mt-2.5" />
                 )}
-              </div>
+              </button>
             );
           })
         )}

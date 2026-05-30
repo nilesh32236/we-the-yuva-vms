@@ -42,6 +42,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: error type unknown
 let refreshPromise: Promise<any> | null = null;
 
 // Response interceptor — auto-refresh on 401
@@ -56,17 +57,23 @@ api.interceptors.response.use(
 
       try {
         if (!refreshPromise) {
-          refreshPromise = axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
-            {},
-            { withCredentials: true }
-          ).then(r => r.data).finally(() => { refreshPromise = null; });
+          refreshPromise = axios
+            .post(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
+              {},
+              { withCredentials: true }
+            )
+            .then((r) => r.data)
+            .finally(() => {
+              refreshPromise = null;
+            });
         }
         const data = await refreshPromise;
         if (data.accessToken) {
           setAccessToken(data.accessToken);
           if (typeof document !== 'undefined') {
             const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+            // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
             document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
           }
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CheckCircle, XCircle } from 'lucide-react';
+import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
@@ -9,6 +10,7 @@ import { api } from '../../../../lib/api';
 export default function AdminStoriesPage() {
   const qc = useQueryClient();
   const { toast } = useToast();
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-stories'],
@@ -84,6 +86,7 @@ export default function AdminStoriesPage() {
 
                 <div className="flex items-center gap-2 pt-1">
                   <button
+                    type="button"
                     onClick={() =>
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
@@ -97,13 +100,39 @@ export default function AdminStoriesPage() {
                     {story.published ? 'Unpublish' : 'Publish'}
                   </button>
                   <button
-                    onClick={() => {
-                      if (confirm('Delete this story?')) deleteMut.mutate(story.id);
-                    }}
+                    type="button"
+                    onClick={() => setConfirmDelete(story.id)}
                     className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                   >
                     Delete
                   </button>
+                  {confirmDelete === story.id && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                      <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+                        <h3 className="font-semibold text-lg mb-2">Confirm</h3>
+                        <p className="text-sm text-gray-600 mb-4">Delete this story?</p>
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDelete(null)}
+                            className="px-4 py-2 text-sm rounded-lg border"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              deleteMut.mutate(story.id);
+                              setConfirmDelete(null);
+                            }}
+                            className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white"
+                          >
+                            Confirm
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )

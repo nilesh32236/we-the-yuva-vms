@@ -42,35 +42,39 @@ function ScanInner() {
     if (token && eventId) {
       checkinMutation.mutate(token);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, eventId, checkinMutation.mutate]);
 
   if (token && eventId) {
     return (
       <div className="max-w-md mx-auto mt-20 text-center space-y-6">
-        {checkinMutation.isPending ? (
-          <div className="space-y-4">
-            <div className="w-16 h-16 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mx-auto" />
-            <p className="text-brand-muted">Processing check-in...</p>
-          </div>
-        ) : result === 'success' ? (
-          <div className="space-y-4">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
-            <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
-            <p className="text-brand-muted">Redirecting to your events...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <XCircle className="w-16 h-16 text-red-500 mx-auto" />
-            <h2 className="font-heading font-bold text-xl text-brand-text">Check-in Failed</h2>
-            <p className="text-brand-muted">{errorMsg}</p>
-            <button
-              onClick={() => router.push('/volunteer/events')}
-              className="text-brand-primary hover:underline text-sm cursor-pointer"
-            >
-              Back to Events
-            </button>
-          </div>
-        )}
+        <div aria-live="polite">
+          {checkinMutation.isPending ? (
+            <div className="space-y-4">
+              <div className="w-16 h-16 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mx-auto" />
+              <p className="text-brand-muted">Processing check-in...</p>
+            </div>
+          ) : result === 'success' ? (
+            <div className="space-y-4">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+              <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
+              <p className="text-brand-muted">Redirecting to your events...</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <XCircle className="w-16 h-16 text-red-500 mx-auto" />
+              <h2 className="font-heading font-bold text-xl text-brand-text">Check-in Failed</h2>
+              <p className="text-brand-muted">{errorMsg}</p>
+              <button
+                type="button"
+                onClick={() => router.push('/volunteer/events')}
+                className="text-brand-primary hover:underline text-sm cursor-pointer"
+              >
+                Back to Events
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -80,9 +84,7 @@ function ScanInner() {
       <div className="text-center space-y-2">
         <Camera className="w-10 h-10 text-brand-primary mx-auto" />
         <h1 className="font-heading font-bold text-xl text-brand-text">Event Check-in</h1>
-        <p className="text-sm text-brand-muted">
-          Enter the check-in code from your event QR code
-        </p>
+        <p className="text-sm text-brand-muted">Enter the check-in code from your event QR code</p>
       </div>
 
       {errorMsg && (
@@ -101,12 +103,15 @@ function ScanInner() {
             type="text"
             value={manualToken}
             onChange={(e) => setManualToken(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleManualSubmit(); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleManualSubmit();
+            }}
             placeholder="Paste or type the check-in code"
             className="w-full px-4 py-3 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
         <button
+          type="button"
           onClick={handleManualSubmit}
           disabled={checkinMutation.isPending}
           className="w-full bg-brand-primary text-white font-medium py-3 rounded-xl hover:bg-brand-secondary transition-colors disabled:opacity-60 cursor-pointer"

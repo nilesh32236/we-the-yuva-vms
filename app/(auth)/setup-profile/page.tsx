@@ -1,9 +1,9 @@
 'use client';
 
-import { DAYS, TIME_SLOTS } from '@/lib/shared';
 import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { DAYS, TIME_SLOTS } from '@/lib/shared';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';

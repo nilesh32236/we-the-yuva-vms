@@ -42,11 +42,22 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
   });
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="create-user-title"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
+      }}
+    >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border">
-          <h2 className="font-heading font-bold text-lg text-brand-text">Create User</h2>
+          <h2 id="create-user-title" className="font-heading font-bold text-lg text-brand-text">
+            Create User
+          </h2>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close dialog"
             className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
@@ -57,10 +68,14 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-brand-text mb-1.5">
+            <label
+              htmlFor="create-name"
+              className="block text-xs font-semibold text-brand-text mb-1.5"
+            >
               Full Name *
             </label>
             <input
+              id="create-name"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="e.g. Priya Sharma"
@@ -69,8 +84,14 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-brand-text mb-1.5">Email *</label>
+            <label
+              htmlFor="create-email"
+              className="block text-xs font-semibold text-brand-text mb-1.5"
+            >
+              Email *
+            </label>
             <input
+              id="create-email"
               type="email"
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
@@ -80,8 +101,14 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-brand-text mb-1.5">Role *</label>
+            <label
+              htmlFor="create-role"
+              className="block text-xs font-semibold text-brand-text mb-1.5"
+            >
+              Role *
+            </label>
             <select
+              id="create-role"
               value={form.role}
               onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
               className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
@@ -96,10 +123,14 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 
           {form.role !== 'VOLUNTEER' && (
             <div>
-              <label className="block text-xs font-semibold text-brand-text mb-1.5">
+              <label
+                htmlFor="create-location"
+                className="block text-xs font-semibold text-brand-text mb-1.5"
+              >
                 Location (optional)
               </label>
               <input
+                id="create-location"
                 value={form.locationName}
                 onChange={(e) => setForm((f) => ({ ...f, locationName: e.target.value }))}
                 placeholder="e.g. Mumbai"
@@ -116,12 +147,14 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 
         <div className="flex gap-3 px-6 pb-6">
           <button
+            type="button"
             onClick={onClose}
             className="flex-1 py-2.5 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg cursor-pointer transition-colors"
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={() => create.mutate()}
             disabled={!form.name || !form.email || create.isPending}
             className="flex-1 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
@@ -164,6 +197,7 @@ export default function AdminUsersPage() {
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Users</h1>
         <button
+          type="button"
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer"
         >
@@ -233,6 +267,7 @@ export default function AdminUsersPage() {
           {data?.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2">
               <button
+                type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
@@ -243,6 +278,7 @@ export default function AdminUsersPage() {
                 Page {page} of {data.totalPages} · {data.total} users
               </span>
               <button
+                type="button"
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
                 className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"

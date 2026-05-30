@@ -76,8 +76,12 @@ export default function NotificationPrefsPage() {
                   {TYPE_LABELS[p.type] ?? p.type}
                 </p>
                 <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    htmlFor={`notif-${p.type}-email`}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <input
+                      id={`notif-${p.type}-email`}
                       type="checkbox"
                       checked={p.email}
                       onChange={() => updateMut.mutate({ type: p.type, email: !p.email })}
@@ -85,8 +89,12 @@ export default function NotificationPrefsPage() {
                     />
                     <span className="text-sm text-brand-muted">Email</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    htmlFor={`notif-${p.type}-push`}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <input
+                      id={`notif-${p.type}-push`}
                       type="checkbox"
                       checked={p.push}
                       onChange={() => updateMut.mutate({ type: p.type, push: !p.push })}

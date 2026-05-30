@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { CacheFirst, NetworkFirst, StaleWhileRevalidate, Serwist } from 'serwist';
+import { CacheFirst, NetworkFirst, Serwist, StaleWhileRevalidate } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {

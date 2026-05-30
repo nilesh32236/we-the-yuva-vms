@@ -23,6 +23,7 @@ export default function ErrorPage({
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
+            aria-label="Error"
           >
             <path
               strokeLinecap="round"
@@ -34,6 +35,7 @@ export default function ErrorPage({
         <h1 className="font-heading font-bold text-xl text-brand-text">Something went wrong</h1>
         <p className="text-brand-muted text-sm">An unexpected error occurred. Please try again.</p>
         <button
+          type="button"
           onClick={reset}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary transition-colors"
         >

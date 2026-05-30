@@ -50,6 +50,7 @@ function VerifyOtpContent() {
         // Set cookie client-side so Next.js Edge middleware can read it for routing
         if (accessToken && typeof document !== 'undefined') {
           const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+          // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
           document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=900; SameSite=Strict${secure}`;
         }
 

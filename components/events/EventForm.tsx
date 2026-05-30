@@ -1,8 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type EventInput, EventSchema } from '@/lib/shared';
 import { useForm } from 'react-hook-form';
+import { type EventInput, EventSchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
 
 interface EventFormProps {
@@ -99,8 +99,9 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
       </div>
 
       {/* Virtual toggle */}
-      <label className="flex items-center gap-3 cursor-pointer">
+      <label htmlFor="virtual-toggle" className="flex items-center gap-3 cursor-pointer">
         <div
+          id="virtual-toggle"
           role="switch"
           aria-checked={isVirtual}
           tabIndex={0}

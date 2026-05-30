@@ -1,9 +1,9 @@
 'use client';
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
 
@@ -123,6 +123,7 @@ export function TopNav() {
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>
           <button
+            type="button"
             onClick={() => setOpen((v) => !v)}
             className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer relative"
             aria-label="Notifications"
@@ -150,6 +151,7 @@ export function TopNav() {
                 </h3>
                 {unreadCount > 0 && (
                   <button
+                    type="button"
                     onClick={() => markAllReadMut.mutate()}
                     className="text-xs text-brand-primary hover:underline cursor-pointer"
                   >
@@ -169,6 +171,7 @@ export function TopNav() {
                     const Icon = TYPE_ICON[n.type] ?? Bell;
                     return (
                       <button
+                        type="button"
                         key={n.id}
                         onClick={() => markReadMut.mutate(n.id)}
                         className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-emerald-50/50' : ''}`}
@@ -236,6 +239,7 @@ export function TopNav() {
 
         {/* Logout */}
         <button
+          type="button"
           onClick={logout}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-red-50 hover:text-red-600 transition-colors duration-200 cursor-pointer"
           aria-label="Log out"

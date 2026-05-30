@@ -68,8 +68,9 @@ export default function EventFeedbackPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Rating */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-brand-text">Rating</label>
+            <label htmlFor="rating" className="text-sm font-medium text-brand-text">Rating</label>
             <div className="flex items-center gap-1">
+              <input type="hidden" id="rating" value={rating} readOnly />
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
@@ -119,10 +120,11 @@ export default function EventFeedbackPage() {
 
           {/* Confidence level */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-brand-text">
+            <label htmlFor="confidence" className="text-sm font-medium text-brand-text">
               Confidence level after this event (optional)
             </label>
             <div className="flex items-center gap-3">
+              <input type="hidden" id="confidence" value={confidence} readOnly />
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}

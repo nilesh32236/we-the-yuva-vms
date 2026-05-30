@@ -120,6 +120,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                 </td>
                 <td className="px-4 py-3 relative">
                   <button
+                    type="button"
                     onClick={() => setOpenMenu(openMenu === u.id ? null : u.id)}
                     className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
                     disabled={loading === u.id}
@@ -134,6 +135,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                     >
                       {u.status !== 'ACTIVE' && (
                         <button
+                          type="button"
                           onClick={() => update(u.id, { status: 'ACTIVE' }, 'User activated')}
                           className="w-full text-left px-4 py-2 text-sm text-emerald-700 hover:bg-brand-bg cursor-pointer"
                           aria-label={`Activate ${u.name}`}
@@ -144,6 +146,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                       )}
                       {u.status !== 'SUSPENDED' && (
                         <button
+                          type="button"
                           onClick={() => update(u.id, { status: 'SUSPENDED' }, 'User suspended')}
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-brand-bg cursor-pointer"
                           aria-label={`Suspend ${u.name}`}
@@ -156,6 +159,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                         (role) =>
                           u.role !== role && (
                             <button
+                              type="button"
                               key={role}
                               onClick={() => update(u.id, { role }, `Role changed to ${role}`)}
                               className="w-full text-left px-4 py-2 text-sm text-brand-text hover:bg-brand-bg cursor-pointer"

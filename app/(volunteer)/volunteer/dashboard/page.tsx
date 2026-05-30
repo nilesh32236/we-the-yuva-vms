@@ -5,8 +5,8 @@ import { Activity, Calendar, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
 import { useAuth } from '../../../../hooks/useAuth';
+import { api } from '../../../../lib/api';
 
 export default function VolunteerDashboardPage() {
   const { user } = useAuth();

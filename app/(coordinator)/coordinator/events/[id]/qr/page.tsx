@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, QrCode, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import { use } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
+import { use } from 'react';
 import { api } from '@/lib/api';
 
 export default function EventQrPage({ params }: { params: Promise<{ id: string }> }) {
@@ -68,6 +68,7 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
             </div>
 
             <button
+              type="button"
               onClick={() => refetch()}
               className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:underline cursor-pointer"
             >

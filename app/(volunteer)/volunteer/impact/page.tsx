@@ -14,12 +14,13 @@ const HoursBarChart = dynamic(
   () => import('../../../../components/charts/HoursBarChart').then((mod) => mod.HoursBarChart),
   { ssr: false }
 );
+
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
 import { useAuth } from '../../../../hooks/useAuth';
+import { api } from '../../../../lib/api';
 
 export default function VolunteerImpactPage() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const { data: impact, isLoading } = useQuery({
     queryKey: ['stats', 'volunteer', 'impact'],
     queryFn: () => api.get('/stats/volunteer/impact').then((r) => r.data),

@@ -235,7 +235,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
       {!isCancelled && !isPast && (
         <div className="flex gap-2 pt-1">
           {!isCheckedIn && (
-            <button
+            <button type="button"
               onClick={handleCheckIn}
               disabled={busy}
               className="flex items-center gap-1.5 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
@@ -245,7 +245,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
             </button>
           )}
           {isCheckedIn && !isCheckedOut && (
-            <button
+            <button type="button"
               onClick={handleCheckOut}
               disabled={busy}
               className="flex items-center gap-1.5 text-sm font-medium bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-60"
@@ -273,7 +273,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
 export default function VolunteerEventsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['my-events'],
-    queryFn: () => api.get('/events/me/events').then((r) => r.data.data),
+    queryFn: () => api.get('/users/me/events').then((r) => r.data.data),
     staleTime: 30_000,
   });
 

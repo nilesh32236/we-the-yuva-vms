@@ -1,18 +1,22 @@
 import type { z } from 'zod';
+import type { AdminUserUpdateSchema } from '../schemas/admin.schemas';
 import type {
   ConsentSchema,
   RegisterSchema,
   SendOtpSchema,
   VerifyOtpSchema,
 } from '../schemas/auth.schemas';
-import type { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema } from '../schemas/profile.schemas';
 import type {
   ApplicationStatusSchema,
   AttendanceSchema,
   EventSchema,
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
-import type { AdminUserUpdateSchema } from '../schemas/admin.schemas';
+import type {
+  StaffProfileSchema,
+  UpdateMeSchema,
+  VolunteerProfileSchema,
+} from '../schemas/profile.schemas';
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type SendOtpInput = z.infer<typeof SendOtpSchema>;

@@ -1,0 +1,8 @@
+.env
+.env.*
+node_modules
+.next
+.git
+coverage
+*.md
+public/sw.js

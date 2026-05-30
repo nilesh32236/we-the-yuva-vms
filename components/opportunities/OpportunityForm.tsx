@@ -1,10 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
 
 const CATEGORIES = [
@@ -186,7 +186,9 @@ export function OpportunityForm({
 
       {/* Skills */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-brand-text">Required skills</label>
+        <label htmlFor="opp-skill-input" className="text-sm font-medium text-brand-text">
+          Required skills
+        </label>
         <div className="flex flex-wrap gap-2 min-h-[36px]">
           {skills.map((s) => (
             <span
@@ -211,6 +213,7 @@ export function OpportunityForm({
         </div>
         <div className="flex gap-2">
           <input
+            id="opp-skill-input"
             value={skillInput}
             onChange={(e) => setSkillInput(e.target.value)}
             onKeyDown={(e) => {
@@ -232,8 +235,9 @@ export function OpportunityForm({
       </div>
 
       {/* Remote toggle */}
-      <label className="flex items-center gap-3 cursor-pointer">
+      <label htmlFor="isRemote" className="flex items-center gap-3 cursor-pointer">
         <div
+          id="isRemote"
           role="switch"
           aria-checked={isRemote}
           tabIndex={0}

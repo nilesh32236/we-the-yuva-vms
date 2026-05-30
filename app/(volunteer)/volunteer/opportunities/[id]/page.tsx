@@ -163,6 +163,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
             </span>
           ) : (
             <button
+              type="button"
               onClick={() => apply.mutate()}
               disabled={apply.isPending}
               className="bg-brand-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"

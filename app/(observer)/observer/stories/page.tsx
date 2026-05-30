@@ -5,7 +5,7 @@ import { BookOpen } from 'lucide-react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
 
-const CATEGORY_COLORS: Record<string, string> = {
+const _CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-blue-100 text-blue-700',
   ENVIRONMENT: 'bg-green-100 text-green-700',
   HEALTH: 'bg-red-100 text-red-700',

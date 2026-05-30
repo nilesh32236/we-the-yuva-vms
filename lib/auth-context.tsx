@@ -65,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(null);
       queryClient.clear();
       if (typeof document !== 'undefined') {
+        // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
         document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict';
       }
       if (typeof window !== 'undefined') {

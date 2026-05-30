@@ -9,7 +9,7 @@ import { api } from '../../../../lib/api';
 export default function MyStoriesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['my-stories'],
-    queryFn: () => api.get('/stories/all').then((r) => r.data),
+    queryFn: () => api.get('/stories/published').then((r) => r.data),
     staleTime: 30_000,
   });
 

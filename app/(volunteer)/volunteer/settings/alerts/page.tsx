@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, BellRing, Plus, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button } from '../../../../../components/ui/Button';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
+import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 
@@ -75,6 +75,7 @@ export default function AlertSubscriptionsPage() {
             <h1 className="font-heading font-bold text-xl text-brand-text">Opportunity Alerts</h1>
           </div>
           <button
+            type="button"
             onClick={() => setShowForm(true)}
             className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:underline cursor-pointer"
           >
@@ -92,10 +93,13 @@ export default function AlertSubscriptionsPage() {
           <div className="border border-brand-border rounded-xl p-4 space-y-4">
             <p className="text-sm font-medium text-brand-text">New Alert Subscription</p>
             <div className="space-y-1.5">
-              <label className="text-xs text-brand-muted">Categories</label>
+              <label htmlFor="alert-categories" className="text-xs text-brand-muted">
+                Categories
+              </label>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map((cat) => (
                   <button
+                    type="button"
                     key={cat}
                     onClick={() => toggleCat(cat)}
                     className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors cursor-pointer
@@ -107,7 +111,9 @@ export default function AlertSubscriptionsPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs text-brand-muted">Skills (optional)</label>
+              <label htmlFor="alert-skill-input" className="text-xs text-brand-muted">
+                Skills (optional)
+              </label>
               <div className="flex flex-wrap gap-1.5 mb-1.5">
                 {skills.map((s) => (
                   <span
@@ -116,6 +122,7 @@ export default function AlertSubscriptionsPage() {
                   >
                     {s}
                     <button
+                      type="button"
                       onClick={() => setSkills((prev) => prev.filter((x) => x !== s))}
                       className="cursor-pointer"
                     >
@@ -126,6 +133,7 @@ export default function AlertSubscriptionsPage() {
               </div>
               <div className="flex gap-2">
                 <input
+                  id="alert-skill-input"
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -187,6 +195,7 @@ export default function AlertSubscriptionsPage() {
                     )}
                   </div>
                   <button
+                    type="button"
                     onClick={() => deleteMut.mutate(s.id)}
                     className="text-xs text-red-500 hover:underline shrink-0 cursor-pointer"
                   >

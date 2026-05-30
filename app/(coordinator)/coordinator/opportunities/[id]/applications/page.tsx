@@ -5,8 +5,8 @@ import { ArrowLeft, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
@@ -25,7 +25,10 @@ interface Application {
 
 interface ApplicationsResponse {
   data: Application[];
-  meta: { total: number; page: number; limit: number; totalPages: number };
+  totalPages: number;
+  page: number;
+  limit: number;
+  total: number;
 }
 
 export default function ApplicationsPage() {
@@ -37,7 +40,9 @@ export default function ApplicationsPage() {
   const { data, isLoading } = useQuery<ApplicationsResponse>({
     queryKey: ['opportunity-applications', id, page],
     queryFn: () =>
-      api.get(`/opportunities/${id}/applications`, { params: { page, limit: 20 } }).then((r) => r.data),
+      api
+        .get(`/opportunities/${id}/applications`, { params: { page, limit: 20 } })
+        .then((r) => r.data),
     enabled: !!id,
   });
 
@@ -49,12 +54,16 @@ export default function ApplicationsPage() {
       qc.invalidateQueries({ queryKey: ['opportunity-applications', id] });
     },
     onError: () => {
-      toast({ title: 'Error', description: 'Could not update application.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Could not update application.',
+        variant: 'destructive',
+      });
     },
   });
 
   const applications = data?.data ?? [];
-  const meta = data?.meta;
+  const totalPages = data?.totalPages ?? 0;
 
   return (
     <div className="space-y-5 max-w-5xl">
@@ -78,7 +87,9 @@ export default function ApplicationsPage() {
       ) : applications.length === 0 ? (
         <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
           <p className="font-medium text-brand-text">No applications yet</p>
-          <p className="text-sm text-brand-muted mt-1">Applications will appear here when volunteers apply</p>
+          <p className="text-sm text-brand-muted mt-1">
+            Applications will appear here when volunteers apply
+          </p>
         </div>
       ) : (
         <>
@@ -87,13 +98,22 @@ export default function ApplicationsPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-brand-border bg-brand-bg">
-                    <th scope="col" className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                    >
                       Volunteer
                     </th>
-                    <th scope="col" className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell"
+                    >
                       Applied
                     </th>
-                    <th scope="col" className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                    >
                       Status
                     </th>
                     <th scope="col" className="px-4 py-3 w-32" />
@@ -109,7 +129,9 @@ export default function ApplicationsPage() {
                         {new Date(app.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGES[app.status] ?? ''}`}>
+                        <span
+                          className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_BADGES[app.status] ?? ''}`}
+                        >
                           {app.status}
                         </span>
                       </td>
@@ -120,7 +142,9 @@ export default function ApplicationsPage() {
                               size="sm"
                               variant="primary"
                               loading={updateMut.isPending}
-                              onClick={() => updateMut.mutate({ appId: app.id, status: 'ACCEPTED' })}
+                              onClick={() =>
+                                updateMut.mutate({ appId: app.id, status: 'ACCEPTED' })
+                              }
                             >
                               <Check className="w-3.5 h-3.5" /> Accept
                             </Button>
@@ -128,7 +152,9 @@ export default function ApplicationsPage() {
                               size="sm"
                               variant="outline"
                               loading={updateMut.isPending}
-                              onClick={() => updateMut.mutate({ appId: app.id, status: 'REJECTED' })}
+                              onClick={() =>
+                                updateMut.mutate({ appId: app.id, status: 'REJECTED' })
+                              }
                             >
                               <X className="w-3.5 h-3.5" /> Reject
                             </Button>
@@ -141,7 +167,7 @@ export default function ApplicationsPage() {
               </table>
             </div>
           </div>
-          {meta && meta.totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2">
               <button
                 type="button"
@@ -152,12 +178,12 @@ export default function ApplicationsPage() {
                 Previous
               </button>
               <span className="text-sm text-brand-muted">
-                Page {page} of {meta.totalPages}
+                Page {page} of {totalPages}
               </span>
               <button
                 type="button"
-                onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
-                disabled={page === meta.totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
                 className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
               >
                 Next

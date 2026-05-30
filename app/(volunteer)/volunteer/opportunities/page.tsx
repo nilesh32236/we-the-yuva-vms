@@ -138,9 +138,9 @@ export default function VolunteerOpportunitiesPage() {
               ))}
             </div>
             {/* Pagination */}
-            {list?.meta?.totalPages > 1 && (
+            {list?.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-6">
-                <button
+                <button type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                   className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
@@ -148,11 +148,11 @@ export default function VolunteerOpportunitiesPage() {
                   Previous
                 </button>
                 <span className="text-sm text-brand-muted">
-                  Page {page} of {list.meta.totalPages}
+                  Page {page} of {list.totalPages}
                 </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(list.meta.totalPages, p + 1))}
-                  disabled={page === list.meta.totalPages}
+                <button type="button"
+                  onClick={() => setPage((p) => Math.min(list.totalPages, p + 1))}
+                  disabled={page === list.totalPages}
                   className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
                 >
                   Next

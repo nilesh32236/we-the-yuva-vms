@@ -14,6 +14,7 @@ const HoursBarChart = dynamic(
   () => import('../../../../components/charts/HoursBarChart').then((mod) => mod.HoursBarChart),
   { ssr: false }
 );
+
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
 

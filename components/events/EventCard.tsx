@@ -1,7 +1,7 @@
 'use client';
 
-import { memo } from 'react';
 import { Calendar, Clock, MapPin, Users, Video } from 'lucide-react';
+import { memo } from 'react';
 import { ApplicationStatusBadge } from '../opportunities/ApplicationStatusBadge';
 
 const EVENT_STATUS_COLORS: Record<string, string> = {

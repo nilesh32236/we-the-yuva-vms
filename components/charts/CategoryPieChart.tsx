@@ -44,7 +44,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
             labelLine={false}
           >
             {chartData.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              <Cell key={chartData[i].name} fill={COLORS[i % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip />

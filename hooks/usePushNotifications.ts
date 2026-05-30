@@ -1,8 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
-import { useEffect, useState } from 'react';
 
 export function usePushNotifications() {
   const { user } = useAuth();

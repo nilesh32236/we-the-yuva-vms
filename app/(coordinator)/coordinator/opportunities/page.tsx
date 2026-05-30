@@ -18,6 +18,7 @@ export default function CoordinatorOpportunitiesPage() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [closing, setClosing] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['coordinator-opportunities'],
@@ -26,7 +27,13 @@ export default function CoordinatorOpportunitiesPage() {
   });
 
   const handleClose = async (id: string, title: string) => {
-    if (!confirm(`Close "${title}"? This cannot be undone.`)) return;
+    setConfirmAction({ id, title });
+  };
+
+  const executeClose = async () => {
+    if (!confirmAction) return;
+    const { id } = confirmAction;
+    setConfirmAction(null);
     setClosing(id);
     try {
       await api.delete(`/opportunities/${id}`);
@@ -139,11 +146,11 @@ export default function CoordinatorOpportunitiesPage() {
                               >
                                 <Pencil className="w-4 h-4" />
                               </Link>
-                              <button
-                                onClick={() => handleClose(opp.id, opp.title)}
-                                disabled={closing === opp.id}
-                                className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-600 transition-colors cursor-pointer"
-                                title="Close"
+              <button type="button"
+                onClick={() => handleClose(opp.id, opp.title)}
+                disabled={closing === opp.id}
+                className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-600 transition-colors cursor-pointer"
+                title="Close"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -156,6 +163,33 @@ export default function CoordinatorOpportunitiesPage() {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+            <h3 className="font-semibold text-lg mb-2">Confirm</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Close &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmAction(null)}
+                className="px-4 py-2 text-sm rounded-lg border"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeClose}
+                className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white"
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}

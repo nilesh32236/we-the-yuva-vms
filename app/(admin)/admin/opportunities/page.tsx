@@ -19,6 +19,7 @@ export default function AdminOpportunitiesPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [closing, setClosing] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-opportunities', search, page],
@@ -30,7 +31,13 @@ export default function AdminOpportunitiesPage() {
   });
 
   const handleClose = async (id: string, title: string) => {
-    if (!confirm(`Close "${title}"?`)) return;
+    setConfirmAction({ id, title });
+  };
+
+  const executeClose = async () => {
+    if (!confirmAction) return;
+    const { id } = confirmAction;
+    setConfirmAction(null);
     setClosing(id);
     try {
       await api.delete(`/opportunities/${id}`);
@@ -142,6 +149,7 @@ export default function AdminOpportunitiesPage() {
                         <td className="px-4 py-3">
                           {opp.status === 'ACTIVE' && (
                             <button
+                              type="button"
                               onClick={() => handleClose(opp.id, opp.title)}
                               disabled={closing === opp.id}
                               className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-600 transition-colors cursor-pointer"
@@ -158,9 +166,10 @@ export default function AdminOpportunitiesPage() {
               </table>
             </div>
           </div>
-          {data?.meta?.totalPages > 1 && (
+          {data?.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2">
               <button
+                type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
@@ -168,11 +177,12 @@ export default function AdminOpportunitiesPage() {
                 Previous
               </button>
               <span className="text-sm text-brand-muted">
-                Page {page} of {data.meta.totalPages}
+                Page {page} of {data.totalPages}
               </span>
               <button
-                onClick={() => setPage((p) => Math.min(data.meta.totalPages, p + 1))}
-                disabled={page === data.meta.totalPages}
+                type="button"
+                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+                disabled={page === data.totalPages}
                 className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
               >
                 Next
@@ -180,6 +190,31 @@ export default function AdminOpportunitiesPage() {
             </div>
           )}
         </>
+      )}
+
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+            <h3 className="font-semibold text-lg mb-2">Confirm</h3>
+            <p className="text-sm text-gray-600 mb-4">Close &ldquo;{confirmAction.title}&rdquo;?</p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmAction(null)}
+                className="px-4 py-2 text-sm rounded-lg border"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeClose}
+                className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
