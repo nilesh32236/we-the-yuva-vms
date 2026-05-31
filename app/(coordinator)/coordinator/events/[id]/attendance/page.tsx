@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Clock, LogIn, LogOut, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
@@ -41,18 +41,49 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
     refetchInterval: 30_000, // auto-refresh every 30s to see new check-ins
   });
 
-  const handleSave = async (attendances: { volunteerId: string; attended: boolean }[]) => {
-    try {
-      await api.post(`/events/${id}/attendance`, { attendances });
-      toast({ title: 'Attendance saved!' });
-      qc.invalidateQueries({ queryKey: ['attendance', id] });
-    } catch (err) {
+  const saveMutation = useMutation({
+    mutationFn: (attendances: { volunteerId: string; attended: boolean }[]) =>
+      api.post(`/events/${id}/attendance`, { attendances }),
+    onMutate: async (newAttendances) => {
+      await qc.cancelQueries({ queryKey: ['attendance', id] });
+      const previousAttendance = qc.getQueryData<AttendanceRecord[]>(['attendance', id]);
+
+      if (previousAttendance) {
+        const updatedAttendance = previousAttendance.map((record) => {
+          const match = newAttendances.find((na) => na.volunteerId === record.volunteerId);
+          if (match) {
+            return {
+              ...record,
+              attended: match.attended,
+            };
+          }
+          return record;
+        });
+        qc.setQueryData(['attendance', id], updatedAttendance);
+      }
+
+      return { previousAttendance };
+    },
+    onError: (err, _newAttendances, context) => {
+      if (context?.previousAttendance) {
+        qc.setQueryData(['attendance', id], context.previousAttendance);
+      }
       toast({
         title: 'Error',
         description: err instanceof Error ? err.message : 'Something went wrong',
         variant: 'destructive',
       });
-    }
+    },
+    onSuccess: () => {
+      toast({ title: 'Attendance saved!' });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['attendance', id] });
+    },
+  });
+
+  const handleSave = async (attendances: { volunteerId: string; attended: boolean }[]) => {
+    await saveMutation.mutateAsync(attendances);
   };
 
   const volunteers = (attendance ?? []).map((a: AttendanceRecord) => ({

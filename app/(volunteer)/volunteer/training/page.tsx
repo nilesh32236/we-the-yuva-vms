@@ -67,7 +67,7 @@ export default function TrainingPage() {
       {/* Course list */}
       <div className="space-y-3">
         {!courses?.length ? (
-          <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
             <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" />
             <p className="text-brand-muted text-sm">No training courses available</p>
           </div>
@@ -83,15 +83,15 @@ export default function TrainingPage() {
             return (
               <div
                 key={course.id}
-                className={`bg-white rounded-2xl border border-brand-border overflow-hidden ${isLocked ? 'opacity-60' : ''}`}
+                className={`bg-brand-surface rounded-2xl border border-brand-border overflow-hidden ${isLocked ? 'opacity-60' : ''}`}
               >
                 <div className="p-5 flex items-center gap-4">
                   <div
                     className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0
-                  ${isCompleted ? 'bg-emerald-100' : 'bg-brand-bg'}`}
+                  ${isCompleted ? 'bg-brand-primary/10' : 'bg-brand-bg'}`}
                   >
                     {isCompleted ? (
-                      <CheckCircle className="w-6 h-6 text-emerald-600" />
+                      <CheckCircle className="w-6 h-6 text-brand-primary" />
                     ) : isLocked ? (
                       <Lock className="w-5 h-5 text-brand-muted" />
                     ) : (
@@ -104,7 +104,7 @@ export default function TrainingPage() {
                         {course.title}
                       </h3>
                       {course.isRequired && (
-                        <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full flex-shrink-0">
+                        <span className="text-[10px] font-bold bg-brand-error/10 text-brand-error px-1.5 py-0.5 rounded-full flex-shrink-0">
                           Required
                         </span>
                       )}
@@ -128,7 +128,7 @@ export default function TrainingPage() {
                     <div className="h-1 bg-brand-primary" style={{ width: '0%' }} />
                   </div>
                 )}
-                {isCompleted && <div className="h-1 bg-emerald-500" />}
+                {isCompleted && <div className="h-1 bg-brand-primary" />}
               </div>
             );
           })

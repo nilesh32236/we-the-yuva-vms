@@ -108,7 +108,7 @@ export default function VolunteerOpportunitiesPage() {
               setCategory(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -140,7 +140,8 @@ export default function VolunteerOpportunitiesPage() {
             {/* Pagination */}
             {list?.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-6">
-                <button type="button"
+                <button
+                  type="button"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                   className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
@@ -150,7 +151,8 @@ export default function VolunteerOpportunitiesPage() {
                 <span className="text-sm text-brand-muted">
                   Page {page} of {list.totalPages}
                 </span>
-                <button type="button"
+                <button
+                  type="button"
                   onClick={() => setPage((p) => Math.min(list.totalPages, p + 1))}
                   disabled={page === list.totalPages}
                   className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"

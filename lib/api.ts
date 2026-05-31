@@ -54,7 +54,10 @@ api.interceptors.response.use(
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       // Don't auto-refresh if user just logged out
-      if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
+      if (
+        typeof sessionStorage !== 'undefined' &&
+        sessionStorage.getItem('logged_out') === 'true'
+      ) {
         sessionStorage.removeItem('logged_out');
         return Promise.reject(error);
       }

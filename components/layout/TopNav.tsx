@@ -1,17 +1,28 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Star } from 'lucide-react';
+import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Moon, Star, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  VOLUNTEER: { label: 'Volunteer', color: 'text-emerald-700', bg: 'bg-emerald-100' },
-  COORDINATOR: { label: 'Coordinator', color: 'text-cyan-700', bg: 'bg-cyan-100' },
-  ADMIN: { label: 'Admin', color: 'text-purple-700', bg: 'bg-purple-100' },
-  OBSERVER: { label: 'Observer', color: 'text-slate-700', bg: 'bg-slate-100' },
+  VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
+  COORDINATOR: { label: 'Coordinator', color: 'text-brand-cta', bg: 'bg-brand-cta/10' },
+  ORGANIZATION_ADMIN: {
+    label: 'Org Admin',
+    color: 'text-indigo-700 dark:text-indigo-400',
+    bg: 'bg-indigo-100 dark:bg-indigo-900/30',
+  },
+  PLATFORM_MANAGER: {
+    label: 'Manager',
+    color: 'text-teal-700 dark:text-teal-400',
+    bg: 'bg-teal-100 dark:bg-teal-900/30',
+  },
+  ADMIN: { label: 'Admin', color: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/30' },
+  OBSERVER: { label: 'Observer', color: 'text-slate-700 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-slate-800/50' },
 };
 
 const TYPE_ICON: Record<string, React.ElementType> = {
@@ -91,6 +102,39 @@ export function TopNav() {
 
   const role = ROLE_CONFIG[user?.role ?? ''];
 
+  function ThemeToggleButton() {
+    const { setTheme, resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => setMounted(true), []);
+
+    if (!mounted) {
+      return (
+        <button
+          type="button"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted cursor-pointer"
+          disabled
+          aria-label="Toggle theme"
+        >
+          <div className="w-4 h-4" />
+        </button>
+      );
+    }
+
+    const isDark = resolvedTheme === 'dark';
+
+    return (
+      <button
+        type="button"
+        onClick={() => setTheme(isDark ? 'light' : 'dark')}
+        className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer"
+        aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+      >
+        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </button>
+    );
+  }
+
   // Close panel on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -103,7 +147,7 @@ export function TopNav() {
   }, [open]);
 
   return (
-    <header className="h-16 bg-white border-b border-brand-border flex items-center px-4 md:px-6 gap-4 sticky top-0 z-30 flex-shrink-0">
+    <header className="min-h-16 h-auto pt-safe py-2 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-4 sticky top-0 z-30 flex-shrink-0">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
         <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center shadow-sm">
@@ -120,6 +164,9 @@ export function TopNav() {
       <div className="flex-1" />
 
       <div className="flex items-center gap-2">
+        {/* Theme toggle */}
+        <ThemeToggleButton />
+
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>
           <button
@@ -132,7 +179,7 @@ export function TopNav() {
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 border-2 border-white flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 border-2 border-brand-surface flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold leading-none">{unreadCount}</span>
               </span>
             )}
@@ -141,7 +188,7 @@ export function TopNav() {
           {/* Dropdown panel */}
           {open && (
             <div
-              className="absolute right-0 top-11 w-80 bg-white rounded-2xl shadow-xl border border-brand-border overflow-hidden z-50"
+              className="absolute right-0 top-11 w-80 bg-brand-surface rounded-2xl shadow-xl border border-brand-border overflow-hidden z-50"
               role="menu"
             >
               {/* Header */}
@@ -174,7 +221,7 @@ export function TopNav() {
                         type="button"
                         key={n.id}
                         onClick={() => markReadMut.mutate(n.id)}
-                        className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-emerald-50/50' : ''}`}
+                        className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-brand-primary/5' : ''}`}
                         role="menuitem"
                       >
                         <div
@@ -241,7 +288,7 @@ export function TopNav() {
         <button
           type="button"
           onClick={logout}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-red-50 hover:text-red-600 transition-colors duration-200 cursor-pointer"
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-error/10 hover:text-brand-error transition-colors duration-200 cursor-pointer"
           aria-label="Log out"
           title="Log out"
         >

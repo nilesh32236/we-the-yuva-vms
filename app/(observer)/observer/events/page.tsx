@@ -44,7 +44,8 @@ export default function ObserverEventsPage() {
 
       <div className="flex gap-1 bg-brand-bg rounded-xl p-1 w-fit">
         {(['upcoming', 'past'] as const).map((t) => (
-          <button type="button"
+          <button
+            type="button"
             key={t}
             onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer
@@ -74,7 +75,8 @@ export default function ObserverEventsPage() {
           </div>
           {data?.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2">
-              <button type="button"
+              <button
+                type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
                 className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
@@ -84,7 +86,8 @@ export default function ObserverEventsPage() {
               <span className="text-sm text-brand-muted">
                 Page {page} of {data.totalPages}
               </span>
-              <button type="button"
+              <button
+                type="button"
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
                 className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"

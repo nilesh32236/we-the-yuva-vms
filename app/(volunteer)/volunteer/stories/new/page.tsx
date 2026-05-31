@@ -47,7 +47,7 @@ export default function NewStoryPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl border border-brand-border p-6 space-y-5"
+        className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-5"
       >
         <h1 className="font-heading font-bold text-xl text-brand-text">Share Your Story</h1>
         <p className="text-sm text-brand-muted">

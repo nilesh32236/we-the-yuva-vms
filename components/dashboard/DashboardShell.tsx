@@ -133,7 +133,7 @@ function QuickActionsPanel({
   quickActions?: QuickAction[];
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+    <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
       <div className="px-5 py-4 border-b border-brand-border">
         <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
       </div>
@@ -252,7 +252,7 @@ export function DashboardShell({
           return (
             <div
               key={stat.label}
-              className="bg-white rounded-2xl border border-brand-border p-5 flex items-center gap-4
+              className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4
                 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 cursor-default"
             >
               <div

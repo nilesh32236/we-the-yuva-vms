@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ICONS, type NavItem } from './Sidebar';
+import { haptic } from '@/lib/haptic';
 
 interface BottomNavProps {
   navItems: NavItem[];
@@ -14,7 +15,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-brand-border z-30"
+      className="md:hidden fixed bottom-0 left-0 right-0 bg-brand-surface border-t border-brand-border z-30 touch-select-none"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       aria-label="Mobile navigation"
     >
@@ -27,7 +28,8 @@ export function BottomNav({ navItems }: BottomNavProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer min-w-[60px]
+              onClick={() => haptic.light()}
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce
                 ${isActive ? 'text-brand-primary' : 'text-brand-muted hover:text-brand-text'}`}
               aria-current={isActive ? 'page' : undefined}
             >

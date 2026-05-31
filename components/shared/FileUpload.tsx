@@ -91,7 +91,7 @@ export function FileUpload({
             type="button"
             onClick={remove}
             aria-label="Remove file"
-            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-brand-error text-white flex items-center justify-center hover:bg-brand-error/80 transition-colors"
           >
             <X className="w-3 h-3" />
           </button>
@@ -135,7 +135,7 @@ export function FileUpload({
         }}
       />
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-brand-error">{error}</p>}
     </div>
   );
 }

@@ -5,8 +5,10 @@ import { Activity, Calendar, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { PWAInstallBanner } from '../../../../components/shared/PWAInstallBanner';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 export default function VolunteerDashboardPage() {
   const { user } = useAuth();
@@ -21,6 +23,9 @@ export default function VolunteerDashboardPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
+      {/* PWA Install Banner */}
+      <PWAInstallBanner />
+
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 p-6 md:p-8">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
@@ -64,35 +69,36 @@ export default function VolunteerDashboardPage() {
             label="Total Hours"
             value={`${stats?.totalHours ?? 0}h`}
             icon={Clock}
-            accent="text-emerald-600"
-            accentBg="bg-emerald-50"
+            accent="text-brand-primary"
+            accentBg="bg-brand-primary/10"
           />
           <StatsCard
             label="Events Attended"
             value={stats?.eventsAttended ?? 0}
             icon={Calendar}
-            accent="text-teal-600"
-            accentBg="bg-teal-50"
+            accent="text-brand-cta"
+            accentBg="bg-brand-cta/10"
           />
           <StatsCard
             label="Applications"
             value={stats?.applications ?? 0}
             icon={Activity}
-            accent="text-green-600"
-            accentBg="bg-green-50"
+            accent="text-brand-primary"
+            accentBg="bg-brand-primary/10"
           />
         </div>
       )}
 
       {/* Quick actions */}
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-border">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
         </div>
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Link
             href="/volunteer/opportunities"
-            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group"
+            onClick={() => haptic.light()}
+            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
           >
             <p className="text-sm font-semibold">Browse Opportunities</p>
             <span className="text-white/80 group-hover:translate-x-0.5 transition-transform">
@@ -101,7 +107,8 @@ export default function VolunteerDashboardPage() {
           </Link>
           <Link
             href="/volunteer/events"
-            className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
+            onClick={() => haptic.light()}
+            className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
           >
             <p className="text-sm font-medium text-brand-text">My Events</p>
             <span className="text-brand-muted group-hover:text-brand-primary transition-colors">

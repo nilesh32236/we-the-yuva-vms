@@ -75,7 +75,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-dvh bg-brand-bg">
       {/* Header */}
-      <header className="h-16 bg-white border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
+      <header className="h-16 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
         <button
           type="button"
           onClick={() => router.back()}
@@ -110,7 +110,7 @@ export default function NotificationsPage() {
               <button
                 key={n.id}
                 type="button"
-                className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full ${!n.read ? 'bg-white' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
+                className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
                 onClick={() => {
                   if (!n.read) markReadMut.mutate(n.id);
                   if (n.link) router.push(n.link);

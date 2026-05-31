@@ -12,7 +12,23 @@
   "theme_color": "#059669",
   "lang": "en",
   "dir": "ltr",
-  "categories": ["productivity", "social"],
+  "categories": ["productivity", "social", "utilities"],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard_mobile.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "WeTheYuva Mobile Volunteer Summary"
+    },
+    {
+      "src": "/screenshots/dashboard_desktop.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "WeTheYuva Desktop Volunteer Dashboard"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-192.png",

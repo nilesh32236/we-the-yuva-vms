@@ -82,7 +82,7 @@ export default function CoordinatorDashboardPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-border">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
         </div>

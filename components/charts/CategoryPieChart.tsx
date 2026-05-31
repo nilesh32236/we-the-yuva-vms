@@ -1,8 +1,10 @@
 'use client';
 
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-const COLORS = [
+const LIGHT_COLORS = [
   '#059669',
   '#0891b2',
   '#7c3aed',
@@ -13,11 +15,28 @@ const COLORS = [
   '#64748b',
 ];
 
+const DARK_COLORS = [
+  '#34d399',
+  '#22d3ee',
+  '#a78bfa',
+  '#fbbf24',
+  '#f87171',
+  '#2dd4bf',
+  '#818cf8',
+  '#94a3b8',
+];
+
 interface CategoryPieChartProps {
   data: { category: string; count: number }[];
 }
 
 export function CategoryPieChart({ data }: CategoryPieChartProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const colors = mounted && resolvedTheme === 'dark' ? DARK_COLORS : LIGHT_COLORS;
+
   if (!data.length)
     return <p className="text-center text-brand-muted text-sm py-8">No data available</p>;
 
@@ -44,7 +63,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
             labelLine={false}
           >
             {chartData.map((_, i) => (
-              <Cell key={chartData[i].name} fill={COLORS[i % COLORS.length]} />
+              <Cell key={chartData[i].name} fill={colors[i % colors.length]} />
             ))}
           </Pie>
           <Tooltip />

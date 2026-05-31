@@ -44,19 +44,65 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     (a: { opportunityId: string; status: string }) => a.opportunityId === id
   );
 
+interface ApplicationInfo {
+  opportunityId: string;
+  status: string;
+}
+
+interface OpportunityInfo {
+  _count?: { applications: number };
+  [key: string]: unknown;
+}
+
   const apply = useMutation({
     mutationFn: () => api.post(`/opportunities/${id}/apply`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['my-applications'] });
-      qc.invalidateQueries({ queryKey: ['opportunity', id] });
-      toast({ title: 'Applied!', description: 'Your application has been submitted.' });
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: ['my-applications'] });
+      await qc.cancelQueries({ queryKey: ['opportunity', id] });
+
+      const previousMyApplications = qc.getQueryData<ApplicationInfo[]>(['my-applications']);
+      const previousOpportunity = qc.getQueryData<OpportunityInfo>(['opportunity', id]);
+
+      qc.setQueryData<ApplicationInfo[]>(['my-applications'], (old = []) => [
+        ...old,
+        { opportunityId: id, status: 'PENDING' },
+      ]);
+
+      if (previousOpportunity) {
+        qc.setQueryData<OpportunityInfo>(['opportunity', id], {
+          ...previousOpportunity,
+          _count: {
+            ...previousOpportunity._count,
+            applications: (previousOpportunity._count?.applications ?? 0) + 1,
+          },
+        });
+      }
+
+      return { previousMyApplications, previousOpportunity };
     },
-    onError: (e: { response?: { data?: { error?: string } } }) =>
+    onError: (e: unknown, _variables: unknown, context) => {
+      if (context?.previousMyApplications) {
+        qc.setQueryData(['my-applications'], context.previousMyApplications);
+      }
+      if (context?.previousOpportunity) {
+        qc.setQueryData(['opportunity', id], context.previousOpportunity);
+      }
+
+      const axiosError = e as { response?: { data?: { error?: string } } };
       toast({
         title: 'Failed',
-        description: e?.response?.data?.error ?? 'Try again',
+        description: axiosError?.response?.data?.error ?? 'Try again',
         variant: 'destructive',
-      }),
+      });
+    },
+    onSuccess: () => {
+      toast({ title: 'Applied!', description: 'Your application has been submitted.' });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['my-applications'] });
+      qc.invalidateQueries({ queryKey: ['opportunity', id] });
+      qc.invalidateQueries({ queryKey: ['opportunities'] });
+    },
   });
 
   if (isLoading)
@@ -82,7 +128,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       </Link>
 
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-4">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div className="w-12 h-12 rounded-xl bg-brand-bg flex items-center justify-center flex-shrink-0">
             <Briefcase className="w-6 h-6 text-brand-primary" />
@@ -100,7 +146,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
         </div>
 
         {/* Meta grid */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm">
           <div className="flex items-center gap-2 text-brand-muted">
             <Calendar className="w-4 h-4 text-brand-primary flex-shrink-0" />
             <span>
@@ -145,7 +191,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
           {myApp ? (
             <div
               className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
-              ${myApp.status === 'ACCEPTED' ? 'bg-emerald-100 text-emerald-700' : myApp.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}
+              ${myApp.status === 'ACCEPTED' ? 'bg-brand-primary/10 text-brand-primary' : myApp.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}
             >
               {myApp.status === 'ACCEPTED'
                 ? '✓ Accepted'
@@ -154,17 +200,17 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                   : '⏳ Application Pending'}
             </div>
           ) : isClosed ? (
-            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-500">
+            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400">
               Closed
             </span>
           ) : isFull ? (
-            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-500">
+            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400">
               No slots available
             </span>
           ) : (
             <button
               type="button"
-              onClick={() => apply.mutate()}
+              onClick={() => apply.mutate(undefined)}
               disabled={apply.isPending}
               className="bg-brand-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
             >
@@ -175,7 +221,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       </div>
 
       {/* Description */}
-      <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-2">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-2">
         <h2 className="font-heading font-semibold text-sm text-brand-text">
           About this opportunity
         </h2>
@@ -186,7 +232,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
 
       {/* Skills */}
       {opp.skills?.length > 0 && (
-        <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-3">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-3">
           <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
             <Tag className="w-4 h-4 text-brand-primary" /> Skills needed
           </h2>
@@ -194,7 +240,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
             {opp.skills.map((s: string) => (
               <span
                 key={s}
-                className="text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full"
+                className="text-xs font-medium bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-2.5 py-1 rounded-full"
               >
                 {s}
               </span>

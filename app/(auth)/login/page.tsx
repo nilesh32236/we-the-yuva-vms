@@ -65,7 +65,7 @@ export default function LoginPage() {
       </div>
 
       {/* Login card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
         <div>
           <h1 className="font-heading font-bold text-2xl text-brand-text">Welcome back</h1>
           <p className="text-brand-muted text-sm mt-1">Enter your email to continue</p>

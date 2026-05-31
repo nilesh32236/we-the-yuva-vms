@@ -128,7 +128,7 @@ function VerifyOtpContent() {
         Back
       </Link>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-brand-border p-6 space-y-6">
+      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-6">
         <div className="text-center space-y-2">
           <div className="w-12 h-12 bg-brand-bg rounded-full flex items-center justify-center mx-auto">
             <Mail className="w-6 h-6 text-brand-primary" />
@@ -140,11 +140,11 @@ function VerifyOtpContent() {
 
         {/* TEMPORARY: dev OTP display for testing */}
         {devOtp && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-            <p className="text-yellow-800 text-sm font-medium">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
+            <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
               ⚠️ Dev OTP (temporary — remove before production)
             </p>
-            <p className="text-yellow-900 text-2xl font-mono font-bold tracking-widest mt-1">
+            <p className="text-yellow-900 dark:text-yellow-100 text-2xl font-mono font-bold tracking-widest mt-1">
               {devOtp}
             </p>
             <p className="text-yellow-700 text-xs mt-1">

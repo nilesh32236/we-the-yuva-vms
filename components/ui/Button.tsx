@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 const variants = {
   primary:
     'bg-brand-primary text-white hover:bg-brand-secondary disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
-  cta: 'bg-brand-cta text-white hover:bg-cyan-700 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
+  cta: 'bg-brand-cta text-white hover:bg-brand-cta/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   outline:
     'border border-brand-border text-brand-text hover:bg-brand-bg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   ghost:

@@ -86,7 +86,7 @@ export function OtpInput({ value, onChange, disabled = false }: OtpInputProps) {
             ${
               value[index]
                 ? 'border-brand-primary bg-brand-bg text-brand-text'
-                : 'border-brand-border bg-white text-brand-text'
+                : 'border-brand-border bg-brand-surface text-brand-text'
             }`}
         />
       ))}

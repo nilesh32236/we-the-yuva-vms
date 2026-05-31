@@ -8,7 +8,9 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string | null;
-  role: 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER';
+  role: 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'PLATFORM_MANAGER' | 'ADMIN' | 'OBSERVER';
+  permissions?: string[];
+  organizationId?: string | null;
   status: string;
   profile?: {
     skills: string[];

@@ -26,6 +26,7 @@ export default function VolunteerProfilePage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [bio, setBio] = useState('');
+  const [volunteerType, setVolunteerType] = useState('');
   const [skills, setSkills] = useState('');
   const [interests, setInterests] = useState('');
 
@@ -52,6 +53,7 @@ export default function VolunteerProfilePage() {
 
   function startEdit() {
     setBio(user?.profile?.bio ?? '');
+    setVolunteerType(user?.volunteerType ?? '');
     setSkills((user?.profile?.skills ?? []).join(', '));
     setInterests((user?.profile?.interests ?? []).join(', '));
     setEditing(true);
@@ -59,6 +61,7 @@ export default function VolunteerProfilePage() {
 
   function save() {
     mutation.mutate({
+      volunteerType,
       bio,
       skills: skills
         .split(',')
@@ -88,11 +91,11 @@ export default function VolunteerProfilePage() {
   return (
     <div className="max-w-2xl space-y-5">
       {/* Header card */}
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-emerald-500 to-teal-400" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-white flex items-center justify-center shadow-md">
+            <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-brand-surface flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
             {!editing ? (
@@ -128,9 +131,16 @@ export default function VolunteerProfilePage() {
             <Mail className="w-3.5 h-3.5" />
             <span>{user?.email}</span>
           </div>
-          <span className="inline-block mt-2 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full">
-            Volunteer
-          </span>
+          <div className="flex gap-2 mt-2">
+            <span className="inline-block text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-0.5 rounded-full">
+              Volunteer
+            </span>
+            {user?.volunteerType && (
+              <span className="inline-block text-xs font-semibold bg-brand-cta/10 text-brand-cta px-2.5 py-0.5 rounded-full">
+                {user.volunteerType.charAt(0) + user.volunteerType.slice(1).toLowerCase()}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -150,7 +160,7 @@ export default function VolunteerProfilePage() {
         ].map(({ icon: Icon, label, value }) => (
           <div
             key={label}
-            className="bg-white rounded-xl border border-brand-border p-4 text-center"
+            className="bg-brand-surface rounded-xl border border-brand-border p-4 text-center"
           >
             <Icon className="w-4 h-4 text-brand-primary mx-auto mb-1.5" />
             <p className="font-heading font-bold text-lg text-brand-text">{value}</p>
@@ -159,8 +169,28 @@ export default function VolunteerProfilePage() {
         ))}
       </div>
 
+      {/* Volunteer Type Editing */}
+      {editing && (
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+          <h2 className="font-heading font-semibold text-sm text-brand-text">Volunteer Type</h2>
+          <select
+            value={volunteerType}
+            onChange={(e) => setVolunteerType(e.target.value)}
+            className="w-full text-sm text-brand-text border border-brand-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+          >
+            <option value="">Select Type</option>
+            <option value="STUDENT">Student</option>
+            <option value="PROFESSIONAL">Professional</option>
+            <option value="EVENT">Event Based</option>
+            <option value="RECURRING">Recurring</option>
+            <option value="REMOTE">Remote</option>
+            <option value="EMERGENCY">Emergency</option>
+          </select>
+        </div>
+      )}
+
       {/* Bio */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-2">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
         <h2 className="font-heading font-semibold text-sm text-brand-text">About</h2>
         {editing ? (
           <textarea
@@ -176,7 +206,7 @@ export default function VolunteerProfilePage() {
       </div>
 
       {/* Skills */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-3">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
         <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
           <Tag className="w-4 h-4 text-brand-primary" /> Skills
         </h2>
@@ -193,7 +223,7 @@ export default function VolunteerProfilePage() {
               user.profile.skills.map((s: string) => (
                 <span
                   key={s}
-                  className="text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full"
+                  className="text-xs font-medium bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-2.5 py-1 rounded-full"
                 >
                   {s}
                 </span>
@@ -206,9 +236,9 @@ export default function VolunteerProfilePage() {
       </div>
 
       {/* Interests */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-3">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
         <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
-          <Tag className="w-4 h-4 text-teal-500" /> Interests
+          <Tag className="w-4 h-4 text-brand-cta" /> Interests
         </h2>
         {editing ? (
           <input
@@ -223,7 +253,7 @@ export default function VolunteerProfilePage() {
               user.profile.interests.map((s: string) => (
                 <span
                   key={s}
-                  className="text-xs font-medium bg-teal-50 text-teal-700 border border-teal-200 px-2.5 py-1 rounded-full"
+                  className="text-xs font-medium bg-brand-cta/10 text-brand-cta border border-brand-cta/20 px-2.5 py-1 rounded-full"
                 >
                   {s}
                 </span>
@@ -236,7 +266,7 @@ export default function VolunteerProfilePage() {
       </div>
 
       {/* Settings */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-3">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
         <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
           <Settings className="w-4 h-4 text-brand-muted" /> Settings
         </h2>

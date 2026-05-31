@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Activity, Clock, Users } from 'lucide-react';
+import { Activity, Building2, Clock, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { StatsCard } from '../../../../components/charts/StatsCard';
@@ -63,38 +63,45 @@ export default function AdminDashboardPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
               label="Total Users"
               value={stats?.totalUsers ?? 0}
               icon={Users}
-              accent="text-purple-600"
-              accentBg="bg-purple-50"
+              accent="text-purple-600 dark:text-purple-400"
+              accentBg="bg-purple-100 dark:bg-purple-900/30"
             />
             <StatsCard
               label="Active Volunteers"
               value={stats?.activeVolunteers ?? 0}
               icon={Activity}
-              accent="text-violet-600"
-              accentBg="bg-violet-50"
+              accent="text-violet-600 dark:text-violet-400"
+              accentBg="bg-violet-100 dark:bg-violet-900/30"
             />
             <StatsCard
               label="Total Hours Served"
               value={`${stats?.totalHours ?? 0}h`}
               icon={Clock}
-              accent="text-indigo-600"
-              accentBg="bg-indigo-50"
+              accent="text-indigo-600 dark:text-indigo-400"
+              accentBg="bg-indigo-100 dark:bg-indigo-900/30"
+            />
+            <StatsCard
+              label="Organizations"
+              value={`${stats?.activeOrgs ?? 0} active`}
+              icon={Building2}
+              accent="text-emerald-600 dark:text-emerald-400"
+              accentBg="bg-emerald-100 dark:bg-emerald-900/30"
             />
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
           <div className="px-5 py-4 border-b border-brand-border">
             <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
           </div>
@@ -120,6 +127,15 @@ export default function AdminDashboardPage() {
               className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
             >
               <p className="text-sm font-medium text-brand-text">Events</p>
+              <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
+                →
+              </span>
+            </Link>
+            <Link
+              href="/admin/organizations"
+              className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
+            >
+              <p className="text-sm font-medium text-brand-text">Organizations</p>
               <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
                 →
               </span>

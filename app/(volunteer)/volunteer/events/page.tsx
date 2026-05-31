@@ -18,9 +18,9 @@ import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'bg-blue-100 text-blue-700',
-  COMPLETED: 'bg-emerald-100 text-emerald-700',
-  CANCELLED: 'bg-red-100 text-red-700',
+  SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  COMPLETED: 'bg-brand-primary/10 text-brand-primary',
+  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
 };
 
 function getLocation(): Promise<{ lat: number; lng: number } | null> {
@@ -112,7 +112,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
 
   return (
     <div
-      className={`bg-white rounded-2xl border p-5 space-y-3 transition-all ${isCancelled ? 'opacity-60' : 'hover:shadow-md hover:border-brand-primary/30 border-brand-border'}`}
+      className={`bg-brand-surface rounded-2xl border p-5 space-y-3 transition-all ${isCancelled ? 'opacity-60' : 'hover:shadow-md hover:border-brand-primary/30 border-brand-border'}`}
     >
       <div className="flex items-start justify-between gap-2">
         <span
@@ -121,11 +121,11 @@ function EventRow({ event }: { event: VolunteerEvent }) {
           {event.status}
         </span>
         {isCheckedOut ? (
-          <span className="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">
+          <span className="text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full">
             Completed
           </span>
         ) : isCheckedIn ? (
-          <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full flex items-center gap-1">
+          <span className="text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-full flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> Checked In
           </span>
         ) : null}
@@ -172,7 +172,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
           {attendance.checkedInAt && (
             <div className="flex items-center justify-between">
               <span className="text-brand-muted flex items-center gap-1.5">
-                <LogIn className="w-3 h-3 text-emerald-600" />
+                <LogIn className="w-3 h-3 text-brand-primary" />
                 Checked in
               </span>
               <span className="font-medium text-brand-text">
@@ -191,7 +191,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
           {attendance.checkedOutAt && (
             <div className="flex items-center justify-between">
               <span className="text-brand-muted flex items-center gap-1.5">
-                <LogOut className="w-3 h-3 text-red-500" />
+                <LogOut className="w-3 h-3 text-brand-error" />
                 Checked out
               </span>
               <span className="font-medium text-brand-text">
@@ -235,7 +235,8 @@ function EventRow({ event }: { event: VolunteerEvent }) {
       {!isCancelled && !isPast && (
         <div className="flex gap-2 pt-1">
           {!isCheckedIn && (
-            <button type="button"
+            <button
+              type="button"
               onClick={handleCheckIn}
               disabled={busy}
               className="flex items-center gap-1.5 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
@@ -245,10 +246,11 @@ function EventRow({ event }: { event: VolunteerEvent }) {
             </button>
           )}
           {isCheckedIn && !isCheckedOut && (
-            <button type="button"
+            <button
+              type="button"
               onClick={handleCheckOut}
               disabled={busy}
-              className="flex items-center gap-1.5 text-sm font-medium bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600 transition-colors cursor-pointer disabled:opacity-60"
+              className="flex items-center gap-1.5 text-sm font-medium bg-brand-error text-white px-4 py-2 rounded-xl hover:bg-brand-error/80 transition-colors cursor-pointer disabled:opacity-60"
             >
               <LogOut className="w-4 h-4" />
               {busy ? 'Locating…' : 'Check Out'}
@@ -299,7 +301,7 @@ export default function VolunteerEventsPage() {
       <section>
         <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Upcoming Events</h2>
         {upcoming.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-brand-border p-10 text-center">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-10 text-center">
             <CalendarX className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" />
             <p className="font-medium text-brand-text">No upcoming events</p>
             <p className="text-sm text-brand-muted mt-1">Browse opportunities to get started</p>

@@ -68,7 +68,7 @@ export default function AlertSubscriptionsPage() {
         <ArrowLeft className="w-4 h-4" /> Back
       </Link>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <BellRing className="w-5 h-5 text-brand-primary" />
@@ -103,7 +103,7 @@ export default function AlertSubscriptionsPage() {
                     key={cat}
                     onClick={() => toggleCat(cat)}
                     className={`text-xs font-medium px-2.5 py-1 rounded-full border transition-colors cursor-pointer
-                      ${selectedCats.includes(cat) ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white text-brand-muted border-brand-border hover:border-brand-primary'}`}
+                      ${selectedCats.includes(cat) ? 'bg-brand-primary text-white border-brand-primary' : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary'}`}
                   >
                     {cat.charAt(0) + cat.slice(1).toLowerCase()}
                   </button>

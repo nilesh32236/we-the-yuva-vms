@@ -5,6 +5,7 @@ import { Camera, CheckCircle, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
+import { haptic } from '@/lib/haptic';
 
 function ScanInner() {
   const router = useRouter();
@@ -22,22 +23,28 @@ function ScanInner() {
     mutationFn: (qrToken: string) =>
       api.post(`/events/${eventId}/checkin`, { qrToken }).then((r) => r.data),
     onSuccess: () => {
+      haptic.success();
       setResult('success');
       setTimeout(() => router.push('/volunteer/events'), 2000);
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {
+      haptic.error();
       setResult('error');
       setErrorMsg(err.response?.data?.error ?? 'Check-in failed');
     },
   });
 
   const handleManualSubmit = () => {
-    if (!eventId) { setErrorMsg('Missing event ID. Scan the QR code from your event page.'); return; }
+    if (!eventId) {
+      setErrorMsg('Missing event ID. Scan the QR code from your event page.');
+      return;
+    }
     if (!manualToken.trim()) {
       setErrorMsg('Please enter a check-in code');
       return;
     }
     setErrorMsg('');
+    haptic.medium();
     checkinMutation.mutate(manualToken.trim());
   };
 
@@ -93,12 +100,12 @@ function ScanInner() {
       </div>
 
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+        <div className="bg-brand-error/10 border border-brand-error/20 rounded-xl p-4 text-sm text-brand-error">
           {errorMsg}
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-4">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4">
         <div className="space-y-1.5">
           <label htmlFor="token" className="text-sm font-medium text-brand-text">
             Check-in Code
@@ -112,7 +119,7 @@ function ScanInner() {
               if (e.key === 'Enter') handleManualSubmit();
             }}
             placeholder="Paste or type the check-in code"
-            className="w-full px-4 py-3 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="w-full px-4 py-3 rounded-xl bg-brand-surface border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
         <button
@@ -130,7 +137,9 @@ function ScanInner() {
 
 export default function ScanPage() {
   return (
-    <Suspense fallback={<div className="text-center text-brand-muted py-8">Loading scan page...</div>}>
+    <Suspense
+      fallback={<div className="text-center text-brand-muted py-8">Loading scan page...</div>}
+    >
       <ScanInner />
     </Suspense>
   );

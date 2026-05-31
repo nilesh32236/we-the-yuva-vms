@@ -4,6 +4,7 @@ import {
   BarChart,
   BookOpen,
   Briefcase,
+  Building2,
   Calendar,
   Eye,
   LayoutDashboard,
@@ -20,6 +21,7 @@ export const ICONS = {
   BarChart,
   BookOpen,
   Briefcase,
+  Building2,
   Calendar,
   Eye,
   LayoutDashboard,
@@ -47,7 +49,7 @@ export function Sidebar({ navItems }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-60 bg-white border-r border-brand-border h-full flex-shrink-0">
+    <aside className="hidden md:flex flex-col w-60 bg-brand-surface border-r border-brand-border h-full flex-shrink-0">
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto" aria-label="Main navigation">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -89,7 +91,7 @@ export function Sidebar({ navItems }: SidebarProps) {
               )}
               <div
                 className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
-                ${isActive ? 'bg-white/20' : 'bg-brand-bg group-hover:bg-white'}`}
+                ${isActive ? 'bg-white/20' : 'bg-brand-bg group-hover:bg-brand-surface'}`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-brand-primary'}`} />
               </div>

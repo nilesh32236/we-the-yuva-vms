@@ -2,6 +2,15 @@ import { z } from 'zod';
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
+export const VOLUNTEER_TYPES = [
+  'STUDENT',
+  'PROFESSIONAL',
+  'EVENT',
+  'RECURRING',
+  'REMOTE',
+  'EMERGENCY',
+] as const;
+
 export const TIME_SLOTS = ['Morning', 'Afternoon', 'Evening', 'Weekend'] as const;
 
 export const VolunteerProfileSchema = z.object({

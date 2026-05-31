@@ -48,45 +48,45 @@ export default function VolunteerImpactPage() {
             label="Total Hours"
             value={`${impact?.totalHours ?? 0}h`}
             icon={Clock}
-            accent="text-emerald-600"
-            accentBg="bg-emerald-50"
+            accent="text-brand-primary"
+            accentBg="bg-brand-primary/10"
           />
           <StatsCard
             label="Events Attended"
             value={impact?.eventsAttended ?? 0}
             icon={Calendar}
-            accent="text-teal-600"
-            accentBg="bg-teal-50"
+            accent="text-brand-cta"
+            accentBg="bg-brand-cta/10"
           />
           <StatsCard
             label="Stories Shared"
             value={impact?.storiesCount ?? 0}
             icon={BookOpen}
-            accent="text-violet-600"
-            accentBg="bg-violet-50"
+            accent="text-violet-600 dark:text-violet-400"
+            accentBg="bg-violet-100 dark:bg-violet-900/30"
           />
           <StatsCard
             label="Feedback Given"
             value={impact?.feedbackCount ?? 0}
             icon={MessageSquareText}
-            accent="text-blue-600"
-            accentBg="bg-blue-50"
+            accent="text-blue-600 dark:text-blue-400"
+            accentBg="bg-blue-100 dark:bg-blue-900/30"
           />
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl border border-brand-border p-5">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-4 h-4 text-emerald-600" />
+            <Clock className="w-4 h-4 text-brand-primary" />
             <h2 className="font-heading font-semibold text-sm text-brand-text">Monthly Hours</h2>
           </div>
           {isLoading ? <SkeletonCard /> : <HoursBarChart data={impact?.monthlyHours ?? []} />}
         </div>
 
-        <div className="bg-white rounded-2xl border border-brand-border p-5">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-4 h-4 text-teal-600" />
+            <Activity className="w-4 h-4 text-brand-cta" />
             <h2 className="font-heading font-semibold text-sm text-brand-text">
               Hours by Category
             </h2>
@@ -95,9 +95,9 @@ export default function VolunteerImpactPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-5">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-4 h-4 text-emerald-600" />
+          <TrendingUp className="w-4 h-4 text-brand-primary" />
           <h2 className="font-heading font-semibold text-sm text-brand-text">
             Category Breakdown (Hours)
           </h2>

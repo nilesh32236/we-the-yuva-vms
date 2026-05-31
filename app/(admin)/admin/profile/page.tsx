@@ -26,14 +26,14 @@ export default function AdminProfilePage() {
 
   return (
     <div className="max-w-2xl space-y-5">
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-purple-500 to-violet-400" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-purple-600 border-4 border-white flex items-center justify-center shadow-md">
+            <div className="w-20 h-20 rounded-2xl bg-purple-600 border-4 border-brand-surface flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full">
+            <div className="flex items-center gap-1.5 text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2.5 py-1 rounded-full">
               <Shield className="w-3 h-3" /> Admin
             </div>
           </div>
@@ -60,16 +60,16 @@ export default function AdminProfilePage() {
         ].map(({ icon: Icon, label, value }) => (
           <div
             key={label}
-            className="bg-white rounded-xl border border-brand-border p-4 text-center"
+            className="bg-brand-surface rounded-xl border border-brand-border p-4 text-center"
           >
-            <Icon className="w-4 h-4 text-purple-600 mx-auto mb-1.5" />
+            <Icon className="w-4 h-4 text-purple-600 dark:text-purple-400 mx-auto mb-1.5" />
             <p className="font-heading font-bold text-base text-brand-text truncate">{value}</p>
             <p className="text-xs text-brand-muted">{label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-5">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
         <h2 className="font-heading font-semibold text-sm text-brand-text mb-3">Account Details</h2>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between">

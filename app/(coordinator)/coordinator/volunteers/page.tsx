@@ -76,6 +76,12 @@ export default function CoordinatorVolunteersPage() {
                   </th>
                   <th
                     scope="col"
+                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+                  >
+                    Type
+                  </th>
+                  <th
+                    scope="col"
                     className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell"
                   >
                     Skills
@@ -94,10 +100,20 @@ export default function CoordinatorVolunteersPage() {
                   (v: {
                     id: string;
                     name: string;
+                    volunteerType?: string;
                     profile?: { skills: string[]; totalHours: number };
                   }) => (
                     <tr key={v.id} className="hover:bg-brand-bg/50 transition-colors">
                       <td className="px-4 py-3 font-medium text-brand-text">{v.name}</td>
+                      <td className="px-4 py-3 hidden md:table-cell">
+                        {v.volunteerType ? (
+                          <span className="text-xs font-medium text-brand-muted">
+                            {v.volunteerType.charAt(0) + v.volunteerType.slice(1).toLowerCase()}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-brand-muted">Not Set</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
                         <div className="flex flex-wrap gap-1">
                           {v.profile?.skills?.slice(0, 3).map((s) => (

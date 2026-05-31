@@ -146,11 +146,12 @@ export default function CoordinatorOpportunitiesPage() {
                               >
                                 <Pencil className="w-4 h-4" />
                               </Link>
-              <button type="button"
-                onClick={() => handleClose(opp.id, opp.title)}
-                disabled={closing === opp.id}
-                className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-600 transition-colors cursor-pointer"
-                title="Close"
+                              <button
+                                type="button"
+                                onClick={() => handleClose(opp.id, opp.title)}
+                                disabled={closing === opp.id}
+                                className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-600 transition-colors cursor-pointer"
+                                title="Close"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>

@@ -6,16 +6,16 @@ import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
 
 const ROLE_COLORS: Record<string, string> = {
-  VOLUNTEER: 'bg-emerald-100 text-emerald-700',
-  COORDINATOR: 'bg-cyan-100 text-cyan-700',
-  ADMIN: 'bg-purple-100 text-purple-700',
-  OBSERVER: 'bg-slate-100 text-slate-700',
+  VOLUNTEER: 'bg-brand-primary/10 text-brand-primary',
+  COORDINATOR: 'bg-brand-cta/10 text-brand-cta',
+  ADMIN: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+  OBSERVER: 'bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-400',
 };
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  INACTIVE: 'bg-gray-100 text-gray-600',
-  SUSPENDED: 'bg-red-100 text-red-700',
+  ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+  PENDING: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+  INACTIVE: 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400',
+  SUSPENDED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
 };
 
 interface User {
@@ -24,6 +24,7 @@ interface User {
   email: string | null;
   role: string;
   status: string;
+  volunteerType?: string | null;
   createdAt: string;
 }
 
@@ -52,7 +53,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+    <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -62,6 +63,12 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                 className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
               >
                 Name
+              </th>
+              <th
+                scope="col"
+                className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+              >
+                Type
               </th>
               <th
                 scope="col"
@@ -83,7 +90,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
               </th>
               <th
                 scope="col"
-                className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+                className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden lg:table-cell"
               >
                 Joined
               </th>
@@ -94,6 +101,15 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
             {users.map((u) => (
               <tr key={u.id} className="hover:bg-brand-bg/50 transition-colors">
                 <td className="px-4 py-3 font-medium text-brand-text">{u.name}</td>
+                <td className="px-4 py-3 hidden md:table-cell">
+                  {u.volunteerType ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-muted/70">
+                      {u.volunteerType}
+                    </span>
+                  ) : (
+                    <span className="text-brand-muted/30">—</span>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
                   {u.email ?? '—'}
                 </td>
@@ -111,7 +127,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                     {u.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
+                <td className="px-4 py-3 text-brand-muted hidden lg:table-cell">
                   {new Date(u.createdAt).toLocaleDateString('en-IN', {
                     day: 'numeric',
                     month: 'short',
@@ -122,7 +138,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                   <button
                     type="button"
                     onClick={() => setOpenMenu(openMenu === u.id ? null : u.id)}
-                    className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+                    className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-all cursor-pointer"
                     disabled={loading === u.id}
                     aria-label={`Actions for ${u.name}`}
                   >
@@ -130,14 +146,14 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                   </button>
                   {openMenu === u.id && (
                     <div
-                      className="absolute right-4 top-10 z-20 bg-white border border-brand-border rounded-xl shadow-lg py-1 min-w-[160px]"
+                      className="absolute right-4 top-10 z-20 bg-brand-surface border border-brand-border rounded-xl shadow-lg py-1 min-w-[160px]"
                       role="menu"
                     >
                       {u.status !== 'ACTIVE' && (
                         <button
                           type="button"
                           onClick={() => update(u.id, { status: 'ACTIVE' }, 'User activated')}
-                          className="w-full text-left px-4 py-2 text-sm text-emerald-700 hover:bg-brand-bg cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer"
                           aria-label={`Activate ${u.name}`}
                           role="menuitem"
                         >
@@ -148,7 +164,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                         <button
                           type="button"
                           onClick={() => update(u.id, { status: 'SUSPENDED' }, 'User suspended')}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-brand-bg cursor-pointer"
+                          className="w-full text-left px-4 py-2 text-sm text-brand-error hover:bg-brand-bg cursor-pointer"
                           aria-label={`Suspend ${u.name}`}
                           role="menuitem"
                         >

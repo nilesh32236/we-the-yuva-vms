@@ -1,36 +1,39 @@
 @import "tailwindcss";
 
+/* ─── Class-based dark mode for next-themes ──────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── Brand Design Tokens ─────────────────────────────────────── */
 @theme {
-  /* Colors */
-  --color-brand-primary: #047857;   /* emerald-700 — 5.48:1 on white, passes WCAG AA */
-  --color-brand-secondary: #059669; /* emerald-600 — used for decorative/large-text only */
-  --color-brand-cta: #0891b2;
-  --color-brand-bg: #ecfdf5;
-  --color-brand-text: #064e3b;
-  --color-brand-muted: #6b7280;
-  --color-brand-error: #dc2626;
-  --color-brand-surface: #ffffff;
-  --color-brand-border: #d1fae5;
+  /* Colors — values reference CSS variables defined on :root / .dark */
+  --color-brand-primary: var(--clr-brand-primary);
+  --color-brand-secondary: var(--clr-brand-secondary);
+  --color-brand-cta: var(--clr-brand-cta);
+  --color-brand-bg: var(--clr-brand-bg);
+  --color-brand-text: var(--clr-brand-text);
+  --color-brand-muted: var(--clr-brand-muted);
+  --color-brand-error: var(--clr-brand-error);
+  --color-brand-surface: var(--clr-brand-surface);
+  --color-brand-border: var(--clr-brand-border);
 
   /* shadcn/ui CSS variables mapped to Tailwind v4 */
-  --color-background: #ffffff;
-  --color-foreground: #064e3b;
-  --color-card: #ffffff;
-  --color-card-foreground: #064e3b;
-  --color-primary: #047857;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #059669;
-  --color-secondary-foreground: #ffffff;
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #6b7280;
-  --color-accent: #f1f5f9;
-  --color-accent-foreground: #064e3b;
-  --color-destructive: #dc2626;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #d1fae5;
-  --color-input: #d1fae5;
-  --color-ring: #047857;
+  --color-background: var(--clr-background);
+  --color-foreground: var(--clr-foreground);
+  --color-card: var(--clr-card);
+  --color-card-foreground: var(--clr-card-foreground);
+  --color-primary: var(--clr-primary);
+  --color-primary-foreground: var(--clr-primary-foreground);
+  --color-secondary: var(--clr-secondary);
+  --color-secondary-foreground: var(--clr-secondary-foreground);
+  --color-muted: var(--clr-muted);
+  --color-muted-foreground: var(--clr-muted-foreground);
+  --color-accent: var(--clr-accent);
+  --color-accent-foreground: var(--clr-accent-foreground);
+  --color-destructive: var(--clr-destructive);
+  --color-destructive-foreground: var(--clr-destructive-foreground);
+  --color-border: var(--clr-border);
+  --color-input: var(--clr-input);
+  --color-ring: var(--clr-ring);
 
   /* Fonts */
   --font-heading: "Poppins", sans-serif;
@@ -46,6 +49,68 @@
   /* Animations */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+/* ─── Light Theme (default) ───────────────────────────────────── */
+:root {
+  --clr-brand-primary: #047857;
+  --clr-brand-secondary: #059669;
+  --clr-brand-cta: #0891b2;
+  --clr-brand-bg: #ecfdf5;
+  --clr-brand-text: #064e3b;
+  --clr-brand-muted: #6b7280;
+  --clr-brand-error: #dc2626;
+  --clr-brand-surface: #ffffff;
+  --clr-brand-border: #d1fae5;
+
+  --clr-background: #ffffff;
+  --clr-foreground: #064e3b;
+  --clr-card: #ffffff;
+  --clr-card-foreground: #064e3b;
+  --clr-primary: #047857;
+  --clr-primary-foreground: #ffffff;
+  --clr-secondary: #059669;
+  --clr-secondary-foreground: #ffffff;
+  --clr-muted: #f1f5f9;
+  --clr-muted-foreground: #6b7280;
+  --clr-accent: #f1f5f9;
+  --clr-accent-foreground: #064e3b;
+  --clr-destructive: #dc2626;
+  --clr-destructive-foreground: #ffffff;
+  --clr-border: #d1fae5;
+  --clr-input: #d1fae5;
+  --clr-ring: #047857;
+}
+
+/* ─── Dark Theme ────────────────────────────────────────────────── */
+.dark {
+  --clr-brand-primary: #34d399;
+  --clr-brand-secondary: #6ee7b7;
+  --clr-brand-cta: #22d3ee;
+  --clr-brand-bg: #0f172a;
+  --clr-brand-text: #f1f5f9;
+  --clr-brand-muted: #94a3b8;
+  --clr-brand-error: #f87171;
+  --clr-brand-surface: #1e293b;
+  --clr-brand-border: #334155;
+
+  --clr-background: #0f172a;
+  --clr-foreground: #f1f5f9;
+  --clr-card: #1e293b;
+  --clr-card-foreground: #f1f5f9;
+  --clr-primary: #34d399;
+  --clr-primary-foreground: #0f172a;
+  --clr-secondary: #6ee7b7;
+  --clr-secondary-foreground: #0f172a;
+  --clr-muted: #1e293b;
+  --clr-muted-foreground: #94a3b8;
+  --clr-accent: #1e293b;
+  --clr-accent-foreground: #f1f5f9;
+  --clr-destructive: #f87171;
+  --clr-destructive-foreground: #0f172a;
+  --clr-border: #334155;
+  --clr-input: #334155;
+  --clr-ring: #34d399;
 }
 
 /* ─── Keyframes ───────────────────────────────────────────────── */
@@ -127,6 +192,10 @@
   height: 3px !important;
 }
 
+.dark #nprogress .bar {
+  background: #34d399 !important;
+}
+
 /* ─── Safe Area Utilities ─────────────────────────────────────── */
 /* Used for iPhone notch / Dynamic Island / home indicator */
 @layer utilities {
@@ -156,4 +225,33 @@
   .min-h-dvh {
     min-height: 100dvh;
   }
+  /* Prevent text highlighting on interactive touch components */
+  .touch-select-none {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* Spring-like native tactile active states */
+  .active-bounce {
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .active-bounce:active {
+    transform: scale(0.96);
+  }
 }
+
+/* ─── Webkit Custom Theme-aware Scrollbars ────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
+}
+

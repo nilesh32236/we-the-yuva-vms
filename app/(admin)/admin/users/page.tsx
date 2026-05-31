@@ -51,7 +51,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
         if (e.key === 'Escape') onClose();
       }}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-brand-surface rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border">
           <h2 id="create-user-title" className="font-heading font-bold text-lg text-brand-text">
             Create User
@@ -111,7 +111,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               id="create-role"
               value={form.role}
               onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
             >
               {CREATE_ROLES.map((r) => (
                 <option key={r} value={r}>
@@ -226,7 +226,7 @@ export default function AdminUsersPage() {
             setRole(e.target.value);
             setPage(1);
           }}
-          className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
         >
           {ROLES.map((r) => (
             <option key={r} value={r}>
@@ -240,7 +240,7 @@ export default function AdminUsersPage() {
             setStatus(e.target.value);
             setPage(1);
           }}
-          className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
         >
           {STATUSES.map((s) => (
             <option key={s} value={s}>

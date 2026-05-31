@@ -60,7 +60,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Lesson list */}
         <div className="md:col-span-1 space-y-2">
-          <div className="bg-white rounded-2xl border border-brand-border p-4">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-4">
             <h2 className="font-heading font-semibold text-sm text-brand-text mb-1">
               {course.title}
             </h2>
@@ -78,7 +78,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             <div className="space-y-1">
               {course.lessons.map(
                 (lesson: { id: string; completed: boolean; title: string }, idx: number) => (
-                  <button type="button"
+                  <button
+                    type="button"
                     key={lesson.id}
                     onClick={() => setActiveLesson(lesson.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer
@@ -86,7 +87,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                   >
                     {lesson.completed ? (
                       <CheckCircle
-                        className={`w-4 h-4 flex-shrink-0 ${currentLesson?.id === lesson.id ? 'text-white' : 'text-emerald-600'}`}
+                        className={`w-4 h-4 flex-shrink-0 ${currentLesson?.id === lesson.id ? 'text-white' : 'text-brand-primary'}`}
                       />
                     ) : (
                       <Circle
@@ -108,13 +109,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         {/* Lesson content */}
         <div className="md:col-span-2">
           {currentLesson ? (
-            <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-5">
+            <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-5">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="font-heading font-bold text-xl text-brand-text">
                   {currentLesson.title}
                 </h3>
                 {currentLesson.completed && (
-                  <span className="flex items-center gap-1 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full flex-shrink-0">
+                  <span className="flex items-center gap-1 text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full flex-shrink-0">
                     <CheckCircle className="w-3 h-3" /> Done
                   </span>
                 )}
@@ -125,7 +126,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               {!currentLesson.completed && (
-                <button type="button"
+                <button
+                  type="button"
                   onClick={() => complete.mutate(currentLesson.id)}
                   disabled={complete.isPending}
                   className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
@@ -135,7 +137,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               )}
 
               {currentLesson.completed && completedCount < course.lessons.length && (
-                <button type="button"
+                <button
+                  type="button"
                   onClick={() => {
                     const idx = course.lessons.findIndex(
                       (l: { id: string }) => l.id === currentLesson.id
@@ -150,7 +153,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               )}
 
               {completedCount === course.lessons.length && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
+                <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-xl p-4 text-center">
                   <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
                   <p className="font-heading font-bold text-emerald-700">Course Complete!</p>
                   <p className="text-sm text-emerald-600 mt-1">
@@ -160,7 +163,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               )}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-brand-border p-10 text-center text-brand-muted">
+            <div className="bg-brand-surface rounded-2xl border border-brand-border p-10 text-center text-brand-muted">
               Select a lesson to begin
             </div>
           )}

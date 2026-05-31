@@ -7,6 +7,7 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: 'LayoutDashboard' },
   { label: 'My Profile', href: '/admin/profile', icon: 'User' },
   { label: 'Users', href: '/admin/users', icon: 'Users' },
+  { label: 'Organizations', href: '/admin/organizations', icon: 'Building2' },
   { label: 'Opportunities', href: '/admin/opportunities', icon: 'Briefcase' },
   { label: 'Events', href: '/admin/events', icon: 'Calendar' },
   { label: 'Stories', href: '/admin/stories', icon: 'BookOpen' },

@@ -50,7 +50,7 @@ export default function NotificationPrefsPage() {
         <ArrowLeft className="w-4 h-4" /> Back
       </Link>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
         <div className="flex items-center gap-3 mb-6">
           <Bell className="w-5 h-5 text-brand-primary" />
           <h1 className="font-heading font-bold text-xl text-brand-text">

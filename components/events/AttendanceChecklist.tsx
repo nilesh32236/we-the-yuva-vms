@@ -68,7 +68,10 @@ export function AttendanceChecklist({ volunteers, onSave }: AttendanceChecklistP
               onChange={() => setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }))}
               className="w-5 h-5 rounded accent-brand-primary cursor-pointer"
             />
-            <label htmlFor={`attendance-${v.volunteerId}`} className="flex-1 min-w-0 cursor-pointer">
+            <label
+              htmlFor={`attendance-${v.volunteerId}`}
+              className="flex-1 min-w-0 cursor-pointer"
+            >
               <p className="text-sm font-medium text-brand-text truncate">{v.name}</p>
               <p className="text-xs text-brand-muted truncate">{v.email}</p>
             </label>

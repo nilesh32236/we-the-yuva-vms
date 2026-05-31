@@ -83,9 +83,19 @@ function TagInput({
 
 // ─── Volunteer Profile Form ───────────────────────────────────────
 
+const VOLUNTEER_TYPE_OPTIONS = [
+  { id: 'STUDENT', label: 'Student', description: 'Currently in school or university' },
+  { id: 'PROFESSIONAL', label: 'Professional', description: 'Working or retired professional' },
+  { id: 'EVENT', label: 'Event Based', description: 'Available for one-off events' },
+  { id: 'RECURRING', label: 'Recurring', description: 'Regular long-term commitment' },
+  { id: 'REMOTE', label: 'Remote', description: 'Contribute from anywhere online' },
+  { id: 'EMERGENCY', label: 'Emergency', description: 'Quick responder for crises' },
+];
+
 function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [volunteerType, setVolunteerType] = useState<string>('');
   const [skills, setSkills] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -104,6 +114,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
 
   const handleSubmit = async () => {
     if (
+      !volunteerType ||
       skills.length === 0 ||
       interests.length === 0 ||
       selectedDays.length === 0 ||
@@ -115,6 +126,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
     setIsLoading(true);
     try {
       await api.post('/users/me/profile', {
+        volunteerType,
         skills,
         interests,
         availability: { days: selectedDays, timeSlots: selectedSlots },
@@ -131,15 +143,23 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
     }
   };
 
-  const progress = (step / 3) * 100;
+  const progress = (step / 4) * 100;
 
   return (
     <div className="space-y-5">
       {/* Progress */}
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-brand-muted">
-          <span>Step {step} of 3</span>
-          <span>{step === 1 ? 'Skills' : step === 2 ? 'Interests' : 'Availability'}</span>
+          <span>Step {step} of 4</span>
+          <span>
+            {step === 1
+              ? 'Volunteer Type'
+              : step === 2
+                ? 'Skills'
+                : step === 3
+                  ? 'Interests'
+                  : 'Availability'}
+          </span>
         </div>
         <div className="h-2 bg-brand-border rounded-full overflow-hidden">
           <div
@@ -149,8 +169,38 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
         {step === 1 && (
+          <>
+            <h2 className="font-heading font-semibold text-xl text-brand-text">
+              What kind of volunteer are you?
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {VOLUNTEER_TYPE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setVolunteerType(opt.id)}
+                  className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all cursor-pointer
+                    ${volunteerType === opt.id ? 'bg-brand-primary/5 border-brand-primary ring-1 ring-brand-primary' : 'border-brand-border hover:border-brand-primary/50'}`}
+                >
+                  <span className="font-bold text-brand-text">{opt.label}</span>
+                  <span className="text-xs text-brand-muted mt-1">{opt.description}</span>
+                </button>
+              ))}
+            </div>
+            <Button
+              variant="cta"
+              fullWidth
+              onClick={() => volunteerType && setStep(2)}
+              disabled={!volunteerType}
+            >
+              Next <ArrowRight className="w-4 h-4" />
+            </Button>
+          </>
+        )}
+
+        {step === 2 && (
           <>
             <h2 className="font-heading font-semibold text-xl text-brand-text">
               What skills do you have?
@@ -161,18 +211,23 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
               onRemove={(t) => setSkills(skills.filter((s) => s !== t))}
               placeholder="e.g. Teaching, First Aid..."
             />
-            <Button
-              variant="cta"
-              fullWidth
-              onClick={() => skills.length > 0 && setStep(2)}
-              disabled={skills.length === 0}
-            >
-              Next <ArrowRight className="w-4 h-4" />
-            </Button>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
+                <ArrowLeft className="w-4 h-4" /> Back
+              </Button>
+              <Button
+                variant="cta"
+                className="flex-1"
+                onClick={() => skills.length > 0 && setStep(3)}
+                disabled={skills.length === 0}
+              >
+                Next <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           </>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <>
             <h2 className="font-heading font-semibold text-xl text-brand-text">
               What are your interests?
@@ -184,13 +239,13 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
               placeholder="e.g. Education, Health..."
             />
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
+              <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
                 <ArrowLeft className="w-4 h-4" /> Back
               </Button>
               <Button
                 variant="cta"
                 className="flex-1"
-                onClick={() => interests.length > 0 && setStep(3)}
+                onClick={() => interests.length > 0 && setStep(4)}
                 disabled={interests.length === 0}
               >
                 Next <ArrowRight className="w-4 h-4" />
@@ -199,7 +254,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
           </>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <>
             <h2 className="font-heading font-semibold text-xl text-brand-text">
               When are you available?
@@ -235,7 +290,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
+              <Button variant="outline" className="flex-1" onClick={() => setStep(3)}>
                 <ArrowLeft className="w-4 h-4" /> Back
               </Button>
               <Button
@@ -286,7 +341,7 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+    <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
       <h2 className="font-heading font-semibold text-xl text-brand-text">Set up your profile</h2>
       <div className="space-y-4">
         {[
@@ -352,7 +407,9 @@ export default function SetupProfilePage() {
       VOLUNTEER: '/volunteer/dashboard',
       COORDINATOR: '/coordinator/dashboard',
       ADMIN: '/admin/dashboard',
+      PLATFORM_MANAGER: '/admin/dashboard',
       OBSERVER: '/observer/dashboard',
+      ORGANIZATION_ADMIN: '/organization/dashboard',
     };
     // TEMPORARY: role is set during registration/OTP verification, doesn't change during profile setup
     // TODO: read from refetch result in production for accuracy

@@ -7,9 +7,34 @@ const withSerwist = withSerwistInit({
   disable: process.env.NODE_ENV === 'development',
 });
 
+const getApiRemotePattern = () => {
+  const defaultPattern = {
+    protocol: 'http' as const,
+    hostname: 'localhost',
+  };
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    return defaultPattern;
+  }
+
+  try {
+    const parsed = new URL(apiUrl);
+    const protocol = parsed.protocol.replace(':', '') as 'http' | 'https';
+    return {
+      protocol,
+      hostname: parsed.hostname,
+      ...(parsed.port ? { port: parsed.port } : {}),
+    };
+  } catch {
+    return defaultPattern;
+  }
+};
+
 const nextConfig: NextConfig = {
   ...(process.env.DOCKER_BUILD ? { output: 'standalone' } : {}),
   turbopack: {},
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
@@ -24,6 +49,7 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost',
       },
+      getApiRemotePattern(),
     ],
   },
   async headers() {

@@ -1,19 +1,20 @@
 'use client';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Briefcase, Calendar, MapPin, Users, Wifi } from 'lucide-react';
 import { memo, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
 
 const CATEGORY_COLORS: Record<string, string> = {
-  EDUCATION: 'bg-blue-100 text-blue-700',
-  HEALTH: 'bg-red-100 text-red-700',
-  ENVIRONMENT: 'bg-green-100 text-green-700',
-  COMMUNITY: 'bg-purple-100 text-purple-700',
-  ARTS: 'bg-pink-100 text-pink-700',
-  SPORTS: 'bg-orange-100 text-orange-700',
-  TECHNOLOGY: 'bg-cyan-100 text-cyan-700',
-  OTHER: 'bg-gray-100 text-gray-700',
+  EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  HEALTH: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+  ENVIRONMENT: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+  COMMUNITY: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+  ARTS: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400',
+  SPORTS: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+  TECHNOLOGY: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400',
+  OTHER: 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400',
 };
 
 interface OpportunityCardProps {
@@ -36,28 +37,103 @@ interface OpportunityCardProps {
   onApplied?: (id: string) => void;
 }
 
+interface OpportunityInfo {
+  id: string;
+  userApplication?: { status: string } | null;
+  _count?: { applications: number };
+  [key: string]: unknown;
+}
+
+interface OpportunityListData {
+  data: OpportunityInfo[];
+  [key: string]: unknown;
+}
+
+type OpportunityCacheData = OpportunityInfo[] | OpportunityListData;
+
 const OpportunityCard = memo(function OpportunityCard({
   opportunity: opp,
   showApply = false,
   onApplied,
 }: OpportunityCardProps) {
   const { toast } = useToast();
-  const [applying, setApplying] = useState(false);
+  const qc = useQueryClient();
   const [applied, setApplied] = useState(!!opp.userApplication);
 
   const filled = opp._count?.applications ?? 0;
   const fillPct = Math.min((filled / opp.totalSlots) * 100, 100);
   const isFull = filled >= opp.totalSlots;
 
-  const handleApply = async () => {
-    setApplying(true);
-    try {
-      await api.post(`/opportunities/${opp.id}/apply`);
+  const applyMutation = useMutation({
+    mutationFn: () => api.post(`/opportunities/${opp.id}/apply`),
+    onMutate: async () => {
+      // 1. Optimistically update local state for zero-latency response
       setApplied(true);
-      toast({ title: 'Application submitted!', description: `You applied to "${opp.title}"` });
-      onApplied?.(opp.id);
-    } catch (err: unknown) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
+
+      // 2. Cancel any outgoing refetches for ['opportunities']
+      await qc.cancelQueries({ queryKey: ['opportunities'] });
+
+      // 3. Snapshot current values
+      const previousQueries = qc.getQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] });
+
+      // 4. Set queries data for all queries matching ['opportunities']
+      qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] }, (oldData) => {
+        if (!oldData) return oldData;
+
+        // Array case (e.g. recommended list)
+        if (Array.isArray(oldData)) {
+          return oldData.map((item) => {
+            if (item.id === opp.id) {
+              return {
+                ...item,
+                userApplication: { status: 'PENDING' },
+                _count: {
+                  ...item._count,
+                  applications: (item._count?.applications ?? 0) + 1,
+                },
+              };
+            }
+            return item;
+          });
+        }
+
+        // Object case with data list (e.g. standard paginated search result)
+        if (oldData && Array.isArray(oldData.data)) {
+          return {
+            ...oldData,
+            data: oldData.data.map((item) => {
+              if (item.id === opp.id) {
+                return {
+                  ...item,
+                  userApplication: { status: 'PENDING' },
+                  _count: {
+                    ...item._count,
+                    applications: (item._count?.applications ?? 0) + 1,
+                  },
+                };
+              }
+              return item;
+            }),
+          };
+        }
+
+        return oldData;
+      });
+
+      return { previousQueries };
+    },
+    onError: (err: unknown, _variables: unknown, context) => {
+      // Rollback to original applied state
+      setApplied(!!opp.userApplication);
+
+      if (context?.previousQueries) {
+        for (const [queryKey, queryData] of context.previousQueries) {
+          qc.setQueryData(queryKey, queryData);
+        }
+      }
+
+      const axiosError = err as { response?: { status?: number } };
+      const status = axiosError?.response?.status;
       if (status === 409) {
         toast({
           title: 'Already applied',
@@ -72,13 +148,25 @@ const OpportunityCard = memo(function OpportunityCard({
           variant: 'destructive',
         });
       }
-    } finally {
-      setApplying(false);
-    }
+    },
+    onSuccess: () => {
+      toast({ title: 'Application submitted!', description: `You applied to "${opp.title}"` });
+      onApplied?.(opp.id);
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['opportunities'] });
+      qc.invalidateQueries({ queryKey: ['my-applications'] });
+    },
+  });
+
+  const handleApply = () => {
+    applyMutation.mutate(undefined);
   };
 
+  const applying = applyMutation.isPending;
+
   return (
-    <div className="bg-white rounded-2xl border border-brand-border p-5 flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 cursor-default">
+    <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 cursor-default">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <span
@@ -152,11 +240,11 @@ const OpportunityCard = memo(function OpportunityCard({
             <Users className="w-3 h-3" />
             {filled} / {opp.totalSlots} slots
           </span>
-          {isFull && <span className="text-red-600 font-medium">Full</span>}
+          {isFull && <span className="text-brand-error font-medium">Full</span>}
         </div>
         <div className="h-1.5 bg-brand-border rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all ${isFull ? 'bg-red-400' : 'bg-brand-primary'}`}
+            className={`h-full rounded-full transition-all ${isFull ? 'bg-brand-error/60' : 'bg-brand-primary'}`}
             style={{ width: `${fillPct}%` }}
           />
         </div>
@@ -171,9 +259,9 @@ const OpportunityCard = memo(function OpportunityCard({
           className={`mt-1 w-full py-2 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer
             ${
               applied
-                ? 'bg-emerald-100 text-emerald-700 cursor-default'
+                ? 'bg-brand-primary/10 text-brand-primary cursor-default'
                 : isFull
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  ? 'bg-brand-border text-brand-muted cursor-not-allowed'
                   : 'bg-brand-primary text-white hover:bg-brand-secondary'
             }`}
         >

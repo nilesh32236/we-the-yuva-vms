@@ -8,9 +8,9 @@ import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-emerald-100 text-emerald-700',
-  CLOSED: 'bg-gray-100 text-gray-600',
-  DRAFT: 'bg-yellow-100 text-yellow-700',
+  ACTIVE: 'bg-brand-primary/10 text-brand-primary',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400',
+  DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
 };
 
 export default function AdminOpportunitiesPage() {
@@ -78,7 +78,7 @@ export default function AdminOpportunitiesPage() {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <div className="bg-white rounded-2xl border border-brand-border">
+            <div className="bg-brand-surface rounded-2xl border border-brand-border">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-brand-border bg-brand-bg">
@@ -152,7 +152,7 @@ export default function AdminOpportunitiesPage() {
                               type="button"
                               onClick={() => handleClose(opp.id, opp.title)}
                               disabled={closing === opp.id}
-                              className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-600 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer"
                               title="Close"
                             >
                               <Trash2 className="w-4 h-4" />

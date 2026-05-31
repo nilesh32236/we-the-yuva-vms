@@ -59,7 +59,7 @@ export default function EventFeedbackPage() {
         <ArrowLeft className="w-4 h-4" /> Back
       </Link>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
         <h1 className="font-heading font-bold text-xl text-brand-text mb-1">Share Your Feedback</h1>
         <p className="text-sm text-brand-muted mb-6">
           {event?.title ? `How was "${event.title}"?` : 'How was this event?'}
@@ -68,7 +68,9 @@ export default function EventFeedbackPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Rating */}
           <div className="space-y-2">
-            <label htmlFor="rating" className="text-sm font-medium text-brand-text">Rating</label>
+            <label htmlFor="rating" className="text-sm font-medium text-brand-text">
+              Rating
+            </label>
             <div className="flex items-center gap-1">
               <input type="hidden" id="rating" value={rating} readOnly />
               {[1, 2, 3, 4, 5].map((n) => (
@@ -131,7 +133,7 @@ export default function EventFeedbackPage() {
                   type="button"
                   onClick={() => setConfidence(n === confidence ? 0 : n)}
                   className={`w-10 h-10 rounded-xl text-sm font-semibold border transition-colors cursor-pointer
-                    ${n <= confidence ? 'bg-brand-primary text-white border-brand-primary' : 'bg-white text-brand-muted border-brand-border hover:border-brand-primary'}`}
+                    ${n <= confidence ? 'bg-brand-primary text-white border-brand-primary' : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary'}`}
                 >
                   {n}
                 </button>

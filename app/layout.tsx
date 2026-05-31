@@ -38,7 +38,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#059669',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#059669' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover', // critical for iPhone notch / Dynamic Island
@@ -46,7 +49,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${openSans.variable}`}>
+    <html lang="en" className={`${poppins.variable} ${openSans.variable}`} suppressHydrationWarning>
       <body className="bg-brand-bg text-brand-text font-body antialiased">
         <Providers>{children}</Providers>
       </body>

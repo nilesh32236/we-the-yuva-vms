@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type RegisterInput, RegisterSchema } from '@/lib/shared';
+import { type RegisterInput, RegisterSchema, VOLUNTEER_TYPES } from '@/lib/shared';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { api } from '../../../lib/api';
@@ -61,7 +61,7 @@ export default function RegisterPage() {
       </Link>
 
       {/* Register card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
         <div>
           <h1 className="font-heading font-bold text-2xl text-brand-text">Create your account</h1>
           <p className="text-brand-muted text-sm mt-1">
@@ -119,6 +119,33 @@ export default function RegisterPage() {
             {errors.email && (
               <p id="email-error" className="text-brand-error text-xs" role="alert">
                 {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Volunteer type field */}
+          <div className="space-y-1.5">
+            <label htmlFor="volunteerType" className="text-sm font-medium text-brand-text">
+              I want to volunteer as
+            </label>
+            <select
+              id="volunteerType"
+              aria-describedby={errors.volunteerType ? 'volunteerType-error' : undefined}
+              className={`w-full px-4 py-2.5 rounded-lg border text-sm transition-colors duration-200
+                focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
+                ${errors.volunteerType ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
+              {...register('volunteerType')}
+            >
+              <option value="">Select your volunteer type (optional)</option>
+              {VOLUNTEER_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t.charAt(0) + t.slice(1).toLowerCase()}
+                </option>
+              ))}
+            </select>
+            {errors.volunteerType && (
+              <p id="volunteerType-error" className="text-brand-error text-xs" role="alert">
+                {errors.volunteerType.message}
               </p>
             )}
           </div>
