@@ -131,11 +131,7 @@ async function main() {
     {
       name: 'OBSERVER',
       description: 'Read-only access for donors, partners, and leadership',
-      permissions: [
-        'opportunity:view',
-        'stats:view:observer',
-        'user:profile:manage',
-      ],
+      permissions: ['opportunity:view', 'stats:view:observer', 'user:profile:manage'],
     },
   ];
 

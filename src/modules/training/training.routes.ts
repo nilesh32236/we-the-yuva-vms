@@ -8,8 +8,8 @@ import {
 } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 import {
   completeLessonHandler,
   createCourseHandler,
@@ -73,7 +73,12 @@ trainingRouter.put(
  *       204:
  *         description: Course deleted
  */
-trainingRouter.delete('/:id', requireAuth, requirePermission(Permissions.TRAINING_EDIT), deleteCourseHandler);
+trainingRouter.delete(
+  '/:id',
+  requireAuth,
+  requirePermission(Permissions.TRAINING_EDIT),
+  deleteCourseHandler
+);
 
 /**
  * @openapi

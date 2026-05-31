@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { NextFunction, Request, Response } from 'express';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { listAllEventsHandler } from '../events.controller';
 import * as service from '../events.service';
-import type { Request, Response, NextFunction } from 'express';
 
 vi.mock('../events.service', () => ({
   listAllEvents: vi.fn(),
@@ -29,7 +29,7 @@ describe('events controller pagination caps', () => {
     vi.clearAllMocks();
     req = {
       query: {},
-      user: { id: 'admin-id', role: 'ADMIN', permissions: [], organizationId: null }
+      user: { id: 'admin-id', role: 'ADMIN', permissions: [], organizationId: null },
     };
     res = {
       status: vi.fn().mockReturnThis(),
@@ -40,7 +40,7 @@ describe('events controller pagination caps', () => {
 
   it('should cap limit to 100 when a large limit is requested', async () => {
     req.query = { limit: '500' };
-    
+
     await listAllEventsHandler(req as Request, res as Response, next);
 
     expect(service.listAllEvents).toHaveBeenCalledWith(
@@ -60,15 +60,12 @@ describe('events controller pagination caps', () => {
     vi.clearAllMocks();
     req.query = { limit: '-10' };
     await listAllEventsHandler(req as Request, res as Response, next);
-    expect(service.listAllEvents).toHaveBeenCalledWith(
-      null,
-      expect.objectContaining({ limit: 1 })
-    );
+    expect(service.listAllEvents).toHaveBeenCalledWith(null, expect.objectContaining({ limit: 1 }));
   });
 
   it('should handle malformed limit strings gracefully', async () => {
     req.query = { limit: 'xyz' };
-    
+
     await listAllEventsHandler(req as Request, res as Response, next);
 
     expect(service.listAllEvents).toHaveBeenCalledWith(

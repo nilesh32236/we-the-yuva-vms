@@ -63,7 +63,9 @@ export async function sendPushToUser(
       });
       await prisma.pushSubscription
         .deleteMany({ where: { endpoint: sub.endpoint } })
-        .catch((err) => logger.warn('Failed to clean up push subscription', { error: (err as Error).message }));
+        .catch((err) =>
+          logger.warn('Failed to clean up push subscription', { error: (err as Error).message })
+        );
     }
   }
 }

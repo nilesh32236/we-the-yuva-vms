@@ -1,6 +1,6 @@
 import type { AuditLogAction, Prisma } from '@prisma/client';
-import { prisma } from './prisma';
 import { logger } from './logger';
+import { prisma } from './prisma';
 
 export async function logAudit(data: {
   userId: string;

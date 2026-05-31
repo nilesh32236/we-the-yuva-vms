@@ -2,8 +2,8 @@ import { type IRouter, Router } from 'express';
 import { AlertSubscriptionSchema, AlertSubscriptionUpdateSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 import {
   createSubscriptionHandler,
   deleteSubscriptionHandler,

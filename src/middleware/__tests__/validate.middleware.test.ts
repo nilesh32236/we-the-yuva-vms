@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { validate } from '../validate.middleware';
+import type { NextFunction, Request, Response } from 'express';
+import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import type { Request, Response, NextFunction } from 'express';
+import { validate } from '../validate.middleware';
 
 describe('validate middleware', () => {
   it('should strip unexpected fields from req.body', () => {
@@ -69,7 +69,7 @@ describe('validate middleware', () => {
     expect(req.body).toEqual({ title: 'New Task' });
     expect(req.query).toEqual({ page: 1 });
     expect(req.params).toEqual({ id: '123' });
-    
+
     // Check that extra fields are stripped
     expect(req.body).not.toHaveProperty('extra');
     expect(req.query).not.toHaveProperty('other');

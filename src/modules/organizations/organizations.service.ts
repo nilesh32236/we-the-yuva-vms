@@ -107,7 +107,9 @@ export async function updateOrganization(orgId: string, userId: string, data: Up
 }
 
 export async function listOrganizations(params: { status?: string; page: number; limit: number }) {
-  const where = params.status ? { status: params.status as 'PENDING' | 'ACTIVE' | 'SUSPENDED' } : {};
+  const where = params.status
+    ? { status: params.status as 'PENDING' | 'ACTIVE' | 'SUSPENDED' }
+    : {};
 
   const [orgs, total] = await Promise.all([
     prisma.organization.findMany({
@@ -129,7 +131,13 @@ export async function listOrganizations(params: { status?: string; page: number;
     prisma.organization.count({ where }),
   ]);
 
-  return { orgs, total, page: params.page, limit: params.limit, totalPages: Math.ceil(total / params.limit) };
+  return {
+    orgs,
+    total,
+    page: params.page,
+    limit: params.limit,
+    totalPages: Math.ceil(total / params.limit),
+  };
 }
 
 export async function suspendOrganization(orgId: string) {
@@ -293,4 +301,3 @@ export async function removeCoordinatorFromOrg(
     },
   });
 }
-

@@ -139,7 +139,13 @@ export async function listApplicationsHandler(
   try {
     const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
-    const applications = await listApplications(req.params.id, req.user!.id, req.user!.role, req.user!.organizationId, { page, limit });
+    const applications = await listApplications(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      { page, limit }
+    );
     res.status(200).json(applications);
   } catch (err) {
     next(err);

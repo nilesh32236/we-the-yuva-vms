@@ -44,10 +44,17 @@ async function sendPushToUser(userId: string, title: string, body: string, link?
           JSON.stringify({ title, body, link })
         );
       } catch (err) {
-        logger.warn('Push subscription send failed, removing', { endpoint: sub.endpoint.slice(0, 30), error: (err as Error).message });
+        logger.warn('Push subscription send failed, removing', {
+          endpoint: sub.endpoint.slice(0, 30),
+          error: (err as Error).message,
+        });
         await prisma.pushSubscription
           .deleteMany({ where: { endpoint: sub.endpoint } })
-          .catch((cleanupErr) => logger.warn('Failed to clean up expired push subscription', { error: (cleanupErr as Error).message }));
+          .catch((cleanupErr) =>
+            logger.warn('Failed to clean up expired push subscription', {
+              error: (cleanupErr as Error).message,
+            })
+          );
       }
     }
   } catch (err) {

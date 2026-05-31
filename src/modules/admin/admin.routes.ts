@@ -2,8 +2,8 @@ import { type IRouter, Router } from 'express';
 import { AdminCreateUserSchema, AdminUserUpdateSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 import {
   adminStatsHandler,
   createUserHandler,
@@ -40,9 +40,19 @@ adminRouter.post(
   createUserHandler
 );
 
-adminRouter.get('/users', requireAuth, requirePermission(Permissions.USER_MANAGE), listUsersHandler);
+adminRouter.get(
+  '/users',
+  requireAuth,
+  requirePermission(Permissions.USER_MANAGE),
+  listUsersHandler
+);
 
-adminRouter.get('/stats', requireAuth, requirePermission(Permissions.USER_MANAGE), adminStatsHandler);
+adminRouter.get(
+  '/stats',
+  requireAuth,
+  requirePermission(Permissions.USER_MANAGE),
+  adminStatsHandler
+);
 
 adminRouter.patch(
   '/users/:id',
@@ -52,10 +62,40 @@ adminRouter.patch(
   updateUserHandler
 );
 
-adminRouter.get('/organizations/stats', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminOrgStatsHandler);
-adminRouter.get('/organizations', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminListOrgsHandler);
-adminRouter.patch('/organizations/:id/verify', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminVerifyOrgHandler);
-adminRouter.delete('/organizations/:id', requireAuth, requirePermission(Permissions.ORG_MANAGE), adminSuspendOrgHandler);
-adminRouter.get('/organizations/:id/documents', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminGetOrgDocumentsHandler);
+adminRouter.get(
+  '/organizations/stats',
+  requireAuth,
+  requirePermission(Permissions.ORG_VERIFY),
+  adminOrgStatsHandler
+);
+adminRouter.get(
+  '/organizations',
+  requireAuth,
+  requirePermission(Permissions.ORG_VERIFY),
+  adminListOrgsHandler
+);
+adminRouter.patch(
+  '/organizations/:id/verify',
+  requireAuth,
+  requirePermission(Permissions.ORG_VERIFY),
+  adminVerifyOrgHandler
+);
+adminRouter.delete(
+  '/organizations/:id',
+  requireAuth,
+  requirePermission(Permissions.ORG_MANAGE),
+  adminSuspendOrgHandler
+);
+adminRouter.get(
+  '/organizations/:id/documents',
+  requireAuth,
+  requirePermission(Permissions.ORG_VERIFY),
+  adminGetOrgDocumentsHandler
+);
 
-adminRouter.get('/roles', requireAuth, requirePermission(Permissions.USER_MANAGE), listRolesHandler);
+adminRouter.get(
+  '/roles',
+  requireAuth,
+  requirePermission(Permissions.USER_MANAGE),
+  listRolesHandler
+);

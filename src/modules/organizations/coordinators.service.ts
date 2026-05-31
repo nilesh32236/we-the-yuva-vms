@@ -15,7 +15,8 @@ export async function addCoordinator(
   });
   if (!caller) throw new AppError('Caller not found', 404);
 
-  const isOrgAdmin = caller.organizationId === orgId && caller.roleRef.name === 'ORGANIZATION_ADMIN';
+  const isOrgAdmin =
+    caller.organizationId === orgId && caller.roleRef.name === 'ORGANIZATION_ADMIN';
   const isSysAdmin = caller.roleRef.name === 'ADMIN';
   if (!isOrgAdmin && !isSysAdmin) {
     throw new AppError('Not authorized to add coordinators to this organization', 403);
@@ -61,7 +62,11 @@ export async function listCoordinators(orgId: string) {
   return coordinators;
 }
 
-export async function removeCoordinator(orgId: string, coordinatorUserId: string, callerId: string) {
+export async function removeCoordinator(
+  orgId: string,
+  coordinatorUserId: string,
+  callerId: string
+) {
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
   if (!org) throw new AppError('Organization not found', 404);
 
@@ -71,7 +76,8 @@ export async function removeCoordinator(orgId: string, coordinatorUserId: string
   });
   if (!caller) throw new AppError('Caller not found', 404);
 
-  const isOrgAdmin = caller.organizationId === orgId && caller.roleRef.name === 'ORGANIZATION_ADMIN';
+  const isOrgAdmin =
+    caller.organizationId === orgId && caller.roleRef.name === 'ORGANIZATION_ADMIN';
   const isSysAdmin = caller.roleRef.name === 'ADMIN';
   if (!isOrgAdmin && !isSysAdmin) {
     throw new AppError('Not authorized to remove coordinators from this organization', 403);

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { NextFunction, Request, Response } from 'express';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { listOpportunitiesHandler } from '../opportunities.controller';
 import * as service from '../opportunities.service';
-import type { Request, Response, NextFunction } from 'express';
 
 vi.mock('../opportunities.service', () => ({
   listOpportunities: vi.fn(),
@@ -35,7 +35,7 @@ describe('opportunities controller pagination caps', () => {
 
   it('should cap limit to 100 when a large limit is requested', async () => {
     req.query = { limit: '1000' };
-    
+
     await listOpportunitiesHandler(req as Request, res as Response, next);
 
     expect(service.listOpportunities).toHaveBeenCalledWith(
@@ -63,7 +63,7 @@ describe('opportunities controller pagination caps', () => {
 
   it('should handle malformed limit strings gracefully', async () => {
     req.query = { limit: 'abc' };
-    
+
     await listOpportunitiesHandler(req as Request, res as Response, next);
 
     expect(service.listOpportunities).toHaveBeenCalledWith(

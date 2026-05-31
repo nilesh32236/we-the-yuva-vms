@@ -23,7 +23,9 @@ export async function getUserProfile(
   }
 
   // For coordinators/org admins: can view if user is in their org or applied to their org
-  const opportunityFilter = callerOrgId ? { organizationId: callerOrgId } : { createdById: callerId };
+  const opportunityFilter = callerOrgId
+    ? { organizationId: callerOrgId }
+    : { createdById: callerId };
 
   const user = await prisma.user.findFirst({
     where: {

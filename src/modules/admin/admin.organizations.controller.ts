@@ -1,12 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../middleware/error.middleware';
-import { getAdminOrgStats } from '../stats/stats.service';
 import {
   getOrganizationDocuments,
   listOrganizations,
   suspendOrganization,
   verifyOrganization,
 } from '../organizations/organizations.service';
+import { getAdminOrgStats } from '../stats/stats.service';
 
 export async function adminListOrgsHandler(req: Request, res: Response, next: NextFunction) {
   try {

@@ -1,10 +1,15 @@
 import { type IRouter, Router } from 'express';
-import { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema, VOLUNTEER_TYPES } from '@/shared';
 import { z } from 'zod';
+import {
+  StaffProfileSchema,
+  UpdateMeSchema,
+  VOLUNTEER_TYPES,
+  VolunteerProfileSchema,
+} from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 import { getMyEventsHandler } from '../events/events.controller';
 import {
   createStaffProfile,
@@ -112,4 +117,8 @@ usersRouter.get(
   getCoordinatorVolunteersHandler
 );
 
-usersRouter.get('/:id/profile', requirePermission(Permissions.USER_PROFILE_VIEW), getUserProfileHandler);
+usersRouter.get(
+  '/:id/profile',
+  requirePermission(Permissions.USER_PROFILE_VIEW),
+  getUserProfileHandler
+);

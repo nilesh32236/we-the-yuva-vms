@@ -38,8 +38,8 @@ export function createApp(): Express {
         directives: {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'", "'unsafe-inline'"], // Needed for Swagger UI inline scripts
-          styleSrc: ["'self'", "'unsafe-inline'"],  // Needed for Swagger UI inline styles
-          imgSrc: ["'self'", "data:"],
+          styleSrc: ["'self'", "'unsafe-inline'"], // Needed for Swagger UI inline styles
+          imgSrc: ["'self'", 'data:'],
           connectSrc: ["'self'", ...allowedOrigins],
         },
       },

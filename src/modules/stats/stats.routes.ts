@@ -22,7 +22,12 @@ export const statsRouter: IRouter = Router();
  *       200:
  *         description: Volunteer stats
  */
-statsRouter.get('/volunteer', requireAuth, requirePermission(Permissions.STATS_VIEW_OWN), volunteerStatsHandler);
+statsRouter.get(
+  '/volunteer',
+  requireAuth,
+  requirePermission(Permissions.STATS_VIEW_OWN),
+  volunteerStatsHandler
+);
 
 /**
  * @openapi
@@ -35,7 +40,12 @@ statsRouter.get('/volunteer', requireAuth, requirePermission(Permissions.STATS_V
  *       200:
  *         description: Volunteer impact data
  */
-statsRouter.get('/volunteer/impact', requireAuth, requirePermission(Permissions.STATS_VIEW_OWN), volunteerImpactHandler);
+statsRouter.get(
+  '/volunteer/impact',
+  requireAuth,
+  requirePermission(Permissions.STATS_VIEW_OWN),
+  volunteerImpactHandler
+);
 
 /**
  * @openapi
@@ -48,7 +58,12 @@ statsRouter.get('/volunteer/impact', requireAuth, requirePermission(Permissions.
  *       200:
  *         description: Coordinator stats
  */
-statsRouter.get('/coordinator', requireAuth, requirePermission(Permissions.STATS_VIEW_OWN), coordinatorStatsHandler);
+statsRouter.get(
+  '/coordinator',
+  requireAuth,
+  requirePermission(Permissions.STATS_VIEW_OWN),
+  coordinatorStatsHandler
+);
 
 /**
  * @openapi
@@ -61,4 +76,9 @@ statsRouter.get('/coordinator', requireAuth, requirePermission(Permissions.STATS
  *       200:
  *         description: Observer stats
  */
-statsRouter.get('/observer', requireAuth, requirePermission(Permissions.STATS_VIEW_OBSERVER), observerStatsHandler);
+statsRouter.get(
+  '/observer',
+  requireAuth,
+  requirePermission(Permissions.STATS_VIEW_OBSERVER),
+  observerStatsHandler
+);

@@ -2,9 +2,9 @@ import crypto from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 import type { EventInput } from '@/shared';
 import { logAudit } from '../../lib/audit';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
-import { logger } from '../../lib/logger';
 import { AppError } from '../../middleware/error.middleware';
 
 // ─── Event CRUD ───────────────────────────────────────────────────
@@ -68,7 +68,9 @@ export async function createEvent(
         eventDate: event.eventDate,
         venue: event.venue ?? event.meetingLink,
       })
-      .catch((err) => logger.warn('Failed to enqueue event invitation', { error: (err as Error).message }));
+      .catch((err) =>
+        logger.warn('Failed to enqueue event invitation', { error: (err as Error).message })
+      );
   }
 
   return event;

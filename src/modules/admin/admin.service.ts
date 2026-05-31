@@ -1,9 +1,8 @@
 import type { User } from '@prisma/client';
 import { logAudit } from '../../lib/audit';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
-
-import { logger } from '../../lib/logger';
 import { AppError } from '../../middleware/error.middleware';
 
 interface ListUsersFilters {
@@ -150,7 +149,9 @@ export async function updateUser(
   const user = await prisma.user.update({
     where: { id },
     data: {
-      ...(data.status && { status: data.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'INACTIVE' }),
+      ...(data.status && {
+        status: data.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'INACTIVE',
+      }),
       ...(updateRoleId && { roleId: updateRoleId }),
     },
   });
@@ -202,7 +203,9 @@ export async function updateUser(
         userId: id,
         email: user.email,
       })
-      .catch((err) => logger.warn('Failed to enqueue suspension notification', { error: (err as Error).message }));
+      .catch((err) =>
+        logger.warn('Failed to enqueue suspension notification', { error: (err as Error).message })
+      );
   }
 
   return user;

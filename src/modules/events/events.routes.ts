@@ -2,8 +2,8 @@ import { type IRouter, Router } from 'express';
 import { AttendanceSchema, CheckInSchema, CheckOutSchema, EventSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 import {
   cancelEventHandler,
   checkInHandler,
@@ -266,7 +266,12 @@ eventsRouter.put(
  *       200:
  *         description: Event cancelled
  */
-eventsRouter.delete('/:id', requireAuth, requirePermission(Permissions.EVENT_EDIT), cancelEventHandler);
+eventsRouter.delete(
+  '/:id',
+  requireAuth,
+  requirePermission(Permissions.EVENT_EDIT),
+  cancelEventHandler
+);
 
 /**
  * @openapi

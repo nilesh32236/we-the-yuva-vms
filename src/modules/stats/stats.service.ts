@@ -99,34 +99,33 @@ export async function getVolunteerImpactData(volunteerId: string) {
 
   const now = new Date();
 
-  const [profile, applications, attendances, storiesCount, feedbackCount] =
-    await Promise.all([
-      prisma.volunteerProfile.findUnique({
-        where: { userId: volunteerId },
-        select: { totalHours: true },
-      }),
-      prisma.application.count({ where: { volunteerId } }),
-      prisma.attendance.findMany({
-        where: {
-          volunteerId,
-          attended: true,
-          event: { eventDate: { gte: twelveMonthsAgo, lte: now } },
-        },
-        select: {
-          checkedInAt: true,
-          checkedOutAt: true,
-          event: {
-            select: {
-              eventDate: true,
-              opportunity: { select: { category: true, hoursPerSession: true } },
-            },
+  const [profile, applications, attendances, storiesCount, feedbackCount] = await Promise.all([
+    prisma.volunteerProfile.findUnique({
+      where: { userId: volunteerId },
+      select: { totalHours: true },
+    }),
+    prisma.application.count({ where: { volunteerId } }),
+    prisma.attendance.findMany({
+      where: {
+        volunteerId,
+        attended: true,
+        event: { eventDate: { gte: twelveMonthsAgo, lte: now } },
+      },
+      select: {
+        checkedInAt: true,
+        checkedOutAt: true,
+        event: {
+          select: {
+            eventDate: true,
+            opportunity: { select: { category: true, hoursPerSession: true } },
           },
         },
-        orderBy: { event: { eventDate: 'asc' } },
-      }),
-      prisma.story.count({ where: { userId: volunteerId } }),
-      prisma.eventFeedback.count({ where: { volunteerId } }),
-    ]);
+      },
+      orderBy: { event: { eventDate: 'asc' } },
+    }),
+    prisma.story.count({ where: { userId: volunteerId } }),
+    prisma.eventFeedback.count({ where: { volunteerId } }),
+  ]);
 
   const monthLabels: string[] = [];
   const now2 = new Date();

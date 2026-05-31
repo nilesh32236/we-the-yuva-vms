@@ -2,8 +2,8 @@ import { type IRouter, Router } from 'express';
 import { FeedbackSchema, UpdateFeedbackSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 import {
   deleteFeedbackHandler,
   getEventFeedbackHandler,
@@ -89,7 +89,12 @@ feedbackRouter.delete(
  *       200:
  *         description: List of my feedback
  */
-feedbackRouter.get('/mine', requireAuth, requirePermission(Permissions.FEEDBACK_SUBMIT), getMyFeedbackHandler);
+feedbackRouter.get(
+  '/mine',
+  requireAuth,
+  requirePermission(Permissions.FEEDBACK_SUBMIT),
+  getMyFeedbackHandler
+);
 
 /**
  * @openapi

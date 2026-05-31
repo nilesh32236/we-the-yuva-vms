@@ -2,8 +2,8 @@ import { type IRouter, Router } from 'express';
 import { ApplicationStatusSchema, ApplySchema, OpportunitySchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 import {
   applyHandler,
   closeOpportunityHandler,
@@ -48,7 +48,12 @@ opportunitiesRouter.post(
   createOpportunityHandler
 );
 
-opportunitiesRouter.get('/recommended', requireAuth, requirePermission(Permissions.OPPORTUNITY_VIEW), recommendedHandler);
+opportunitiesRouter.get(
+  '/recommended',
+  requireAuth,
+  requirePermission(Permissions.OPPORTUNITY_VIEW),
+  recommendedHandler
+);
 
 opportunitiesRouter.get('/', requireAuth, listOpportunitiesHandler);
 
@@ -105,5 +110,3 @@ opportunitiesRouter.patch(
   validate(ApplicationStatusSchema),
   updateApplicationStatusHandler
 );
-
-
