@@ -4,6 +4,7 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     volunteerProfile: { findUnique: vi.fn() },
     opportunity: { findMany: vi.fn() },
+    application: { findMany: vi.fn() },
   },
 }));
 
@@ -35,6 +36,7 @@ const baseOpp = {
 describe('matching.service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(prisma.application.findMany).mockResolvedValue([]);
   });
 
   it('should return empty array on prisma error', async () => {

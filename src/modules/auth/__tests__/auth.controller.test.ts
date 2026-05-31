@@ -127,9 +127,9 @@ describe('auth.controller', () => {
 
       await sendOtp(req as Request, res as Response, next);
 
-      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ message: expect.stringContaining('registered') })
+        expect.objectContaining({ error: expect.stringContaining('No account found') })
       );
     });
 

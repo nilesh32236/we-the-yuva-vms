@@ -56,8 +56,18 @@ export async function getRecommendedOpportunities(volunteerId: string) {
       return { ...o, matchScore: score };
     });
 
-    // 6. Sort by score DESC, return top 10
-    return scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
+    // 6. Attach user application status
+    const top10 = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
+    const oppIds = top10.map((o) => ({ id: o.id }));
+    const userApps = await prisma.application.findMany({
+      where: { opportunityId: { in: top10.map((o) => o.id) }, volunteerId },
+      select: { opportunityId: true, status: true },
+    });
+    const appMap = new Map(userApps.map((a) => [a.opportunityId, a]));
+    return top10.map((o) => ({
+      ...o,
+      userApplication: appMap.has(o.id) ? { status: appMap.get(o.id)!.status } : null,
+    }));
   } catch (error) {
     console.error('Failed to get recommendations:', error);
     return [];

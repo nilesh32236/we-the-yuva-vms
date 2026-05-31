@@ -55,7 +55,7 @@ export async function listOpportunitiesHandler(
       organizationId: req.query.organizationId as string | undefined,
     };
 
-    const result = await listOpportunities(filters, { page, limit });
+    const result = await listOpportunities(filters, { page, limit }, req.user!.id);
     res.status(200).json(result);
   } catch (err) {
     next(err);

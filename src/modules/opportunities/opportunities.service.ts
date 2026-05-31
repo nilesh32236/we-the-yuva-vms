@@ -76,10 +76,14 @@ export interface PaginationParams {
   limit: number;
 }
 
-export async function listOpportunities(filters: OpportunityFilters, pagination: PaginationParams) {
+export async function listOpportunities(
+  filters: OpportunityFilters,
+  pagination: PaginationParams,
+  userId?: string
+) {
   const cacheKey = `opportunities:list:${JSON.stringify({ filters, pagination })}`;
 
-  if (redis) {
+  if (redis && !userId) {
     const cached = await redis.get(cacheKey);
     if (cached) {
       return JSON.parse(cached);
@@ -89,9 +93,6 @@ export async function listOpportunities(filters: OpportunityFilters, pagination:
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
 
-  // TODO: include requesting user's application status in production
-  // Currently doesn't eager-load the user's application for performance
-  // Build where clause
   const where: Record<string, unknown> = { status: 'ACTIVE' };
 
   if (filters.category) {
@@ -128,16 +129,29 @@ export async function listOpportunities(filters: OpportunityFilters, pagination:
     prisma.opportunity.count({ where }),
   ]);
 
+  let enriched = data;
+  if (userId) {
+    const oppIds = data.map((o) => o.id);
+    const userApps = await prisma.application.findMany({
+      where: { opportunityId: { in: oppIds }, volunteerId: userId },
+      select: { opportunityId: true, status: true },
+    });
+    const appMap = new Map(userApps.map((a) => [a.opportunityId, a]));
+    enriched = data.map((opp) => ({
+      ...opp,
+      userApplication: appMap.has(opp.id) ? { status: appMap.get(opp.id)!.status } : null,
+    }));
+  }
+
   const result = {
-    data,
+    data: enriched,
     total,
     page,
     limit,
     totalPages: Math.ceil(total / limit),
   };
 
-  // Cache for 60 seconds
-  if (redis) {
+  if (redis && !userId) {
     await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
   }
 

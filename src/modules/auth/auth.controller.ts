@@ -79,8 +79,7 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     // Check user exists
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (!user) {
-      // Return same message to prevent email enumeration
-      res.status(200).json({ message: 'If this email is registered, a code has been sent.' });
+      res.status(404).json({ error: 'No account found with this email address. Please check your email or create a new account.' });
       return;
     }
 

@@ -25,6 +25,7 @@ describe('opportunities controller pagination caps', () => {
     vi.clearAllMocks();
     req = {
       query: {},
+      user: { id: 'test-user-id' },
     };
     res = {
       status: vi.fn().mockReturnThis(),
@@ -40,7 +41,8 @@ describe('opportunities controller pagination caps', () => {
 
     expect(service.listOpportunities).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ limit: 100 })
+      expect.objectContaining({ limit: 100 }),
+      'test-user-id'
     );
   });
 
@@ -49,7 +51,8 @@ describe('opportunities controller pagination caps', () => {
     await listOpportunitiesHandler(req as Request, res as Response, next);
     expect(service.listOpportunities).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ limit: 20 })
+      expect.objectContaining({ limit: 20 }),
+      'test-user-id'
     );
 
     vi.clearAllMocks();
@@ -57,7 +60,8 @@ describe('opportunities controller pagination caps', () => {
     await listOpportunitiesHandler(req as Request, res as Response, next);
     expect(service.listOpportunities).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ limit: 1 })
+      expect.objectContaining({ limit: 1 }),
+      'test-user-id'
     );
   });
 
@@ -68,7 +72,8 @@ describe('opportunities controller pagination caps', () => {
 
     expect(service.listOpportunities).toHaveBeenCalledWith(
       expect.anything(),
-      expect.objectContaining({ limit: 20 })
+      expect.objectContaining({ limit: 20 }),
+      'test-user-id'
     );
     expect(next).not.toHaveBeenCalled();
   });
