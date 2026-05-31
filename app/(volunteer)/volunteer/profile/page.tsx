@@ -21,6 +21,7 @@ import { Button } from '../../../../components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 export default function VolunteerProfilePage() {
   const { user: _authUser } = useAuth();
@@ -101,6 +102,7 @@ export default function VolunteerProfilePage() {
   }
 
   function save() {
+    haptic.medium();
     const errs: Record<string, string> = {};
     if (!volunteerType) errs.volunteerType = 'Please select a volunteer type';
     if (selectedDays.length === 0) errs.days = 'Please select at least one day';

@@ -7,6 +7,7 @@ import { use } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 const CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-blue-100 text-blue-700',
@@ -122,6 +123,7 @@ interface OpportunityInfo {
     <div className="max-w-2xl space-y-5">
       <Link
         href="/volunteer/opportunities"
+        onClick={() => haptic.light()}
         className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Opportunities
@@ -210,7 +212,7 @@ interface OpportunityInfo {
           ) : (
             <button
               type="button"
-              onClick={() => apply.mutate(undefined)}
+              onClick={() => { haptic.medium(); apply.mutate(undefined); }}
               disabled={apply.isPending}
               className="bg-brand-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
             >

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -139,6 +139,13 @@ export default function CoordinatorOpportunitiesPage() {
                         <div className="flex items-center gap-1">
                           {opp.status === 'ACTIVE' && (
                             <>
+                              <Link
+                                href={`/coordinator/opportunities/${opp.id}/applications`}
+                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors"
+                                title="View Applications"
+                              >
+                                <Users className="w-4 h-4" />
+                              </Link>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/edit`}
                                 className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors"

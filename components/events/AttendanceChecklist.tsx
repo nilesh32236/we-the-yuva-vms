@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { haptic } from '../../lib/haptic';
 import { Button } from '../ui/Button';
 
 interface Volunteer {
@@ -48,7 +49,10 @@ export function AttendanceChecklist({ volunteers, onSave }: AttendanceChecklistP
         </p>
         <button
           type="button"
-          onClick={() => setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, true])))}
+          onClick={() => {
+            haptic.light();
+            setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, true])));
+          }}
           className="text-xs text-brand-primary hover:underline cursor-pointer"
         >
           Mark all
@@ -65,7 +69,10 @@ export function AttendanceChecklist({ volunteers, onSave }: AttendanceChecklistP
               type="checkbox"
               id={`attendance-${v.volunteerId}`}
               checked={state[v.volunteerId]}
-              onChange={() => setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }))}
+              onChange={() => {
+                haptic.light();
+                setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }));
+              }}
               className="w-5 h-5 rounded accent-brand-primary cursor-pointer"
             />
             <label
@@ -79,7 +86,7 @@ export function AttendanceChecklist({ volunteers, onSave }: AttendanceChecklistP
         ))}
       </div>
 
-      <Button variant="primary" fullWidth onClick={handleSave} loading={saving}>
+      <Button variant="primary" fullWidth onClick={() => { haptic.medium(); handleSave(); }} loading={saving}>
         Save Attendance
       </Button>
     </div>

@@ -5,6 +5,7 @@ import { ArrowLeft, QrCode, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { QRCodeCanvas } from 'qrcode.react';
 import { use } from 'react';
+import { haptic } from '@/lib/haptic';
 import { api } from '@/lib/api';
 
 export default function EventQrPage({ params }: { params: Promise<{ id: string }> }) {
@@ -69,7 +70,10 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
 
             <button
               type="button"
-              onClick={() => refetch()}
+              onClick={() => {
+                haptic.medium();
+                refetch();
+              }}
               className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:underline cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" /> Regenerate QR

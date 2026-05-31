@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, ArrowLeft, Bell, CheckCheck, Info, Megaphone, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { haptic } from '@/lib/haptic';
 
 const TYPE_ICON: Record<string, React.ElementType> = {
   info: Info,
@@ -78,7 +79,7 @@ export default function NotificationsPage() {
       <header className="h-16 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
         <button
           type="button"
-          onClick={() => router.back()}
+          onClick={() => { haptic.light(); router.back(); }}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -87,7 +88,7 @@ export default function NotificationsPage() {
         {unreadCount > 0 && (
           <button
             type="button"
-            onClick={() => markAllReadMut.mutate()}
+            onClick={() => { haptic.light(); markAllReadMut.mutate(); }}
             className="text-xs text-brand-primary hover:underline cursor-pointer font-medium"
           >
             Mark all read
@@ -112,6 +113,7 @@ export default function NotificationsPage() {
                 type="button"
                 className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
                 onClick={() => {
+                  haptic.light();
                   if (!n.read) markReadMut.mutate(n.id);
                   if (n.link) router.push(n.link);
                 }}

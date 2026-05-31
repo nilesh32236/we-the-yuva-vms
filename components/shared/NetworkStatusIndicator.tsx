@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Wifi, WifiOff } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
 
 export function NetworkStatusIndicator() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
+  const onlineTimerRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
-    // Set initial status
     setIsOnline(navigator.onLine);
 
     const handleOnline = () => {
@@ -17,12 +17,10 @@ export function NetworkStatusIndicator() {
       setIsOnline(true);
       setShowOnlineToast(true);
 
-      // Auto-hide the "Back Online" confirmation after 3s
-      const timer = setTimeout(() => {
+      window.clearTimeout(onlineTimerRef.current);
+      onlineTimerRef.current = window.setTimeout(() => {
         setShowOnlineToast(false);
       }, 3000);
-
-      return () => clearTimeout(timer);
     };
 
     const handleOffline = () => {
@@ -37,6 +35,7 @@ export function NetworkStatusIndicator() {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.clearTimeout(onlineTimerRef.current);
     };
   }, []);
 

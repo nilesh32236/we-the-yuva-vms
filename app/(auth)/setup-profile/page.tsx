@@ -411,8 +411,6 @@ export default function SetupProfilePage() {
       OBSERVER: '/observer/dashboard',
       ORGANIZATION_ADMIN: '/organization/dashboard',
     };
-    // TEMPORARY: role is set during registration/OTP verification, doesn't change during profile setup
-    // TODO: read from refetch result in production for accuracy
     router.push(roleRoutes[user?.role ?? ''] ?? '/login');
   };
 

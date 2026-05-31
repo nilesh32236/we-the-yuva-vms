@@ -8,6 +8,7 @@ import { FileUpload } from '../../../../../components/shared/FileUpload';
 import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 export default function NewStoryPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function NewStoryPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
+    haptic.medium();
     setSubmitting(true);
     try {
       await api.post('/stories', {

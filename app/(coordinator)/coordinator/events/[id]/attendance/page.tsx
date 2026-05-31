@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { use } from 'react';
 import { AttendanceChecklist } from '../../../../../../components/events/AttendanceChecklist';
 import { SkeletonCard } from '../../../../../../components/shared/SkeletonCard';
+import { haptic } from '../../../../../../lib/haptic';
 import { useToast } from '../../../../../../hooks/use-toast';
 import { api } from '../../../../../../lib/api';
 
@@ -82,6 +83,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
   });
 
   const handleSave = async (attendances: { volunteerId: string; attended: boolean }[]) => {
+    haptic.medium();
     await saveMutation.mutateAsync(attendances);
   };
 

@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -95,6 +96,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
   });
 
   async function handleCheckIn() {
+    haptic.medium();
     setLocating(true);
     const location = await getLocation();
     setLocating(false);
@@ -102,6 +104,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
   }
 
   async function handleCheckOut() {
+    haptic.medium();
     setLocating(true);
     const location = await getLocation();
     setLocating(false);

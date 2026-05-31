@@ -7,6 +7,7 @@ import { use, useState } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -128,7 +129,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               {!currentLesson.completed && (
                 <button
                   type="button"
-                  onClick={() => complete.mutate(currentLesson.id)}
+                  onClick={() => { haptic.medium(); complete.mutate(currentLesson.id); }}
                   disabled={complete.isPending}
                   className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
                 >

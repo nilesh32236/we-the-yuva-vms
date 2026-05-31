@@ -8,6 +8,7 @@ import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 const CATEGORIES = [
   'EDUCATION',
@@ -207,7 +208,7 @@ export default function AlertSubscriptionsPage() {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => createMut.mutate({ categories: selectedCats, skills })}
+                  onClick={() => { haptic.medium(); createMut.mutate({ categories: selectedCats, skills }); }}
                   loading={createMut.isPending}
                 >
                   <BellRing className="w-3.5 h-3.5" /> Create Alert
@@ -266,7 +267,7 @@ export default function AlertSubscriptionsPage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => deleteMut.mutate(s.id)}
+                      onClick={() => { haptic.light(); deleteMut.mutate(s.id); }}
                       className="p-2 rounded-lg text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-brand-error transition-colors cursor-pointer shrink-0"
                       aria-label="Remove alert"
                     >

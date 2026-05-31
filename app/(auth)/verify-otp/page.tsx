@@ -78,8 +78,7 @@ function VerifyOtpContent() {
         if (!user.consent) {
           router.push('/consent');
         } else if (
-          (user.role === 'VOLUNTEER' && !user.profile) ||
-          (['COORDINATOR', 'ADMIN', 'OBSERVER'].includes(user.role) && !user.locationId)
+          (['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(user.role) && !user.locationId)
         ) {
           router.push('/setup-profile');
         } else {
@@ -88,6 +87,8 @@ function VerifyOtpContent() {
             COORDINATOR: '/coordinator/dashboard',
             ADMIN: '/admin/dashboard',
             OBSERVER: '/observer/dashboard',
+            ORGANIZATION_ADMIN: '/organization/dashboard',
+            PLATFORM_MANAGER: '/admin/dashboard',
           };
           router.push(roleRoutes[user.role] ?? '/login');
         }

@@ -5,6 +5,7 @@ import { ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
+import { haptic } from '../../../../../lib/haptic';
 import { api } from '../../../../../lib/api';
 
 export default function VolunteerDetailPage({
@@ -33,6 +34,7 @@ export default function VolunteerDetailPage({
       <Link
         href="/coordinator/volunteers"
         className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        onClick={() => haptic.light()}
       >
         <ArrowLeft className="w-4 h-4" /> Back to Volunteers
       </Link>

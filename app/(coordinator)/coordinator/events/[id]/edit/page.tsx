@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import type { EventInput } from '@/lib/shared';
 import { EventForm } from '../../../../../../components/events/EventForm';
+import { haptic } from '../../../../../../lib/haptic';
 import { useToast } from '../../../../../../hooks/use-toast';
 import { api } from '../../../../../../lib/api';
 
@@ -21,6 +22,7 @@ export default function EditEventPage() {
   });
 
   const handleSubmit = async (data: EventInput) => {
+    haptic.medium();
     try {
       await api.put(`/events/${id}`, data);
       toast({ title: 'Event updated!' });

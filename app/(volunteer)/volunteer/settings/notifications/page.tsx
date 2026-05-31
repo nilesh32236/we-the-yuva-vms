@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 const TYPE_LABELS: Record<string, string> = {
   application_accepted: 'Application Accepted',
@@ -152,7 +153,7 @@ export default function NotificationPrefsPage() {
                       <ToggleSwitch
                         id={`notif-${p.type}-email`}
                         checked={p.email}
-                        onChange={() => updateMut.mutate({ type: p.type, email: !p.email })}
+                        onChange={() => { haptic.light(); updateMut.mutate({ type: p.type, email: !p.email }); }}
                       />
                     </label>
                     <div className="w-px h-6 bg-brand-border" />
@@ -167,7 +168,7 @@ export default function NotificationPrefsPage() {
                       <ToggleSwitch
                         id={`notif-${p.type}-push`}
                         checked={p.push}
-                        onChange={() => updateMut.mutate({ type: p.type, push: !p.push })}
+                        onChange={() => { haptic.light(); updateMut.mutate({ type: p.type, push: !p.push }); }}
                       />
                     </label>
                   </div>

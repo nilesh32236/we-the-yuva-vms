@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Button } from '../../../../../../components/ui/Button';
 import { useToast } from '../../../../../../hooks/use-toast';
 import { api } from '../../../../../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 export default function EventFeedbackPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,7 @@ export default function EventFeedbackPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) return;
+    haptic.medium();
     setSubmitting(true);
     try {
       await api.post(`/feedback/events/${id}`, {

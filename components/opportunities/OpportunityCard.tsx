@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { memo } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
+import { haptic } from '@/lib/haptic';
 
 const CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -156,6 +157,7 @@ const OpportunityCard = memo(function OpportunityCard({
 
   const handleApply = (e: React.MouseEvent) => {
     e.stopPropagation();
+    haptic.medium();
     applyMutation.mutate(undefined);
   };
 

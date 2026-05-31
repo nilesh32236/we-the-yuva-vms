@@ -86,7 +86,14 @@ export default function CoordinatorDashboardPage() {
         <div className="px-5 py-4 border-b border-brand-border">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
         </div>
-        <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="p-4 grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <Link
+            href="/coordinator/opportunities"
+            className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
+          >
+            <p className="text-sm font-medium text-brand-text">View Opportunities</p>
+            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">→</span>
+          </Link>
           <Link
             href="/coordinator/opportunities/new"
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group"
@@ -99,18 +106,14 @@ export default function CoordinatorDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">Manage Events</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-              →
-            </span>
+            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">→</span>
           </Link>
           <Link
             href="/coordinator/volunteers"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">View Volunteers</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-              →
-            </span>
+            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">→</span>
           </Link>
         </div>
       </div>

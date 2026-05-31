@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
+import { haptic } from '@/lib/haptic';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
@@ -70,6 +71,7 @@ export default function ApplicationsPage() {
       <Link
         href="/coordinator/opportunities"
         className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        onClick={() => haptic.light()}
       >
         <ArrowLeft className="w-4 h-4" /> Back to Opportunities
       </Link>
@@ -142,9 +144,10 @@ export default function ApplicationsPage() {
                               size="sm"
                               variant="primary"
                               loading={updateMut.isPending}
-                              onClick={() =>
-                                updateMut.mutate({ appId: app.id, status: 'ACCEPTED' })
-                              }
+                              onClick={() => {
+                                haptic.medium();
+                                updateMut.mutate({ appId: app.id, status: 'ACCEPTED' });
+                              }}
                             >
                               <Check className="w-3.5 h-3.5" /> Accept
                             </Button>
@@ -152,9 +155,10 @@ export default function ApplicationsPage() {
                               size="sm"
                               variant="outline"
                               loading={updateMut.isPending}
-                              onClick={() =>
-                                updateMut.mutate({ appId: app.id, status: 'REJECTED' })
-                              }
+                              onClick={() => {
+                                haptic.medium();
+                                updateMut.mutate({ appId: app.id, status: 'REJECTED' });
+                              }}
                             >
                               <X className="w-3.5 h-3.5" /> Reject
                             </Button>
