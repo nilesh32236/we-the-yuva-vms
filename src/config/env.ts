@@ -4,7 +4,7 @@ import { z } from 'zod';
 dotenv.config();
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'staging', 'production']).default('development'),
+  NODE_ENV: z.enum(['development', 'staging', 'production', 'test']).default('development'),
   PORT: z.string().default('4000'),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url().default('redis://127.0.0.1:6379'),

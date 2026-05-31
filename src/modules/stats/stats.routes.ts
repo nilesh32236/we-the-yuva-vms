@@ -1,6 +1,7 @@
 import { type IRouter, Router } from 'express';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import {
   coordinatorStatsHandler,
   observerStatsHandler,
@@ -21,7 +22,7 @@ export const statsRouter: IRouter = Router();
  *       200:
  *         description: Volunteer stats
  */
-statsRouter.get('/volunteer', requireAuth, requireRole('VOLUNTEER'), volunteerStatsHandler);
+statsRouter.get('/volunteer', requireAuth, requirePermission(Permissions.STATS_VIEW_OWN), volunteerStatsHandler);
 
 /**
  * @openapi
@@ -34,7 +35,7 @@ statsRouter.get('/volunteer', requireAuth, requireRole('VOLUNTEER'), volunteerSt
  *       200:
  *         description: Volunteer impact data
  */
-statsRouter.get('/volunteer/impact', requireAuth, requireRole('VOLUNTEER'), volunteerImpactHandler);
+statsRouter.get('/volunteer/impact', requireAuth, requirePermission(Permissions.STATS_VIEW_OWN), volunteerImpactHandler);
 
 /**
  * @openapi
@@ -47,7 +48,7 @@ statsRouter.get('/volunteer/impact', requireAuth, requireRole('VOLUNTEER'), volu
  *       200:
  *         description: Coordinator stats
  */
-statsRouter.get('/coordinator', requireAuth, requireRole('COORDINATOR'), coordinatorStatsHandler);
+statsRouter.get('/coordinator', requireAuth, requirePermission(Permissions.STATS_VIEW_OWN), coordinatorStatsHandler);
 
 /**
  * @openapi
@@ -60,4 +61,4 @@ statsRouter.get('/coordinator', requireAuth, requireRole('COORDINATOR'), coordin
  *       200:
  *         description: Observer stats
  */
-statsRouter.get('/observer', requireAuth, requireRole('OBSERVER', 'ADMIN'), observerStatsHandler);
+statsRouter.get('/observer', requireAuth, requirePermission(Permissions.STATS_VIEW_OBSERVER), observerStatsHandler);

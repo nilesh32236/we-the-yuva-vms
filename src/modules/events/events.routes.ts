@@ -1,7 +1,8 @@
 import { type IRouter, Router } from 'express';
 import { AttendanceSchema, CheckInSchema, CheckOutSchema, EventSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
 import {
   cancelEventHandler,
@@ -53,7 +54,7 @@ export const opportunityEventsRouter: IRouter = Router({ mergeParams: true });
 opportunityEventsRouter.post(
   '/',
   requireAuth,
-  requireRole('COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.EVENT_CREATE),
   validate(EventSchema),
   createEventHandler
 );
@@ -111,7 +112,7 @@ eventsRouter.get('/', requireAuth, listAllEventsHandler);
 eventsRouter.get(
   '/export/csv',
   requireAuth,
-  requireRole('COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.EVENT_MANAGE),
   exportEventsCsvHandler
 );
 
@@ -156,7 +157,7 @@ eventsRouter.get('/:id', requireAuth, getEventHandler);
 eventsRouter.get(
   '/:id/qr',
   requireAuth,
-  requireRole('COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.EVENT_MANAGE),
   getEventQrCodeHandler
 );
 
@@ -181,7 +182,7 @@ eventsRouter.get(
 eventsRouter.post(
   '/:id/checkin',
   requireAuth,
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.EVENT_CHECKIN),
   validate(CheckInSchema),
   checkInHandler
 );
@@ -207,7 +208,7 @@ eventsRouter.post(
 eventsRouter.post(
   '/:id/checkout',
   requireAuth,
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.EVENT_CHECKIN),
   validate(CheckOutSchema),
   checkOutHandler
 );
@@ -242,7 +243,7 @@ eventsRouter.post(
 eventsRouter.put(
   '/:id',
   requireAuth,
-  requireRole('COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.EVENT_EDIT),
   validate(EventSchema),
   updateEventHandler
 );
@@ -265,7 +266,7 @@ eventsRouter.put(
  *       200:
  *         description: Event cancelled
  */
-eventsRouter.delete('/:id', requireAuth, requireRole('COORDINATOR', 'ADMIN'), cancelEventHandler);
+eventsRouter.delete('/:id', requireAuth, requirePermission(Permissions.EVENT_EDIT), cancelEventHandler);
 
 /**
  * @openapi
@@ -297,7 +298,7 @@ eventsRouter.delete('/:id', requireAuth, requireRole('COORDINATOR', 'ADMIN'), ca
 eventsRouter.post(
   '/:id/attendance',
   requireAuth,
-  requireRole('COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.EVENT_MANAGE),
   validate(AttendanceSchema),
   markAttendanceHandler
 );
@@ -323,6 +324,6 @@ eventsRouter.post(
 eventsRouter.get(
   '/:id/attendance',
   requireAuth,
-  requireRole('COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.EVENT_MANAGE),
   getAttendanceListHandler
 );

@@ -38,7 +38,7 @@ export async function coordinatorStatsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const stats = await getCoordinatorStats(req.user!.id);
+    const stats = await getCoordinatorStats(req.user!.id, req.user!.organizationId);
     res.status(200).json(stats);
   } catch (err) {
     next(err);

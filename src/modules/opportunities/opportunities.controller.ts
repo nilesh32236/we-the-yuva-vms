@@ -21,7 +21,7 @@ export async function createOpportunityHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const opportunity = await createOpportunity(req.user!.id, req.body);
+    const opportunity = await createOpportunity(req.user!.id, req.user!.organizationId, req.body);
     res.status(201).json(opportunity);
   } catch (err) {
     next(err);
@@ -52,6 +52,7 @@ export async function listOpportunitiesHandler(
       isRemote: req.query.isRemote !== undefined ? req.query.isRemote === 'true' : undefined,
       locationId: req.query.locationId as string | undefined,
       search: req.query.search as string | undefined,
+      organizationId: req.query.organizationId as string | undefined,
     };
 
     const result = await listOpportunities(filters, { page, limit });
@@ -97,6 +98,7 @@ export async function updateOpportunityHandler(
       req.params.id,
       req.user!.id,
       req.user!.role,
+      req.user!.organizationId,
       req.body
     );
     res.status(200).json(opportunity);
@@ -111,7 +113,7 @@ export async function closeOpportunityHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    await closeOpportunity(req.params.id, req.user!.id, req.user!.role);
+    await closeOpportunity(req.params.id, req.user!.id, req.user!.role, req.user!.organizationId);
     res.status(204).send();
   } catch (err) {
     next(err);
@@ -137,7 +139,7 @@ export async function listApplicationsHandler(
   try {
     const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
-    const applications = await listApplications(req.params.id, { page, limit });
+    const applications = await listApplications(req.params.id, req.user!.id, req.user!.role, req.user!.organizationId, { page, limit });
     res.status(200).json(applications);
   } catch (err) {
     next(err);
@@ -154,7 +156,8 @@ export async function updateApplicationStatusHandler(
       req.params.appId,
       req.body.status,
       req.user!.id,
-      req.user!.role
+      req.user!.role,
+      req.user!.organizationId
     );
     res.status(200).json(application);
   } catch (err) {

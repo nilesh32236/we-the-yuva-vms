@@ -39,13 +39,18 @@ export async function createUser(
     locationId = loc.id;
   }
 
+  const roleRecord = await prisma.role.findUnique({ where: { name: data.role } });
+  if (!roleRecord) {
+    throw new AppError(`Invalid role: ${data.role}`, 400);
+  }
+
   let user: User;
   try {
     user = await prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
-        role: data.role as 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER',
+        roleId: roleRecord.id,
         status: 'ACTIVE',
         locationId,
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: false } },
@@ -81,7 +86,7 @@ export async function listUsers(filters: ListUsersFilters, pagination: Paginatio
 
   // Build where clause
   const where: Record<string, unknown> = {};
-  if (role) where.role = role;
+  if (role) where.roleRef = { name: role };
   if (status) where.status = status;
   if (search) {
     where.OR = [
@@ -96,7 +101,14 @@ export async function listUsers(filters: ListUsersFilters, pagination: Paginatio
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        volunteerType: true,
+        createdAt: true,
+        roleRef: { select: { name: true } },
         profile: { select: { totalHours: true } },
         location: { select: { name: true } },
       },
@@ -124,11 +136,22 @@ export async function updateUser(
     throw new AppError('User not found', 404);
   }
 
+  let updateRoleId: string | undefined;
+  if (data.role) {
+    const roleRecord = await prisma.role.findUnique({ where: { name: data.role } });
+    if (!roleRecord) {
+      throw new AppError(`Invalid role: ${data.role}`, 400);
+    }
+    updateRoleId = roleRecord.id;
+  }
+
+  const existingRole = await prisma.role.findUnique({ where: { id: existing.roleId } });
+
   const user = await prisma.user.update({
     where: { id },
     data: {
       ...(data.status && { status: data.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'INACTIVE' }),
-      ...(data.role && { role: data.role as 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER' }),
+      ...(updateRoleId && { roleId: updateRoleId }),
     },
   });
 
@@ -136,7 +159,8 @@ export async function updateUser(
     const changes: Record<string, string> = {};
     if (data.status && data.status !== existing.status)
       changes.status = `${existing.status} → ${data.status}`;
-    if (data.role && data.role !== existing.role) changes.role = `${existing.role} → ${data.role}`;
+    if (data.role && existingRole && data.role !== existingRole.name)
+      changes.role = `${existingRole.name} → ${data.role}`;
 
     if (data.status === 'SUSPENDED' && existing.status !== 'SUSPENDED') {
       await logAudit({
@@ -146,7 +170,7 @@ export async function updateUser(
         targetType: 'User',
         metadata: changes,
       });
-    } else if (data.role && data.role !== existing.role) {
+    } else if (data.role && existingRole && data.role !== existingRole.name) {
       await logAudit({
         userId: adminId,
         action: 'USER_CHANGE_ROLE',

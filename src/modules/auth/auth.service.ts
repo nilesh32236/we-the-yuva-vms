@@ -131,8 +131,13 @@ export async function enqueueOtpEmail(email: string, otp: string): Promise<void>
 
 // ─── JWT ─────────────────────────────────────────────────────────
 
-export function signAccessToken(userId: string, role: string): string {
-  return jwt.sign({ sub: userId, role }, env.JWT_ACCESS_SECRET, {
+export function signAccessToken(
+  userId: string,
+  role: string,
+  permissions: string[],
+  organizationId?: string | null
+): string {
+  return jwt.sign({ sub: userId, role, permissions, org: organizationId }, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRY as jwt.SignOptions['expiresIn'],
   });
 }
@@ -192,10 +197,15 @@ export async function rotateRefreshToken(
     throw new AppError('Invalid or expired refresh token', 401);
   }
 
-  // Get user role and status
+  // Get user role, status, and organization
   const user = await prisma.user.findUnique({
     where: { id: record.userId },
-    select: { id: true, role: true, status: true },
+    select: {
+      id: true,
+      roleRef: { select: { name: true, permissions: true } },
+      status: true,
+      organizationId: true,
+    },
   });
 
   if (!user) {
@@ -207,11 +217,16 @@ export async function rotateRefreshToken(
   }
 
   // Issue new tokens
-  const accessToken = signAccessToken(user.id, user.role);
+  const accessToken = signAccessToken(
+    user.id,
+    user.roleRef.name,
+    user.roleRef.permissions,
+    user.organizationId
+  );
   const refreshToken = signRefreshToken(user.id);
   const storedToken = await storeRefreshToken(user.id, refreshToken);
 
-  return { accessToken, refreshToken: storedToken, userId: user.id, role: user.role };
+  return { accessToken, refreshToken: storedToken, userId: user.id, role: user.roleRef.name };
 }
 
 export async function revokeRefreshToken(token: string): Promise<void> {

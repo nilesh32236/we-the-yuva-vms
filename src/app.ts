@@ -18,6 +18,7 @@ import { eventsRouter, opportunityEventsRouter } from './modules/events/events.r
 import { feedbackRouter } from './modules/feedback/feedback.routes';
 import { notificationsRouter } from './modules/notifications/notifications.routes';
 import { opportunitiesRouter } from './modules/opportunities/opportunities.routes';
+import { organizationsRouter } from './modules/organizations/organizations.routes';
 import { statsRouter } from './modules/stats/stats.routes';
 import { storiesRouter } from './modules/stories/stories.routes';
 import { trainingRouter } from './modules/training/training.routes';
@@ -28,23 +29,41 @@ export function createApp(): Express {
   const app = express();
 
   // Security headers
-  // TEMPORARY: relaxed CSP for dev mode — no inline-script blocking
-  // TODO: enable strict CSP in production (use nonce-based)
+  const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim());
+  const isProd = env.NODE_ENV === 'production';
+
   app.use(
     helmet({
-      contentSecurityPolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"], // Needed for Swagger UI inline scripts
+          styleSrc: ["'self'", "'unsafe-inline'"],  // Needed for Swagger UI inline styles
+          imgSrc: ["'self'", "data:"],
+          connectSrc: ["'self'", ...allowedOrigins],
+        },
+      },
       crossOriginEmbedderPolicy: false,
     })
   );
 
-  // CORS — allow configured frontend origins + all Vercel preview deployments
-  const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim());
+  // CORS — locked down strictly to FRONTEND_URL in production, allowing Vercel previews in dev
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, Render health checks)
-        if (!origin) return callback(null, true);
-        // Allow any Vercel deployment for this project
+        if (!origin) {
+          if (isProd) {
+            return callback(new Error('CORS: origin header required in production'), false);
+          }
+          return callback(null, true);
+        }
+        if (isProd) {
+          if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+          }
+          return callback(new Error(`CORS: origin ${origin} not allowed in production`));
+        }
+        // Dev / Test mode allows Vercel previews and local origins
         if (origin.endsWith('.vercel.app') || allowedOrigins.includes(origin)) {
           return callback(null, true);
         }
@@ -104,6 +123,7 @@ export function createApp(): Express {
   app.use('/api/v1/opportunities/:opportunityId/events', opportunityEventsRouter);
   app.use('/api/v1/events', eventsRouter);
   app.use('/api/v1/admin', adminRouter);
+  app.use('/api/v1/organizations', organizationsRouter);
   app.use('/api/v1/stats', statsRouter);
   app.use('/api/v1/training', trainingRouter);
   app.use('/api/v1/notifications', notificationsRouter);

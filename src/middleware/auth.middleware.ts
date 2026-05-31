@@ -5,17 +5,20 @@ import { env } from '../config/env';
 export interface JwtPayload {
   sub: string;
   role: string;
+  permissions: string[];
+  org?: string | null;
   iat: number;
   exp: number;
 }
 
-// Extend Express Request to include user
 declare global {
   namespace Express {
     interface Request {
       user?: {
         id: string;
         role: string;
+        permissions: string[];
+        organizationId?: string | null;
       };
     }
   }
@@ -33,7 +36,12 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 
   try {
     const payload = jwt.verify(token, env.JWT_ACCESS_SECRET) as JwtPayload;
-    req.user = { id: payload.sub, role: payload.role };
+    req.user = {
+      id: payload.sub,
+      role: payload.role,
+      permissions: payload.permissions ?? [],
+      organizationId: payload.org,
+    };
     next();
   } catch {
     res.status(401).json({ error: 'Unauthorized' });

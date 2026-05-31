@@ -1,7 +1,9 @@
 import { type IRouter, Router } from 'express';
-import { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema } from '@/shared';
+import { StaffProfileSchema, UpdateMeSchema, VolunteerProfileSchema, VOLUNTEER_TYPES } from '@/shared';
+import { z } from 'zod';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
 import { getMyEventsHandler } from '../events/events.controller';
 import {
@@ -47,6 +49,19 @@ usersRouter.get('/me', getMeHandler);
  */
 usersRouter.patch('/me', requireAuth, validate(UpdateMeSchema), updateMeHandler);
 
+const VolunteerTypeSchema = z.object({
+  volunteerType: z.enum(VOLUNTEER_TYPES, {
+    errorMap: () => ({ message: 'Please select a valid volunteer type' }),
+  }),
+});
+usersRouter.patch(
+  '/me/volunteer-type',
+  requireAuth,
+  requirePermission(Permissions.USER_PROFILE_MANAGE),
+  validate(VolunteerTypeSchema),
+  updateMeHandler
+);
+
 /**
  * @openapi
  * /users/me/events:
@@ -58,163 +73,43 @@ usersRouter.patch('/me', requireAuth, validate(UpdateMeSchema), updateMeHandler)
  *       200:
  *         description: List of my events
  */
-usersRouter.get('/me/events', requireRole('VOLUNTEER'), getMyEventsHandler);
+usersRouter.get('/me/events', requirePermission(Permissions.USER_EVENTS_VIEW), getMyEventsHandler);
 
-/**
- * @openapi
- * /users/me/profile:
- *   post:
- *     tags: [Users]
- *     summary: Create volunteer profile
- *     security: [{ bearerAuth: [] }]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               bio: { type: string }
- *               skills: { type: array, items: { type: string } }
- *     responses:
- *       201:
- *         description: Volunteer profile created
- */
 usersRouter.post(
   '/me/profile',
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.USER_PROFILE_MANAGE),
   validate(VolunteerProfileSchema),
   createVolunteerProfile
 );
-/**
- * @openapi
- * /users/me/profile:
- *   put:
- *     tags: [Users]
- *     summary: Update volunteer profile
- *     security: [{ bearerAuth: [] }]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               bio: { type: string }
- *               skills: { type: array, items: { type: string } }
- *     responses:
- *       200:
- *         description: Volunteer profile updated
- */
 usersRouter.put(
   '/me/profile',
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.USER_PROFILE_MANAGE),
   validate(VolunteerProfileSchema),
   updateVolunteerProfile
 );
 
-/**
- * @openapi
- * /users/me/staff-profile:
- *   post:
- *     tags: [Users]
- *     summary: Create staff profile (Coordinator/Admin/Observer)
- *     security: [{ bearerAuth: [] }]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               department: { type: string }
- *               designation: { type: string }
- *     responses:
- *       201:
- *         description: Staff profile created
- */
 usersRouter.post(
   '/me/staff-profile',
-  requireRole('COORDINATOR', 'ADMIN', 'OBSERVER'),
+  requirePermission(Permissions.USER_PROFILE_MANAGE),
   validate(StaffProfileSchema),
   createStaffProfile
 );
-/**
- * @openapi
- * /users/me/staff-profile:
- *   put:
- *     tags: [Users]
- *     summary: Update staff profile (Coordinator/Admin/Observer)
- *     security: [{ bearerAuth: [] }]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               department: { type: string }
- *               designation: { type: string }
- *     responses:
- *       200:
- *         description: Staff profile updated
- */
 usersRouter.put(
   '/me/staff-profile',
-  requireRole('COORDINATOR', 'ADMIN', 'OBSERVER'),
+  requirePermission(Permissions.USER_PROFILE_MANAGE),
   validate(StaffProfileSchema),
   updateStaffProfile
 );
 
-/**
- * @openapi
- * /users/coordinator/me/volunteers/export:
- *   get:
- *     tags: [Users]
- *     summary: Export coordinator's volunteers as CSV
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200:
- *         description: CSV export of volunteers
- */
 usersRouter.get(
   '/coordinators/me/volunteers/export',
-  requireRole('COORDINATOR'),
+  requirePermission(Permissions.USER_VOLUNTEERS_MANAGE),
   exportVolunteersHandler
 );
-/**
- * @openapi
- * /users/coordinator/me/volunteers:
- *   get:
- *     tags: [Users]
- *     summary: List coordinator's volunteers
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200:
- *         description: List of volunteers
- */
 usersRouter.get(
   '/coordinators/me/volunteers',
-  requireRole('COORDINATOR'),
+  requirePermission(Permissions.USER_VOLUNTEERS_MANAGE),
   getCoordinatorVolunteersHandler
 );
 
-/**
- * @openapi
- * /users/{id}/profile:
- *   get:
- *     tags: [Users]
- *     summary: View a volunteer's profile (Coordinator/Admin)
- *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Volunteer user ID
- *     responses:
- *       200:
- *         description: Volunteer profile retrieved
- */
-usersRouter.get('/:id/profile', requireRole('COORDINATOR', 'ADMIN'), getUserProfileHandler);
+usersRouter.get('/:id/profile', requirePermission(Permissions.USER_PROFILE_VIEW), getUserProfileHandler);

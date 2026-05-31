@@ -1,7 +1,8 @@
 import { type IRouter, Router } from 'express';
 import { FeedbackSchema, UpdateFeedbackSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
 import {
   deleteFeedbackHandler,
@@ -35,7 +36,7 @@ export const feedbackRouter: IRouter = Router();
 feedbackRouter.post(
   '/events/:eventId',
   requireAuth,
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.FEEDBACK_SUBMIT),
   validate(FeedbackSchema),
   submitFeedbackHandler
 );
@@ -54,7 +55,7 @@ feedbackRouter.post(
 feedbackRouter.patch(
   '/events/:eventId',
   requireAuth,
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.FEEDBACK_SUBMIT),
   validate(UpdateFeedbackSchema),
   updateFeedbackHandler
 );
@@ -73,7 +74,7 @@ feedbackRouter.patch(
 feedbackRouter.delete(
   '/events/:eventId',
   requireAuth,
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.FEEDBACK_SUBMIT),
   deleteFeedbackHandler
 );
 
@@ -88,7 +89,7 @@ feedbackRouter.delete(
  *       200:
  *         description: List of my feedback
  */
-feedbackRouter.get('/mine', requireAuth, requireRole('VOLUNTEER'), getMyFeedbackHandler);
+feedbackRouter.get('/mine', requireAuth, requirePermission(Permissions.FEEDBACK_SUBMIT), getMyFeedbackHandler);
 
 /**
  * @openapi
@@ -111,7 +112,7 @@ feedbackRouter.get('/mine', requireAuth, requireRole('VOLUNTEER'), getMyFeedback
 feedbackRouter.get(
   '/events/:eventId',
   requireAuth,
-  requireRole('COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.FEEDBACK_MANAGE),
   getEventFeedbackHandler
 );
 

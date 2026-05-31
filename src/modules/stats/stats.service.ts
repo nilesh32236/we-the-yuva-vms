@@ -17,15 +17,20 @@ export async function getVolunteerStats(volunteerId: string) {
   };
 }
 
-export async function getCoordinatorStats(coordinatorId: string) {
+export async function getCoordinatorStats(
+  coordinatorId: string,
+  organizationId: string | null | undefined
+) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
+  const opportunityFilter = organizationId ? { organizationId } : { createdById: coordinatorId };
+
   const [applications, eventsThisMonth, opportunities] = await Promise.all([
     prisma.application.findMany({
       where: {
-        opportunity: { createdById: coordinatorId },
+        opportunity: opportunityFilter,
         status: 'ACCEPTED',
       },
       select: { volunteerId: true },
@@ -33,13 +38,13 @@ export async function getCoordinatorStats(coordinatorId: string) {
     }),
     prisma.event.count({
       where: {
-        opportunity: { createdById: coordinatorId },
+        opportunity: opportunityFilter,
         eventDate: { gte: startOfMonth, lte: endOfMonth },
         status: { not: 'CANCELLED' },
       },
     }),
     prisma.opportunity.count({
-      where: { createdById: coordinatorId, status: 'ACTIVE' },
+      where: { ...opportunityFilter, status: 'ACTIVE' },
     }),
   ]);
 
@@ -51,17 +56,39 @@ export async function getCoordinatorStats(coordinatorId: string) {
 }
 
 export async function getAdminStats() {
-  const [totalUsers, activeVolunteers, totalHoursResult] = await Promise.all([
+  const [totalUsers, activeVolunteers, totalHoursResult, orgStats] = await Promise.all([
     prisma.user.count(),
-    prisma.user.count({ where: { role: 'VOLUNTEER', status: 'ACTIVE' } }),
+    prisma.user.count({ where: { roleRef: { name: 'VOLUNTEER' }, status: 'ACTIVE' } }),
     prisma.volunteerProfile.aggregate({ _sum: { totalHours: true } }),
+    prisma.organization.groupBy({
+      by: ['status'],
+      _count: true,
+    }),
   ]);
+
+  const totalOrgs = orgStats.reduce((acc, s) => acc + s._count, 0);
+  const pendingOrgs = orgStats.find((s) => s.status === 'PENDING')?._count ?? 0;
+  const activeOrgs = orgStats.find((s) => s.status === 'ACTIVE')?._count ?? 0;
 
   return {
     totalUsers,
     activeVolunteers,
     totalHours: totalHoursResult._sum.totalHours ?? 0,
+    totalOrgs,
+    pendingOrgs,
+    activeOrgs,
   };
+}
+
+export async function getAdminOrgStats() {
+  const [total, pending, active, suspended] = await Promise.all([
+    prisma.organization.count(),
+    prisma.organization.count({ where: { status: 'PENDING' } }),
+    prisma.organization.count({ where: { status: 'ACTIVE' } }),
+    prisma.organization.count({ where: { status: 'SUSPENDED' } }),
+  ]);
+
+  return { total, pending, active, suspended };
 }
 
 export async function getVolunteerImpactData(volunteerId: string) {
@@ -155,7 +182,7 @@ export async function getVolunteerImpactData(volunteerId: string) {
 
 export async function getObserverStats() {
   const [totalVolunteers, totalHoursResult, activeEvents] = await Promise.all([
-    prisma.user.count({ where: { role: 'VOLUNTEER', status: 'ACTIVE' } }),
+    prisma.user.count({ where: { roleRef: { name: 'VOLUNTEER' }, status: 'ACTIVE' } }),
     prisma.volunteerProfile.aggregate({ _sum: { totalHours: true } }),
     prisma.event.count({
       where: { eventDate: { gte: new Date() }, status: 'SCHEDULED' },

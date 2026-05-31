@@ -35,15 +35,26 @@ const REFRESH_COOKIE_OPTIONS = {
 
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, name } = req.body;
+    const { email, name, volunteerType } = req.body;
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (existing) {
       throw new AppError('Email already registered', 409);
     }
 
+    const volunteerRole = await prisma.role.findUnique({ where: { name: 'VOLUNTEER' } });
+    if (!volunteerRole) {
+      throw new AppError('Default role not found — run seed first', 500);
+    }
+
     const user = await prisma.user.create({
-      data: { email: email.toLowerCase(), name, status: 'PENDING' },
+      data: {
+        email: email.toLowerCase(),
+        name,
+        roleId: volunteerRole.id,
+        status: 'PENDING',
+        ...(volunteerType && { volunteerType }),
+      },
     });
 
     await logAudit({
@@ -98,15 +109,21 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         id: true,
         name: true,
         email: true,
-        role: true,
+        roleRef: { select: { name: true, permissions: true } },
         status: true,
         locationId: true,
+        organizationId: true,
         consent: { select: { id: true } },
         profile: { select: { id: true } },
       },
     });
 
-    const accessToken = signAccessToken(user.id, user.role);
+    const accessToken = signAccessToken(
+      user.id,
+      user.roleRef.name,
+      user.roleRef.permissions,
+      user.organizationId
+    );
     const refreshToken = signRefreshToken(user.id);
     await storeRefreshToken(user.id, refreshToken);
 
@@ -116,7 +133,19 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
     res.cookie('access_token', accessToken, ACCESS_COOKIE_OPTIONS);
     res.cookie('refresh_token', refreshToken, REFRESH_COOKIE_OPTIONS);
 
-    res.status(200).json({ accessToken, user });
+    res.status(200).json({
+      accessToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.roleRef.name,
+        status: user.status,
+        locationId: user.locationId,
+        consent: user.consent,
+        profile: user.profile,
+      },
+    });
   } catch (err) {
     next(err);
   }

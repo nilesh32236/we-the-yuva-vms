@@ -69,7 +69,12 @@ export async function getUserProfileHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const user = await getUserProfile(req.params.id);
+    const user = await getUserProfile(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId
+    );
     res.status(200).json(user);
   } catch (err) {
     next(err);
@@ -96,6 +101,7 @@ export async function getCoordinatorVolunteersHandler(
 
     const result = await getCoordinatorVolunteers(
       req.user!.id,
+      req.user!.organizationId,
       { search, skills },
       { page, limit }
     );
@@ -120,12 +126,12 @@ export async function exportVolunteersHandler(
   try {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="volunteers.csv"');
-    const rows = await exportCoordinatorVolunteers(req.user!.id);
+    const rows = await exportCoordinatorVolunteers(req.user!.id, req.user!.organizationId);
     const csv = [
-      'name,email,skills,totalHours,applicationCount',
+      'name,email,type,skills,totalHours,applicationCount',
       ...rows.map(
         (r) =>
-          `"${sanitizeCsvCell(r.name)}","${sanitizeCsvCell(r.email)}","${sanitizeCsvCell(r.skills.join(';'))}",${r.totalHours},${r.applicationCount}`
+          `"${sanitizeCsvCell(r.name)}","${sanitizeCsvCell(r.email)}","${sanitizeCsvCell(r.type)}","${sanitizeCsvCell(r.skills.join(';'))}",${r.totalHours},${r.applicationCount}`
       ),
     ].join('\n');
     res.send(csv);

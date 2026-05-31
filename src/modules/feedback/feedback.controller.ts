@@ -49,7 +49,13 @@ export async function getEventFeedbackHandler(req: Request, res: Response, next:
       : undefined;
     const pagination = page ? { page, limit: limit! } : undefined;
     // TODO: return consistent pagination envelope even when not paginated (production)
-    const result = await service.getEventFeedback(req.params.eventId, pagination);
+    const result = await service.getEventFeedback(
+      req.params.eventId,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      pagination
+    );
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -62,7 +68,12 @@ export async function getEventFeedbackSummaryHandler(
   next: NextFunction
 ) {
   try {
-    const result = await service.getEventFeedbackSummary(req.params.eventId);
+    const result = await service.getEventFeedbackSummary(
+      req.params.eventId,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId
+    );
     res.status(200).json(result);
   } catch (err) {
     next(err);

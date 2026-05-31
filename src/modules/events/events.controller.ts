@@ -27,6 +27,7 @@ export async function createEventHandler(
       req.params.opportunityId,
       req.user!.id,
       req.user!.role,
+      req.user!.organizationId,
       req.body
     );
     res.status(201).json(event);
@@ -64,7 +65,7 @@ export async function listAllEventsHandler(
   try {
     const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
-    const result = await listAllEvents({ page, limit });
+    const result = await listAllEvents(req.user!.organizationId, { page, limit });
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -90,7 +91,13 @@ export async function updateEventHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const event = await updateEvent(req.params.id, req.user!.id, req.user!.role, req.body);
+    const event = await updateEvent(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      req.body
+    );
     res.status(200).json(event);
   } catch (err) {
     next(err);
@@ -103,7 +110,7 @@ export async function cancelEventHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    await cancelEvent(req.params.id, req.user!.id, req.user!.role);
+    await cancelEvent(req.params.id, req.user!.id, req.user!.role, req.user!.organizationId);
     res.status(204).send();
   } catch (err) {
     next(err);
@@ -133,7 +140,13 @@ export async function markAttendanceHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const count = await markAttendance(req.params.id, req.body.attendances);
+    const count = await markAttendance(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      req.body.attendances
+    );
     res.status(200).json({ attended: count });
   } catch (err) {
     next(err);
@@ -205,12 +218,12 @@ export async function checkOutHandler(
 }
 
 export async function exportEventsCsvHandler(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const csv = await exportEventsCsv();
+    const csv = await exportEventsCsv(req.user!.organizationId);
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="events-export.csv"');
     res.status(200).send(csv);

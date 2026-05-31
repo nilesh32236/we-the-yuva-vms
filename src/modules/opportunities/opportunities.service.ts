@@ -28,13 +28,18 @@ async function invalidateListCache(): Promise<void> {
 
 // ─── Opportunity CRUD ─────────────────────────────────────────────
 
-export async function createOpportunity(coordinatorId: string, data: OpportunityInput) {
+export async function createOpportunity(
+  coordinatorId: string,
+  organizationId: string | null | undefined,
+  data: OpportunityInput
+) {
   const opportunity = await prisma.opportunity.create({
     data: {
       ...data,
       startDate: new Date(data.startDate),
       endDate: new Date(data.endDate),
       createdById: coordinatorId,
+      organizationId,
       status: 'ACTIVE',
     },
   });
@@ -61,6 +66,7 @@ export interface OpportunityFilters {
   isRemote?: boolean;
   locationId?: string;
   search?: string;
+  organizationId?: string;
 }
 
 export interface PaginationParams {
@@ -97,6 +103,9 @@ export async function listOpportunities(filters: OpportunityFilters, pagination:
   }
   if (filters.locationId) {
     where.locationId = filters.locationId;
+  }
+  if (filters.organizationId) {
+    where.organizationId = filters.organizationId;
   }
   if (filters.search) {
     where.title = { contains: filters.search, mode: 'insensitive' };
@@ -154,6 +163,7 @@ export async function updateOpportunity(
   id: string,
   callerId: string,
   callerRole: string,
+  callerOrgId: string | null | undefined,
   data: OpportunityInput
 ) {
   const opportunity = await prisma.opportunity.findUnique({ where: { id } });
@@ -162,7 +172,12 @@ export async function updateOpportunity(
     throw new AppError('Opportunity not found', 404);
   }
 
-  if (callerRole !== 'ADMIN' && opportunity.createdById !== callerId) {
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = opportunity.createdById === callerId;
+  const isSameOrg =
+    opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
     throw new AppError('Forbidden', 403);
   }
 
@@ -186,14 +201,24 @@ export async function updateOpportunity(
   return updated;
 }
 
-export async function closeOpportunity(id: string, callerId: string, callerRole: string) {
+export async function closeOpportunity(
+  id: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined
+) {
   const opportunity = await prisma.opportunity.findUnique({ where: { id } });
 
   if (!opportunity) {
     throw new AppError('Opportunity not found', 404);
   }
 
-  if (callerRole !== 'ADMIN' && opportunity.createdById !== callerId) {
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = opportunity.createdById === callerId;
+  const isSameOrg =
+    opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
     throw new AppError('Forbidden', 403);
   }
 
@@ -289,8 +314,25 @@ export async function listMyApplications(volunteerId: string, pagination?: Pagin
 
 export async function listApplications(
   opportunityId: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined,
   pagination: { page: number; limit: number }
 ) {
+  const opportunity = await prisma.opportunity.findUnique({ where: { id: opportunityId } });
+  if (!opportunity) {
+    throw new AppError('Opportunity not found', 404);
+  }
+
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = opportunity.createdById === callerId;
+  const isSameOrg =
+    opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
+    throw new AppError('Forbidden', 403);
+  }
+
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
   const where = { opportunityId };
@@ -340,7 +382,8 @@ export async function updateApplicationStatus(
   applicationId: string,
   status: 'ACCEPTED' | 'REJECTED',
   callerId: string,
-  callerRole: string
+  callerRole: string,
+  callerOrgId: string | null | undefined
 ) {
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
@@ -351,7 +394,14 @@ export async function updateApplicationStatus(
     throw new AppError('Application not found', 404);
   }
 
-  if (callerRole !== 'ADMIN' && application.opportunity.createdById !== callerId) {
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = application.opportunity.createdById === callerId;
+  const isSameOrg =
+    application.opportunity.organizationId &&
+    callerOrgId &&
+    application.opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
     throw new AppError('Forbidden', 403);
   }
 

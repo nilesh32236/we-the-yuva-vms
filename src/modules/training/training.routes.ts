@@ -7,7 +7,8 @@ import {
   UpdateLessonSchema,
 } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
 import {
   completeLessonHandler,
@@ -37,7 +38,7 @@ export const trainingRouter: IRouter = Router();
 trainingRouter.post(
   '/',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.TRAINING_CREATE),
   validate(CreateCourseSchema),
   createCourseHandler
 );
@@ -56,7 +57,7 @@ trainingRouter.post(
 trainingRouter.put(
   '/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.TRAINING_EDIT),
   validate(UpdateCourseSchema),
   updateCourseHandler
 );
@@ -72,7 +73,7 @@ trainingRouter.put(
  *       204:
  *         description: Course deleted
  */
-trainingRouter.delete('/:id', requireAuth, requireRole('ADMIN'), deleteCourseHandler);
+trainingRouter.delete('/:id', requireAuth, requirePermission(Permissions.TRAINING_EDIT), deleteCourseHandler);
 
 /**
  * @openapi
@@ -88,7 +89,7 @@ trainingRouter.delete('/:id', requireAuth, requireRole('ADMIN'), deleteCourseHan
 trainingRouter.post(
   '/:courseId/lessons',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.TRAINING_CREATE),
   validate(CreateLessonSchema),
   createLessonHandler
 );
@@ -107,7 +108,7 @@ trainingRouter.post(
 trainingRouter.put(
   '/:courseId/lessons/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.TRAINING_EDIT),
   validate(UpdateLessonSchema),
   updateLessonHandler
 );
@@ -126,7 +127,7 @@ trainingRouter.put(
 trainingRouter.delete(
   '/:courseId/lessons/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.TRAINING_EDIT),
   deleteLessonHandler
 );
 
@@ -190,7 +191,7 @@ trainingRouter.get('/:id', requireAuth, getCourseHandler);
 trainingRouter.post(
   '/:id/lessons/:lessonId/complete',
   requireAuth,
-  requireRole('VOLUNTEER'),
+  requirePermission(Permissions.TRAINING_COMPLETE),
   validate(CompleteLessonSchema),
   completeLessonHandler
 );

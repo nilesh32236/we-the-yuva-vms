@@ -9,13 +9,6 @@ datasource db {
 
 // ─── Enums ───────────────────────────────────────────────────────
 
-enum Role {
-  VOLUNTEER
-  COORDINATOR
-  ADMIN
-  OBSERVER
-}
-
 enum UserStatus {
   PENDING
   ACTIVE
@@ -113,17 +106,96 @@ enum NotificationPreferenceType {
   SYSTEM_ANNOUNCEMENT
 }
 
+enum VolunteerType {
+  STUDENT
+  PROFESSIONAL
+  EVENT
+  RECURRING
+  REMOTE
+  EMERGENCY
+}
+
+enum OrganizationStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+// ─── Permission System ──────────────────────────────────────────
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  permissions String[]
+
+  users User[]
+
+  @@index([name])
+}
+
+// ─── Organization ────────────────────────────────────────────────
+
+model Organization {
+  id          String            @id @default(cuid())
+  name        String
+  description String?
+  address     String?
+  phone       String?
+  email       String?
+  logo        String?
+  website     String?
+  socialMedia Json?
+  status      OrganizationStatus @default(PENDING)
+  verifiedAt  DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  documents     OrganizationDocument[]
+  users         User[]
+  opportunities Opportunity[]
+
+  @@index([status])
+  @@index([name])
+}
+
+model OrganizationDocument {
+  id             String   @id @default(cuid())
+  organizationId String
+  fileName       String
+  fileUrl        String
+  type           String   // REGISTRATION_CERTIFICATE, GOVT_ID, etc.
+  uploadedAt     DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
 // ─── Models ──────────────────────────────────────────────────────
 
 model User {
-  id         String     @id @default(cuid())
-  email      String?    @unique // TODO: make required in production - currently optional for testing flexibility
+  id         String        @id @default(cuid())
+  email      String?       @unique
   name       String
-  role       Role       @default(VOLUNTEER)
-  status     UserStatus @default(PENDING)
+  roleId     String
+  roleRef    Role           @relation(fields: [roleId], references: [id])
+  status     UserStatus    @default(PENDING)
   locationId String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  // Organization
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  // Volunteer type
+  volunteerType VolunteerType?
+
+  // Future gamification
+  badges String[] @default([])
+  points Int      @default(0)
+  level  String?
 
   location      Location?         @relation(fields: [locationId], references: [id])
   profile       VolunteerProfile?
@@ -144,9 +216,11 @@ model User {
   notificationPrefs    NotificationPreference[]
   alertSubscriptions   AlertSubscription[]
 
-  @@index([role])
+  @@index([roleId])
   @@index([status])
   @@index([locationId])
+  @@index([organizationId])
+  @@index([volunteerType])
 }
 
 model VolunteerProfile {
@@ -241,6 +315,10 @@ model Opportunity {
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
 
+  // Organization (optional — independent opportunities have no org)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
   location     Location?     @relation(fields: [locationId], references: [id])
   createdBy    User          @relation("CreatedOpportunities", fields: [createdById], references: [id])
   applications Application[]
@@ -251,6 +329,7 @@ model Opportunity {
   @@index([createdById])
   @@index([startDate])
   @@index([locationId])
+  @@index([organizationId])
 }
 
 model Application {

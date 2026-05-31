@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import * as Sentry from '@sentry/node';
 import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { logger } from '../lib/logger';
@@ -28,6 +29,9 @@ export function errorMiddleware(
   }
 
   if (err instanceof AppError) {
+    if (err.status >= 500) {
+      Sentry.captureException(err);
+    }
     res.status(err.status).json({ error: err.message });
     return;
   }
@@ -68,6 +72,8 @@ export function errorMiddleware(
     error: error.message,
     stack: error.stack,
   });
+
+  Sentry.captureException(error);
 
   res.status(500).json({ error: 'Internal server error' });
 }

@@ -56,8 +56,29 @@ export async function getMyFeedback(
 
 export async function getEventFeedback(
   eventId: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined,
   pagination?: { page: number; limit: number }
 ) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: { opportunity: true },
+  });
+
+  if (!event) throw new AppError('Event not found', 404);
+
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = event.opportunity.createdById === callerId;
+  const isSameOrg =
+    event.opportunity.organizationId &&
+    callerOrgId &&
+    event.opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
+    throw new AppError('Forbidden', 403);
+  }
+
   if (!pagination) {
     return prisma.eventFeedback.findMany({
       where: { eventId },
@@ -104,7 +125,30 @@ export async function deleteFeedback(eventId: string, volunteerId: string) {
   });
 }
 
-export async function getEventFeedbackSummary(eventId: string) {
+export async function getEventFeedbackSummary(
+  eventId: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined
+) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: { opportunity: true },
+  });
+
+  if (!event) throw new AppError('Event not found', 404);
+
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = event.opportunity.createdById === callerId;
+  const isSameOrg =
+    event.opportunity.organizationId &&
+    callerOrgId &&
+    event.opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
+    throw new AppError('Forbidden', 403);
+  }
+
   const feedback = await prisma.eventFeedback.findMany({ where: { eventId } });
   if (feedback.length === 0) return { average: 0, count: 0, distribution: {} };
   const total = feedback.reduce((s, f) => s + f.rating, 0);

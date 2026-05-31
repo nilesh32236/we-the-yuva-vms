@@ -1,7 +1,8 @@
 import { type IRouter, Router } from 'express';
 import { AlertSubscriptionSchema, AlertSubscriptionUpdateSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
 import {
   createSubscriptionHandler,
@@ -39,7 +40,7 @@ alertsRouter.get('/', requireAuth, getMySubscriptionsHandler);
 alertsRouter.post(
   '/',
   requireAuth,
-  requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.ALERT_MANAGE),
   validate(AlertSubscriptionSchema),
   createSubscriptionHandler
 );
@@ -65,7 +66,7 @@ alertsRouter.post(
 alertsRouter.put(
   '/:id',
   requireAuth,
-  requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.ALERT_MANAGE),
   validate(AlertSubscriptionUpdateSchema),
   updateSubscriptionHandler
 );
@@ -91,6 +92,6 @@ alertsRouter.put(
 alertsRouter.delete(
   '/:id',
   requireAuth,
-  requireRole('VOLUNTEER', 'COORDINATOR', 'ADMIN'),
+  requirePermission(Permissions.ALERT_MANAGE),
   deleteSubscriptionHandler
 );

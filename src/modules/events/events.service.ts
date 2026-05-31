@@ -13,6 +13,7 @@ export async function createEvent(
   opportunityId: string,
   coordinatorId: string,
   callerRole: string,
+  callerOrgId: string | null | undefined,
   data: EventInput
 ) {
   const opportunity = await prisma.opportunity.findUnique({
@@ -23,7 +24,12 @@ export async function createEvent(
     throw new AppError('Opportunity not found', 404);
   }
 
-  if (callerRole !== 'ADMIN' && opportunity.createdById !== coordinatorId) {
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = opportunity.createdById === coordinatorId;
+  const isSameOrg =
+    opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
     throw new AppError('Forbidden', 403);
   }
 
@@ -95,13 +101,21 @@ export async function listEventsByOpportunity(
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function listAllEvents(pagination: { page: number; limit: number }) {
+export async function listAllEvents(
+  callerOrgId: string | null | undefined,
+  pagination: { page: number; limit: number }
+) {
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
 
+  const where = {
+    status: { not: 'CANCELLED' as const },
+    ...(callerOrgId ? { opportunity: { organizationId: callerOrgId } } : {}),
+  };
+
   const [data, total] = await Promise.all([
     prisma.event.findMany({
-      where: { status: { not: 'CANCELLED' } },
+      where,
       skip,
       take: limit,
       orderBy: { eventDate: 'asc' },
@@ -109,7 +123,7 @@ export async function listAllEvents(pagination: { page: number; limit: number })
         opportunity: { select: { title: true } },
       },
     }),
-    prisma.event.count({ where: { status: { not: 'CANCELLED' } } }),
+    prisma.event.count({ where }),
   ]);
 
   return {
@@ -145,6 +159,7 @@ export async function updateEvent(
   id: string,
   callerId: string,
   callerRole: string,
+  callerOrgId: string | null | undefined,
   data: EventInput
 ) {
   const event = await prisma.event.findUnique({
@@ -156,7 +171,14 @@ export async function updateEvent(
     throw new AppError('Event not found', 404);
   }
 
-  if (callerRole !== 'ADMIN' && event.opportunity.createdById !== callerId) {
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = event.opportunity.createdById === callerId;
+  const isSameOrg =
+    event.opportunity.organizationId &&
+    callerOrgId &&
+    event.opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
     throw new AppError('Forbidden', 403);
   }
 
@@ -173,7 +195,12 @@ export async function updateEvent(
   return updated;
 }
 
-export async function cancelEvent(id: string, callerId: string, callerRole: string) {
+export async function cancelEvent(
+  id: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined
+) {
   const event = await prisma.event.findUnique({
     where: { id },
     include: { opportunity: true },
@@ -183,7 +210,14 @@ export async function cancelEvent(id: string, callerId: string, callerRole: stri
     throw new AppError('Event not found', 404);
   }
 
-  if (callerRole !== 'ADMIN' && event.opportunity.createdById !== callerId) {
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = event.opportunity.createdById === callerId;
+  const isSameOrg =
+    event.opportunity.organizationId &&
+    callerOrgId &&
+    event.opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
     throw new AppError('Forbidden', 403);
   }
 
@@ -207,12 +241,29 @@ export async function cancelEvent(id: string, callerId: string, callerRole: stri
 
 export async function markAttendance(
   eventId: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined,
   attendances: { volunteerId: string; attended: boolean }[]
 ) {
-  const event = await prisma.event.findUnique({ where: { id: eventId } });
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: { opportunity: true },
+  });
 
   if (!event) {
     throw new AppError('Event not found', 404);
+  }
+
+  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isOwner = event.opportunity.createdById === callerId;
+  const isSameOrg =
+    event.opportunity.organizationId &&
+    callerOrgId &&
+    event.opportunity.organizationId === callerOrgId;
+
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
+    throw new AppError('Forbidden', 403);
   }
 
   // Calculate event duration in hours from "HH:MM" strings
@@ -516,8 +567,10 @@ function sanitizeCsvCell(value: string): string {
   return `"${escaped}"`;
 }
 
-export async function exportEventsCsv() {
+export async function exportEventsCsv(callerOrgId: string | null | undefined) {
+  const where = callerOrgId ? { opportunity: { organizationId: callerOrgId } } : {};
   const events = await prisma.event.findMany({
+    where,
     orderBy: { eventDate: 'desc' },
     include: {
       opportunity: { select: { title: true } },

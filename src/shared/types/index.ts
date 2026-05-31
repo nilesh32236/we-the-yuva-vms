@@ -75,5 +75,7 @@ export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
 export type CreateLessonInput = z.infer<typeof CreateLessonSchema>;
 export type UpdateLessonInput = z.infer<typeof UpdateLessonSchema>;
 
-export type UserRole = 'VOLUNTEER' | 'COORDINATOR' | 'ADMIN' | 'OBSERVER';
+export type UserRole = 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'PLATFORM_MANAGER' | 'ADMIN' | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+export type VolunteerType = 'STUDENT' | 'PROFESSIONAL' | 'EVENT' | 'RECURRING' | 'REMOTE' | 'EMERGENCY';
+export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED';

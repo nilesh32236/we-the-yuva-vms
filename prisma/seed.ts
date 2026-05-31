@@ -1,9 +1,3 @@
-/**
- * Demo seed script — run with:
- *   cd apps/api && npx ts-node --esm prisma/seed.ts
- *   OR: npx tsx prisma/seed.ts
- */
-
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -14,6 +8,149 @@ async function main() {
     return;
   }
   console.log('🌱 Seeding demo data...\n');
+
+  // ─── Default Roles with Permissions ───────────────────────────
+  const defaultRoles = [
+    {
+      name: 'VOLUNTEER',
+      description: 'Participates in volunteering activities',
+      permissions: [
+        'opportunity:view',
+        'opportunity:apply',
+        'event:checkin',
+        'stats:view:own',
+        'story:create',
+        'story:edit',
+        'feedback:submit',
+        'training:complete',
+        'alert:manage',
+        'user:events:view',
+        'user:profile:manage',
+      ],
+    },
+    {
+      name: 'COORDINATOR',
+      description: 'Manages opportunities, events, and volunteers for an organization',
+      permissions: [
+        'opportunity:create',
+        'opportunity:edit',
+        'opportunity:manage',
+        'event:create',
+        'event:edit',
+        'event:manage',
+        'event:checkin',
+        'stats:view:own',
+        'story:create',
+        'story:edit',
+        'feedback:manage',
+        'alert:manage',
+        'user:profile:manage',
+        'user:volunteers:manage',
+        'user:profile:view',
+      ],
+    },
+    {
+      name: 'ORGANIZATION_ADMIN',
+      description: 'Manages organization, coordinators, and all org-level operations',
+      permissions: [
+        'org:create',
+        'coordinator:manage',
+        'org:manage',
+        'org:verify',
+        'opportunity:create',
+        'opportunity:edit',
+        'opportunity:manage',
+        'event:create',
+        'event:edit',
+        'event:manage',
+        'event:checkin',
+        'stats:view:own',
+        'story:create',
+        'story:edit',
+        'feedback:manage',
+        'alert:manage',
+        'user:profile:manage',
+        'user:profile:view',
+        'user:volunteers:manage',
+      ],
+    },
+    {
+      name: 'PLATFORM_MANAGER',
+      description:
+        'Global operations manager — handles organization verification and community moderation',
+      permissions: [
+        'org:manage',
+        'org:verify',
+        'user:manage',
+        'user:profile:view',
+        'user:volunteers:manage',
+        'opportunity:view',
+        'opportunity:manage',
+        'event:manage',
+        'stats:view:observer',
+        'story:moderate',
+        'story:view:all',
+        'feedback:manage',
+      ],
+    },
+    {
+      name: 'ADMIN',
+      description: 'Full platform control — manages users, roles, organizations, and system config',
+      permissions: [
+        'user:manage',
+        'system:config',
+        'org:create',
+        'org:manage',
+        'org:verify',
+        'coordinator:manage',
+        'opportunity:create',
+        'opportunity:edit',
+        'opportunity:manage',
+        'opportunity:view',
+        'event:create',
+        'event:edit',
+        'event:manage',
+        'event:checkin',
+        'stats:view:own',
+        'stats:view:observer',
+        'story:create',
+        'story:edit',
+        'story:moderate',
+        'story:view:all',
+        'training:create',
+        'training:edit',
+        'training:complete',
+        'feedback:submit',
+        'feedback:manage',
+        'alert:manage',
+        'user:profile:manage',
+        'user:profile:view',
+        'user:volunteers:manage',
+      ],
+    },
+    {
+      name: 'OBSERVER',
+      description: 'Read-only access for donors, partners, and leadership',
+      permissions: [
+        'opportunity:view',
+        'stats:view:observer',
+        'user:profile:manage',
+      ],
+    },
+  ];
+
+  const createdRoles = await Promise.all(
+    defaultRoles.map((r) =>
+      prisma.role.upsert({
+        where: { name: r.name },
+        update: { description: r.description, permissions: r.permissions },
+        create: { name: r.name, description: r.description, permissions: r.permissions },
+      })
+    )
+  );
+  console.log(`✅ ${createdRoles.length} roles`);
+
+  const roleByName = Object.fromEntries(createdRoles.map((r) => [r.name, r.id]));
 
   // ─── Locations ────────────────────────────────────────────────
   const locations = await Promise.all([
@@ -57,28 +194,26 @@ async function main() {
   console.log(`✅ ${locations.length} locations`);
 
   // ─── Users ────────────────────────────────────────────────────
-  // Admin
   const _admin = await prisma.user.upsert({
     where: { email: 'admin@wetheyuva.org' },
     update: {},
     create: {
       email: 'admin@wetheyuva.org',
       name: 'Priya Sharma',
-      role: 'ADMIN',
+      roleId: roleByName.ADMIN,
       status: 'ACTIVE',
       locationId: 'loc-mumbai',
       consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
     },
   });
 
-  // Coordinators
   const coord1 = await prisma.user.upsert({
     where: { email: 'coord1@wetheyuva.org' },
     update: {},
     create: {
       email: 'coord1@wetheyuva.org',
       name: 'Rahul Desai',
-      role: 'COORDINATOR',
+      roleId: roleByName.COORDINATOR,
       status: 'ACTIVE',
       locationId: 'loc-mumbai',
       consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
@@ -91,28 +226,26 @@ async function main() {
     create: {
       email: 'coord2@wetheyuva.org',
       name: 'Sneha Patil',
-      role: 'COORDINATOR',
+      roleId: roleByName.COORDINATOR,
       status: 'ACTIVE',
       locationId: 'loc-pune',
       consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
     },
   });
 
-  // Observer
   const _observer = await prisma.user.upsert({
     where: { email: 'observer@wetheyuva.org' },
     update: {},
     create: {
       email: 'observer@wetheyuva.org',
       name: 'Amit Joshi',
-      role: 'OBSERVER',
+      roleId: roleByName.OBSERVER,
       status: 'ACTIVE',
       locationId: 'loc-nagpur',
       consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
     },
   });
 
-  // Volunteers
   const volunteers = await Promise.all([
     prisma.user.upsert({
       where: { email: 'vol1@wetheyuva.org' },
@@ -120,7 +253,8 @@ async function main() {
       create: {
         email: 'vol1@wetheyuva.org',
         name: 'Arjun Mehta',
-        role: 'VOLUNTEER',
+        roleId: roleByName.VOLUNTEER,
+        volunteerType: 'STUDENT',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -140,7 +274,8 @@ async function main() {
       create: {
         email: 'vol2@wetheyuva.org',
         name: 'Kavya Nair',
-        role: 'VOLUNTEER',
+        roleId: roleByName.VOLUNTEER,
+        volunteerType: 'PROFESSIONAL',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -160,7 +295,8 @@ async function main() {
       create: {
         email: 'vol3@wetheyuva.org',
         name: 'Rohan Kulkarni',
-        role: 'VOLUNTEER',
+        roleId: roleByName.VOLUNTEER,
+        volunteerType: 'PROFESSIONAL',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -180,7 +316,8 @@ async function main() {
       create: {
         email: 'vol4@wetheyuva.org',
         name: 'Meera Iyer',
-        role: 'VOLUNTEER',
+        roleId: roleByName.VOLUNTEER,
+        volunteerType: 'EVENT',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -470,10 +607,10 @@ async function main() {
   console.log('  Coordinator: coord1@wetheyuva.org  (Mumbai)');
   console.log('  Coordinator: coord2@wetheyuva.org  (Pune)');
   console.log('  Observer:    observer@wetheyuva.org');
-  console.log('  Volunteer:   vol1@wetheyuva.org    (Arjun Mehta)');
-  console.log('  Volunteer:   vol2@wetheyuva.org    (Kavya Nair)');
-  console.log('  Volunteer:   vol3@wetheyuva.org    (Rohan Kulkarni)');
-  console.log('  Volunteer:   vol4@wetheyuva.org    (Meera Iyer)');
+  console.log('  Volunteer:   vol1@wetheyuva.org    (Arjun Mehta — STUDENT)');
+  console.log('  Volunteer:   vol2@wetheyuva.org    (Kavya Nair — PROFESSIONAL)');
+  console.log('  Volunteer:   vol3@wetheyuva.org    (Rohan Kulkarni — PROFESSIONAL)');
+  console.log('  Volunteer:   vol4@wetheyuva.org    (Meera Iyer — EVENT)');
 }
 
 main()

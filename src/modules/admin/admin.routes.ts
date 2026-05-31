@@ -1,7 +1,8 @@
 import { type IRouter, Router } from 'express';
 import { AdminCreateUserSchema, AdminUserUpdateSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
 import {
   adminStatsHandler,
@@ -9,6 +10,14 @@ import {
   listUsersHandler,
   updateUserHandler,
 } from './admin.controller';
+import {
+  adminGetOrgDocumentsHandler,
+  adminListOrgsHandler,
+  adminOrgStatsHandler,
+  adminSuspendOrgHandler,
+  adminVerifyOrgHandler,
+} from './admin.organizations.controller';
+import { listRolesHandler } from './admin.roles.controller';
 
 export const adminRouter: IRouter = Router();
 
@@ -26,68 +35,27 @@ export const adminRouter: IRouter = Router();
 adminRouter.post(
   '/users',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.USER_MANAGE),
   validate(AdminCreateUserSchema),
   createUserHandler
 );
 
-/**
- * @openapi
- * /admin/users:
- *   get:
- *     tags: [Admin]
- *     summary: List all users (Admin only)
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200:
- *         description: List of users
- */
-adminRouter.get('/users', requireAuth, requireRole('ADMIN'), listUsersHandler);
+adminRouter.get('/users', requireAuth, requirePermission(Permissions.USER_MANAGE), listUsersHandler);
 
-/**
- * @openapi
- * /admin/stats:
- *   get:
- *     tags: [Admin]
- *     summary: Get admin dashboard stats
- *     security: [{ bearerAuth: [] }]
- *     responses:
- *       200:
- *         description: Admin dashboard stats
- */
-adminRouter.get('/stats', requireAuth, requireRole('ADMIN'), adminStatsHandler);
+adminRouter.get('/stats', requireAuth, requirePermission(Permissions.USER_MANAGE), adminStatsHandler);
 
-/**
- * @openapi
- * /admin/{id}:
- *   patch:
- *     tags: [Admin]
- *     summary: Update user status/role (Admin only)
- *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               role: { type: string }
- *               isActive: { type: boolean }
- *     responses:
- *       200:
- *         description: User updated
- */
 adminRouter.patch(
   '/users/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.USER_MANAGE),
   validate(AdminUserUpdateSchema),
   updateUserHandler
 );
+
+adminRouter.get('/organizations/stats', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminOrgStatsHandler);
+adminRouter.get('/organizations', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminListOrgsHandler);
+adminRouter.patch('/organizations/:id/verify', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminVerifyOrgHandler);
+adminRouter.delete('/organizations/:id', requireAuth, requirePermission(Permissions.ORG_MANAGE), adminSuspendOrgHandler);
+adminRouter.get('/organizations/:id/documents', requireAuth, requirePermission(Permissions.ORG_VERIFY), adminGetOrgDocumentsHandler);
+
+adminRouter.get('/roles', requireAuth, requirePermission(Permissions.USER_MANAGE), listRolesHandler);

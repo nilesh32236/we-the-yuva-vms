@@ -1,7 +1,8 @@
 import { type IRouter, Router } from 'express';
 import { CreateStorySchema, ModerateStorySchema, UpdateStorySchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
-import { requireRole } from '../../middleware/rbac.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { validate } from '../../middleware/validate.middleware';
 import {
   createStoryHandler,
@@ -60,7 +61,7 @@ storiesRouter.get('/published/:id', getStoryHandler);
 storiesRouter.post(
   '/',
   requireAuth,
-  requireRole('VOLUNTEER', 'ADMIN'),
+  requirePermission(Permissions.STORY_CREATE),
   validate(CreateStorySchema),
   createStoryHandler
 );
@@ -86,7 +87,7 @@ storiesRouter.post(
 storiesRouter.put(
   '/:id',
   requireAuth,
-  requireRole('VOLUNTEER', 'ADMIN'),
+  requirePermission(Permissions.STORY_EDIT),
   validate(UpdateStorySchema),
   updateStoryHandler
 );
@@ -109,7 +110,7 @@ storiesRouter.put(
  *       204:
  *         description: Story deleted
  */
-storiesRouter.delete('/:id', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), deleteStoryHandler);
+storiesRouter.delete('/:id', requireAuth, requirePermission(Permissions.STORY_EDIT), deleteStoryHandler);
 
 /**
  * @openapi
@@ -122,7 +123,7 @@ storiesRouter.delete('/:id', requireAuth, requireRole('VOLUNTEER', 'ADMIN'), del
  *       200:
  *         description: List of all stories
  */
-storiesRouter.get('/all', requireAuth, requireRole('ADMIN'), listAllStoriesHandler);
+storiesRouter.get('/all', requireAuth, requirePermission(Permissions.STORY_VIEW_ALL), listAllStoriesHandler);
 
 /**
  * @openapi
@@ -145,7 +146,7 @@ storiesRouter.get('/all', requireAuth, requireRole('ADMIN'), listAllStoriesHandl
 storiesRouter.patch(
   '/:id/moderate',
   requireAuth,
-  requireRole('ADMIN'),
+  requirePermission(Permissions.STORY_MODERATE),
   validate(ModerateStorySchema),
   moderateStoryHandler
 );
