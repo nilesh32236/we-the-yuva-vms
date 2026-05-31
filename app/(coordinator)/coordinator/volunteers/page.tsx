@@ -15,7 +15,7 @@ export default function CoordinatorVolunteersPage() {
     queryKey: ['coordinator-volunteers', search, page],
     queryFn: () =>
       api
-        .get('/coordinators/me/volunteers', {
+        .get('/users/coordinators/me/volunteers', {
           params: { search: search || undefined, page, limit: 20 },
         })
         .then((r) => r.data),
@@ -23,7 +23,7 @@ export default function CoordinatorVolunteersPage() {
   });
 
   const handleExport = () => {
-    downloadCsv('/coordinators/me/volunteers/export', 'volunteers.csv');
+    downloadCsv('/users/coordinators/me/volunteers/export', 'volunteers.csv');
   };
 
   return (

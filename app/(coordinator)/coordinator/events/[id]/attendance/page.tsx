@@ -46,23 +46,22 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       api.post(`/events/${id}/attendance`, { attendances }),
     onMutate: async (newAttendances) => {
       await qc.cancelQueries({ queryKey: ['attendance', id] });
-      const previousAttendance = qc.getQueryData<AttendanceRecord[]>(['attendance', id]);
+      const prev = qc.getQueryData(['attendance', id]) as { data?: AttendanceRecord[] } | AttendanceRecord[] | undefined;
 
-      if (previousAttendance) {
-        const updatedAttendance = previousAttendance.map((record) => {
+      if (prev) {
+        const prevRecords: AttendanceRecord[] = Array.isArray(prev) ? prev : (prev.data ?? []);
+        const updatedRecords = prevRecords.map((record) => {
           const match = newAttendances.find((na) => na.volunteerId === record.volunteerId);
           if (match) {
-            return {
-              ...record,
-              attended: match.attended,
-            };
+            return { ...record, attended: match.attended };
           }
           return record;
         });
-        qc.setQueryData(['attendance', id], updatedAttendance);
+        const updated = Array.isArray(prev) ? updatedRecords : { ...prev, data: updatedRecords };
+        qc.setQueryData(['attendance', id], updated);
       }
 
-      return { previousAttendance };
+      return { previousAttendance: prev };
     },
     onError: (err, _newAttendances, context) => {
       if (context?.previousAttendance) {
@@ -86,15 +85,16 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
     await saveMutation.mutateAsync(attendances);
   };
 
-  const volunteers = (attendance ?? []).map((a: AttendanceRecord) => ({
+  const records: AttendanceRecord[] = attendance?.data ?? attendance ?? [];
+  const volunteers = records.map((a: AttendanceRecord) => ({
     volunteerId: a.volunteerId,
     name: a.volunteer.name,
     email: a.volunteer.email ?? '',
     attended: a.attended,
   }));
 
-  const checkedInCount = (attendance ?? []).filter((a: AttendanceRecord) => a.checkedInAt).length;
-  const checkedOutCount = (attendance ?? []).filter((a: AttendanceRecord) => a.checkedOutAt).length;
+  const checkedInCount = records.filter((a: AttendanceRecord) => a.checkedInAt).length;
+  const checkedOutCount = records.filter((a: AttendanceRecord) => a.checkedOutAt).length;
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -137,7 +137,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       )}
 
       {/* Self check-in log */}
-      {(attendance ?? []).some((a: AttendanceRecord) => a.checkedInAt) && (
+      {records.some((a: AttendanceRecord) => a.checkedInAt) && (
         <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
           <div className="px-5 py-3 border-b border-brand-border">
             <h2 className="font-heading font-semibold text-sm text-brand-text">
@@ -145,7 +145,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
             </h2>
           </div>
           <div className="divide-y divide-brand-border">
-            {(attendance ?? [])
+            {records
               .filter((a: AttendanceRecord) => a.checkedInAt)
               .map((a: AttendanceRecord) => {
                 const duration = a.checkedOutAt

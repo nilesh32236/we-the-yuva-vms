@@ -88,6 +88,10 @@ api.interceptors.response.use(
         }
         return api(originalRequest);
       } catch {
+        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !isAuthEndpoint) {
+          sessionStorage.setItem('logged_out', 'true');
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
     }

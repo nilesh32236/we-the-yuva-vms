@@ -31,6 +31,7 @@ interface OpportunityCardProps {
     totalSlots: number;
     location?: { name: string; district: string } | null;
     _count?: { applications: number };
+    acceptedCount?: number;
     matchScore?: number;
     userApplication?: { status: string } | null;
   };
@@ -63,7 +64,8 @@ const OpportunityCard = memo(function OpportunityCard({
   const qc = useQueryClient();
 
   const applied = !!opp.userApplication;
-  const filled = opp._count?.applications ?? 0;
+  const acceptedCount = opp.acceptedCount ?? opp._count?.applications ?? 0;
+  const filled = acceptedCount;
   const fillPct = Math.min((filled / opp.totalSlots) * 100, 100);
   const isFull = filled >= opp.totalSlots;
 
@@ -83,6 +85,7 @@ const OpportunityCard = memo(function OpportunityCard({
               return {
                 ...item,
                 userApplication: { status: 'PENDING' },
+                acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
                 _count: {
                   ...item._count,
                   applications: (item._count?.applications ?? 0) + 1,
@@ -101,6 +104,7 @@ const OpportunityCard = memo(function OpportunityCard({
                 return {
                   ...item,
                   userApplication: { status: 'PENDING' },
+                  acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
                   _count: {
                     ...item._count,
                     applications: (item._count?.applications ?? 0) + 1,

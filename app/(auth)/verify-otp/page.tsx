@@ -56,6 +56,11 @@ function VerifyOtpContent() {
         }
         const { user, accessToken } = response.data;
 
+        // Clear any stale logged_out flag from previous session
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.removeItem('logged_out');
+        }
+
         // Store in memory for immediate API calls (cross-domain Bearer)
         if (accessToken) setAccessToken(accessToken);
 
