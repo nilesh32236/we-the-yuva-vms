@@ -123,15 +123,23 @@ export async function listOpportunities(
       include: {
         location: true,
         createdBy: { select: { name: true } },
-        _count: { select: { applications: { where: { status: 'ACCEPTED' } } } },
+        _count: { select: { applications: true } },
       },
     }),
     prisma.opportunity.count({ where }),
   ]);
 
+  // Batch-fetch accepted counts for all opportunities
+  const oppIds = data.map((o) => o.id);
+  const acceptedCounts = await prisma.application.groupBy({
+    by: ['opportunityId'],
+    where: { opportunityId: { in: oppIds }, status: 'ACCEPTED' },
+    _count: { id: true },
+  });
+  const acceptedMap = new Map(acceptedCounts.map((c) => [c.opportunityId, c._count.id]));
+
   let enriched = data;
   if (userId) {
-    const oppIds = data.map((o) => o.id);
     const userApps = await prisma.application.findMany({
       where: { opportunityId: { in: oppIds }, volunteerId: userId },
       select: { opportunityId: true, status: true },
@@ -139,7 +147,13 @@ export async function listOpportunities(
     const appMap = new Map(userApps.map((a) => [a.opportunityId, a]));
     enriched = data.map((opp) => ({
       ...opp,
+      acceptedCount: acceptedMap.get(opp.id) ?? 0,
       userApplication: appMap.has(opp.id) ? { status: appMap.get(opp.id)!.status } : null,
+    }));
+  } else {
+    enriched = data.map((opp) => ({
+      ...opp,
+      acceptedCount: acceptedMap.get(opp.id) ?? 0,
     }));
   }
 
@@ -258,7 +272,13 @@ export async function closeOpportunity(
 // ─── Applications ─────────────────────────────────────────────────
 
 export async function applyToOpportunity(opportunityId: string, volunteerId: string) {
-  return prisma.$transaction(
+  // Fetch opportunity info before transaction for notification
+  const oppInfo = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+    select: { id: true, title: true, createdById: true },
+  });
+
+  const application = await prisma.$transaction(
     async (tx) => {
       const opportunity = await tx.opportunity.findUnique({ where: { id: opportunityId } });
 
@@ -279,7 +299,7 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
       }
 
       try {
-        const application = await tx.application.create({
+        const app = await tx.application.create({
           data: {
             opportunityId,
             volunteerId,
@@ -289,11 +309,11 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
         await logAudit({
           userId: volunteerId,
           action: 'APPLICATION_CREATE',
-          targetId: application.id,
+          targetId: app.id,
           targetType: 'Application',
           metadata: { opportunityId },
         });
-        return application;
+        return app;
       } catch (err: unknown) {
         if ((err as { code?: string })?.code === 'P2002') {
           throw new AppError('Already applied', 409);
@@ -303,6 +323,22 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
     },
     { isolationLevel: 'Serializable' }
   );
+
+  // Notify the opportunity creator (non-blocking)
+  if (oppInfo?.createdById && oppInfo.createdById !== volunteerId) {
+    notificationsQueue
+      ?.add('send-push', {
+        userId: oppInfo.createdById,
+        title: 'New Application',
+        body: `A volunteer applied to "${oppInfo.title}"`,
+        data: { opportunityId, type: 'new_application' },
+      })
+      .catch((err) =>
+        logger.warn('Failed to enqueue application notification', { error: (err as Error).message })
+      );
+  }
+
+  return application;
 }
 
 export async function listMyApplications(volunteerId: string, pagination?: PaginationParams) {

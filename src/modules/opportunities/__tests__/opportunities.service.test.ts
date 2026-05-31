@@ -15,6 +15,7 @@ vi.mock('@/lib/prisma', () => ({
       create: vi.fn(),
       findMany: vi.fn(),
       update: vi.fn(),
+      groupBy: vi.fn().mockResolvedValue([]),
       $transaction: vi.fn(),
     },
     $transaction: vi.fn(),

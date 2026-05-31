@@ -31,7 +31,7 @@ vi.mock('@/lib/prisma', () => ({
     organizationDocument: { create: vi.fn(), findMany: vi.fn() },
     opportunity: { create: vi.fn(), findUnique: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn(), findFirst: vi.fn() },
     opportunityApplication: { create: vi.fn(), findUnique: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn() },
-    application: { create: vi.fn(), findUnique: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn() },
+    application: { create: vi.fn(), findUnique: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn(), groupBy: vi.fn().mockResolvedValue([]) },
     location: { upsert: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn() },
     role: { findUnique: vi.fn(), findMany: vi.fn() },
     event: { findUnique: vi.fn(), findMany: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn(), findFirst: vi.fn() },
@@ -131,6 +131,7 @@ describe('E2E Flows — service level', () => {
     it('applyToOpportunity creates pending application', async () => {
       const { applyToOpportunity } = await import('../modules/opportunities/opportunities.service');
 
+      vi.mocked(prisma.opportunity.findUnique).mockResolvedValue({ id: 'opp-1', title: 'Test', createdById: 'coord-1' } as any);
       const tx = { opportunity: { findUnique: vi.fn() }, application: { count: vi.fn(), create: vi.fn() } };
       vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
       vi.mocked(tx.opportunity.findUnique).mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 10 } as any);
@@ -144,6 +145,7 @@ describe('E2E Flows — service level', () => {
     it('applyToOpportunity rejects when no slots', async () => {
       const { applyToOpportunity } = await import('../modules/opportunities/opportunities.service');
 
+      vi.mocked(prisma.opportunity.findUnique).mockResolvedValue({ id: 'opp-1', title: 'Test', createdById: 'coord-1' } as any);
       const tx = { opportunity: { findUnique: vi.fn() }, application: { count: vi.fn(), create: vi.fn() } };
       vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
       vi.mocked(tx.opportunity.findUnique).mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 5 } as any);
