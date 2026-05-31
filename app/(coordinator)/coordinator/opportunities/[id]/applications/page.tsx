@@ -18,9 +18,9 @@ const STATUS_BADGES: Record<string, string> = {
 
 interface Application {
   id: string;
-  volunteer: { id: string; name: string };
+  volunteer: { name: string; email?: string };
   status: string;
-  createdAt: string;
+  appliedAt: string;
 }
 
 interface ApplicationsResponse {
@@ -85,7 +85,7 @@ export default function ApplicationsPage() {
           ))}
         </div>
       ) : applications.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
           <p className="font-medium text-brand-text">No applications yet</p>
           <p className="text-sm text-brand-muted mt-1">
             Applications will appear here when volunteers apply
@@ -94,7 +94,7 @@ export default function ApplicationsPage() {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <div className="bg-white rounded-2xl border border-brand-border">
+            <div className="bg-brand-surface rounded-2xl border border-brand-border">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-brand-border bg-brand-bg">
@@ -126,7 +126,7 @@ export default function ApplicationsPage() {
                         {app.volunteer.name}
                       </td>
                       <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
-                        {new Date(app.createdAt).toLocaleDateString()}
+                        {new Date(app.appliedAt).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3">
                         <span

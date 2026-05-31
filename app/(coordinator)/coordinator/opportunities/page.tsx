@@ -9,9 +9,9 @@ import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-emerald-100 text-emerald-700',
-  CLOSED: 'bg-gray-100 text-gray-600',
-  DRAFT: 'bg-yellow-100 text-yellow-700',
+  ACTIVE: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+  CLOSED: 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400',
+  DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
 };
 
 export default function CoordinatorOpportunitiesPage() {
@@ -69,7 +69,7 @@ export default function CoordinatorOpportunitiesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
           <p className="font-medium text-brand-text">No opportunities yet</p>
           <p className="text-sm text-brand-muted mt-1">
             Create your first opportunity to get started
@@ -77,7 +77,7 @@ export default function CoordinatorOpportunitiesPage() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="bg-white rounded-2xl border border-brand-border">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">
@@ -150,7 +150,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 type="button"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 disabled={closing === opp.id}
-                                className="p-1.5 rounded-lg hover:bg-red-50 text-brand-muted hover:text-red-600 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
                                 title="Close"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -170,23 +170,23 @@ export default function CoordinatorOpportunitiesPage() {
 
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
-            <h3 className="font-semibold text-lg mb-2">Confirm</h3>
-            <p className="text-sm text-gray-600 mb-4">
+          <div className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
+            <h3 className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
+            <p className="text-sm text-brand-muted mb-4">
               Close &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm rounded-lg border"
+                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={executeClose}
-                className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white"
+                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors"
               >
                 Confirm
               </button>

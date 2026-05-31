@@ -7,9 +7,9 @@ import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api, downloadCsv } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'bg-blue-100 text-blue-700',
-  COMPLETED: 'bg-emerald-100 text-emerald-700',
-  CANCELLED: 'bg-red-100 text-red-700',
+  SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  COMPLETED: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
 };
 
 export default function CoordinatorEventsPage() {
@@ -47,13 +47,13 @@ export default function CoordinatorEventsPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
           <p className="font-medium text-brand-text">No events yet</p>
           <p className="text-sm text-brand-muted mt-1">Create events from your opportunities</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="bg-white rounded-2xl border border-brand-border">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">

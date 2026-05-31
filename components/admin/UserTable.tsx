@@ -1,7 +1,7 @@
 'use client';
 
 import { MoreVertical } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
 
@@ -22,7 +22,7 @@ interface User {
   id: string;
   name: string;
   email: string | null;
-  role: string;
+  roleRef: { name: string };
   status: string;
   volunteerType?: string | null;
   createdAt: string;
@@ -36,7 +36,23 @@ interface UserTableProps {
 export function UserTable({ users, onUpdated }: UserTableProps) {
   const { toast } = useToast();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenu(null);
+        setMenuPosition(null);
+      }
+    }
+    if (openMenu) {
+      document.addEventListener('mousedown', handler);
+    }
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openMenu]);
 
   const update = async (id: string, data: object, msg: string) => {
     setLoading(id);
@@ -49,8 +65,20 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
     } finally {
       setLoading(null);
       setOpenMenu(null);
+      setMenuPosition(null);
     }
   };
+
+  function handleMenuClick(id: string, e: React.MouseEvent) {
+    if (openMenu === id) {
+      setOpenMenu(null);
+      setMenuPosition(null);
+      return;
+    }
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    setOpenMenu(id);
+  }
 
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -115,9 +143,9 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ROLE_COLORS[u.role] ?? ''}`}
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ROLE_COLORS[u.roleRef.name] ?? ''}`}
                   >
-                    {u.role}
+                    {u.roleRef.name}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -137,63 +165,88 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                 <td className="px-4 py-3 relative">
                   <button
                     type="button"
-                    onClick={() => setOpenMenu(openMenu === u.id ? null : u.id)}
+                    onClick={(e) => handleMenuClick(u.id, e)}
                     className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-all cursor-pointer"
                     disabled={loading === u.id}
                     aria-label={`Actions for ${u.name}`}
                   >
                     <MoreVertical className="w-4 h-4" />
                   </button>
-                  {openMenu === u.id && (
-                    <div
-                      className="absolute right-4 top-10 z-20 bg-brand-surface border border-brand-border rounded-xl shadow-lg py-1 min-w-[160px]"
-                      role="menu"
-                    >
-                      {u.status !== 'ACTIVE' && (
-                        <button
-                          type="button"
-                          onClick={() => update(u.id, { status: 'ACTIVE' }, 'User activated')}
-                          className="w-full text-left px-4 py-2 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer"
-                          aria-label={`Activate ${u.name}`}
-                          role="menuitem"
-                        >
-                          Activate
-                        </button>
-                      )}
-                      {u.status !== 'SUSPENDED' && (
-                        <button
-                          type="button"
-                          onClick={() => update(u.id, { status: 'SUSPENDED' }, 'User suspended')}
-                          className="w-full text-left px-4 py-2 text-sm text-brand-error hover:bg-brand-bg cursor-pointer"
-                          aria-label={`Suspend ${u.name}`}
-                          role="menuitem"
-                        >
-                          Suspend
-                        </button>
-                      )}
-                      {(['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
-                        (role) =>
-                          u.role !== role && (
-                            <button
-                              type="button"
-                              key={role}
-                              onClick={() => update(u.id, { role }, `Role changed to ${role}`)}
-                              className="w-full text-left px-4 py-2 text-sm text-brand-text hover:bg-brand-bg cursor-pointer"
-                              aria-label={`Change role to ${role}`}
-                              role="menuitem"
-                            >
-                              Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                            </button>
-                          )
-                      )}
-                    </div>
-                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Fixed-position dropdown rendered at body level via portal-like positioning */}
+      {openMenu && menuPosition && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setOpenMenu(null);
+              setMenuPosition(null);
+            }}
+            aria-hidden="true"
+          />
+          <div
+            ref={menuRef}
+            className="fixed z-50 bg-brand-surface border border-brand-border rounded-xl shadow-xl py-1.5 min-w-[180px] animate-in fade-in zoom-in-95 duration-150"
+            style={{ top: menuPosition.top, right: menuPosition.right }}
+            role="menu"
+          >
+            {(() => {
+              const user = users.find((u) => u.id === openMenu);
+              if (!user) return null;
+              return (
+                <>
+                  {user.status !== 'ACTIVE' && (
+                    <button
+                      type="button"
+                      onClick={() => update(user.id, { status: 'ACTIVE' }, 'User activated')}
+                      className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
+                      aria-label={`Activate ${user.name}`}
+                      role="menuitem"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      Activate
+                    </button>
+                  )}
+                  {user.status !== 'SUSPENDED' && (
+                    <button
+                      type="button"
+                      onClick={() => update(user.id, { status: 'SUSPENDED' }, 'User suspended')}
+                      className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
+                      aria-label={`Suspend ${user.name}`}
+                      role="menuitem"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                      Suspend
+                    </button>
+                  )}
+                  {(['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
+                    (role) =>
+                      user.roleRef.name !== role && (
+                        <button
+                          type="button"
+                          key={role}
+                          onClick={() => update(user.id, { role }, `Role changed to ${role}`)}
+                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
+                          aria-label={`Change role to ${role}`}
+                          role="menuitem"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                          Make {role.charAt(0) + role.slice(1).toLowerCase()}
+                        </button>
+                      )
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        </>
+      )}
     </div>
   );
 }

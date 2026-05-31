@@ -59,12 +59,12 @@ export default function CoordinatorVolunteersPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
           <p className="font-medium text-brand-text">No volunteers yet</p>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">

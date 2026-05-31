@@ -2,7 +2,7 @@
 
 import { Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import { type DragEvent, useRef, useState } from 'react';
+import { type DragEvent, useEffect, useRef, useState } from 'react';
 import { api } from '../../lib/api';
 
 interface FileUploadProps {
@@ -23,6 +23,10 @@ export function FileUpload({
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(previewUrl ?? null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setPreview(previewUrl ?? null);
+  }, [previewUrl]);
 
   async function handleFile(file: File) {
     if (uploading) return;

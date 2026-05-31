@@ -32,7 +32,7 @@ export default function MyStoriesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center space-y-3">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center space-y-3">
           <BookOpen className="w-10 h-10 text-brand-muted mx-auto" />
           <p className="font-medium text-brand-text">No stories yet</p>
           <p className="text-sm text-brand-muted">
@@ -57,12 +57,12 @@ export default function MyStoriesPage() {
             }) => (
               <div
                 key={story.id}
-                className="bg-white rounded-2xl border border-brand-border p-5 space-y-2"
+                className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2"
               >
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="font-heading font-semibold text-brand-text">{story.title}</h2>
                   <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'}`}
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'}`}
                   >
                     {story.published ? 'Published' : 'Pending review'}
                   </span>

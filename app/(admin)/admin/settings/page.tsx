@@ -19,7 +19,7 @@ export default function AdminSettingsPage() {
       <h1 className="font-heading font-bold text-xl text-brand-text">System Settings</h1>
 
       {/* Categories */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-3">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
         <h2 className="font-heading font-semibold text-sm text-brand-text">
           Opportunity Categories
         </h2>
@@ -39,7 +39,7 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Matching Rules */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-3">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
         <h2 className="font-heading font-semibold text-sm text-brand-text">
           Volunteer Matching Rules
         </h2>
@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
       </div>
 
       {/* Audit Log */}
-      <div className="bg-white rounded-2xl border border-brand-border p-5 space-y-3">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
         <h2 className="font-heading font-semibold text-sm text-brand-text">Admin Audit Log</h2>
         <p className="text-xs text-brand-muted">
           All admin actions (user suspensions, role changes) are automatically logged with

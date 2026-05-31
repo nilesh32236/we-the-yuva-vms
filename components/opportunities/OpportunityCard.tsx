@@ -2,7 +2,8 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Briefcase, Calendar, MapPin, Users, Wifi } from 'lucide-react';
-import { memo, useState } from 'react';
+import Link from 'next/link';
+import { memo } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
 
@@ -35,6 +36,7 @@ interface OpportunityCardProps {
   };
   showApply?: boolean;
   onApplied?: (id: string) => void;
+  detailHref?: string;
 }
 
 interface OpportunityInfo {
@@ -55,11 +57,12 @@ const OpportunityCard = memo(function OpportunityCard({
   opportunity: opp,
   showApply = false,
   onApplied,
+  detailHref,
 }: OpportunityCardProps) {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [applied, setApplied] = useState(!!opp.userApplication);
 
+  const applied = !!opp.userApplication;
   const filled = opp._count?.applications ?? 0;
   const fillPct = Math.min((filled / opp.totalSlots) * 100, 100);
   const isFull = filled >= opp.totalSlots;
@@ -67,20 +70,13 @@ const OpportunityCard = memo(function OpportunityCard({
   const applyMutation = useMutation({
     mutationFn: () => api.post(`/opportunities/${opp.id}/apply`),
     onMutate: async () => {
-      // 1. Optimistically update local state for zero-latency response
-      setApplied(true);
-
-      // 2. Cancel any outgoing refetches for ['opportunities']
       await qc.cancelQueries({ queryKey: ['opportunities'] });
 
-      // 3. Snapshot current values
       const previousQueries = qc.getQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] });
 
-      // 4. Set queries data for all queries matching ['opportunities']
       qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] }, (oldData) => {
         if (!oldData) return oldData;
 
-        // Array case (e.g. recommended list)
         if (Array.isArray(oldData)) {
           return oldData.map((item) => {
             if (item.id === opp.id) {
@@ -97,7 +93,6 @@ const OpportunityCard = memo(function OpportunityCard({
           });
         }
 
-        // Object case with data list (e.g. standard paginated search result)
         if (oldData && Array.isArray(oldData.data)) {
           return {
             ...oldData,
@@ -123,9 +118,6 @@ const OpportunityCard = memo(function OpportunityCard({
       return { previousQueries };
     },
     onError: (err: unknown, _variables: unknown, context) => {
-      // Rollback to original applied state
-      setApplied(!!opp.userApplication);
-
       if (context?.previousQueries) {
         for (const [queryKey, queryData] of context.previousQueries) {
           qc.setQueryData(queryKey, queryData);
@@ -140,7 +132,6 @@ const OpportunityCard = memo(function OpportunityCard({
           description: "You've already applied to this opportunity.",
           variant: 'destructive',
         });
-        setApplied(true);
       } else {
         toast({
           title: 'Error',
@@ -159,14 +150,15 @@ const OpportunityCard = memo(function OpportunityCard({
     },
   });
 
-  const handleApply = () => {
+  const handleApply = (e: React.MouseEvent) => {
+    e.stopPropagation();
     applyMutation.mutate(undefined);
   };
 
   const applying = applyMutation.isPending;
 
-  return (
-    <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 cursor-default">
+  const card = (
+    <div className={`bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 ${detailHref ? 'cursor-pointer' : 'cursor-default'}`}>
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <span
@@ -270,6 +262,12 @@ const OpportunityCard = memo(function OpportunityCard({
       )}
     </div>
   );
+
+  if (detailHref) {
+    return <Link href={detailHref}>{card}</Link>;
+  }
+
+  return card;
 });
 
 export { OpportunityCard };

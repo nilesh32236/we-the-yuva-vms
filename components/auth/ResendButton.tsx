@@ -14,6 +14,10 @@ export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonPro
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setCountdown(cooldownSeconds);
+  }, [cooldownSeconds]);
+
+  useEffect(() => {
     if (countdown <= 0) return;
     const timer = setInterval(() => {
       setCountdown((prev) => prev - 1);

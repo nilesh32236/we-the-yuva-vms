@@ -29,7 +29,8 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
 
   const { data: docs, isLoading: loadingDocs } = useQuery({
     queryKey: ['admin-org-docs', org.id],
-    queryFn: () => api.get<OrgDocument[]>(`/admin/organizations/${org.id}/documents`).then((r) => r.data),
+    queryFn: () =>
+      api.get<OrgDocument[]>(`/admin/organizations/${org.id}/documents`).then((r) => r.data),
   });
 
   const verifyMut = useMutation({
@@ -44,7 +45,11 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
       onClose();
     },
     onError: () => {
-      toast({ title: 'Error', description: 'Could not update organization.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Could not update organization.',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -64,16 +69,22 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
 
         <div className="p-6 space-y-6">
           <div>
-            <h3 className="text-sm font-semibold text-brand-muted uppercase tracking-wider mb-2">Details</h3>
+            <h3 className="text-sm font-semibold text-brand-muted uppercase tracking-wider mb-2">
+              Details
+            </h3>
             <div className="bg-brand-bg rounded-xl p-4 space-y-1">
-               <p className="font-bold text-brand-text">{org.name}</p>
-               <p className="text-sm text-brand-muted">{org.email}</p>
-               <p className="text-xs mt-2 uppercase font-bold text-brand-muted/50">Status: {org.status}</p>
+              <p className="font-bold text-brand-text">{org.name}</p>
+              <p className="text-sm text-brand-muted">{org.email}</p>
+              <p className="text-xs mt-2 uppercase font-bold text-brand-muted/50">
+                Status: {org.status}
+              </p>
             </div>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-brand-muted uppercase tracking-wider mb-3">Verification Documents</h3>
+            <h3 className="text-sm font-semibold text-brand-muted uppercase tracking-wider mb-3">
+              Verification Documents
+            </h3>
             {loadingDocs ? (
               <div className="space-y-2">
                 <div className="h-12 bg-brand-bg animate-pulse rounded-xl" />
@@ -84,14 +95,21 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
             ) : (
               <div className="space-y-2">
                 {docs.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-3 border border-brand-border rounded-xl hover:bg-brand-bg transition-colors">
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between p-3 border border-brand-border rounded-xl hover:bg-brand-bg transition-colors"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary">
                         <FileText className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-brand-text truncate max-w-[200px]">{doc.fileName}</p>
-                        <p className="text-[10px] text-brand-muted uppercase">{doc.type.replace(/_/g, ' ')}</p>
+                        <p className="text-sm font-medium text-brand-text truncate max-w-[200px]">
+                          {doc.fileName}
+                        </p>
+                        <p className="text-[10px] text-brand-muted uppercase">
+                          {doc.type.replace(/_/g, ' ')}
+                        </p>
                       </div>
                     </div>
                     <a
@@ -115,7 +133,7 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
             type="button"
             onClick={() => verifyMut.mutate(false)}
             disabled={verifyMut.isPending}
-            className="flex-1 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 cursor-pointer transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer transition-colors disabled:opacity-50"
           >
             Reject / Suspend
           </button>

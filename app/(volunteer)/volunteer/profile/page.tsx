@@ -15,7 +15,9 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { DAYS, TIME_SLOTS } from '@/lib/shared';
+import { Button } from '../../../../components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
@@ -29,6 +31,11 @@ export default function VolunteerProfilePage() {
   const [volunteerType, setVolunteerType] = useState('');
   const [skills, setSkills] = useState('');
   const [interests, setInterests] = useState('');
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [dirty, setDirty] = useState(false);
+  const cancelRef = useRef(false);
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['me'],
@@ -41,8 +48,19 @@ export default function VolunteerProfilePage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['me'] });
       setEditing(false);
+      setDirty(false);
+      setFieldErrors({});
+      toast({ title: 'Profile updated successfully' });
     },
-    onError: (err: { response?: { data?: { error?: string } } }) => {
+    onError: (err: { response?: { data?: { error?: string; details?: { fieldErrors?: Record<string, string[]> } } } }) => {
+      const details = err?.response?.data?.details;
+      if (details?.fieldErrors) {
+        const flat: Record<string, string> = {};
+        for (const [key, msgs] of Object.entries(details.fieldErrors)) {
+          if (msgs.length > 0) flat[key] = msgs[0];
+        }
+        setFieldErrors(flat);
+      }
       toast({
         title: 'Error',
         description: err?.response?.data?.error || 'Failed to update profile',
@@ -56,10 +74,40 @@ export default function VolunteerProfilePage() {
     setVolunteerType(user?.volunteerType ?? '');
     setSkills((user?.profile?.skills ?? []).join(', '));
     setInterests((user?.profile?.interests ?? []).join(', '));
+    const avail = user?.profile?.availability;
+    setSelectedDays(avail?.days ?? []);
+    setSelectedSlots(avail?.timeSlots ?? []);
+    setFieldErrors({});
+    setDirty(false);
+    cancelRef.current = false;
     setEditing(true);
   }
 
+  function cancelEdit() {
+    setEditing(false);
+    setFieldErrors({});
+    setDirty(false);
+  }
+
+  function hasChanges() {
+    return (
+      bio !== (user?.profile?.bio ?? '') ||
+      volunteerType !== (user?.volunteerType ?? '') ||
+      skills !== ((user?.profile?.skills ?? []).join(', ')) ||
+      interests !== ((user?.profile?.interests ?? []).join(', ')) ||
+      JSON.stringify(selectedDays) !== JSON.stringify(user?.profile?.availability?.days ?? []) ||
+      JSON.stringify(selectedSlots) !== JSON.stringify(user?.profile?.availability?.timeSlots ?? [])
+    );
+  }
+
   function save() {
+    const errs: Record<string, string> = {};
+    if (!volunteerType) errs.volunteerType = 'Please select a volunteer type';
+    if (selectedDays.length === 0) errs.days = 'Please select at least one day';
+    if (selectedSlots.length === 0) errs.timeSlots = 'Please select at least one time slot';
+    setFieldErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+
     mutation.mutate({
       volunteerType,
       bio,
@@ -71,9 +119,55 @@ export default function VolunteerProfilePage() {
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean),
-      availability: user?.profile?.availability ?? { days: [], timeSlots: [] },
+      availability: { days: selectedDays, timeSlots: selectedSlots },
     });
   }
+
+  // Unsaved changes warning
+  useEffect(() => {
+    if (!editing) return;
+    setDirty(hasChanges());
+  }, [bio, volunteerType, skills, interests, selectedDays, selectedSlots, editing]);
+
+  useEffect(() => {
+    if (!editing || !dirty) return;
+    function handler(e: MouseEvent) {
+      if (cancelRef.current) return;
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-profile-editor]') && !target.closest('.Toastify')) {
+        const confirmed = window.confirm('You have unsaved changes. Are you sure you want to leave?');
+        if (!confirmed) {
+          e.stopPropagation();
+          e.preventDefault();
+        } else {
+          cancelEdit();
+        }
+      }
+    }
+    // Use capture phase to catch clicks outside
+    document.addEventListener('click', handler, true);
+    return () => document.removeEventListener('click', handler, true);
+  }, [editing, dirty]);
+
+  // Beforeunload for browser navigation
+  useEffect(() => {
+    if (!editing || !dirty) return;
+    function handler(e: BeforeUnloadEvent) {
+      e.preventDefault();
+    }
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [editing, dirty]);
+
+  const toggleDay = (day: string) =>
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+
+  const toggleSlot = (slot: string) =>
+    setSelectedSlots((prev) =>
+      prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot]
+    );
 
   const initials =
     user?.name
@@ -83,10 +177,159 @@ export default function VolunteerProfilePage() {
       .toUpperCase()
       .slice(0, 2) ?? '?';
 
+  const inputCls = (field: string) =>
+    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors ${
+      fieldErrors[field]
+        ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
+        : 'border-brand-border focus:ring-brand-primary/30'
+    }`;
+
+  const selectCls = (field: string) =>
+    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors ${
+      fieldErrors[field]
+        ? 'border-brand-error focus:ring-brand-error/30'
+        : 'border-brand-border focus:ring-brand-primary/30'
+    }`;
+
   if (isLoading)
     return (
       <div className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
     );
+
+  const editorContent = (
+    <div data-profile-editor>
+      {/* Volunteer Type */}
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+        <h2 className="font-heading font-semibold text-sm text-brand-text">Volunteer Type</h2>
+        <select
+          value={volunteerType}
+          onChange={(e) => setVolunteerType(e.target.value)}
+          className={selectCls('volunteerType')}
+        >
+          <option value="">Select Type</option>
+          {['STUDENT', 'PROFESSIONAL', 'EVENT', 'RECURRING', 'REMOTE', 'EMERGENCY'].map((t) => (
+            <option key={t} value={t}>
+              {t.charAt(0) + t.slice(1).toLowerCase()}
+            </option>
+          ))}
+        </select>
+        {fieldErrors.volunteerType && (
+          <p className="text-xs text-brand-error">{fieldErrors.volunteerType}</p>
+        )}
+      </div>
+
+      {/* Bio */}
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
+        <h2 className="font-heading font-semibold text-sm text-brand-text">About</h2>
+        <textarea
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          rows={3}
+          placeholder="Tell us about yourself…"
+          className={inputCls('bio')}
+        />
+        {fieldErrors.bio && <p className="text-xs text-brand-error">{fieldErrors.bio}</p>}
+      </div>
+
+      {/* Skills */}
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+          <Tag className="w-4 h-4 text-brand-primary" /> Skills
+        </h2>
+        <input
+          value={skills}
+          onChange={(e) => setSkills(e.target.value)}
+          placeholder="e.g. Teaching, Design, Coding"
+          className={inputCls('skills')}
+        />
+        {fieldErrors.skills && <p className="text-xs text-brand-error">{fieldErrors.skills}</p>}
+      </div>
+
+      {/* Interests */}
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+          <Tag className="w-4 h-4 text-brand-cta" /> Interests
+        </h2>
+        <input
+          value={interests}
+          onChange={(e) => setInterests(e.target.value)}
+          placeholder="e.g. Environment, Education, Health"
+          className={inputCls('interests')}
+        />
+        {fieldErrors.interests && (
+          <p className="text-xs text-brand-error">{fieldErrors.interests}</p>
+        )}
+      </div>
+
+      {/* Availability */}
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4">
+        <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
+
+        <div className="space-y-2">
+          <p className="text-xs text-brand-muted font-medium">Days</p>
+          <div className="flex flex-wrap gap-2">
+            {DAYS.map((day) => (
+              <button
+                key={day}
+                type="button"
+                onClick={() => toggleDay(day)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer
+                  ${selectedDays.includes(day) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+          {fieldErrors.days && <p className="text-xs text-brand-error">{fieldErrors.days}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-xs text-brand-muted font-medium">Time Slots</p>
+          <div className="flex flex-wrap gap-2">
+            {TIME_SLOTS.map((slot) => (
+              <button
+                key={slot}
+                type="button"
+                onClick={() => toggleSlot(slot)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer
+                  ${selectedSlots.includes(slot) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
+              >
+                {slot}
+              </button>
+            ))}
+          </div>
+          {fieldErrors.timeSlots && (
+            <p className="text-xs text-brand-error">{fieldErrors.timeSlots}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Save/Cancel at bottom */}
+      <div className="flex gap-3 pt-2">
+        <Button
+          variant="outline"
+          fullWidth
+          onClick={() => {
+            if (dirty) {
+              const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
+              if (!confirmed) return;
+            }
+            cancelEdit();
+          }}
+        >
+          <X className="w-4 h-4" /> Cancel
+        </Button>
+        <Button
+          variant="primary"
+          fullWidth
+          onClick={save}
+          loading={mutation.isPending}
+        >
+          <Check className="w-4 h-4" /> Save Changes
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-2xl space-y-5">
@@ -98,7 +341,7 @@ export default function VolunteerProfilePage() {
             <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-brand-surface flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
-            {!editing ? (
+            {!editing && (
               <button
                 type="button"
                 onClick={startEdit}
@@ -106,24 +349,6 @@ export default function VolunteerProfilePage() {
               >
                 <Edit2 className="w-3.5 h-3.5" /> Edit
               </button>
-            ) : (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditing(false)}
-                  className="flex items-center gap-1 text-sm text-brand-muted hover:text-brand-text px-3 py-1.5 rounded-lg border border-brand-border transition-colors cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" /> Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={save}
-                  disabled={mutation.isPending}
-                  className="flex items-center gap-1 text-sm font-medium text-white bg-brand-primary hover:bg-brand-secondary px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-60"
-                >
-                  <Check className="w-3.5 h-3.5" /> Save
-                </button>
-              </div>
             )}
           </div>
           <h1 className="font-heading font-bold text-xl text-brand-text">{user?.name}</h1>
@@ -169,103 +394,95 @@ export default function VolunteerProfilePage() {
         ))}
       </div>
 
-      {/* Volunteer Type Editing */}
-      {editing && (
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-          <h2 className="font-heading font-semibold text-sm text-brand-text">Volunteer Type</h2>
-          <select
-            value={volunteerType}
-            onChange={(e) => setVolunteerType(e.target.value)}
-            className="w-full text-sm text-brand-text border border-brand-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-          >
-            <option value="">Select Type</option>
-            <option value="STUDENT">Student</option>
-            <option value="PROFESSIONAL">Professional</option>
-            <option value="EVENT">Event Based</option>
-            <option value="RECURRING">Recurring</option>
-            <option value="REMOTE">Remote</option>
-            <option value="EMERGENCY">Emergency</option>
-          </select>
-        </div>
+      {/* Edit mode: all edit fields */}
+      {editing ? (
+        editorContent
+      ) : (
+        <>
+          {/* Bio (view mode) */}
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
+            <h2 className="font-heading font-semibold text-sm text-brand-text">About</h2>
+            <p className="text-sm text-brand-muted">
+              {user?.profile?.bio || 'No bio added yet.'}
+            </p>
+          </div>
+
+          {/* Skills (view mode) */}
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+            <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+              <Tag className="w-4 h-4 text-brand-primary" /> Skills
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {(user?.profile?.skills ?? []).length > 0 ? (
+                user.profile.skills.map((s: string) => (
+                  <span
+                    key={s}
+                    className="text-xs font-medium bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-2.5 py-1 rounded-full"
+                  >
+                    {s}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm text-brand-muted">No skills added yet.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Interests (view mode) */}
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+            <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+              <Tag className="w-4 h-4 text-brand-cta" /> Interests
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {(user?.profile?.interests ?? []).length > 0 ? (
+                user.profile.interests.map((s: string) => (
+                  <span
+                    key={s}
+                    className="text-xs font-medium bg-brand-cta/10 text-brand-cta border border-brand-cta/20 px-2.5 py-1 rounded-full"
+                  >
+                    {s}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm text-brand-muted">No interests added yet.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Availability (view mode) */}
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+            <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
+            {user?.profile?.availability ? (
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {(user.profile.availability.days ?? []).map((d: string) => (
+                    <span
+                      key={d}
+                      className="text-xs bg-brand-bg border border-brand-border px-2 py-0.5 rounded-full text-brand-text"
+                    >
+                      {d}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {(user.profile.availability.timeSlots ?? []).map((s: string) => (
+                    <span
+                      key={s}
+                      className="text-xs bg-brand-bg border border-brand-border px-2 py-0.5 rounded-full text-brand-text"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-brand-muted">No availability set.</p>
+            )}
+          </div>
+        </>
       )}
 
-      {/* Bio */}
-      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
-        <h2 className="font-heading font-semibold text-sm text-brand-text">About</h2>
-        {editing ? (
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            rows={3}
-            placeholder="Tell us about yourself…"
-            className="w-full text-sm text-brand-text border border-brand-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 resize-none"
-          />
-        ) : (
-          <p className="text-sm text-brand-muted">{user?.profile?.bio || 'No bio added yet.'}</p>
-        )}
-      </div>
-
-      {/* Skills */}
-      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
-          <Tag className="w-4 h-4 text-brand-primary" /> Skills
-        </h2>
-        {editing ? (
-          <input
-            value={skills}
-            onChange={(e) => setSkills(e.target.value)}
-            placeholder="e.g. Teaching, Design, Coding"
-            className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-          />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {(user?.profile?.skills ?? []).length > 0 ? (
-              user.profile.skills.map((s: string) => (
-                <span
-                  key={s}
-                  className="text-xs font-medium bg-brand-primary/10 text-brand-primary border border-brand-primary/20 px-2.5 py-1 rounded-full"
-                >
-                  {s}
-                </span>
-              ))
-            ) : (
-              <p className="text-sm text-brand-muted">No skills added yet.</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Interests */}
-      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
-          <Tag className="w-4 h-4 text-brand-cta" /> Interests
-        </h2>
-        {editing ? (
-          <input
-            value={interests}
-            onChange={(e) => setInterests(e.target.value)}
-            placeholder="e.g. Environment, Education, Health"
-            className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-          />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {(user?.profile?.interests ?? []).length > 0 ? (
-              user.profile.interests.map((s: string) => (
-                <span
-                  key={s}
-                  className="text-xs font-medium bg-brand-cta/10 text-brand-cta border border-brand-cta/20 px-2.5 py-1 rounded-full"
-                >
-                  {s}
-                </span>
-              ))
-            ) : (
-              <p className="text-sm text-brand-muted">No interests added yet.</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Settings */}
+      {/* Settings (always visible) */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
         <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
           <Settings className="w-4 h-4 text-brand-muted" /> Settings
