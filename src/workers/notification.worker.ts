@@ -459,6 +459,37 @@ if (redis && notificationsQueue) {
         logger.info('Application rejected email sent', { volunteerId, jobId: job.id });
       }
 
+      if (job.name === 'send-push') {
+        const { userId, title, body, data } = job.data as {
+          userId: string;
+          title: string;
+          body: string;
+          data?: Record<string, unknown>;
+        };
+
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { email: true },
+        });
+
+        // Send in-app notification
+        await createInAppNotification(userId, title, body, undefined, 'INFO');
+        // Send push notification
+        await sendPushToUser(userId, title, body);
+
+        // Send email notification if we have the user's email
+        if (user?.email) {
+          await sendEmail(
+            user.email,
+            title,
+            `<h2>${title}</h2><p>${body}</p>`,
+            `${title}\n\n${body}`
+          );
+        }
+
+        logger.info('Push notification sent', { userId, title, jobId: job.id });
+      }
+
       if (job.name === 'event-invitation') {
         const { volunteerId, eventTitle, eventDate, venue } = job.data as {
           volunteerId: string;
