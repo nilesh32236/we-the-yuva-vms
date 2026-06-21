@@ -106,7 +106,7 @@ export default function NotificationsPage() {
           </div>
         ) : (
           notifications.map((n) => {
-            const Icon = TYPE_ICON[n.type] ?? Bell;
+            const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
             return (
               <button
                 key={n.id}

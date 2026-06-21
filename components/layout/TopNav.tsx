@@ -215,7 +215,7 @@ export function TopNav() {
                   </div>
                 ) : (
                   items.map((n) => {
-                    const Icon = TYPE_ICON[n.type] ?? Bell;
+                    const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
                     return (
                       <button
                         type="button"
