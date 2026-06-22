@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
+import { prisma } from '../../lib/prisma';
 import {
+  approveAttendance,
   cancelEvent,
   checkIn,
   checkOut,
@@ -49,9 +51,8 @@ export async function listEventsByOpportunityHandler(
       ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
       : undefined;
     const pagination = page ? { page, limit: limit! } : undefined;
-    // TODO: return consistent pagination envelope even when not paginated (production)
     const events = await listEventsByOpportunity(req.params.opportunityId, pagination);
-    res.status(200).json(events);
+    res.status(200).json(pagination ? events : { data: events });
   } catch (err) {
     next(err);
   }
@@ -159,6 +160,17 @@ export async function getAttendanceListHandler(
   next: NextFunction
 ): Promise<void> {
   try {
+    if (req.query.listAll === 'true') {
+      const list = await prisma.attendance.findMany({
+        where: { eventId: req.params.id },
+        include: {
+          volunteer: { select: { id: true, name: true, email: true } },
+        },
+        orderBy: { checkedInAt: 'desc' },
+      });
+      res.status(200).json({ data: list });
+      return;
+    }
     const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
     const list = await getAttendanceList(req.params.id, { page, limit });
@@ -166,6 +178,21 @@ export async function getAttendanceListHandler(
   } catch (err) {
     next(err);
   }
+}
+
+export async function approveAttendanceHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { approvedHours, rating } = req.body;
+    const record = await approveAttendance(
+      req.params.id,
+      req.params.volunteerId,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      { approvedHours: Number(approvedHours), rating: Number(rating) }
+    );
+    res.status(200).json(record);
+  } catch (err) { next(err); }
 }
 
 // ─── Volunteer "My Events" Handler ───────────────────────────────

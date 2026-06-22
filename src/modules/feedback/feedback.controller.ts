@@ -48,7 +48,6 @@ export async function getEventFeedbackHandler(req: Request, res: Response, next:
       ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
       : undefined;
     const pagination = page ? { page, limit: limit! } : undefined;
-    // TODO: return consistent pagination envelope even when not paginated (production)
     const result = await service.getEventFeedback(
       req.params.eventId,
       req.user!.id,
@@ -56,7 +55,7 @@ export async function getEventFeedbackHandler(req: Request, res: Response, next:
       req.user!.organizationId,
       pagination
     );
-    res.status(200).json(result);
+    res.status(200).json(pagination ? result : { data: result });
   } catch (err) {
     next(err);
   }

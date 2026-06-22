@@ -1,6 +1,8 @@
 import crypto from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 import type { EventInput } from '@/shared';
+import { hasSystemRole } from '../../shared/helpers';
+import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
@@ -24,7 +26,7 @@ export async function createEvent(
     throw new AppError('Opportunity not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = opportunity.createdById === coordinatorId;
   const isSameOrg =
     opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
@@ -173,7 +175,7 @@ export async function updateEvent(
     throw new AppError('Event not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = event.opportunity.createdById === callerId;
   const isSameOrg =
     event.opportunity.organizationId &&
@@ -212,7 +214,7 @@ export async function cancelEvent(
     throw new AppError('Event not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = event.opportunity.createdById === callerId;
   const isSameOrg =
     event.opportunity.organizationId &&
@@ -257,7 +259,7 @@ export async function markAttendance(
     throw new AppError('Event not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = event.opportunity.createdById === callerId;
   const isSameOrg =
     event.opportunity.organizationId &&
@@ -409,6 +411,64 @@ export async function getMyEvents(
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
+export async function approveAttendance(
+  eventId: string,
+  volunteerId: string,
+  coordinatorId: string,
+  coordinatorRole: string,
+  coordinatorOrgId: string | null | undefined,
+  data: { approvedHours: number; rating: number }
+) {
+  if (data.rating < 1 || data.rating > 5) throw new AppError('Rating must be between 1 and 5', 400);
+  if (data.approvedHours < 0) throw new AppError('Hours must be non-negative', 400);
+
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: { opportunity: true },
+  });
+  if (!event) throw new AppError('Event not found', 404);
+
+  const isSysAdmin = hasSystemRole(coordinatorRole);
+  const isOwner = event.opportunity.createdById === coordinatorId;
+  const isSameOrg = event.opportunity.organizationId && coordinatorOrgId && event.opportunity.organizationId === coordinatorOrgId;
+  if (!isSysAdmin && !isOwner && !isSameOrg) throw new AppError('Forbidden', 403);
+
+  const attendance = await prisma.attendance.findUnique({
+    where: { eventId_volunteerId: { eventId, volunteerId } },
+  });
+  if (!attendance) throw new AppError('Attendance record not found', 404);
+  if (!attendance.checkedInAt) throw new AppError('Volunteer has not checked in', 400);
+  if (attendance.approvedAt) throw new AppError('Hours already approved', 400);
+
+  const rawHours = attendance.checkedOutAt
+    ? Math.min(Math.max(0, (attendance.checkedOutAt.getTime() - attendance.checkedInAt.getTime()) / 3_600_000), 16)
+    : 0;
+
+  const result = await prisma.$transaction(async (tx) => {
+    const updated = await tx.attendance.update({
+      where: { eventId_volunteerId: { eventId, volunteerId } },
+      data: {
+        approvedHours: data.approvedHours,
+        rating: data.rating,
+        approvedById: coordinatorId,
+        approvedAt: new Date(),
+      },
+    });
+
+    const hoursDiff = data.approvedHours - rawHours;
+    if (Math.abs(hoursDiff) > 0.01) {
+      await tx.volunteerProfile.update({
+        where: { userId: volunteerId },
+        data: { totalHours: { increment: hoursDiff } },
+      });
+    }
+
+    return updated;
+  });
+
+  return result;
+}
+
 // ─── QR Code ──────────────────────────────────────────────────────
 
 function generateQrToken(): string {
@@ -476,15 +536,14 @@ export async function checkIn(
   if (!event) throw new AppError('Event not found', 404);
   if (event.status === 'CANCELLED') throw new AppError('Event is cancelled', 400);
 
-  // TEMPORARY: broad date window for dev testing (7 days before to 7 days after)
-  // TODO: tighten this window in production (e.g., event day only)
+  // Allow check-in within 12 hours before/after event date (24-hour window)
   const now = new Date();
   const eventDate = new Date(event.eventDate);
-  const msDevWindow = 7 * 24 * 60 * 60 * 1000;
-  if (now.getTime() < eventDate.getTime() - msDevWindow) {
+  const checkInWindow = 12 * 60 * 60 * 1000;
+  if (now.getTime() < eventDate.getTime() - checkInWindow) {
     throw new AppError('Event is too far in the future for check-in', 400);
   }
-  if (now.getTime() > eventDate.getTime() + msDevWindow) {
+  if (now.getTime() > eventDate.getTime() + checkInWindow) {
     throw new AppError('Event has already passed the check-in window', 400);
   }
 
@@ -505,7 +564,7 @@ export async function checkIn(
   });
   if (existing?.checkedInAt) throw new AppError('Already checked in', 400);
 
-  return prisma.attendance.upsert({
+  const result = await prisma.attendance.upsert({
     where: { eventId_volunteerId: { eventId, volunteerId } },
     create: {
       eventId,
@@ -523,6 +582,14 @@ export async function checkIn(
       checkInLng: location?.lng,
     },
   });
+
+  try {
+    await onEventCheckIn(volunteerId, eventId);
+  } catch (err) {
+    logger.warn('Failed to award check-in points/badges', { error: (err as Error).message });
+  }
+
+  return result;
 }
 
 export async function checkOut(
@@ -557,6 +624,12 @@ export async function checkOut(
       data: { totalHours: { increment: hoursWorked } },
     }),
   ]);
+
+  try {
+    await onEventCheckOut(volunteerId, eventId, hoursWorked);
+  } catch (err) {
+    logger.warn('Failed to award check-out points/badges', { error: (err as Error).message });
+  }
 
   return updated;
 }

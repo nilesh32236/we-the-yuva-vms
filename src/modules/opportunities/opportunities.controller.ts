@@ -197,9 +197,8 @@ export async function listMyApplicationsHandler(
       ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
       : undefined;
     const pagination = page ? { page, limit: limit! } : undefined;
-    // TODO: return consistent pagination envelope even when not paginated (production)
     const applications = await listMyApplications(req.user!.id, pagination);
-    res.status(200).json(applications);
+    res.status(200).json(pagination ? applications : { data: applications });
   } catch (err) {
     next(err);
   }

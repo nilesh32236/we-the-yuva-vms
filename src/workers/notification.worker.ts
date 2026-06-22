@@ -1,4 +1,5 @@
 import { type Job, Worker } from 'bullmq';
+import type { NotificationPreferenceType } from '@prisma/client';
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 import webpush from 'web-push';
@@ -32,10 +33,21 @@ async function createInAppNotification(
   }
 }
 
-// TODO: consult NotificationPreference before sending push in production
-// Currently sends push to all subscribers regardless of user preferences
-async function sendPushToUser(userId: string, title: string, body: string, link?: string) {
+async function sendPushToUser(
+  userId: string,
+  title: string,
+  body: string,
+  link?: string,
+  prefType?: NotificationPreferenceType
+) {
   try {
+    if (prefType) {
+      const pref = await prisma.notificationPreference.findUnique({
+        where: { userId_type: { userId, type: prefType } },
+      });
+      if (pref && !pref.push) return;
+    }
+
     const subs = await prisma.pushSubscription.findMany({ where: { userId } });
     for (const sub of subs) {
       try {
@@ -418,7 +430,9 @@ if (redis && notificationsQueue) {
         await sendPushToUser(
           volunteerId,
           'Application Accepted',
-          `Your application for "${opportunityTitle}" has been accepted!`
+          `Your application for "${opportunityTitle}" has been accepted!`,
+          undefined,
+          'APPLICATION_ACCEPTED'
         );
 
         logger.info('Application accepted email sent', { volunteerId, jobId: job.id });
@@ -453,7 +467,9 @@ if (redis && notificationsQueue) {
         await sendPushToUser(
           volunteerId,
           'Application Update',
-          `Your application for "${opportunityTitle}" was not accepted.`
+          `Your application for "${opportunityTitle}" was not accepted.`,
+          undefined,
+          'APPLICATION_ACCEPTED'
         );
 
         logger.info('Application rejected email sent', { volunteerId, jobId: job.id });
@@ -475,7 +491,7 @@ if (redis && notificationsQueue) {
         // Send in-app notification
         await createInAppNotification(userId, title, body, undefined, 'INFO');
         // Send push notification
-        await sendPushToUser(userId, title, body);
+        await sendPushToUser(userId, title, body, undefined, 'PROMOTION');
 
         // Send email notification if we have the user's email
         if (user?.email) {
@@ -519,7 +535,7 @@ if (redis && notificationsQueue) {
           undefined,
           'INFO'
         );
-        await sendPushToUser(volunteerId, 'Event Invitation', `You're invited to "${eventTitle}"!`);
+        await sendPushToUser(volunteerId, 'Event Invitation', `You're invited to "${eventTitle}"!`, undefined, 'EVENT_REMINDER');
 
         logger.info('Event invitation email sent', { volunteerId, jobId: job.id });
       }
@@ -556,7 +572,9 @@ if (redis && notificationsQueue) {
         await sendPushToUser(
           volunteerId,
           'Event Reminder',
-          `"${eventTitle}" is happening tomorrow!`
+          `"${eventTitle}" is happening tomorrow!`,
+          undefined,
+          'EVENT_REMINDER'
         );
 
         logger.info('Event reminder email sent', { volunteerId, jobId: job.id });
@@ -581,7 +599,7 @@ if (redis && notificationsQueue) {
             undefined,
             'WARNING'
           );
-          await sendPushToUser(userId, 'Account Suspended', 'Your account has been suspended.');
+          await sendPushToUser(userId, 'Account Suspended', 'Your account has been suspended.', undefined, 'SYSTEM_ANNOUNCEMENT');
         }
 
         logger.info('Account suspended email sent', { email, jobId: job.id });
@@ -657,6 +675,11 @@ if (redis && notificationsQueue) {
           activeOpportunities,
           scheduledEvents,
         });
+      }
+
+      if (job.name === 'daily-streak-update') {
+        const { updateStreaks } = await import('./streak.handler');
+        await updateStreaks();
       }
 
       if (job.name === 'check-event-reminders') {

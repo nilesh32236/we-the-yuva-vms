@@ -1,3 +1,5 @@
+// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
+// See /issues/PHASE2_SCOPE.md
 import type { NextFunction, Request, Response } from 'express';
 import * as service from './alerts.service';
 
@@ -10,9 +12,8 @@ export async function getMySubscriptionsHandler(req: Request, res: Response, nex
       ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
       : undefined;
     const pagination = page ? { page, limit: limit! } : undefined;
-    // TODO: return consistent pagination envelope even when not paginated (production)
     const result = await service.getMySubscriptions(req.user!.id, pagination);
-    res.status(200).json(result);
+    res.status(200).json(pagination ? result : { data: result });
   } catch (err) {
     next(err);
   }

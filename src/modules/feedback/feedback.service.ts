@@ -1,3 +1,5 @@
+import { onFeedbackSubmitted } from '../badges/badge-engine.service';
+import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -29,9 +31,17 @@ export async function submitFeedback(
     throw new AppError('You have already submitted feedback for this event', 409);
   }
 
-  return prisma.eventFeedback.create({
+  const result = await prisma.eventFeedback.create({
     data: { eventId, volunteerId, ...data },
   });
+
+  try {
+    await onFeedbackSubmitted(volunteerId, eventId);
+  } catch (err) {
+    // non-blocking badge/points award
+  }
+
+  return result;
 }
 
 export async function getMyFeedback(
@@ -68,7 +78,7 @@ export async function getEventFeedback(
 
   if (!event) throw new AppError('Event not found', 404);
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = event.opportunity.createdById === callerId;
   const isSameOrg =
     event.opportunity.organizationId &&
@@ -138,7 +148,7 @@ export async function getEventFeedbackSummary(
 
   if (!event) throw new AppError('Event not found', 404);
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = event.opportunity.createdById === callerId;
   const isSameOrg =
     event.opportunity.organizationId &&

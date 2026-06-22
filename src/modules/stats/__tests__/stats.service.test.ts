@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     volunteerProfile: { findUnique: vi.fn(), aggregate: vi.fn() },
-    attendance: { count: vi.fn(), findMany: vi.fn() },
+    attendance: { count: vi.fn(), findMany: vi.fn(), aggregate: vi.fn() },
     application: { count: vi.fn(), findMany: vi.fn() },
     event: { count: vi.fn() },
     opportunity: { count: vi.fn() },
@@ -34,11 +34,13 @@ describe('stats.service', () => {
     it('should return aggregated stats', async () => {
       vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 25 } as never);
       vi.mocked(prisma.attendance.count).mockResolvedValue(10);
+      vi.mocked(prisma.attendance.aggregate).mockResolvedValue({ _avg: { rating: 4.2 } } as never);
       vi.mocked(prisma.application.count).mockResolvedValue(5);
       const result = await getVolunteerStats('user-1');
       expect(result.totalHours).toBe(25);
       expect(result.eventsAttended).toBe(10);
       expect(result.applications).toBe(5);
+      expect(result.avgRating).toBe(4.2);
     });
   });
 

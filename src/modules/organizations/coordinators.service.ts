@@ -1,3 +1,4 @@
+import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -17,7 +18,7 @@ export async function addCoordinator(
 
   const isOrgAdmin =
     caller.organizationId === orgId && caller.roleRef.name === 'ORGANIZATION_ADMIN';
-  const isSysAdmin = caller.roleRef.name === 'ADMIN';
+  const isSysAdmin = hasSystemRole(caller.roleRef.name);
   if (!isOrgAdmin && !isSysAdmin) {
     throw new AppError('Not authorized to add coordinators to this organization', 403);
   }
@@ -78,7 +79,7 @@ export async function removeCoordinator(
 
   const isOrgAdmin =
     caller.organizationId === orgId && caller.roleRef.name === 'ORGANIZATION_ADMIN';
-  const isSysAdmin = caller.roleRef.name === 'ADMIN';
+  const isSysAdmin = hasSystemRole(caller.roleRef.name);
   if (!isOrgAdmin && !isSysAdmin) {
     throw new AppError('Not authorized to remove coordinators from this organization', 403);
   }

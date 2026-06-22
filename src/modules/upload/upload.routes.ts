@@ -1,6 +1,8 @@
 import { type IRouter, Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { requireAuth } from '../../middleware/auth.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
+import { Permissions } from '../../shared/permissions';
 import { uploadFileHandler } from './upload.controller';
 import { upload } from './upload.service';
 
@@ -35,4 +37,10 @@ uploadRouter.use(uploadLimiter);
  *       201:
  *         description: File uploaded
  */
-uploadRouter.post('/', requireAuth, upload.single('file'), uploadFileHandler);
+uploadRouter.post(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.FILE_UPLOAD),
+  upload.single('file'),
+  uploadFileHandler
+);

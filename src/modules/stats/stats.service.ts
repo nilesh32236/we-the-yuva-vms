@@ -1,19 +1,24 @@
 import { prisma } from '../../lib/prisma';
 
 export async function getVolunteerStats(volunteerId: string) {
-  const [profile, eventsAttended, applications] = await Promise.all([
+  const [profile, eventsAttended, applications, avgRating] = await Promise.all([
     prisma.volunteerProfile.findUnique({
       where: { userId: volunteerId },
       select: { totalHours: true },
     }),
     prisma.attendance.count({ where: { volunteerId, attended: true } }),
     prisma.application.count({ where: { volunteerId } }),
+    prisma.attendance.aggregate({
+      where: { volunteerId, rating: { not: null } },
+      _avg: { rating: true },
+    }),
   ]);
 
   return {
     totalHours: profile?.totalHours ?? 0,
     eventsAttended,
     applications,
+    avgRating: avgRating._avg.rating ?? null,
   };
 }
 

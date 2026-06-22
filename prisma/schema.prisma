@@ -37,6 +37,7 @@ enum ApplicationStatus {
   PENDING
   ACCEPTED
   REJECTED
+  WITHDRAWN
 }
 
 enum EventStatus {
@@ -121,6 +122,19 @@ enum OrganizationStatus {
   SUSPENDED
 }
 
+enum LevelRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  AUTO_APPROVED
+}
+
+enum MentorshipStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+}
+
 // ─── Permission System ──────────────────────────────────────────
 
 model Role {
@@ -192,13 +206,21 @@ model User {
   // Volunteer type
   volunteerType VolunteerType?
 
-  // Future gamification
-  badges String[] @default([])
-  points Int      @default(0)
-  level  String?
+  // Tier / Level System
+  currentLevelId String?
+  currentLevel   Level?     @relation(fields: [currentLevelId], references: [id])
+  points         Int        @default(0)
+  levelRequests  UserLevel[] @relation("UserLevelRequests")
+  levelReviews   UserLevel[] @relation("LevelReviewer")
+  pointTransactions PointTransaction[]
+  earnedBadges   UserBadge[]
+  mentorships    Mentorship[] @relation("MentorRelation")
+  mentees        Mentorship[] @relation("MenteeRelation")
+  certificates   Certificate[]
 
   location      Location?         @relation(fields: [locationId], references: [id])
   profile       VolunteerProfile?
+  youthProfile  YouthProfile?
   refreshTokens RefreshToken[]
   consent       ConsentRecord?
   staffProfile  StaffProfile?
@@ -206,6 +228,7 @@ model User {
   createdOpportunities Opportunity[] @relation("CreatedOpportunities")
   applications         Application[] @relation("VolunteerApplications")
   attendances          Attendance[]  @relation("VolunteerAttendances")
+  approvedAttendances  Attendance[]  @relation("ApprovedBy")
   courseProgress       CourseProgress[]
   lessonCompletions    LessonCompletion[]
   pushSubscriptions    PushSubscription[]
@@ -215,6 +238,7 @@ model User {
   auditLogs            AuditLog[] @relation("AuditLogAuthor")
   notificationPrefs    NotificationPreference[]
   alertSubscriptions   AlertSubscription[]
+  chatMessages         ChatMessage[]
 
   @@index([roleId])
   @@index([status])
@@ -232,6 +256,9 @@ model VolunteerProfile {
   bio          String?
   avatarUrl    String?
   totalHours   Float    @default(0)
+  currentStreak Int     @default(0)
+  longestStreak Int     @default(0)
+  lastActiveAt  DateTime?
   updatedAt    DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -243,6 +270,23 @@ model StaffProfile {
   department  String?
   designation String?
   updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model YouthProfile {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+
+  // Initial self-assessment (post-registration / Level 0 orientation)
+  initialResponses     Json?    // { aspirations: string[], learningGoals: string, skills: string[], interests: string[] }
+  initialCompletedAt   DateTime?
+
+  // End-of-cycle reflection (triggered at Level 3 growth)
+  reflectionResponses  Json?    // { skillsDeveloped: string[], growthAreas: string[], confidenceLevel: 1-5, impactDescription: string }
+  reflectionCompletedAt DateTime?
+
+  updatedAt            DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -323,6 +367,7 @@ model Opportunity {
   createdBy    User          @relation("CreatedOpportunities", fields: [createdById], references: [id])
   applications Application[]
   events       Event[]
+  chatRoom     ChatRoom?
 
   @@index([status])
   @@index([category])
@@ -389,12 +434,20 @@ model Attendance {
   checkInLng    Float?
   checkOutLat   Float?
   checkOutLng   Float?
+
+  // Coordinator approval
+  approvedHours Float?
+  rating        Int?
+  approvedById  String?
+  approvedAt    DateTime?
+
   markedAt      DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   volunteer   User        @relation("VolunteerAttendances", fields: [volunteerId], references: [id], onDelete: Cascade)
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  approvedBy  User?       @relation("ApprovedBy", fields: [approvedById], references: [id])
 
   @@unique([eventId, volunteerId])
   @@index([volunteerId])
@@ -460,6 +513,34 @@ model LessonCompletion {
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+// ─── Chat ────────────────────────────────────────────────────────────
+
+model ChatRoom {
+  id            String   @id @default(cuid())
+  opportunityId String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  messages     ChatMessage[]
+
+  @@index([opportunityId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id])
+
+  @@index([roomId, createdAt])
   @@index([userId])
 }
 
@@ -561,8 +642,8 @@ model NotificationPreference {
 model AlertSubscription {
   id         String   @id @default(cuid())
   userId     String
-  categories String[] // opportunity categories to watch
-  skills     String[] // skills to watch
+  categories String[]
+  skills     String[]
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
 
@@ -571,4 +652,115 @@ model AlertSubscription {
   @@index([userId])
   @@index([isActive])
   @@index([isActive, categories])
+}
+
+// ─── Tier / Level System ────────────────────────────────────────────
+
+model Level {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  tier         Int      @unique
+  description  String
+  requirements Json
+  badgeIcon    String
+  color        String
+  gradient     String
+  badgeShape   String
+  createdAt    DateTime @default(now())
+
+  users        User[]
+  requests     UserLevel[]
+  certificates Certificate[]
+}
+
+model UserLevel {
+  id               String             @id @default(cuid())
+  userId           String
+  levelId          String
+  status           LevelRequestStatus @default(PENDING)
+  proofUrls        String[]
+  videoUrl         String?
+  proofData        Json?
+  notes            String?
+  peerEndorsements Json?
+  reviewerId       String?
+  reviewNote       String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  reviewedAt       DateTime?
+  approvedAt       DateTime?
+
+  user     User   @relation("UserLevelRequests", fields: [userId], references: [id])
+  level    Level  @relation(fields: [levelId], references: [id])
+  reviewer User?  @relation("LevelReviewer", fields: [reviewerId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([levelId])
+}
+
+model PointTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  reason    String
+  reference String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Badge {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  title       String
+  description String
+  imageUrl    String
+  criteria    Json
+  createdAt   DateTime @default(now())
+
+  users UserBadge[]
+}
+
+model UserBadge {
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+}
+
+model Mentorship {
+  id          String           @id @default(cuid())
+  mentorId    String
+  menteeId    String
+  status      MentorshipStatus @default(PENDING)
+  startedAt   DateTime         @default(now())
+  endedAt     DateTime?
+  hoursServed Float            @default(0)
+
+  mentor User @relation("MentorRelation", fields: [mentorId], references: [id])
+  mentee User @relation("MenteeRelation", fields: [menteeId], references: [id])
+
+  @@unique([mentorId, menteeId])
+}
+
+model Certificate {
+  id               String   @id @default(cuid())
+  userId           String
+  levelId          String
+  certificateUrl   String
+  verificationHash String   @unique
+  issuedAt         DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  level Level @relation(fields: [levelId], references: [id])
+
+  @@index([userId])
 }

@@ -5,6 +5,7 @@ import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import { Permissions } from '../../shared/permissions';
 import {
+  approveAttendanceHandler,
   cancelEventHandler,
   checkInHandler,
   checkOutHandler,
@@ -331,4 +332,11 @@ eventsRouter.get(
   requireAuth,
   requirePermission(Permissions.EVENT_MANAGE),
   getAttendanceListHandler
+);
+
+eventsRouter.post(
+  '/:id/attendance/:volunteerId/approve',
+  requireAuth,
+  requirePermission(Permissions.EVENT_MANAGE),
+  approveAttendanceHandler
 );

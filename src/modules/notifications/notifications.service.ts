@@ -1,4 +1,4 @@
-import type { NotificationType } from '@prisma/client';
+import type { NotificationPreferenceType, NotificationType } from '@prisma/client';
 import webpush from 'web-push';
 import { env } from '../../config/env';
 import { logger } from '../../lib/logger';
@@ -37,15 +37,21 @@ export async function unsubscribe(userId: string, endpoint: string) {
   return { ok: true };
 }
 
-// TODO: consult NotificationPreference before sending push in production
-// Currently sends push to all subscribers regardless of user preferences
 export async function sendPushToUser(
   userId: string,
   title: string,
   body: string,
   link?: string,
-  type: NotificationType = 'INFO'
+  type: NotificationType = 'INFO',
+  prefType?: NotificationPreferenceType
 ) {
+  if (prefType) {
+    const pref = await prisma.notificationPreference.findUnique({
+      where: { userId_type: { userId, type: prefType } },
+    });
+    if (pref && !pref.push) return;
+  }
+
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
 
   await prisma.notification.create({ data: { userId, title, body, link, type } });

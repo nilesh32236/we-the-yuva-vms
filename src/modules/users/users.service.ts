@@ -1,4 +1,5 @@
 import type { StaffProfileInput, VolunteerProfileInput } from '@/shared';
+import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -10,7 +11,7 @@ export async function getUserProfile(
   callerRole: string,
   callerOrgId: string | null | undefined
 ) {
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isSelf = id === callerId;
 
   if (isSysAdmin || isSelf) {
@@ -177,6 +178,7 @@ export async function getMe(userId: string) {
       consent: true,
       location: true,
       roleRef: { select: { name: true } },
+      currentLevel: true,
     },
   });
 
@@ -194,9 +196,8 @@ export async function getMe(userId: string) {
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
     volunteerType: user.volunteerType,
-    badges: user.badges,
     points: user.points,
-    level: user.level,
+    currentLevel: user.currentLevel,
     organizationId: user.organizationId,
     profile: user.profile,
     consent: user.consent,

@@ -1,3 +1,4 @@
+import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -94,7 +95,7 @@ export async function updateOrganization(orgId: string, userId: string, data: Up
   }
 
   const isOrgAdmin = user.organizationId === orgId && user.roleRef.name === 'ORGANIZATION_ADMIN';
-  const isSysAdmin = user.roleRef.name === 'ADMIN' || user.roleRef.name === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(user.roleRef.name);
 
   if (!isOrgAdmin && !isSysAdmin) {
     throw new AppError('Not authorized to update this organization', 403);
@@ -215,7 +216,7 @@ export async function addCoordinatorToOrg(
 
   if (!admin) throw new AppError('User not found', 404);
 
-  const isSysAdmin = admin.roleRef.name === 'ADMIN';
+  const isSysAdmin = hasSystemRole(admin.roleRef.name);
   const isOrgAdmin = admin.roleRef.name === 'ORGANIZATION_ADMIN' && admin.organizationId === orgId;
 
   if (!isSysAdmin && !isOrgAdmin) {
@@ -270,7 +271,7 @@ export async function removeCoordinatorFromOrg(
 
   if (!admin) throw new AppError('User not found', 404);
 
-  const isSysAdmin = admin.roleRef.name === 'ADMIN';
+  const isSysAdmin = hasSystemRole(admin.roleRef.name);
   const isOrgAdmin = admin.roleRef.name === 'ORGANIZATION_ADMIN' && admin.organizationId === orgId;
 
   if (!isSysAdmin && !isOrgAdmin) {

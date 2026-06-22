@@ -1,4 +1,6 @@
 import type { OpportunityInput } from '@/shared';
+import { hasSystemRole } from '../../shared/helpers';
+import { onApplicationAccepted } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
@@ -202,7 +204,7 @@ export async function updateOpportunity(
     throw new AppError('Opportunity not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = opportunity.createdById === callerId;
   const isSameOrg =
     opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
@@ -243,7 +245,7 @@ export async function closeOpportunity(
     throw new AppError('Opportunity not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = opportunity.createdById === callerId;
   const isSameOrg =
     opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
@@ -376,7 +378,7 @@ export async function listApplications(
     throw new AppError('Opportunity not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = opportunity.createdById === callerId;
   const isSameOrg =
     opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
@@ -415,11 +417,9 @@ export async function withdrawApplication(applicationId: string, userId: string)
   if (application.volunteerId !== userId) throw new AppError('Forbidden', 403);
   if (application.status !== 'PENDING')
     throw new AppError('Only pending applications can be withdrawn', 400);
-  // TODO: use proper WITHDRAWN status in production
-  // Currently sets status to REJECTED (only option in ApplicationStatus enum)
   const updated = await prisma.application.update({
     where: { id: applicationId },
-    data: { status: 'REJECTED' },
+    data: { status: 'WITHDRAWN' },
   });
   await logAudit({
     userId,
@@ -446,7 +446,7 @@ export async function updateApplicationStatus(
     throw new AppError('Application not found', 404);
   }
 
-  const isSysAdmin = callerRole === 'ADMIN' || callerRole === 'PLATFORM_MANAGER';
+  const isSysAdmin = hasSystemRole(callerRole);
   const isOwner = application.opportunity.createdById === callerId;
   const isSameOrg =
     application.opportunity.organizationId &&
@@ -481,6 +481,14 @@ export async function updateApplicationStatus(
     },
     { isolationLevel: 'Serializable' }
   );
+
+  if (status === 'ACCEPTED') {
+    try {
+      await onApplicationAccepted(application.volunteerId, application.opportunityId);
+    } catch (err) {
+      logger.warn('Failed to award application points/badges', { error: (err as Error).message });
+    }
+  }
 
   // Enqueue notification (non-blocking)
   notificationsQueue

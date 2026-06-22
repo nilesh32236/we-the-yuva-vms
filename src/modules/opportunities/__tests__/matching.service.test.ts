@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     volunteerProfile: { findUnique: vi.fn() },
+    user: { findUnique: vi.fn() },
     opportunity: { findMany: vi.fn() },
     application: { findMany: vi.fn() },
   },
@@ -64,15 +65,43 @@ describe('matching.service', () => {
     expect(result[0].matchScore).toBe(0);
   });
 
-  it('should score opportunities based on skill overlap, interest, and availability', async () => {
+  it('should score opportunities based on skill overlap, interest, location, and availability', async () => {
     vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({
       skills: ['Teaching', 'Math'],
       interests: ['education'],
       availability: { days: ['Monday'] },
     } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      location: { lat: 23.0225, lng: 72.5714, name: 'Ahmedabad', district: 'Ahmedabad', state: 'Gujarat' },
+    } as never);
     vi.mocked(prisma.opportunity.findMany).mockResolvedValue([baseOpp] as never);
     const result = await getRecommendedOpportunities('user-1');
     expect(result[0].matchScore).toBeGreaterThan(0);
+  });
+
+  it('should score location proximity higher for nearby opportunities', async () => {
+    const nearbyOpp = {
+      ...baseOpp,
+      id: 'opp-nearby',
+      location: { lat: 23.03, lng: 72.58, name: 'Ahmedabad', district: 'Ahmedabad', state: 'Gujarat' },
+    };
+    const farOpp = {
+      ...baseOpp,
+      id: 'opp-far',
+      location: { lat: 19.076, lng: 72.877, name: 'Mumbai', district: 'Mumbai', state: 'Maharashtra' },
+    };
+    vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({
+      skills: [],
+      interests: [],
+      availability: { days: [] },
+    } as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      location: { lat: 23.0225, lng: 72.5714, name: 'Ahmedabad', district: 'Ahmedabad', state: 'Gujarat' },
+    } as never);
+    vi.mocked(prisma.opportunity.findMany).mockResolvedValue([nearbyOpp, farOpp] as never);
+    const result = await getRecommendedOpportunities('user-1');
+    expect(result[0].id).toBe('opp-nearby');
+    expect(result[0].matchScore).toBeGreaterThan(result[1].matchScore);
   });
 
   it('should filter out full opportunities', async () => {

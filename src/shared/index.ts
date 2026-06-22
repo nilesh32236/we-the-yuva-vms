@@ -7,4 +7,6 @@ export * from './schemas/opportunity.schemas';
 export * from './schemas/profile.schemas';
 export * from './schemas/stories.schemas';
 export * from './schemas/training.schemas';
+export * from './schemas/youth.schemas';
+export * from './helpers';
 export * from './types/index';

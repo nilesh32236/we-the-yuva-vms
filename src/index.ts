@@ -51,6 +51,11 @@ async function main() {
       {},
       { repeat: { pattern: '0 0 * * *' } }
     );
+    await notificationsQueue?.add(
+      'daily-streak-update',
+      {},
+      { repeat: { pattern: '0 2 * * *' } }
+    );
     logger.info('BullMQ repeatable jobs registered');
   } catch (error) {
     logger.warn('BullMQ/Redis unavailable — repeatable jobs skipped', {

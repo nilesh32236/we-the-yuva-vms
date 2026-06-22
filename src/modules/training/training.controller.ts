@@ -102,9 +102,8 @@ export async function listCoursesHandler(
       ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
       : undefined;
     const pagination = page && limit ? { page, limit } : undefined;
-    // TODO: return consistent pagination envelope even when not paginated (production)
     const courses = await listCourses(req.user!.id, pagination);
-    res.status(200).json(courses);
+    res.status(200).json(pagination ? courses : { data: courses });
   } catch (err) {
     next(err);
   }

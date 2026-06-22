@@ -40,6 +40,29 @@ export const Permissions = {
   ORG_VERIFY: 'org:verify',
 
   COORDINATOR_MANAGE: 'coordinator:manage',
+
+  // Tier / Level System
+  LEVEL_VIEW: 'level:view',
+  LEVEL_REQUEST: 'level:request',
+  LEVEL_REVIEW: 'level:review',
+
+  CERTIFICATE_VIEW: 'certificate:view',
+  CERTIFICATE_DOWNLOAD: 'certificate:download',
+
+  // Mentorship
+  MENTORSHIP_CREATE: 'mentorship:create',
+  MENTORSHIP_MANAGE: 'mentorship:manage',
+
+  // Youth Profiling
+  YOUTH_PROFILE_MANAGE: 'youth:profile:manage',
+  YOUTH_PROFILE_VIEW: 'youth:profile:view',
+
+  // Upload
+  FILE_UPLOAD: 'file:upload',
+
+  // Chat
+  CHAT_READ: 'chat:read',
+  CHAT_SEND: 'chat:send',
 } as const;
 
 export type Permission = (typeof Permissions)[keyof typeof Permissions];

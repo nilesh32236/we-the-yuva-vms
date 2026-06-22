@@ -24,6 +24,13 @@ import { storiesRouter } from './modules/stories/stories.routes';
 import { trainingRouter } from './modules/training/training.routes';
 import { uploadRouter } from './modules/upload/upload.routes';
 import { usersRouter } from './modules/users/users.routes';
+import { levelsRouter } from './modules/levels/levels.routes';
+import { leaderboardRouter } from './modules/leaderboard/leaderboard.routes';
+import { badgesRouter } from './modules/badges/badges.routes';
+import { mentorshipRouter } from './modules/mentorship/mentorship.routes';
+import { certificatesRouter } from './modules/certificates/certificates.routes';
+import { chatRouter } from './modules/chat/chat.routes';
+import { youthProfilesRouter } from './modules/youth-profiles/youth-profiles.routes';
 
 export function createApp(): Express {
   const app = express();
@@ -84,12 +91,10 @@ export function createApp(): Express {
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
   // Global rate limiter
-  // TEMPORARY: relaxed limit for dev testing (300/min)
-  // TODO: reduce to 100/min in production
   app.use(
     rateLimit({
       windowMs: 60 * 1000,
-      max: 300,
+      max: 100,
       standardHeaders: true,
       legacyHeaders: false,
       message: { error: 'Too many requests, please try again later' },
@@ -131,7 +136,20 @@ export function createApp(): Express {
   app.use('/api/v1/feedback', feedbackRouter);
   app.use('/api/v1/alerts', alertsRouter);
 
+  // Tier / Level System
+  app.use('/api/v1/levels', levelsRouter);
+  app.use('/api/v1/leaderboard', leaderboardRouter);
+  app.use('/api/v1/badges', badgesRouter);
+  app.use('/api/v1/certificates', certificatesRouter);
+
+  // Mentorship routes
+  app.use('/api/v1/mentorship', mentorshipRouter);
+
+  app.use('/api/v1/chat', chatRouter);
+
   // Upload routes
+  app.use('/api/v1/youth-profiles', youthProfilesRouter);
+
   app.use('/api/v1/upload', uploadRouter);
 
   // Serve uploaded files

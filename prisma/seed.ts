@@ -26,6 +26,13 @@ async function main() {
         'alert:manage',
         'user:events:view',
         'user:profile:manage',
+        'level:view',
+        'level:request',
+        'certificate:view',
+        'certificate:download',
+        'mentorship:create',
+        'mentorship:manage',
+        'file:upload',
       ],
     },
     {
@@ -47,6 +54,13 @@ async function main() {
         'user:profile:manage',
         'user:volunteers:manage',
         'user:profile:view',
+        'level:view',
+        'level:review',
+        'certificate:view',
+        'certificate:download',
+        'mentorship:create',
+        'mentorship:manage',
+        'file:upload',
       ],
     },
     {
@@ -72,6 +86,13 @@ async function main() {
         'user:profile:manage',
         'user:profile:view',
         'user:volunteers:manage',
+        'level:view',
+        'level:review',
+        'certificate:view',
+        'certificate:download',
+        'mentorship:create',
+        'mentorship:manage',
+        'file:upload',
       ],
     },
     {
@@ -91,6 +112,11 @@ async function main() {
         'story:moderate',
         'story:view:all',
         'feedback:manage',
+        'certificate:view',
+        'certificate:download',
+        'mentorship:create',
+        'mentorship:manage',
+        'file:upload',
       ],
     },
     {
@@ -126,6 +152,13 @@ async function main() {
         'user:profile:manage',
         'user:profile:view',
         'user:volunteers:manage',
+        'level:view',
+        'level:review',
+        'certificate:view',
+        'certificate:download',
+        'mentorship:create',
+        'mentorship:manage',
+        'file:upload',
       ],
     },
     {
@@ -596,6 +629,98 @@ async function main() {
     }),
   ]);
   console.log(`✅ ${apps.length} applications`);
+
+  // ─── Levels / Tiers ─────────────────────────────────────────────
+  const level0 = await prisma.level.upsert({
+    where: { tier: 0 },
+    update: {},
+    create: {
+      name: 'ONBOARDED',
+      tier: 0,
+      description: 'Initial entry into the civic pipeline. Complete orientation to get started.',
+      requirements: { minEvents: 1 },
+      badgeIcon: 'Sprout',
+      color: 'slate',
+      gradient: 'from-slate-500 to-slate-400',
+      badgeShape: 'circle',
+    },
+  });
+  const level1 = await prisma.level.upsert({
+    where: { tier: 1 },
+    update: {},
+    create: {
+      name: 'MOBILIZER',
+      tier: 1,
+      description: 'Builds local engagement and community participation by referring fellow citizens.',
+      requirements: { minReferrals: 5 },
+      badgeIcon: 'Users',
+      color: 'amber',
+      gradient: 'from-amber-600 to-amber-400',
+      badgeShape: 'hexagon',
+    },
+  });
+  const level2 = await prisma.level.upsert({
+    where: { tier: 2 },
+    update: {},
+    create: {
+      name: 'PROBLEM_SOLVER',
+      tier: 2,
+      description: 'Uses formal governance channels to report and resolve localized issues.',
+      requirements: { minGrievances: 1, requiresFollowUp: true },
+      badgeIcon: 'Wrench',
+      color: 'blue',
+      gradient: 'from-blue-600 to-cyan-400',
+      badgeShape: 'shield',
+    },
+  });
+  const level3 = await prisma.level.upsert({
+    where: { tier: 3 },
+    update: {},
+    create: {
+      name: 'LEADERSHIP',
+      tier: 3,
+      description: 'Leads sustainable community solutions and develops other leaders.',
+      requirements: { minIssuesResolved: 1, minMentored: 3 },
+      badgeIcon: 'Crown',
+      color: 'purple',
+      gradient: 'from-purple-600 to-pink-400',
+      badgeShape: 'star',
+    },
+  });
+  const levels = [level0, level1, level2, level3];
+  console.log(`✅ ${levels.length} levels`);
+
+  // Assign volunteers to starting level
+  await Promise.all([
+    prisma.user.update({ where: { email: 'vol1@wetheyuva.org' }, data: { currentLevelId: level1.id, points: 120 } }),
+    prisma.user.update({ where: { email: 'vol2@wetheyuva.org' }, data: { currentLevelId: level0.id, points: 50 } }),
+    prisma.user.update({ where: { email: 'vol3@wetheyuva.org' }, data: { currentLevelId: level2.id, points: 250 } }),
+    prisma.user.update({ where: { email: 'vol4@wetheyuva.org' }, data: { currentLevelId: level0.id, points: 30 } }),
+  ]);
+
+  // ─── Badges ─────────────────────────────────────────────────────
+  const badgeDefinitions = [
+    { name: 'FIRST_STEPS', title: 'First Steps', description: 'Complete registration, profile, and orientation.', imageUrl: '/badges/first-steps.png', criteria: { type: 'ONBOARDING_COMPLETE' } },
+    { name: 'EVENT_SEEKER', title: 'Event Seeker', description: 'Attend 5 events.', imageUrl: '/badges/event-seeker.png', criteria: { type: 'EVENTS_ATTENDED', count: 5 } },
+    { name: 'CENTURY_CLUB', title: 'Century Club', description: 'Log 100 volunteer hours.', imageUrl: '/badges/century-club.png', criteria: { type: 'HOURS_LOGGED', count: 100 } },
+    { name: 'COMMUNITY_BUILDER', title: 'Community Builder', description: 'Refer 10 citizens.', imageUrl: '/badges/community-builder.png', criteria: { type: 'REFERRALS', count: 10 } },
+    { name: 'PROBLEM_SOLVER', title: 'Problem Solver', description: 'Resolve 5 civic grievances.', imageUrl: '/badges/problem-solver.png', criteria: { type: 'GRIEVANCES_RESOLVED', count: 5 } },
+    { name: 'MENTOR', title: 'Mentor', description: 'Mentor 5 volunteers.', imageUrl: '/badges/mentor.png', criteria: { type: 'MENTEES', count: 5 } },
+    { name: 'FAST_RISER', title: 'Fast Riser', description: 'Reach Level 2 within 30 days of joining.', imageUrl: '/badges/fast-riser.png', criteria: { type: 'LEVEL_2_IN_30_DAYS' } },
+    { name: 'STREAK_MASTER', title: 'Streak Master', description: 'Maintain a 30-day streak.', imageUrl: '/badges/streak-master.png', criteria: { type: 'STREAK', count: 30 } },
+    { name: 'STORYTELLER', title: 'Storyteller', description: 'Publish 5 stories.', imageUrl: '/badges/storyteller.png', criteria: { type: 'STORIES_PUBLISHED', count: 5 } },
+    { name: 'NIGHT_OWL', title: 'Night Owl', description: 'Attend 3 evening/weekend events.', imageUrl: '/badges/night-owl.png', criteria: { type: 'EVENTS_AFTER_HOURS', count: 3 } },
+  ];
+  const createdBadges = await Promise.all(
+    badgeDefinitions.map((b) =>
+      prisma.badge.upsert({
+        where: { name: b.name },
+        update: {},
+        create: b,
+      })
+    )
+  );
+  console.log(`✅ ${createdBadges.length} badges`);
 
   console.log('\n🎉 Demo seed complete!\n');
   console.log('Demo accounts (use OTP login — any 6-digit code works in dev):');
