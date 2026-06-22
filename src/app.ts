@@ -35,6 +35,9 @@ import { youthProfilesRouter } from './modules/youth-profiles/youth-profiles.rou
 export function createApp(): Express {
   const app = express();
 
+  // Trust HF Spaces reverse proxy
+  app.set('trust proxy', true);
+
   // Security headers
   const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim());
   const isProd = env.NODE_ENV === 'production';
@@ -47,7 +50,7 @@ export function createApp(): Express {
           scriptSrc: ["'self'", "'unsafe-inline'"], // Needed for Swagger UI inline scripts
           styleSrc: ["'self'", "'unsafe-inline'"], // Needed for Swagger UI inline styles
           imgSrc: ["'self'", 'data:'],
-          connectSrc: ["'self'", ...allowedOrigins],
+          connectSrc: ["'self'", ...allowedOrigins, '*.vercel.app'],
         },
       },
       crossOriginEmbedderPolicy: false,
@@ -58,14 +61,12 @@ export function createApp(): Express {
   app.use(
     cors({
       origin: (origin, callback) => {
+        // Allow requests without Origin (HF Spaces reverse proxy, curl, health checks)
         if (!origin) {
-          if (isProd) {
-            return callback(new Error('CORS: origin header required in production'), false);
-          }
           return callback(null, true);
         }
         if (isProd) {
-          if (allowedOrigins.includes(origin)) {
+          if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             return callback(null, true);
           }
           return callback(new Error(`CORS: origin ${origin} not allowed in production`));
