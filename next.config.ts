@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
     return [
       {
         source: '/(.*)',

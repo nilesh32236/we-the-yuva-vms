@@ -113,7 +113,8 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
                       </div>
                     </div>
                     <a
-                      href={`${process.env.NEXT_PUBLIC_API_URL}${doc.fileUrl}`}
+                        href={`${process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space'}${doc.fileUrl}`}
+
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-2 text-brand-muted hover:text-brand-primary transition-colors"

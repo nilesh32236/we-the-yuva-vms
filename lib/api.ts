@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
+
 export const api = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1`,
+  baseURL: `${API_BASE}/api/v1`,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -67,7 +69,7 @@ api.interceptors.response.use(
         if (!refreshPromise) {
           refreshPromise = axios
             .post(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`,
+              `${API_BASE}/api/v1/auth/refresh`,
               {},
               { withCredentials: true }
             )
