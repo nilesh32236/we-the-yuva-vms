@@ -35,14 +35,14 @@ import { youthProfilesRouter } from './modules/youth-profiles/youth-profiles.rou
 export function createApp(): Express {
   const app = express();
 
+  // Security headers
+  const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim());
+  const isProd = env.NODE_ENV === 'production';
+
   // Trust reverse proxy in production (HF Spaces, single hop)
   if (isProd) {
     app.set('trust proxy', 1);
   }
-
-  // Security headers
-  const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim());
-  const isProd = env.NODE_ENV === 'production';
 
   app.use(
     helmet({
