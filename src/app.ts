@@ -43,15 +43,7 @@ export function createApp(): Express {
 
   app.use(
     helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"], // Needed for Swagger UI inline scripts
-          styleSrc: ["'self'", "'unsafe-inline'"], // Needed for Swagger UI inline styles
-          imgSrc: ["'self'", 'data:'],
-          connectSrc: ["'self'", ...allowedOrigins, '*.vercel.app'],
-        },
-      },
+      contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     })
