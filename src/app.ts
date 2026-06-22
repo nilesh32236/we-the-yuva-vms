@@ -3,7 +3,6 @@ import { setupExpressErrorHandler } from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
-import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
@@ -90,17 +89,6 @@ export function createApp(): Express {
 
   // HTTP request logging
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-
-  // Global rate limiter
-  app.use(
-    rateLimit({
-      windowMs: 60 * 1000,
-      max: 100,
-      standardHeaders: true,
-      legacyHeaders: false,
-      message: { error: 'Too many requests, please try again later' },
-    })
-  );
 
   // Health check — used by Railway
   app.get('/api/v1/health', async (_req, res) => {

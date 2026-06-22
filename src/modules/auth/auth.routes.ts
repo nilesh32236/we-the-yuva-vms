@@ -1,5 +1,4 @@
 import { type IRouter, Router } from 'express';
-import rateLimit from 'express-rate-limit';
 import { ConsentSchema, RegisterSchema, SendOtpSchema, VerifyOtpSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -13,15 +12,6 @@ import {
 } from './auth.controller';
 
 export const authRouter: IRouter = Router();
-
-// TODO: raise/increase rate limits in production as needed
-// Dev mode: permissive limits for testing
-const sendOtpLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
 
 // Public routes
 /**
@@ -64,7 +54,7 @@ authRouter.post('/register', validate(RegisterSchema), register);
  *       200:
  *         description: OTP sent
  */
-authRouter.post('/send-otp', sendOtpLimiter, validate(SendOtpSchema), sendOtp);
+authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
 
 /**
  * @openapi
@@ -85,14 +75,7 @@ authRouter.post('/send-otp', sendOtpLimiter, validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
-// TEMPORARY: permissive limit for dev testing until SMTP is configured
-const verifyOtpLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 20,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-authRouter.post('/verify-otp', verifyOtpLimiter, validate(VerifyOtpSchema), verifyOtpHandler);
+authRouter.post('/verify-otp', validate(VerifyOtpSchema), verifyOtpHandler);
 
 /**
  * @openapi

@@ -1,5 +1,4 @@
 import { type IRouter, Router } from 'express';
-import rateLimit from 'express-rate-limit';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { Permissions } from '../../shared/permissions';
@@ -7,14 +6,6 @@ import { uploadFileHandler } from './upload.controller';
 import { upload } from './upload.service';
 
 export const uploadRouter: IRouter = Router();
-
-const uploadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-uploadRouter.use(uploadLimiter);
 
 /**
  * @openapi
