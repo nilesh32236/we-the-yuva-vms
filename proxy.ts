@@ -17,6 +17,8 @@ const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
 const ROLE_ROUTES: Record<string, string> = {
   VOLUNTEER: '/volunteer',
   COORDINATOR: '/coordinator',
+  ORGANIZATION_ADMIN: '/organization',
+  PLATFORM_MANAGER: '/admin',
   ADMIN: '/admin',
   OBSERVER: '/observer',
 };

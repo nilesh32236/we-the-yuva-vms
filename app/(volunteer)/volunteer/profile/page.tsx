@@ -19,6 +19,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
 import { Button } from '../../../../components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
+import { LevelBadge } from '../../../../components/levels/LevelBadge';
+import { StreakBadge } from '../../../../components/levels/StreakBadge';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
 import { haptic } from '@/lib/haptic';
@@ -41,6 +43,12 @@ export default function VolunteerProfilePage() {
   const { data: user, isLoading } = useQuery({
     queryKey: ['me'],
     queryFn: () => api.get('/users/me').then((r) => r.data),
+    staleTime: 60_000,
+  });
+
+  const { data: levelData } = useQuery<{ data: { tier: number; points: number; streak: number } }>({
+    queryKey: ['my-level'],
+    queryFn: () => api.get('/users/me/level').then((r) => r.data),
     staleTime: 60_000,
   });
 
@@ -395,6 +403,43 @@ export default function VolunteerProfilePage() {
           </div>
         ))}
       </div>
+
+      {/* Current Level */}
+      {levelData?.data && !editing && (
+        <Link
+          href="/volunteer/levels"
+          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/30 transition-all duration-200 group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <LevelBadge
+                tier={levelData.data.tier}
+                name={['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ?? 'Sprout'}
+                badgeIcon={['Sprout', 'Users', 'Wrench', 'Crown'][levelData.data.tier - 1] ?? 'Sprout'}
+                color={['from-green-400 to-emerald-600', 'from-blue-400 to-indigo-600', 'from-purple-400 to-violet-600', 'from-amber-400 to-orange-600'][levelData.data.tier - 1] ?? 'from-green-400 to-emerald-600'}
+                badgeShape={['circle', 'hexagon', 'shield', 'star'][levelData.data.tier - 1] as 'circle' | 'hexagon' | 'shield' | 'star'}
+                size="md"
+              />
+              <div>
+                <p className="text-xs text-brand-muted">Current Level</p>
+                <p className="font-heading font-semibold text-brand-text">
+                  {['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ?? 'Sprout'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-xs text-brand-muted">Points</p>
+                <p className="font-heading font-bold text-brand-text">{levelData.data.points}</p>
+              </div>
+              <StreakBadge streak={levelData.data.streak} size="md" />
+              <span className="text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all">
+                &rarr;
+              </span>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* Edit mode: all edit fields */}
       {editing ? (

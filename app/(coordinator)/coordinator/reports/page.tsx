@@ -1,3 +1,5 @@
+// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
+// See /issues/PHASE2_SCOPE.md
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -29,22 +31,22 @@ export default function CoordinatorReportsPage() {
             label="Active Volunteers"
             value={stats?.activeVolunteers ?? 0}
             icon={Users}
-            accent="text-emerald-600"
-            accentBg="bg-emerald-50"
+            accent="text-emerald-600 dark:text-emerald-400"
+            accentBg="bg-emerald-50 dark:bg-emerald-950/30"
           />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}
             icon={CalendarDays}
-            accent="text-cyan-600"
-            accentBg="bg-cyan-50"
+            accent="text-cyan-600 dark:text-cyan-400"
+            accentBg="bg-cyan-50 dark:bg-cyan-950/30"
           />
           <StatsCard
             label="Active Opportunities"
             value={stats?.activeOpportunities ?? 0}
             icon={Activity}
-            accent="text-purple-600"
-            accentBg="bg-purple-50"
+            accent="text-purple-600 dark:text-purple-400"
+            accentBg="bg-purple-50 dark:bg-purple-950/30"
           />
         </div>
       )}

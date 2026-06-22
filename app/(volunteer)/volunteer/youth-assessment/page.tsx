@@ -1,0 +1,206 @@
+'use client';
+
+import { ArrowRight, Check, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ASPIRATIONS } from '@/lib/shared';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
+
+const ALL_SKILLS = [
+  'Teaching', 'Mentoring', 'Event Planning', 'Fundraising',
+  'Social Media', 'Photography', 'Writing', 'Design',
+  'Data Entry', 'Translation', 'Cooking', 'Gardening',
+  'First Aid', 'Counselling', 'Coaching', 'Advocacy',
+  'Research', 'Accounting', 'Legal', 'Healthcare',
+];
+
+const ALL_INTERESTS = [
+  'Education', 'Health', 'Environment', 'Community',
+  'Arts & Culture', 'Sports', 'Technology', 'Animal Welfare',
+  'Disaster Relief', 'Youth Development', 'Senior Care',
+  'Women Empowerment', 'Livelihood', 'Rural Development',
+];
+
+function PillSelector({
+  label,
+  options,
+  selected,
+  onToggle,
+  max,
+}: {
+  label: string;
+  options: readonly string[];
+  selected: string[];
+  onToggle: (value: string) => void;
+  max: number;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-brand-muted">{label} (select up to {max})</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => {
+          const isSelected = selected.includes(opt);
+          const atLimit = selected.length >= max && !isSelected;
+          return (
+            <button
+              key={opt}
+              type="button"
+              disabled={atLimit}
+              onClick={() => onToggle(opt)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                ${isSelected
+                  ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
+                  : atLimit
+                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed border-2 border-transparent'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
+                }`}
+            >
+              {isSelected && <Check className="w-3.5 h-3.5" />}
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default function YouthAssessmentPage() {
+  const router = useRouter();
+  const { user, refetch } = useAuth();
+  const { toast } = useToast();
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const [aspirations, setAspirations] = useState<string[]>([]);
+  const [learningGoals, setLearningGoals] = useState('');
+  const [skills, setSkills] = useState<string[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
+
+  const toggleAspiration = (v: string) =>
+    setAspirations((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p));
+
+  const toggleSkill = (v: string) =>
+    setSkills((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p));
+
+  const toggleInterest = (v: string) =>
+    setInterests((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p));
+
+  const steps = [
+    {
+      title: 'What do you want to learn?',
+      subtitle: 'Select the skills and areas you hope to develop through volunteering',
+      content: (
+        <div className="space-y-6">
+          <PillSelector label="Aspirations" options={ASPIRATIONS} selected={aspirations} onToggle={toggleAspiration} max={5} />
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-brand-muted">Learning goals (optional)</p>
+            <textarea
+              value={learningGoals}
+              onChange={(e) => setLearningGoals(e.target.value)}
+              placeholder="What do you hope to gain from your volunteering journey?"
+              rows={3}
+              maxLength={500}
+              className="w-full rounded-xl border border-brand-border bg-white px-4 py-3 text-sm
+                placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
+            />
+            <p className="text-xs text-gray-400 text-right">{learningGoals.length}/500</p>
+          </div>
+        </div>
+      ),
+      canProceed: aspirations.length > 0,
+    },
+    {
+      title: 'What skills can you bring?',
+      subtitle: 'Select the skills you already have',
+      content: (
+        <PillSelector label="Skills" options={ALL_SKILLS} selected={skills} onToggle={toggleSkill} max={10} />
+      ),
+      canProceed: skills.length > 0,
+    },
+    {
+      title: 'What are you passionate about?',
+      subtitle: 'Select the causes that matter most to you',
+      content: (
+        <PillSelector label="Interests" options={ALL_INTERESTS} selected={interests} onToggle={toggleInterest} max={10} />
+      ),
+      canProceed: interests.length > 0,
+    },
+  ];
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await api.post('/youth-profiles/me/initial', { aspirations, learningGoals: learningGoals || undefined, skills, interests });
+      await refetch();
+      toast({ title: 'Assessment saved!' });
+      const roleRoutes: Record<string, string> = {
+        VOLUNTEER: '/volunteer/dashboard',
+        COORDINATOR: '/coordinator/dashboard',
+        ADMIN: '/admin/dashboard',
+        PLATFORM_MANAGER: '/admin/dashboard',
+        OBSERVER: '/observer/dashboard',
+        ORGANIZATION_ADMIN: '/organization/dashboard',
+      };
+      router.push(roleRoutes[user?.role ?? ''] ?? '/login');
+    } catch {
+      toast({ title: 'Failed to save assessment', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const current = steps[step];
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="w-full max-w-xl space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-bg mb-2">
+            <Sparkles className="w-6 h-6 text-brand" />
+          </div>
+          <h1 className="font-heading font-bold text-2xl text-brand-text">{current.title}</h1>
+          <p className="text-brand-muted text-sm">{current.subtitle}</p>
+          {/* Step indicator */}
+          <div className="flex justify-center gap-1.5 pt-2">
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-8 bg-brand' : i < step ? 'w-4 bg-brand/40' : 'w-4 bg-gray-200'}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        {current.content}
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-2">
+          {step > 0 && (
+            <Button variant="outline" onClick={() => setStep((s) => s - 1)} className="flex-1">
+              Back
+            </Button>
+          )}
+          {step < steps.length - 1 ? (
+            <Button
+              onClick={() => setStep((s) => s + 1)}
+              disabled={!current.canProceed}
+              className="flex-1"
+            >
+              Next <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          ) : (
+            <Button onClick={handleSubmit} loading={loading} disabled={!current.canProceed} className="flex-1">
+              Complete Assessment <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

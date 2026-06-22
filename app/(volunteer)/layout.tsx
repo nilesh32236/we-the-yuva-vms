@@ -10,6 +10,11 @@ const navItems: NavItem[] = [
   { label: 'My Events', href: '/volunteer/events', icon: 'Calendar' },
   { label: 'Training', href: '/volunteer/training', icon: 'BookOpen' },
   { label: 'Stories', href: '/volunteer/stories', icon: 'BookOpen' },
+  { label: 'Levels', href: '/volunteer/levels', icon: 'TrendingUp' },
+  { label: 'Leaderboard', href: '/volunteer/leaderboard', icon: 'Trophy' },
+  { label: 'Badges', href: '/volunteer/badges', icon: 'Medal' },
+  { label: 'Certificates', href: '/volunteer/certificates', icon: 'Scroll' },
+  { label: 'Mentorship', href: '/volunteer/mentorship', icon: 'Handshake' },
   { label: 'Impact', href: '/volunteer/impact', icon: 'TrendingUp' },
 ];
 

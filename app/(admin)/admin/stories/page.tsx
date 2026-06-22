@@ -48,7 +48,7 @@ export default function AdminStoriesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-border p-12 text-center">
           <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" />
           <p className="font-medium text-brand-text">No stories submitted yet</p>
         </div>
@@ -65,7 +65,7 @@ export default function AdminStoriesPage() {
             }) => (
               <div
                 key={story.id}
-                className="bg-white rounded-2xl border border-brand-border p-5 space-y-3"
+                className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-border p-5 space-y-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -76,7 +76,7 @@ export default function AdminStoriesPage() {
                     </p>
                   </div>
                   <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'}`}
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'}`}
                   >
                     {story.published ? 'Published' : 'Pending'}
                   </span>
@@ -102,13 +102,13 @@ export default function AdminStoriesPage() {
                   <button
                     type="button"
                     onClick={() => setConfirmDelete(story.id)}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
                   >
                     Delete
                   </button>
                   {confirmDelete === story.id && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                      <div className="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-4 shadow-xl">
                         <h3 className="font-semibold text-lg mb-2">Confirm</h3>
                         <p className="text-sm text-gray-600 mb-4">Delete this story?</p>
                         <div className="flex justify-end gap-2">
@@ -125,7 +125,7 @@ export default function AdminStoriesPage() {
                               deleteMut.mutate(story.id);
                               setConfirmDelete(null);
                             }}
-                            className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white"
+                            className="px-4 py-2 text-sm rounded-lg bg-red-600 dark:bg-red-700 text-white"
                           >
                             Confirm
                           </button>

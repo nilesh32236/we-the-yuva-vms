@@ -1,10 +1,11 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Activity, Calendar, Clock } from 'lucide-react';
+import { Activity, Calendar, Clock, Star } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { LevelProgressCard } from '../../../../components/levels/LevelProgressCard';
 import { PWAInstallBanner } from '../../../../components/shared/PWAInstallBanner';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
@@ -25,6 +26,9 @@ export default function VolunteerDashboardPage() {
     <div className="space-y-6 max-w-5xl">
       {/* PWA Install Banner */}
       <PWAInstallBanner />
+
+      {/* Level Progress */}
+      <LevelProgressCard />
 
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 p-6 md:p-8">
@@ -58,13 +62,13 @@ export default function VolunteerDashboardPage() {
 
       {/* Stats */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             label="Total Hours"
             value={`${stats?.totalHours ?? 0}h`}
@@ -85,6 +89,13 @@ export default function VolunteerDashboardPage() {
             icon={Activity}
             accent="text-brand-primary"
             accentBg="bg-brand-primary/10"
+          />
+          <StatsCard
+            label="Avg Rating"
+            value={stats?.avgRating != null ? `${stats.avgRating.toFixed(1)} ★` : '—'}
+            icon={Star}
+            accent="text-amber-500"
+            accentBg="bg-amber-50 dark:bg-amber-900/20"
           />
         </div>
       )}

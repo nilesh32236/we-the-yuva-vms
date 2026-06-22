@@ -1,3 +1,5 @@
+// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
+// See /issues/PHASE2_SCOPE.md
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -27,13 +29,13 @@ export default function ObserverProfilePage() {
   return (
     <div className="max-w-2xl space-y-5">
       <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-slate-500 to-slate-400" />
+        <div className="h-24 bg-gradient-to-r from-slate-500 to-slate-400 dark:from-slate-700 dark:to-slate-600" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-slate-600 border-4 border-white flex items-center justify-center shadow-md">
+            <div className="w-20 h-20 rounded-2xl bg-slate-600 dark:bg-slate-500 border-4 border-white dark:border-slate-800 flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full">
+            <div className="flex items-center gap-1.5 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-full">
               <Eye className="w-3 h-3" /> Observer
             </div>
           </div>
@@ -62,7 +64,7 @@ export default function ObserverProfilePage() {
             key={label}
             className="bg-white rounded-xl border border-brand-border p-4 text-center"
           >
-            <Icon className="w-4 h-4 text-slate-600 mx-auto mb-1.5" />
+            <Icon className="w-4 h-4 text-slate-600 dark:text-slate-400 mx-auto mb-1.5" />
             <p className="font-heading font-bold text-base text-brand-text truncate">{value}</p>
             <p className="text-xs text-brand-muted">{label}</p>
           </div>

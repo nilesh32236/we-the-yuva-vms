@@ -1,3 +1,5 @@
+// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
+// See /issues/PHASE2_SCOPE.md
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -6,14 +8,14 @@ import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
 
 const _CATEGORY_COLORS: Record<string, string> = {
-  EDUCATION: 'bg-blue-100 text-blue-700',
-  ENVIRONMENT: 'bg-green-100 text-green-700',
-  HEALTH: 'bg-red-100 text-red-700',
-  TECHNOLOGY: 'bg-cyan-100 text-cyan-700',
-  COMMUNITY: 'bg-purple-100 text-purple-700',
-  ARTS: 'bg-pink-100 text-pink-700',
-  SPORTS: 'bg-orange-100 text-orange-700',
-  OTHER: 'bg-gray-100 text-gray-700',
+  EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+  ENVIRONMENT: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+  HEALTH: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+  TECHNOLOGY: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300',
+  COMMUNITY: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+  ARTS: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
+  SPORTS: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+  OTHER: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300',
 };
 
 export default function ObserverStoriesPage() {

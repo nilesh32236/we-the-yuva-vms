@@ -11,6 +11,7 @@ const navItems: NavItem[] = [
   { label: 'Opportunities', href: '/admin/opportunities', icon: 'Briefcase' },
   { label: 'Events', href: '/admin/events', icon: 'Calendar' },
   { label: 'Stories', href: '/admin/stories', icon: 'BookOpen' },
+  { label: 'Level Requests', href: '/admin/level-requests', icon: 'TrendingUp' },
   { label: 'Reports', href: '/admin/reports', icon: 'BarChart' },
   { label: 'Settings', href: '/admin/settings', icon: 'Settings' },
 ];

@@ -19,6 +19,9 @@ interface AttendanceRecord {
   checkInLng?: number;
   checkOutLat?: number;
   checkOutLng?: number;
+  approvedHours: number | null;
+  rating: number | null;
+  approvedAt: string | null;
   volunteer: {
     name: string;
     email?: string;
@@ -38,8 +41,9 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
 
   const { data: attendance, isLoading } = useQuery({
     queryKey: ['attendance', id],
-    queryFn: () => api.get(`/events/${id}/attendance`).then((r) => r.data),
-    refetchInterval: 30_000, // auto-refresh every 30s to see new check-ins
+    queryFn: () =>
+      api.get(`/events/${id}/attendance`, { params: { listAll: 'true' } }).then((r) => r.data),
+    refetchInterval: 30_000,
   });
 
   const saveMutation = useMutation({
@@ -47,7 +51,10 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       api.post(`/events/${id}/attendance`, { attendances }),
     onMutate: async (newAttendances) => {
       await qc.cancelQueries({ queryKey: ['attendance', id] });
-      const prev = qc.getQueryData(['attendance', id]) as { data?: AttendanceRecord[] } | AttendanceRecord[] | undefined;
+      const prev = qc.getQueryData(['attendance', id]) as
+        | { data?: AttendanceRecord[] }
+        | AttendanceRecord[]
+        | undefined;
 
       if (prev) {
         const prevRecords: AttendanceRecord[] = Array.isArray(prev) ? prev : (prev.data ?? []);
@@ -82,9 +89,37 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
     },
   });
 
+  const approveMutation = useMutation({
+    mutationFn: ({
+      volunteerId,
+      approvedHours,
+      rating,
+    }: {
+      volunteerId: string;
+      approvedHours: number;
+      rating: number;
+    }) => api.post(`/events/${id}/attendance/${volunteerId}/approve`, { approvedHours, rating }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['attendance', id] });
+      toast({ title: 'Hours approved!' });
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Approval failed',
+        variant: 'destructive',
+      });
+    },
+  });
+
   const handleSave = async (attendances: { volunteerId: string; attended: boolean }[]) => {
     haptic.medium();
     await saveMutation.mutateAsync(attendances);
+  };
+
+  const handleApprove = async (volunteerId: string, approvedHours: number, rating: number) => {
+    haptic.medium();
+    await approveMutation.mutateAsync({ volunteerId, approvedHours, rating });
   };
 
   const records: AttendanceRecord[] = attendance?.data ?? attendance ?? [];
@@ -93,6 +128,11 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
     name: a.volunteer.name,
     email: a.volunteer.email ?? '',
     attended: a.attended,
+    checkedInAt: a.checkedInAt,
+    checkedOutAt: a.checkedOutAt,
+    approvedHours: a.approvedHours,
+    rating: a.rating,
+    approvedAt: a.approvedAt,
   }));
 
   const checkedInCount = records.filter((a: AttendanceRecord) => a.checkedInAt).length;
@@ -221,19 +261,23 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
         </div>
       )}
 
-      {/* Manual attendance override */}
+      {/* Attendance & Hours Approval */}
       <div className="bg-white rounded-2xl border border-brand-border p-6">
         <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
-          Manual Attendance Override
+          Attendance & Hours Approval
         </h2>
         {isLoading ? (
           <SkeletonCard />
         ) : volunteers.length === 0 ? (
           <p className="text-center text-brand-muted py-8">
-            No accepted volunteers for this event yet.
+            No volunteers for this event yet.
           </p>
         ) : (
-          <AttendanceChecklist volunteers={volunteers} onSave={handleSave} />
+          <AttendanceChecklist
+            volunteers={volunteers}
+            onSave={handleSave}
+            onApprove={handleApprove}
+          />
         )}
       </div>
     </div>

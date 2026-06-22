@@ -5,9 +5,9 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'bg-blue-100 text-blue-700',
-  COMPLETED: 'bg-emerald-100 text-emerald-700',
-  CANCELLED: 'bg-red-100 text-red-700',
+  SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+  COMPLETED: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
 };
 
 export default function OrgAdminEventsPage() {
@@ -31,7 +31,7 @@ export default function OrgAdminEventsPage() {
         <div className="text-center py-12 text-brand-muted text-sm">No events found</div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="bg-white rounded-2xl border border-brand-border">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">

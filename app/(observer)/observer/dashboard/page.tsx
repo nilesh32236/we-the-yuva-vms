@@ -1,3 +1,5 @@
+// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
+// See /issues/PHASE2_SCOPE.md
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -62,22 +64,22 @@ export default function ObserverDashboardPage() {
             label="Total Volunteers"
             value={stats?.totalVolunteers ?? 0}
             icon={Users}
-            accent="text-slate-600"
-            accentBg="bg-slate-50"
+            accent="text-slate-600 dark:text-slate-400"
+            accentBg="bg-slate-50 dark:bg-slate-900/50"
           />
           <StatsCard
             label="Hours Served"
             value={`${stats?.hoursServed ?? 0}h`}
             icon={Clock}
-            accent="text-gray-600"
-            accentBg="bg-gray-50"
+            accent="text-gray-600 dark:text-gray-400"
+            accentBg="bg-gray-50 dark:bg-gray-900/50"
           />
           <StatsCard
             label="Active Events"
             value={stats?.activeEvents ?? 0}
             icon={Activity}
-            accent="text-zinc-600"
-            accentBg="bg-zinc-50"
+            accent="text-zinc-600 dark:text-zinc-400"
+            accentBg="bg-zinc-50 dark:bg-zinc-900/50"
           />
         </div>
       )}

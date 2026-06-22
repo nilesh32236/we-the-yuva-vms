@@ -403,8 +403,11 @@ export default function SetupProfilePage() {
 
   const handleComplete = async () => {
     await refetch();
+    if (user?.role === 'VOLUNTEER') {
+      router.push('/volunteer/youth-assessment');
+      return;
+    }
     const roleRoutes: Record<string, string> = {
-      VOLUNTEER: '/volunteer/dashboard',
       COORDINATOR: '/coordinator/dashboard',
       ADMIN: '/admin/dashboard',
       PLATFORM_MANAGER: '/admin/dashboard',
