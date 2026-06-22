@@ -35,8 +35,8 @@ import { youthProfilesRouter } from './modules/youth-profiles/youth-profiles.rou
 export function createApp(): Express {
   const app = express();
 
-  // Trust HF Spaces reverse proxy
-  app.set('trust proxy', true);
+  // Trust HF Spaces reverse proxy (single hop)
+  app.set('trust proxy', 1);
 
   // Security headers
   const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim());
