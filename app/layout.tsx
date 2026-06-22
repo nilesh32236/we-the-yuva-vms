@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Open_Sans, Poppins } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import 'nprogress/nprogress.css';
 import './globals.css';
 import { Providers } from './providers';
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${poppins.variable} ${openSans.variable}`} suppressHydrationWarning>
       <body className="bg-brand-bg text-brand-text font-body antialiased">
         <Providers>{children}</Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
