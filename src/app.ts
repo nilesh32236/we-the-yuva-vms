@@ -53,6 +53,7 @@ export function createApp(): Express {
         },
       },
       crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     })
   );
 
@@ -68,17 +69,16 @@ export function createApp(): Express {
           if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             return callback(null, true);
           }
-          return callback(new Error(`CORS: origin ${origin} not allowed in production`));
+          return callback(null, false);
         }
         // Dev / Test mode allows Vercel previews and local origins
         if (origin.endsWith('.vercel.app') || allowedOrigins.includes(origin)) {
           return callback(null, true);
         }
-        callback(new Error(`CORS: origin ${origin} not allowed`));
+        callback(null, false);
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
     })
   );
 
