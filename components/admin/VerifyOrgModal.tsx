@@ -113,7 +113,7 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
                       </div>
                     </div>
                     <a
-                        href={`${process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space'}${doc.fileUrl}`}
+                        href={doc.fileUrl}
 
                       target="_blank"
                       rel="noopener noreferrer"

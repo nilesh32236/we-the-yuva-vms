@@ -7,19 +7,16 @@ const withSerwist = withSerwistInit({
   disable: process.env.NODE_ENV === 'development',
 });
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
+
 const getApiRemotePattern = () => {
   const defaultPattern = {
     protocol: 'http' as const,
     hostname: 'localhost',
   };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) {
-    return defaultPattern;
-  }
-
   try {
-    const parsed = new URL(apiUrl);
+    const parsed = new URL(API_URL);
     const protocol = parsed.protocol.replace(':', '') as 'http' | 'https';
     return {
       protocol,
@@ -52,8 +49,15 @@ const nextConfig: NextConfig = {
       getApiRemotePattern(),
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${API_URL}/api/v1/:path*`,
+      },
+    ];
+  },
   async headers() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
     return [
       {
         source: '/(.*)',
@@ -68,11 +72,11 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self' ${apiUrl}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
           },
           {
             key: 'Content-Security-Policy-Report-Only',
-            value: `default-src 'self'; script-src 'self' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self' ${apiUrl}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
+            value: `default-src 'self'; script-src 'self' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
           },
         ],
       },
