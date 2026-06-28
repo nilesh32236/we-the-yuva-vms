@@ -95,13 +95,10 @@ export async function getRecommendedOpportunities(volunteerId: string) {
         (i) => i.toLowerCase() === o.category.toLowerCase()
       ) ? 1 : 0;
 
-      const availDays: string[] = (profile.availability as { days?: string[] })?.days ?? [];
-      const availabilityMatch = availDays.length > 0 ? 1 : 0;
-
       const locationScore = computeLocationScore(volunteerLocation, o.location);
 
       const score = Math.round(
-        skillOverlap * 40 + interestMatch * 20 + locationScore + availabilityMatch * 15
+        skillOverlap * 40 + interestMatch * 20 + locationScore
       );
 
       return { ...o, matchScore: score };
@@ -119,7 +116,7 @@ export async function getRecommendedOpportunities(volunteerId: string) {
       userApplication: appMap.has(o.id) ? { status: appMap.get(o.id)!.status } : null,
     }));
   } catch (error) {
-    logger.error('Failed to get recommendations', { err: error, stack: (error as Error).stack });
-    return [];
+    logger.error('Matching failed', { error });
+    throw error;
   }
 }

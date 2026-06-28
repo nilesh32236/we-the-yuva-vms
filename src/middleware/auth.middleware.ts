@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import * as Sentry from '@sentry/node';
 import { env } from '../config/env';
 import { logger } from '../lib/logger';
 
@@ -47,15 +48,18 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
       logger.warn('Auth failed: token expired', { err });
+      Sentry.captureException(err);
       res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
       return;
     }
     if (err instanceof jwt.JsonWebTokenError) {
       logger.warn('Auth failed: invalid token', { err });
+      Sentry.captureException(err);
       res.status(401).json({ error: 'Invalid token', code: 'INVALID_TOKEN' });
       return;
     }
     logger.warn('Auth failed: unauthorized', { err });
+    Sentry.captureException(err);
     res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
   }
 }

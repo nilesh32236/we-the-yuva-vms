@@ -1,3 +1,4 @@
+import 'express-async-errors';
 import path from 'node:path';
 import { setupExpressErrorHandler } from '@sentry/node';
 import cookieParser from 'cookie-parser';
@@ -7,6 +8,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import { env } from './config/env';
+import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
 import { swaggerSpec } from './lib/swagger';
 import { errorMiddleware } from './middleware/error.middleware';
@@ -92,7 +94,8 @@ export function createApp(): Express {
         environment: env.NODE_ENV,
         database: 'connected',
       });
-    } catch {
+    } catch (error) {
+      logger.error('Health check failed', { error });
       res.status(503).json({
         status: 'error',
         timestamp: new Date().toISOString(),
@@ -144,6 +147,11 @@ export function createApp(): Express {
   app.get('/api/v1/vapid-public-key', (_req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
     res.json({ publicKey: env.VAPID_PUBLIC_KEY });
+  });
+
+  // 404 catch-all for unknown API routes
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'Route not found' });
   });
 
   // Sentry error handler (must be before our handler)

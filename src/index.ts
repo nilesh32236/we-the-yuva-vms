@@ -3,6 +3,7 @@ import { env } from './config/env';
 import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
 import { notificationsQueue } from './lib/queue';
+import * as Sentry from '@sentry/node';
 import { initSentry } from './lib/sentry';
 import { seedCoursesIfEmpty } from './modules/training/training.service';
 import { notificationWorker } from './workers/notification.worker';
@@ -77,6 +78,7 @@ async function main() {
       clearTimeout(forceExit);
       await notificationWorker?.close();
       await prisma.$disconnect();
+      await Sentry.flush(2000);
       logger.info('Server closed');
       process.exit(0);
     });
@@ -87,10 +89,16 @@ async function main() {
 
   process.on('unhandledRejection', (reason, promise) => {
     logger.error('UNHANDLED REJECTION', { err: reason, promise });
+    Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)));
+    // Let process exit naturally rather than hang
+    promise.catch(() => {});
+    process.exit(1);
   });
 
-  process.on('uncaughtException', (error) => {
-    logger.error('Uncaught Exception', { error: error.message });
+  process.on('uncaughtException', async (error) => {
+    logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
+    Sentry.captureException(error);
+    await Sentry.flush(2000);
     process.exit(1);
   });
 }

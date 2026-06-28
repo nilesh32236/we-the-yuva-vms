@@ -14,7 +14,8 @@ export async function listPublishedStoriesHandler(req: Request, res: Response, n
   try {
     const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
-    const result = await service.getPublishedStories(page, limit);
+    const userId = req.query.userId as string | undefined;
+    const result = await service.getPublishedStories(page, limit, userId);
     res.status(200).json(result);
   } catch (err) {
     next(err);

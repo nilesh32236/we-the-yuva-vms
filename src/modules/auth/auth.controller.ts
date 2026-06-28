@@ -17,11 +17,17 @@ import {
 const isProd = process.env.NODE_ENV === 'production';
 
 const ACCESS_COOKIE_OPTIONS = {
-  httpOnly: false, // Must be readable by Next.js Edge middleware
+  httpOnly: true,
   secure: isProd,
   sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  maxAge: 15 * 60 * 1000, // 15 minutes
   path: '/',
+};
+
+const CLEAR_COOKIE_OPTIONS = {
+  path: '/',
+  secure: isProd,
+  sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
 };
 
 const REFRESH_COOKIE_OPTIONS = {
@@ -75,14 +81,20 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
 
-    // Check user exists
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (!user) {
-      return next(new AppError('User not found. Please check your email or create a new account.', 404));
+      // Don't reveal whether email exists
+      res.status(200).json({ message: 'Verification code sent to your email.', devOtp: null });
+      return;
+    }
+
+    if (user.status === 'SUSPENDED' || user.status === 'INACTIVE') {
+      throw new AppError('Account is suspended or inactive', 403);
     }
 
     const otp = await generateAndStoreOtp(email);
     await enqueueOtpEmail(email, otp);
+    await logAudit({ userId: user.id, action: 'OTP_SENT' });
 
     // TEMPORARY: return OTP for testing until SMTP is configured
     res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
@@ -97,10 +109,19 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
 
     await verifyOtp(email, otp);
 
+    const currentUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: { status: true },
+    });
+    if (!currentUser) throw new AppError('User not found', 404);
+    if (currentUser.status === 'SUSPENDED' || currentUser.status === 'INACTIVE') {
+      throw new AppError('Account is suspended or inactive', 403);
+    }
+
     // Activate user on first verification
     const user = await prisma.user.update({
       where: { email: email.toLowerCase() },
-      data: { status: 'ACTIVE' },
+      data: { ...(currentUser.status === 'PENDING' && { status: 'ACTIVE' }) },
       select: {
         id: true,
         name: true,
@@ -144,6 +165,8 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         volunteerType: user.volunteerType,
       },
     });
+
+    await logAudit({ userId: user.id, action: 'OTP_VERIFIED' });
   } catch (err) {
     next(err);
   }
@@ -165,23 +188,15 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
     res.status(200).json({ accessToken });
   } catch (err) {
     // Clear cookies on failure
-    res.clearCookie('access_token', {
-      path: '/',
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'strict',
-    });
-    res.clearCookie('refresh_token', {
-      path: '/',
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'strict',
-    });
+    res.clearCookie('access_token', CLEAR_COOKIE_OPTIONS);
+    res.clearCookie('refresh_token', CLEAR_COOKIE_OPTIONS);
     next(err);
   }
 }
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
-    const refreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
+    const refreshToken = req.cookies?.refresh_token;
     if (refreshToken) {
       const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
       const record = await prisma.refreshToken.findUnique({ where: { tokenHash } });
@@ -191,16 +206,8 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
       await revokeRefreshToken(refreshToken);
     }
 
-    res.clearCookie('access_token', {
-      path: '/',
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'strict',
-    });
-    res.clearCookie('refresh_token', {
-      path: '/',
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'strict',
-    });
+    res.clearCookie('access_token', CLEAR_COOKIE_OPTIONS);
+    res.clearCookie('refresh_token', CLEAR_COOKIE_OPTIONS);
 
     res.status(204).send();
   } catch (err) {

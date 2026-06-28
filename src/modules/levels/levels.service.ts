@@ -2,6 +2,7 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { generateCertificate } from '../certificates/certificates.service';
+import { checkAndAwardBadges } from '../badges/badge-engine.service';
 
 export async function listLevels() {
   return prisma.level.findMany({ orderBy: { tier: 'asc' } });
@@ -144,6 +145,11 @@ export async function createLevelRequest(
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', { err, userId, levelId: level.id });
     }
+    try {
+      await checkAndAwardBadges(userId);
+    } catch (err) {
+      logger.warn('Failed to check and award badges on auto-promotion', { err, userId });
+    }
   }
 
   return result;
@@ -179,9 +185,12 @@ export async function cancelLevelRequest(requestId: string, userId: string) {
   return prisma.userLevel.delete({ where: { id: requestId } });
 }
 
-export async function listPendingRequests() {
+export async function listPendingRequests(search?: string) {
+  const where = search
+    ? { status: 'PENDING' as const, user: { name: { contains: search, mode: 'insensitive' as const } } }
+    : { status: 'PENDING' as const };
   return prisma.userLevel.findMany({
-    where: { status: 'PENDING' },
+    where,
     include: {
       user: { select: { id: true, name: true, email: true, currentLevel: true } },
       level: true,
@@ -249,6 +258,11 @@ export async function reviewLevelRequest(
       await generateCertificate(request.userId, request.levelId);
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', { err, userId: request.userId, levelId: request.levelId });
+    }
+    try {
+      await checkAndAwardBadges(request.userId);
+    } catch (err) {
+      logger.warn('Failed to check and award badges on level approval', { err, userId: request.userId });
     }
   }
 

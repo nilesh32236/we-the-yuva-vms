@@ -55,7 +55,12 @@ opportunitiesRouter.get(
   recommendedHandler
 );
 
-opportunitiesRouter.get('/', requireAuth, listOpportunitiesHandler);
+opportunitiesRouter.get(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.OPPORTUNITY_VIEW),
+  listOpportunitiesHandler
+);
 
 opportunitiesRouter.get(
   '/my-applications',

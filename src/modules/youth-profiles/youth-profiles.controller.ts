@@ -1,9 +1,13 @@
 import type { NextFunction, Request, Response } from 'express';
+import { AppError } from '../../middleware/error.middleware';
 import * as service from './youth-profiles.service';
 
 export async function getYouthProfileHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const profile = await service.getYouthProfile(req.user!.id);
+    if (!profile) {
+      throw new AppError('Profile not found', 404);
+    }
     res.status(200).json(profile);
   } catch (err) {
     next(err);

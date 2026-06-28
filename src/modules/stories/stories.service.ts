@@ -37,17 +37,18 @@ export async function createStory(
   return story;
 }
 
-export async function getPublishedStories(page = 1, limit = 20) {
+export async function getPublishedStories(page = 1, limit = 20, userId?: string) {
   const skip = (page - 1) * limit;
+  const where = userId ? { published: true, userId } : { published: true };
   const [data, total] = await Promise.all([
     prisma.story.findMany({
-      where: { published: true },
+      where,
       orderBy: { createdAt: 'desc' },
       skip,
       take: limit,
       include: { user: { select: { name: true } } },
     }),
-    prisma.story.count({ where: { published: true } }),
+    prisma.story.count({ where }),
   ]);
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }

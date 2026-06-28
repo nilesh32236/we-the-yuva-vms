@@ -10,7 +10,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().url().default('redis://127.0.0.1:6379'),
   JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
   JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
-  JWT_ACCESS_EXPIRY: z.string().default('7d'),
+  JWT_ACCESS_EXPIRY: z.string().default('15m'),
   JWT_REFRESH_EXPIRY: z.string().default('7d'),
   SMTP_HOST: z.string().default(''),
   SMTP_PORT: z.coerce.number().default(587),

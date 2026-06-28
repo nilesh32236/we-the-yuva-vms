@@ -348,6 +348,7 @@ export async function listMyApplications(volunteerId: string, pagination?: Pagin
     return prisma.application.findMany({
       where: { volunteerId },
       select: { id: true, opportunityId: true, status: true, appliedAt: true },
+      include: { opportunity: { select: { title: true, category: true } } },
       orderBy: { appliedAt: 'desc' },
     });
   }
@@ -359,6 +360,7 @@ export async function listMyApplications(volunteerId: string, pagination?: Pagin
       skip,
       take: limit,
       select: { id: true, opportunityId: true, status: true, appliedAt: true },
+      include: { opportunity: { select: { title: true, category: true } } },
       orderBy: { appliedAt: 'desc' },
     }),
     prisma.application.count({ where: { volunteerId } }),

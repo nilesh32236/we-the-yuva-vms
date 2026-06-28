@@ -73,13 +73,16 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {
-  await notificationsQueue
-    ?.add(
+  try {
+    await notificationsQueue?.add(
       'send-otp',
       { email, otp },
       { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
-    )
-    .catch((err) => logger.warn('Failed to enqueue OTP email', { error: (err as Error).message }));
+    );
+  } catch (err) {
+    logger.warn('Failed to enqueue OTP email', { error: (err as Error).message });
+    throw new AppError('Failed to send OTP email. Please try again.', 500);
+  }
 }
 
 // ─── JWT ─────────────────────────────────────────────────────────
@@ -188,4 +191,12 @@ export async function revokeRefreshToken(token: string): Promise<void> {
     where: { tokenHash, revokedAt: null },
     data: { revokedAt: new Date() },
   });
+}
+
+export async function cleanupPendingUsers(): Promise<number> {
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const result = await prisma.user.deleteMany({
+    where: { status: 'PENDING', createdAt: { lt: cutoff } },
+  });
+  return result.count;
 }
