@@ -41,7 +41,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     staleTime: 60_000,
   });
 
-  const myApp = (myApplications ?? []).find(
+  const myApp = (Array.isArray(myApplications) ? myApplications : myApplications?.data ?? []).find(
     (a: { opportunityId: string; status: string }) => a.opportunityId === id
   );
 

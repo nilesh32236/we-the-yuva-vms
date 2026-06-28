@@ -26,6 +26,7 @@ export interface AuthUser {
     acceptedAt: string;
   } | null;
   locationId?: string | null;
+  volunteerType?: string | null;
 }
 
 interface AuthContextValue {
@@ -74,8 +75,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(null);
       queryClient.clear();
       if (typeof document !== 'undefined') {
+        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
         // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-        document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict; Secure';
+        document.cookie = `access_token=; path=/; max-age=0; SameSite=Strict${secure}`;
       }
       // Flag to prevent auto-refresh from re-authenticating after redirect
       sessionStorage.setItem('logged_out', 'true');

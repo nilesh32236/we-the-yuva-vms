@@ -48,8 +48,8 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 >
                   <Icon className="w-5 h-5" />
                 </div>
-                <span className={`text-[10px] font-semibold leading-none ${active ? 'text-brand-primary' : ''}`}>
-                  {item.label}
+                <span className={`text-[10px] font-semibold leading-none text-center ${active ? 'text-brand-primary' : ''}`}>
+                  {item.label.replace(/^My\s+/i, '')}
                 </span>
               </Link>
             );
@@ -70,7 +70,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
               <div className="w-8 h-8 rounded-xl flex items-center justify-center">
                 <Ellipsis className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-semibold leading-none">More</span>
+              <span className="text-[10px] font-semibold leading-none text-center">More</span>
             </button>
           )}
         </div>

@@ -25,6 +25,15 @@ const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> 
   OBSERVER: { label: 'Observer', color: 'text-slate-700 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-slate-800/50' },
 };
 
+const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
+  STUDENT: 'Student',
+  PROFESSIONAL: 'Professional',
+  EVENT: 'Event',
+  RECURRING: 'Recurring',
+  REMOTE: 'Remote',
+  EMERGENCY: 'Emergency',
+};
+
 const TYPE_ICON: Record<string, React.ElementType> = {
   info: Info,
   success: CheckCheck,
@@ -275,11 +284,20 @@ export function TopNav() {
               {user?.name ?? '—'}
             </p>
             {role && (
-              <span
-                className={`inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-0.5 ${role.bg} ${role.color}`}
-              >
-                {role.label}
-              </span>
+              <div className="flex items-center gap-1 mt-0.5">
+                <span
+                  className={`inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${role.bg} ${role.color}`}
+                >
+                  {role.label}
+                </span>
+                {user?.role === 'VOLUNTEER' && user?.volunteerType && (
+                  <span
+                    className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary"
+                  >
+                    {VOLUNTEER_TYPE_LABELS[user.volunteerType] ?? user.volunteerType}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>
