@@ -114,6 +114,7 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         organizationId: true,
         consent: { select: { id: true } },
         profile: { select: { id: true } },
+        volunteerType: true,
       },
     });
 
@@ -143,6 +144,7 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         locationId: user.locationId,
         consent: user.consent,
         profile: user.profile,
+        volunteerType: user.volunteerType,
       },
     });
   } catch (err) {

@@ -33,6 +33,8 @@ async function main() {
         'mentorship:create',
         'mentorship:manage',
         'file:upload',
+        'youth:profile:manage',
+        'youth:profile:view',
       ],
     },
     {
@@ -61,6 +63,7 @@ async function main() {
         'mentorship:create',
         'mentorship:manage',
         'file:upload',
+        'youth:profile:view',
       ],
     },
     {
@@ -93,6 +96,7 @@ async function main() {
         'mentorship:create',
         'mentorship:manage',
         'file:upload',
+        'youth:profile:view',
       ],
     },
     {
@@ -117,6 +121,7 @@ async function main() {
         'mentorship:create',
         'mentorship:manage',
         'file:upload',
+        'youth:profile:view',
       ],
     },
     {
@@ -159,6 +164,8 @@ async function main() {
         'mentorship:create',
         'mentorship:manage',
         'file:upload',
+        'youth:profile:manage',
+        'youth:profile:view',
       ],
     },
     {
