@@ -39,7 +39,7 @@ export default function VolunteerDetailPage({
         <ArrowLeft className="w-4 h-4" /> Back to Volunteers
       </Link>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-5">
+      <div className="bg-card rounded-2xl border border-brand-border p-6 space-y-5">
         {/* Header */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-brand-primary flex items-center justify-center flex-shrink-0">

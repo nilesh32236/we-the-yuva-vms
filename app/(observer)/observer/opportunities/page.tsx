@@ -81,7 +81,7 @@ export default function ObserverOpportunitiesPage() {
             setCategory(e.target.value);
             setPage(1);
           }}
-          className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          className="px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
         >
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>

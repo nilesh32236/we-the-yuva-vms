@@ -30,7 +30,7 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
         <ArrowLeft className="w-4 h-4" /> Back to Attendance
       </Link>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-8 text-center space-y-6">
+      <div className="bg-card rounded-2xl border border-brand-border p-8 text-center space-y-6">
         <div className="flex items-center justify-center gap-2">
           <QrCode className="w-5 h-5 text-brand-primary" />
           <h1 className="font-heading font-bold text-xl text-brand-text">Event QR Code</h1>
@@ -42,7 +42,7 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
           </div>
         ) : data ? (
           <>
-            <div className="bg-white p-4 rounded-xl inline-block shadow-sm border border-brand-border">
+            <div className="bg-card p-4 rounded-xl inline-block shadow-sm border border-brand-border">
               <QRCodeCanvas value={checkInUrl} size={220} level="M" />
             </div>
 

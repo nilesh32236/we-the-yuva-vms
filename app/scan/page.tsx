@@ -197,7 +197,7 @@ function ScanInner() {
               type="button"
               onClick={() => { setMode('camera'); setErrorMsg(''); }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'camera' ? 'bg-white shadow-sm text-brand' : 'text-gray-500'
+                mode === 'camera' ? 'bg-card shadow-sm text-brand' : 'text-gray-500'
               }`}
             >
               <Camera className="w-4 h-4" /> Camera
@@ -206,7 +206,7 @@ function ScanInner() {
               type="button"
               onClick={() => { setMode('manual'); setErrorMsg(''); }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'manual' ? 'bg-white shadow-sm text-brand' : 'text-gray-500'
+                mode === 'manual' ? 'bg-card shadow-sm text-brand' : 'text-gray-500'
               }`}
             >
               <Keyboard className="w-4 h-4" /> Manual
@@ -245,7 +245,7 @@ function ScanInner() {
                     if (e.key === 'Enter') handleManualSubmit();
                   }}
                   placeholder="Paste or type the check-in code"
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="w-full px-4 py-3 rounded-xl bg-background border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
                 />
               </div>
               <Button onClick={handleManualSubmit} loading={checkinMutation.isPending} className="w-full">

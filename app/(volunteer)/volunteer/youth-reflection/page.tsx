@@ -186,7 +186,7 @@ export default function YouthReflectionPage() {
             placeholder="How did your volunteering make a difference? What moments stood out?"
             rows={4}
             maxLength={1000}
-            className="w-full rounded-xl border border-brand-border bg-white px-4 py-3 text-sm
+            className="w-full rounded-xl border border-brand-border bg-background px-4 py-3 text-sm
               placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
           />
           <p className="text-xs text-gray-400 text-right">{impactDescription.length}/1000</p>

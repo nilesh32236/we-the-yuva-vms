@@ -41,8 +41,8 @@ export default function VerifyCertificatePage() {
         <div
           className={`rounded-2xl border p-8 text-center space-y-5 ${
             isValid
-              ? 'bg-white dark:bg-brand-surface border-emerald-200 dark:border-emerald-800'
-              : 'bg-white dark:bg-brand-surface border-red-200 dark:border-red-800'
+              ? 'bg-card border-emerald-200 dark:border-emerald-800'
+              : 'bg-card border-red-200 dark:border-red-800'
           }`}
         >
           <div

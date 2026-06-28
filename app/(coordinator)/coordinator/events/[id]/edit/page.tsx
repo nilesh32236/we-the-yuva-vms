@@ -39,7 +39,7 @@ export default function EditEventPage() {
   if (isLoading) {
     return (
       <div className="max-w-2xl space-y-5">
-        <div className="bg-white rounded-2xl border border-brand-border p-6">
+        <div className="bg-card rounded-2xl border border-brand-border p-6">
           <div className="h-6 w-40 bg-brand-bg rounded animate-pulse mb-5" />
           <div className="space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -60,7 +60,7 @@ export default function EditEventPage() {
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </Link>
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center">
           <p className="text-brand-muted">Event not found</p>
         </div>
       </div>
@@ -87,7 +87,7 @@ export default function EditEventPage() {
       >
         <ArrowLeft className="w-4 h-4" /> Back
       </Link>
-      <div className="bg-white rounded-2xl border border-brand-border p-6">
+      <div className="bg-card rounded-2xl border border-brand-border p-6">
         <h1 className="font-heading font-bold text-xl text-brand-text mb-5">Edit Event</h1>
         <EventForm
           defaultValues={defaultValues}

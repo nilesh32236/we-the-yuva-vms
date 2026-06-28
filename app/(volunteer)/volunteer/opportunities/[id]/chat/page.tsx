@@ -170,7 +170,7 @@ export default function OpportunityChatPage({ params }: { params: Promise<{ id: 
           placeholder="Type a message..."
           rows={1}
           maxLength={2000}
-          className="flex-1 rounded-xl border border-brand-border bg-white px-4 py-2.5 text-sm
+          className="flex-1 rounded-xl border border-brand-border bg-background px-4 py-2.5 text-sm
             placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none max-h-32"
         />
         <Button

@@ -33,6 +33,7 @@ export function OpportunityForm({
     register,
     handleSubmit,
     setValue,
+    setError,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<OpportunityInput>({
@@ -41,6 +42,20 @@ export function OpportunityForm({
   });
 
   const [skillInput, setSkillInput] = useState('');
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const wrappedOnSubmit = async (data: OpportunityInput) => {
+    setServerError(null);
+    try {
+      await onSubmit(data);
+    } catch (err: unknown) {
+      const msg =
+        (err as { normalizedMessage?: string })?.normalizedMessage ??
+        (err as Error)?.message ??
+        'Something went wrong';
+      setServerError(msg);
+    }
+  };
   const skills = watch('skills') ?? [];
   const isRemote = watch('isRemote');
 
@@ -73,7 +88,13 @@ export function OpportunityForm({
   );
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(wrappedOnSubmit)} className="space-y-5">
+      {serverError && (
+        <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+          {serverError}
+        </div>
+      )}
+
       {field('title', 'Title', { placeholder: 'e.g. Teaching Assistant at City School' })}
 
       <div className="space-y-1.5">
@@ -253,7 +274,7 @@ export function OpportunityForm({
           onClick={() => setValue('isRemote', !isRemote)}
         >
           <div
-            className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${isRemote ? 'translate-x-5' : 'translate-x-1'}`}
+            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRemote ? 'translate-x-5' : 'translate-x-1'}`}
           />
         </div>
         <span className="text-sm font-medium text-brand-text">Remote opportunity</span>

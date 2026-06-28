@@ -13,17 +13,9 @@ export default function NewOpportunityPage() {
   const { toast } = useToast();
 
   const handleSubmit = async (data: OpportunityInput) => {
-    try {
-      await api.post('/opportunities', data);
-      toast({ title: 'Opportunity created!' });
-      router.push('/coordinator/opportunities');
-    } catch (err) {
-      toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Something went wrong',
-        variant: 'destructive',
-      });
-    }
+    await api.post('/opportunities', data);
+    toast({ title: 'Opportunity created!' });
+    router.push('/coordinator/opportunities');
   };
 
   return (
@@ -34,7 +26,7 @@ export default function NewOpportunityPage() {
       >
         <ArrowLeft className="w-4 h-4" /> Back
       </Link>
-      <div className="bg-white rounded-2xl border border-brand-border p-6">
+      <div className="bg-card rounded-2xl border border-brand-border p-6">
         <h1 className="font-heading font-bold text-xl text-brand-text mb-5">Create Opportunity</h1>
         <OpportunityForm onSubmit={handleSubmit} submitLabel="Create Opportunity" />
       </div>

@@ -66,13 +66,13 @@ export default function ObserverReportsPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-white rounded-2xl border border-brand-border p-5">
+        <div className="bg-card rounded-2xl border border-brand-border p-5">
           <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
             Opportunities by Category
           </h2>
           <CategoryPieChart data={stats?.byCategory ?? []} />
         </div>
-        <div className="bg-white rounded-2xl border border-brand-border p-5">
+        <div className="bg-card rounded-2xl border border-brand-border p-5">
           <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
             Hours Served by Month
           </h2>

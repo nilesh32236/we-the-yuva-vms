@@ -49,7 +49,7 @@ function ToggleSwitch({
       }`}
     >
       <div
-        className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+        className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${
           checked ? 'translate-x-5' : 'translate-x-1'
         }`}
       />

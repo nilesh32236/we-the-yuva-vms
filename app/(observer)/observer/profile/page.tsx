@@ -28,7 +28,7 @@ export default function ObserverProfilePage() {
 
   return (
     <div className="max-w-2xl space-y-5">
-      <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-card rounded-2xl border border-brand-border overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-slate-500 to-slate-400 dark:from-slate-700 dark:to-slate-600" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
@@ -62,7 +62,7 @@ export default function ObserverProfilePage() {
         ].map(({ icon: Icon, label, value }) => (
           <div
             key={label}
-            className="bg-white rounded-xl border border-brand-border p-4 text-center"
+            className="bg-card rounded-xl border border-brand-border p-4 text-center"
           >
             <Icon className="w-4 h-4 text-slate-600 dark:text-slate-400 mx-auto mb-1.5" />
             <p className="font-heading font-bold text-base text-brand-text truncate">{value}</p>
@@ -71,7 +71,7 @@ export default function ObserverProfilePage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-5">
+      <div className="bg-card rounded-2xl border border-brand-border p-5">
         <h2 className="font-heading font-semibold text-sm text-brand-text mb-3">Account Details</h2>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between">

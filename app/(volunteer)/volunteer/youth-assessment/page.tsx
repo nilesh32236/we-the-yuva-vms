@@ -104,7 +104,7 @@ export default function YouthAssessmentPage() {
               placeholder="What do you hope to gain from your volunteering journey?"
               rows={3}
               maxLength={500}
-              className="w-full rounded-xl border border-brand-border bg-white px-4 py-3 text-sm
+              className="w-full rounded-xl border border-brand-border bg-background px-4 py-3 text-sm
                 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
             />
             <p className="text-xs text-gray-400 text-right">{learningGoals.length}/500</p>

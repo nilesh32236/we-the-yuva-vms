@@ -67,7 +67,7 @@ export default function OrganizationCoordinatorsPage() {
 
   if (!orgId) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 bg-white rounded-2xl border border-brand-border p-6 text-center">
+      <div className="flex flex-col items-center justify-center h-64 bg-card rounded-2xl border border-brand-border p-6 text-center">
         <h2 className="font-heading font-bold text-lg text-brand-text mb-2">No Organization Found</h2>
         <p className="text-brand-muted max-w-sm">
           You are not currently associated with an organization. Please register or join an organization first.
@@ -90,7 +90,7 @@ export default function OrganizationCoordinatorsPage() {
       </div>
 
       {isAdding && (
-        <div className="bg-white rounded-2xl border border-brand-border p-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-card rounded-2xl border border-brand-border p-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
           <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Add New Coordinator</h2>
           <form
             onSubmit={(e) => {
@@ -147,7 +147,7 @@ export default function OrganizationCoordinatorsPage() {
           {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
         </div>
       ) : data?.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center">
           <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center mx-auto mb-4">
              <Plus className="w-8 h-8 text-brand-primary" />
           </div>
@@ -157,7 +157,7 @@ export default function OrganizationCoordinatorsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data?.map((c) => (
-            <div key={c.id} className="bg-white rounded-2xl border border-brand-border p-5 flex flex-col justify-between hover:shadow-md transition-shadow group">
+            <div key={c.id} className="bg-card rounded-2xl border border-brand-border p-5 flex flex-col justify-between hover:shadow-md transition-shadow group">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="font-heading font-bold text-brand-text group-hover:text-brand-primary transition-colors truncate">{c.name}</h3>

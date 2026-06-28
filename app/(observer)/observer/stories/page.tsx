@@ -1,5 +1,3 @@
-// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
-// See /issues/PHASE2_SCOPE.md
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +13,7 @@ const _CATEGORY_COLORS: Record<string, string> = {
   COMMUNITY: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
   ARTS: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300',
   SPORTS: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+  ACTIVE_CITIZENSHIP: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
   OTHER: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300',
 };
 
@@ -38,7 +37,7 @@ export default function ObserverStoriesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-brand-border p-12 text-center space-y-3">
+        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center space-y-3">
           <BookOpen className="w-10 h-10 text-brand-muted mx-auto" />
           <p className="font-medium text-brand-text">No stories published yet</p>
           <p className="text-sm text-brand-muted">
@@ -57,7 +56,7 @@ export default function ObserverStoriesPage() {
             }) => (
               <div
                 key={story.id}
-                className="bg-white rounded-2xl border border-brand-border p-6 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200"
+                className="bg-card rounded-2xl border border-brand-border p-6 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200"
               >
                 <h2 className="font-heading font-semibold text-brand-text text-lg mb-1">
                   {story.title}

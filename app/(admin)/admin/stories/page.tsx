@@ -48,7 +48,7 @@ export default function AdminStoriesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center">
           <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" />
           <p className="font-medium text-brand-text">No stories submitted yet</p>
         </div>
@@ -65,7 +65,7 @@ export default function AdminStoriesPage() {
             }) => (
               <div
                 key={story.id}
-                className="bg-white dark:bg-gray-800 rounded-2xl border border-brand-border p-5 space-y-3"
+                className="bg-card rounded-2xl border border-brand-border p-5 space-y-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -108,7 +108,7 @@ export default function AdminStoriesPage() {
                   </button>
                   {confirmDelete === story.id && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+                      <div className="bg-card rounded-lg p-6 max-w-sm mx-4 shadow-xl">
                         <h3 className="font-semibold text-lg mb-2">Confirm</h3>
                         <p className="text-sm text-gray-600 mb-4">Delete this story?</p>
                         <div className="flex justify-end gap-2">

@@ -51,7 +51,7 @@ export default function CoordinatorReportsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6 text-center">
+      <div className="bg-card rounded-2xl border border-brand-border p-6 text-center">
         <Clock className="w-8 h-8 text-brand-muted mx-auto mb-2" />
         <p className="text-sm text-brand-muted">Detailed reports with charts coming soon</p>
       </div>

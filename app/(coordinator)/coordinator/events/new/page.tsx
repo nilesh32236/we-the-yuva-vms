@@ -55,7 +55,7 @@ export default function NewEventPage() {
         <ArrowLeft className="w-4 h-4" /> Back
       </Link>
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6 space-y-6">
+      <div className="bg-card rounded-2xl border border-brand-border p-6 space-y-6">
         <h1 className="font-heading font-bold text-xl text-brand-text">Create Event</h1>
 
         <div className="space-y-1.5">
@@ -66,7 +66,7 @@ export default function NewEventPage() {
             id="opportunity"
             value={opportunityId}
             onChange={(e) => setOpportunityId(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white"
+            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
           >
             <option value="">Select an active opportunity...</option>
             {opportunities.map((o: { id: string; title: string }) => (

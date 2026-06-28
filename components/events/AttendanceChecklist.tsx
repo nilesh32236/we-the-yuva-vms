@@ -231,7 +231,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                       onChange={(e) =>
                         setHoursInputs((s) => ({ ...s, [v.volunteerId]: e.target.value }))
                       }
-                      className="w-full px-3 py-1.5 text-sm rounded-lg border border-brand-border bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                      className="w-full px-3 py-1.5 text-sm rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                       placeholder="Hours"
                     />
                   </div>

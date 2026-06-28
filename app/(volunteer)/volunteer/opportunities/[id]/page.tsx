@@ -17,6 +17,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   ARTS: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
   SPORTS: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
   TECHNOLOGY: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300',
+  ACTIVE_CITIZENSHIP: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
   OTHER: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300',
 };
 

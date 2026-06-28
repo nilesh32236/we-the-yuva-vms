@@ -148,7 +148,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       </Link>
 
       {event && (
-        <div className="bg-white rounded-2xl border border-brand-border p-5">
+        <div className="bg-card rounded-2xl border border-brand-border p-5">
           <h1 className="font-heading font-bold text-xl text-brand-text">{event.title}</h1>
           <p className="text-sm text-brand-muted mt-1">
             {new Date(event.eventDate).toLocaleDateString('en-IN', {
@@ -180,7 +180,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
 
       {/* Self check-in log */}
       {records.some((a: AttendanceRecord) => a.checkedInAt) && (
-        <div className="bg-white rounded-2xl border border-brand-border overflow-hidden">
+        <div className="bg-card rounded-2xl border border-brand-border overflow-hidden">
           <div className="px-5 py-3 border-b border-brand-border">
             <h2 className="font-heading font-semibold text-sm text-brand-text">
               Self Check-in Log
@@ -262,7 +262,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       )}
 
       {/* Attendance & Hours Approval */}
-      <div className="bg-white rounded-2xl border border-brand-border p-6">
+      <div className="bg-card rounded-2xl border border-brand-border p-6">
         <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
           Attendance & Hours Approval
         </h2>

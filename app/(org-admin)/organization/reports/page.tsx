@@ -33,7 +33,7 @@ export default function OrgAdminReportsPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-brand-border p-6 text-center">
+      <div className="bg-card rounded-2xl border border-brand-border p-6 text-center">
         <Activity className="w-8 h-8 text-brand-muted mx-auto mb-2" />
         <p className="text-sm text-brand-muted">
           Detailed reports with charts and CSV export coming soon

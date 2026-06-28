@@ -118,7 +118,7 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
           onClick={() => setValue('isVirtual', !isVirtual)}
         >
           <div
-            className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${isVirtual ? 'translate-x-5' : 'translate-x-1'}`}
+            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isVirtual ? 'translate-x-5' : 'translate-x-1'}`}
           />
         </div>
         <span className="text-sm font-medium text-brand-text">Virtual event</span>
