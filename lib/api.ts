@@ -82,7 +82,7 @@ api.interceptors.response.use(
           if (typeof document !== 'undefined') {
             const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
             // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
+            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=604800; SameSite=Strict${secureFlag}`;
           }
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         }

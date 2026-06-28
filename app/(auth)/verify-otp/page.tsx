@@ -68,7 +68,7 @@ function VerifyOtpContent() {
         if (accessToken && typeof document !== 'undefined') {
           const secure = window.location.protocol === 'https:' ? '; Secure' : '';
           // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-          document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=900; SameSite=Strict${secure}`;
+          document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=604800; SameSite=Strict${secure}`;
         }
 
         // Populate auth context directly — no extra /users/me round-trip needed
