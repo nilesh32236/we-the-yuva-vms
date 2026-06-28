@@ -21,7 +21,7 @@ const ACCESS_COOKIE_OPTIONS = {
   httpOnly: false, // Must be readable by Next.js Edge middleware
   secure: isProd,
   sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
-  maxAge: 15 * 60 * 1000, // 15 minutes
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/',
 };
 
