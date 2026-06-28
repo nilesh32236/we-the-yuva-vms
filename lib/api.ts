@@ -8,6 +8,8 @@ export const api = axios.create({
   },
 });
 
+api.defaults.timeout = 30000;
+
 export async function downloadCsv(url: string, filename = 'export.csv') {
   const res = await api.get(url, { responseType: 'blob' });
   const blob = new Blob([res.data], { type: 'text/csv' });
@@ -96,6 +98,19 @@ api.interceptors.response.use(
       }
     }
 
+    // Normalize error
+    if (!error.response) {
+      if (error.code === 'ECONNABORTED') {
+        error.normalizedMessage = 'Request timed out. Please try again.';
+      } else {
+        error.normalizedMessage = 'Network error. Please check your connection.';
+      }
+    } else {
+      error.normalizedMessage =
+        error.response?.data?.error ??
+        error.response?.data?.message ??
+        'Something went wrong. Please try again.';
+    }
     return Promise.reject(error);
   }
 );

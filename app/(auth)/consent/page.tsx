@@ -49,14 +49,19 @@ export default function ConsentPage() {
       });
       router.push('/setup-profile');
     } catch (error) {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+      const axiosError = error as { response?: { status?: number; data?: { error?: string; message?: string } } };
+      const status = axiosError?.response?.status;
       if (status === 409) {
         // Already consented — move on
         router.push('/setup-profile');
       } else {
+        const message =
+          axiosError?.response?.data?.error ??
+          axiosError?.response?.data?.message ??
+          'Could not save your consent. Please try again.';
         toast({
           title: 'Error',
-          description: 'Could not save your consent. Please try again.',
+          description: message,
           variant: 'destructive',
         });
       }

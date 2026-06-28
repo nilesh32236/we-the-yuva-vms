@@ -6,9 +6,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { OtpInput } from '../../../components/auth/OtpInput';
 import { ResendButton } from '../../../components/auth/ResendButton';
+import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api, setAccessToken } from '../../../lib/api';
+import { VerifyOtpSchema } from '../../../lib/shared';
 
 function VerifyOtpContent() {
   const router = useRouter();
@@ -43,7 +45,14 @@ function VerifyOtpContent() {
   const handleVerify = useCallback(
     async (digits: string[]) => {
       const code = digits.join('');
-      if (code.length !== 6) return;
+      // Validate with Zod schema before sending
+      const parsed = VerifyOtpSchema.safeParse({ email, otp: code });
+      if (!parsed.success) {
+        const message = parsed.error.errors[0]?.message ?? 'Invalid OTP format';
+        toast({ title: 'Validation error', description: message, variant: 'destructive' });
+        submitted.current = false;
+        return;
+      }
       // Guard against double-submission (strict mode, concurrent renders)
       if (submitted.current) return;
       submitted.current = true;
@@ -181,7 +190,7 @@ function VerifyOtpContent() {
 
 export default function VerifyOtpPage() {
   return (
-    <Suspense fallback={<div className="text-center text-brand-muted">Loading...</div>}>
+    <Suspense fallback={<div className="max-w-md mx-auto p-6"><SkeletonCard /></div>}>
       <VerifyOtpContent />
     </Suspense>
   );

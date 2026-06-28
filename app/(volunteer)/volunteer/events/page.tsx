@@ -276,7 +276,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
 }
 
 export default function VolunteerEventsPage() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['my-events'],
     queryFn: () => api.get('/users/me/events').then((r) => r.data.data),
     staleTime: 30_000,
@@ -296,6 +296,13 @@ export default function VolunteerEventsPage() {
         {[1, 2, 3].map((i) => (
           <SkeletonCard key={i} />
         ))}
+      </div>
+    );
+
+  if (isError)
+    return (
+      <div className="text-center py-8 text-destructive max-w-3xl">
+        Failed to load events. Please try again later.
       </div>
     );
 

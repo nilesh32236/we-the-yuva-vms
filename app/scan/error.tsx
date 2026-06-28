@@ -1,6 +1,12 @@
 'use client';
+import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 
-export default function ScanError({ error, reset }: { error: Error; reset: () => void }) {
+export default function ScanError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <div className="min-h-dvh bg-brand-bg flex flex-col items-center justify-center gap-4 px-6">
       <h2 className="font-heading font-bold text-xl text-brand-text">Something went wrong</h2>

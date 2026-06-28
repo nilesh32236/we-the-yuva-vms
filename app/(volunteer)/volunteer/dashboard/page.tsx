@@ -22,7 +22,7 @@ const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
 
 export default function VolunteerDashboardPage() {
   const { user } = useAuth();
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, isError } = useQuery({
     queryKey: ['stats', 'volunteer'],
     queryFn: () => api.get('/stats/volunteer').then((r) => r.data),
     staleTime: 60_000,
@@ -68,6 +68,12 @@ export default function VolunteerDashboardPage() {
           </div>
         </div>
       </div>
+
+      {isError && (
+        <div className="text-center py-8 text-destructive">
+          Failed to load data. Please try again later.
+        </div>
+      )}
 
       {/* Stats */}
       {isLoading ? (

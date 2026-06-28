@@ -54,7 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await api.get<AuthUser>('/users/me');
       setUser(response.data);
-    } catch {
+    } catch (err) {
+      console.error('Failed to fetch user session:', err);
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { status?: number } };
+        if (axiosErr.response?.status && axiosErr.response.status >= 500) {
+          console.error('Server error during session fetch - will retry on next navigation');
+        }
+      }
       setUser(null);
     } finally {
       setIsLoading(false);

@@ -63,12 +63,12 @@ export default function VolunteerLevelsPage() {
   const { toast } = useToast();
   const qc = useQueryClient();
 
-  const { data: levelRes, isLoading: levelLoading } = useQuery<{ data: LevelData }>({
+  const { data: levelRes, isLoading: levelLoading, isError: isLevelError } = useQuery<{ data: LevelData }>({
     queryKey: ['my-level'],
     queryFn: () => api.get('/users/me/level').then((r) => r.data),
   });
 
-  const { data: progressRes, isLoading: progressLoading } = useQuery<{ data: ProgressData }>({
+  const { data: progressRes, isLoading: progressLoading, isError: isProgressError } = useQuery<{ data: ProgressData }>({
     queryKey: ['my-level-progress'],
     queryFn: () => api.get('/users/me/level/progress').then((r) => r.data),
   });
@@ -114,6 +114,14 @@ export default function VolunteerLevelsPage() {
     : false;
 
   const hasPendingRequest = requests.some((r) => r.status === 'PENDING');
+
+  if (isLevelError || isProgressError) {
+    return (
+      <div className="text-center py-8 text-destructive max-w-5xl">
+        Failed to load level data. Please try again later.
+      </div>
+    );
+  }
 
   if (levelLoading || progressLoading) {
     return (

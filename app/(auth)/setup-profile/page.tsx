@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
+import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
@@ -132,10 +133,14 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
         availability: { days: selectedDays, timeSlots: selectedSlots },
       });
       onComplete();
-    } catch {
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error ??
+        (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message ??
+        'Could not save profile. Please try again.';
       toast({
         title: 'Error',
-        description: 'Could not save profile. Please try again.',
+        description: message,
         variant: 'destructive',
       });
     } finally {
@@ -417,7 +422,7 @@ export default function SetupProfilePage() {
     router.push(roleRoutes[user?.role ?? ''] ?? '/login');
   };
 
-  if (!user) return <div className="text-center text-brand-muted py-8">Loading...</div>;
+  if (!user) return <div className="py-8"><SkeletonCard /></div>;
 
   return (
     <div className="space-y-4">
