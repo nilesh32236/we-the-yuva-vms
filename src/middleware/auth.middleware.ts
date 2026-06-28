@@ -47,19 +47,26 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
     next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
-      logger.warn('Auth failed: token expired', { err });
+      logger.warn('Auth failed: token expired', { error: err.message });
       Sentry.captureException(err);
-      res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+      res.status(401).json({ error: 'Token expired' });
       return;
     }
     if (err instanceof jwt.JsonWebTokenError) {
-      logger.warn('Auth failed: invalid token', { err });
+      logger.warn('Auth failed: invalid token', { error: err.message });
       Sentry.captureException(err);
-      res.status(401).json({ error: 'Invalid token', code: 'INVALID_TOKEN' });
+      res.status(401).json({ error: 'Invalid token' });
       return;
     }
-    logger.warn('Auth failed: unauthorized', { err });
+    if (err instanceof jwt.NotBeforeError) {
+      logger.warn('Auth failed: token not yet active', { error: err.message });
+      Sentry.captureException(err);
+      res.status(401).json({ error: 'Token not yet active' });
+      return;
+    }
+    logger.warn('Auth failed: unauthorized', { error: (err as Error).message });
     Sentry.captureException(err);
-    res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
   }
 }

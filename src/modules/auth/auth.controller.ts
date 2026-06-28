@@ -41,6 +41,7 @@ const REFRESH_COOKIE_OPTIONS = {
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, name, volunteerType } = req.body;
+    const sanitizedName = name?.trim();
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (existing) {
@@ -55,7 +56,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     const user = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
-        name,
+        name: sanitizedName,
         roleId: volunteerRole.id,
         status: 'PENDING',
         ...(volunteerType && { volunteerType }),

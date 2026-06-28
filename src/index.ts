@@ -104,6 +104,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Fatal startup error:', error);
+  logger.error('Fatal startup error', { error });
   process.exit(1);
 });

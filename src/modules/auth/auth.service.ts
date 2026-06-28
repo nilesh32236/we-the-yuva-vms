@@ -95,12 +95,14 @@ export function signAccessToken(
 ): string {
   return jwt.sign({ sub: userId, role, permissions, org: organizationId }, env.JWT_ACCESS_SECRET, {
     expiresIn: env.JWT_ACCESS_EXPIRY as jwt.SignOptions['expiresIn'],
+    issuer: 'we-the-yuva-api',
   });
 }
 
 export function signRefreshToken(userId: string): string {
   return jwt.sign({ sub: userId, jti: crypto.randomUUID() }, env.JWT_REFRESH_SECRET, {
     expiresIn: env.JWT_REFRESH_EXPIRY as jwt.SignOptions['expiresIn'],
+    issuer: 'we-the-yuva-api',
   });
 }
 

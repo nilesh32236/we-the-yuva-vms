@@ -30,6 +30,7 @@ enum OpportunityCategory {
   ARTS
   SPORTS
   TECHNOLOGY
+  ACTIVE_CITIZENSHIP
   OTHER
 }
 

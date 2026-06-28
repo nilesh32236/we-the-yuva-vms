@@ -14,7 +14,7 @@ export function requireRole(...roles: Role[]) {
 
     if (!roles.includes(req.user.role as Role)) {
       logger.warn('RBAC: role not authorized', { userId: req.user.id, role: req.user.role, requiredRoles: roles });
-      res.status(403).json({ error: 'Forbidden' });
+      res.status(403).json({ error: `You do not have the required role for this action. Required: ${roles.join(', ')}` });
       return;
     }
 
@@ -34,7 +34,7 @@ export function requirePermission(...permissions: Permission[]) {
     const hasAll = permissions.every((p) => userPermissions.includes(p));
     if (!hasAll) {
       logger.warn('RBAC: insufficient permissions', { userId: req.user.id, role: req.user.role, requiredPermissions: permissions });
-      res.status(403).json({ error: 'Forbidden' });
+      res.status(403).json({ error: `You do not have permission to perform this action. Required permission: ${permissions.join(', ')}` });
       return;
     }
 

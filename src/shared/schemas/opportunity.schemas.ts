@@ -8,6 +8,7 @@ export const OPPORTUNITY_CATEGORIES = [
   'ARTS',
   'SPORTS',
   'TECHNOLOGY',
+  'ACTIVE_CITIZENSHIP',
   'OTHER',
 ] as const;
 
