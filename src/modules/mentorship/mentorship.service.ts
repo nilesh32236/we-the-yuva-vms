@@ -1,4 +1,5 @@
 import { checkAndAwardBadges } from '../badges/badge-engine.service';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -80,7 +81,7 @@ export async function reviewMentorshipRequest(
   try {
     await checkAndAwardBadges(mentorId);
   } catch (err) {
-    // non-blocking
+    logger.warn('Failed to award badge on mentorship update', { err, mentorshipId: requestId });
   }
 
   return result;
@@ -125,7 +126,7 @@ export async function completeMentorship(requestId: string, userId: string) {
   try {
     await checkAndAwardBadges(mentorship.mentorId);
   } catch (err) {
-    // non-blocking
+    logger.warn('Failed to award badge on mentorship update', { err, mentorshipId: requestId });
   }
 
   return result;

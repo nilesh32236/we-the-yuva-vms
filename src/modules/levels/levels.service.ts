@@ -1,3 +1,4 @@
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import { generateCertificate } from '../certificates/certificates.service';
@@ -141,7 +142,7 @@ export async function createLevelRequest(
     try {
       await generateCertificate(userId, level.id);
     } catch (err) {
-      // non-blocking
+      logger.warn('Failed to generate certificate on level approval', { err, userId, levelId: level.id });
     }
   }
 
@@ -247,7 +248,7 @@ export async function reviewLevelRequest(
     try {
       await generateCertificate(request.userId, request.levelId);
     } catch (err) {
-      // non-blocking - certificate generation failure shouldn't block level-up
+      logger.warn('Failed to generate certificate on level approval', { err, userId: request.userId, levelId: request.levelId });
     }
   }
 

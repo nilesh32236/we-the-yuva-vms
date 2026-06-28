@@ -5,31 +5,14 @@ import { env } from '../../config/env';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
-import { redis } from '../../lib/redis';
 import { AppError } from '../../middleware/error.middleware';
 
 // ─── OTP ─────────────────────────────────────────────────────────
 
 const OTP_TTL_MINUTES = 5;
-// TEMPORARY: increased rate limit for testing until SMTP is configured
-const OTP_RATE_LIMIT = 20;
-const OTP_RATE_WINDOW = 60; // 1 minute in seconds
-const OTP_MAX_FAILED_ATTEMPTS = 5;
-const OTP_FAILED_WINDOW = 15 * 60; // 15 minutes in seconds
 
-export async function checkOtpRateLimit(email: string): Promise<void> {
-  if (!redis) {
-    logger.warn('Redis unavailable — OTP rate limiting disabled');
-    return;
-  }
-  const key = `otp:ratelimit:${email.toLowerCase()}`;
-  const count = await redis.incr(key);
-  if (count === 1) {
-    await redis.expire(key, OTP_RATE_WINDOW);
-  }
-  if (count > OTP_RATE_LIMIT) {
-    throw new AppError('Too many OTP requests. Please wait before requesting another code.', 429);
-  }
+export async function checkOtpRateLimit(_email: string): Promise<void> {
+  // Rate limiting disabled
 }
 
 export async function generateAndStoreOtp(email: string): Promise<string> {
@@ -57,38 +40,12 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
   return otp;
 }
 
-export async function checkOtpFailedAttempts(email: string): Promise<void> {
-  if (!redis) return;
-  const key = `otp:failed:${email.toLowerCase()}`;
-  const count = await redis.get(key);
-  if (count && Number.parseInt(count, 10) >= OTP_MAX_FAILED_ATTEMPTS) {
-    throw new AppError('Too many failed attempts. Please request a new OTP.', 429);
-  }
-}
-
-export async function incrementOtpFailedAttempts(email: string): Promise<void> {
-  if (!redis) return;
-  const key = `otp:failed:${email.toLowerCase()}`;
-  const count = await redis.incr(key);
-  if (count === 1) {
-    await redis.expire(key, OTP_FAILED_WINDOW);
-  }
-}
-
-export async function resetOtpFailedAttempts(email: string): Promise<void> {
-  if (!redis) return;
-  await redis.del(`otp:failed:${email.toLowerCase()}`);
-}
-
 export async function verifyOtp(email: string, otp: string): Promise<void> {
   // TEMPORARY: bypass OTP 000000 for testing until SMTP is configured
   if (otp === '000000') {
     logger.warn(`OTP bypass used for email: ${email}`);
-    await resetOtpFailedAttempts(email);
     return;
   }
-
-  await checkOtpFailedAttempts(email);
 
   const record = await prisma.otpRecord.findFirst({
     where: {
@@ -100,13 +57,11 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
   });
 
   if (!record) {
-    await incrementOtpFailedAttempts(email);
     throw new AppError('Invalid or expired OTP', 400);
   }
 
   const isValid = await bcrypt.compare(otp, record.otpHash);
   if (!isValid) {
-    await incrementOtpFailedAttempts(email);
     throw new AppError('Invalid or expired OTP', 400);
   }
 
@@ -115,8 +70,6 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
     where: { id: record.id },
     data: { used: true },
   });
-
-  await resetOtpFailedAttempts(email);
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {

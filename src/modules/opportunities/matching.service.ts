@@ -1,3 +1,4 @@
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 
 function haversineDistance(
@@ -118,7 +119,7 @@ export async function getRecommendedOpportunities(volunteerId: string) {
       userApplication: appMap.has(o.id) ? { status: appMap.get(o.id)!.status } : null,
     }));
   } catch (error) {
-    console.error('Failed to get recommendations:', error);
+    logger.error('Failed to get recommendations', { err: error, stack: (error as Error).stack });
     return [];
   }
 }

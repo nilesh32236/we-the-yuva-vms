@@ -85,10 +85,8 @@ async function main() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 
-  process.on('unhandledRejection', (reason) => {
-    logger.error('Unhandled Rejection', {
-      reason: reason instanceof Error ? reason.message : reason,
-    });
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('UNHANDLED REJECTION', { err: reason, promise });
   });
 
   process.on('uncaughtException', (error) => {

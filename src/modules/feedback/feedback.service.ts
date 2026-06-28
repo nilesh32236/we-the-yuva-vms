@@ -1,5 +1,6 @@
 import { onFeedbackSubmitted } from '../badges/badge-engine.service';
 import { hasSystemRole } from '../../shared/helpers';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -38,7 +39,7 @@ export async function submitFeedback(
   try {
     await onFeedbackSubmitted(volunteerId, eventId);
   } catch (err) {
-    // non-blocking badge/points award
+    logger.warn('Failed to award badge/points on feedback submission', { err, userId: volunteerId, eventId });
   }
 
   return result;

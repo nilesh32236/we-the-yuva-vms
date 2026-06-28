@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
+import { logger } from '../lib/logger';
 
 export interface JwtPayload {
   sub: string;
@@ -43,7 +44,18 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
       organizationId: payload.org,
     };
     next();
-  } catch {
-    res.status(401).json({ error: 'Unauthorized' });
+  } catch (err) {
+    if (err instanceof jwt.TokenExpiredError) {
+      logger.warn('Auth failed: token expired', { err });
+      res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+      return;
+    }
+    if (err instanceof jwt.JsonWebTokenError) {
+      logger.warn('Auth failed: invalid token', { err });
+      res.status(401).json({ error: 'Invalid token', code: 'INVALID_TOKEN' });
+      return;
+    }
+    logger.warn('Auth failed: unauthorized', { err });
+    res.status(401).json({ error: 'Unauthorized', code: 'UNAUTHORIZED' });
   }
 }

@@ -37,14 +37,44 @@ export function errorMiddleware(
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    if (err.code === 'P2002') {
-      res.status(409).json({ error: 'Resource already exists' });
-      return;
+    switch (err.code) {
+      case 'P2002':
+        res.status(409).json({ error: 'Resource already exists' });
+        return;
+      case 'P2025':
+        res.status(404).json({ error: 'Resource not found' });
+        return;
+      case 'P2003':
+        res.status(400).json({ error: 'Referenced resource does not exist' });
+        return;
+      case 'P2014':
+        res.status(400).json({ error: 'Required relation would be violated' });
+        return;
+      case 'P2021':
+        logger.error('Prisma: Table not found - check migrations', { err });
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      case 'P2022':
+        logger.error('Prisma: Column not found - check schema', { err });
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      default:
+        logger.error('Unhandled Prisma error', { err, code: err.code });
+        res.status(500).json({ error: 'Internal server error' });
+        return;
     }
-    if (err.code === 'P2025') {
-      res.status(404).json({ error: 'Resource not found' });
-      return;
-    }
+  }
+
+  if (err instanceof Prisma.PrismaClientValidationError) {
+    logger.error('Prisma validation error', { err });
+    res.status(400).json({ error: 'Invalid data provided' });
+    return;
+  }
+
+  if (err instanceof Prisma.PrismaClientInitializationError) {
+    logger.error('Prisma initialization error', { err });
+    res.status(503).json({ error: 'Service temporarily unavailable' });
+    return;
   }
 
   if (err instanceof SyntaxError && 'body' in err) {

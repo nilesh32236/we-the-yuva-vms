@@ -4,7 +4,6 @@ import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import {
-  checkOtpRateLimit,
   enqueueOtpEmail,
   generateAndStoreOtp,
   revokeRefreshToken,
@@ -79,11 +78,9 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     // Check user exists
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (!user) {
-      res.status(404).json({ error: 'No account found with this email address. Please check your email or create a new account.' });
-      return;
+      return next(new AppError('User not found. Please check your email or create a new account.', 404));
     }
 
-    await checkOtpRateLimit(email);
     const otp = await generateAndStoreOtp(email);
     await enqueueOtpEmail(email, otp);
 

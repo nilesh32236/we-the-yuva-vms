@@ -1,16 +1,19 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { Permission } from '../shared/permissions';
+import { logger } from '../lib/logger';
 
 type Role = 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'ADMIN' | 'OBSERVER';
 
 export function requireRole(...roles: Role[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
+      logger.warn('RBAC: no user on request');
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
     if (!roles.includes(req.user.role as Role)) {
+      logger.warn('RBAC: role not authorized', { userId: req.user.id, role: req.user.role, requiredRoles: roles });
       res.status(403).json({ error: 'Forbidden' });
       return;
     }
@@ -22,6 +25,7 @@ export function requireRole(...roles: Role[]) {
 export function requirePermission(...permissions: Permission[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
+      logger.warn('RBAC: no user on request');
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
@@ -29,6 +33,7 @@ export function requirePermission(...permissions: Permission[]) {
     const userPermissions = req.user.permissions ?? [];
     const hasAll = permissions.every((p) => userPermissions.includes(p));
     if (!hasAll) {
+      logger.warn('RBAC: insufficient permissions', { userId: req.user.id, role: req.user.role, requiredPermissions: permissions });
       res.status(403).json({ error: 'Forbidden' });
       return;
     }
