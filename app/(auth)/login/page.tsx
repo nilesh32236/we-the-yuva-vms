@@ -5,17 +5,42 @@ import { ArrowRight, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type SendOtpInput, SendOtpSchema } from '@/lib/shared';
 import { Button } from '../../../components/ui/Button';
+import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { api } from '../../../lib/api';
+import { useAuth } from '../../../hooks/useAuth';
+
+const ROLE_ROUTES: Record<string, string> = {
+  VOLUNTEER: '/volunteer/dashboard',
+  COORDINATOR: '/coordinator/dashboard',
+  ADMIN: '/admin/dashboard',
+  OBSERVER: '/observer/dashboard',
+  ORGANIZATION_ADMIN: '/organization/dashboard',
+  PLATFORM_MANAGER: '/admin/dashboard',
+};
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!isAuthLoading) {
+      if (user) {
+        const route = ROLE_ROUTES[user.role] ?? '/login';
+        router.push(route);
+      } else {
+        setReady(true);
+      }
+    }
+  }, [user, isAuthLoading, router]);
 
   const {
     register,
@@ -43,6 +68,8 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  if (!ready) return <SkeletonCard />;
 
   return (
     <div className="space-y-6">
