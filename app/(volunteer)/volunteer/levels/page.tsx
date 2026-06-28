@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import {
   ArrowUp,
   Award,
@@ -73,7 +74,7 @@ export default function VolunteerLevelsPage() {
     queryFn: () => api.get('/users/me/level/progress').then((r) => r.data),
   });
 
-  const { data: requestsRes, isLoading: requestsLoading } = useQuery<{ data: RequestRecord[] }>({
+  const { data: requestsRes, isLoading: requestsLoading, isError: isRequestsError } = useQuery<{ data: RequestRecord[] }>({
     queryKey: ['my-level-requests'],
     queryFn: () => api.get('/users/me/level/requests').then((r) => r.data),
   });
@@ -84,12 +85,17 @@ export default function VolunteerLevelsPage() {
     enabled: !!user,
   });
 
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [requestNotes, setRequestNotes] = useState('');
+
   const requestMutation = useMutation({
-    mutationFn: (levelId: string) => api.post(`/levels/${levelId}/request`),
+    mutationFn: ({ levelId, notes }: { levelId: string; notes: string }) => api.post(`/levels/${levelId}/request`, { notes }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-level-requests'] });
       qc.invalidateQueries({ queryKey: ['my-level'] });
       toast({ title: 'Level-up request submitted!' });
+      setShowRequestDialog(false);
+      setRequestNotes('');
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {
       toast({ title: 'Failed', description: err?.response?.data?.error ?? 'Something went wrong', variant: 'destructive' });
@@ -100,6 +106,7 @@ export default function VolunteerLevelsPage() {
   const progress = progressRes?.data;
   const requests = requestsRes?.data ?? [];
 
+  // Backend is 0-indexed, TIER_DATA is 1-indexed — subtract 1 to align
   const currentTier = TIER_DATA[((level?.tier ?? 1) - 1)] ?? TIER_DATA[0];
   const isMaxLevel = (level?.tier ?? 0) >= TIER_DATA.length;
   const progressPct = level && level.pointsToNext > 0
@@ -214,7 +221,7 @@ export default function VolunteerLevelsPage() {
           <div className="flex items-center justify-between">
             <h2 className="font-heading font-semibold text-sm text-brand-text">Requirements for {level.nextLevel.name}</h2>
             {allRequirementsMet && !hasPendingRequest && (
-              <Button size="sm" onClick={() => { haptic.medium(); requestMutation.mutate(level.nextLevel!.levelId); }} loading={requestMutation.isPending}>
+              <Button size="sm" onClick={() => { haptic.medium(); setShowRequestDialog(true); }}>
                 <ArrowUp className="w-4 h-4" /> Request Level-Up
               </Button>
             )}
@@ -238,6 +245,34 @@ export default function VolunteerLevelsPage() {
               Upload proof manually <ArrowUp className="w-3 h-3" />
             </Link>
           )}
+        </div>
+      )}
+
+      {/* Level-Up Request Dialog */}
+      {showRequestDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <button type="button" aria-label="Close" className="absolute inset-0 bg-black/50 cursor-pointer" onClick={() => setShowRequestDialog(false)} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4"
+          >
+            <h3 className="font-heading font-semibold text-lg text-brand-text">Request Level-Up</h3>
+            <p className="text-sm text-brand-muted">Provide any notes or proof to support your level-up request.</p>
+            <textarea
+              value={requestNotes}
+              onChange={(e) => setRequestNotes(e.target.value)}
+              placeholder="Describe what you've accomplished..."
+              rows={4}
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+            />
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => { setShowRequestDialog(false); setRequestNotes(''); }}>Cancel</Button>
+              <Button onClick={() => { if (level?.nextLevel) requestMutation.mutate({ levelId: level.nextLevel.levelId, notes: requestNotes }); }} loading={requestMutation.isPending}>
+                Submit Request
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -268,7 +303,9 @@ export default function VolunteerLevelsPage() {
         <div className="px-5 py-4 border-b border-brand-border">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Request History</h2>
         </div>
-        {requestsLoading ? (
+        {isRequestsError ? (
+          <div className="text-center py-8 text-destructive text-sm">Failed to load request history. Please try again later.</div>
+        ) : requestsLoading ? (
           <div className="p-5">
             <SkeletonCard />
           </div>

@@ -18,7 +18,7 @@ export default function VolunteerLeaderboardPage() {
   const [timeframe, setTimeframe] = useState<Timeframe>('weekly');
   const [sortBy, setSortBy] = useState<SortBy>('points');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['leaderboard', scope, timeframe, sortBy],
     queryFn: () =>
       api
@@ -137,8 +137,16 @@ export default function VolunteerLeaderboardPage() {
         </div>
       )}
 
+      {/* Error State */}
+      {isError && (
+        <div className="text-center py-8">
+          <h3 className="text-sm font-semibold text-destructive">Failed to load leaderboard</h3>
+          <p className="text-xs text-brand-muted mt-1">Please try again later.</p>
+        </div>
+      )}
+
       {/* Empty State */}
-      {!isLoading && top10.length === 0 && (
+      {!isLoading && !isError && top10.length === 0 && (
         <div className="text-center py-16">
           <p className="text-4xl mb-3">🏆</p>
           <h3 className="text-sm font-semibold text-brand-text">No rankings yet</h3>
@@ -149,7 +157,7 @@ export default function VolunteerLeaderboardPage() {
       )}
 
       {/* Top 10 List */}
-      {!isLoading && top10.length > 0 && (
+      {!isLoading && !isError && top10.length > 0 && (
         <div className="bg-brand-surface rounded-2xl border border-brand-border divide-y divide-brand-border/50 overflow-hidden">
           <div className="px-4 py-3 border-b border-brand-border">
             <h2 className="text-xs font-semibold text-brand-muted uppercase tracking-wider">
@@ -172,7 +180,7 @@ export default function VolunteerLeaderboardPage() {
       )}
 
       {/* Current User's Rank Pinned */}
-      {!isLoading && currentUserEntry && (
+      {!isLoading && !isError && currentUserEntry && (
         <div className="bg-brand-surface rounded-2xl border border-brand-border/70 overflow-hidden">
           <div className="px-4 py-2 border-b border-brand-border/40 bg-brand-primary/5">
             <span className="text-[11px] font-semibold text-brand-muted uppercase tracking-wider">
@@ -193,7 +201,7 @@ export default function VolunteerLeaderboardPage() {
       )}
 
       {/* Fallback when user has no rank */}
-      {!isLoading && !currentUserEntry && (
+      {!isLoading && !isError && !currentUserEntry && (
         <div className="text-center py-6 bg-brand-surface rounded-2xl border border-brand-border">
           <p className="text-xs text-brand-muted">
             Participate in events to get ranked on the leaderboard.

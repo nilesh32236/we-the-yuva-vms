@@ -234,6 +234,8 @@ export function OpportunityForm({
         )}
       </div>
 
+      {field('locationId', 'Location ID', { placeholder: 'Enter location ID' })}
+
       {/* Remote toggle */}
       <label htmlFor="isRemote" className="flex items-center gap-3 cursor-pointer">
         <div

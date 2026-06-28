@@ -36,9 +36,10 @@ export default function RegisterPage() {
         const route = ROLE_ROUTES[user.role] ?? '/login';
         router.push(route);
       } else {
-        // Clear stale session data when landing on register page
         sessionStorage.removeItem('logged_out');
-        setAccessToken(null);
+        // Only clear in-memory token if there's evidence of a stale session
+        const hasAccessCookie = document.cookie.includes('access_token=');
+        if (hasAccessCookie) setAccessToken(null);
         setReady(true);
       }
     }
@@ -60,7 +61,7 @@ export default function RegisterPage() {
       if (otpRes.data?.devOtp) sessionStorage.setItem('devOtp', otpRes.data.devOtp);
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
-      const err = error as { response?: { status?: number; data?: { error?: string } } };
+      const err = error as { normalizedMessage?: string; response?: { status?: number; data?: { error?: string } } };
       const status = err?.response?.status;
       if (status === 409) {
         toast({
@@ -69,7 +70,7 @@ export default function RegisterPage() {
           variant: 'destructive',
         });
       } else {
-        const message = err?.response?.data?.error ?? 'Something went wrong. Please try again.';
+        const message = err?.normalizedMessage ?? err?.response?.data?.error ?? 'Something went wrong. Please try again.';
         toast({ title: 'Error', description: message, variant: 'destructive' });
       }
     } finally {

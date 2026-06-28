@@ -16,7 +16,7 @@ function VerifyOtpContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const { setUser } = useAuth();
+  const { user: authUser, isLoading: isAuthLoading, refetch } = useAuth();
 
   const email = searchParams.get('email') ?? '';
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
@@ -41,6 +41,16 @@ function VerifyOtpContent() {
       router.push('/login');
     }
   }, [email, redirected, router]);
+
+  // Redirect to dashboard if already authenticated
+  const [authChecked, setAuthChecked] = useState(false);
+  useEffect(() => {
+    if (!isAuthLoading && authUser) {
+      router.push('/volunteer/dashboard');
+    } else if (!isAuthLoading && !authUser) {
+      setAuthChecked(true);
+    }
+  }, [authUser, isAuthLoading, router]);
 
   const handleVerify = useCallback(
     async (digits: string[]) => {
@@ -80,8 +90,8 @@ function VerifyOtpContent() {
           document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=604800; SameSite=Strict${secure}`;
         }
 
-        // Populate auth context directly — no extra /users/me round-trip needed
-        setUser(user);
+        // Populate auth context via refetch
+        await refetch();
 
         // Navigate based on onboarding state
         if (!user.consent) {
@@ -112,7 +122,7 @@ function VerifyOtpContent() {
         setIsVerifying(false);
       }
     },
-    [email, router, setUser, toast]
+    [email, router, refetch, toast]
   );
 
   // Auto-submit when all 6 digits are entered
@@ -123,15 +133,19 @@ function VerifyOtpContent() {
   }, [otp, isVerifying, handleVerify]);
 
   const handleResend = async () => {
-    const res = await api.post('/auth/send-otp', { email });
-    if (res.data?.devOtp) {
-      sessionStorage.setItem('devOtp', res.data.devOtp);
-      setDevOtp(res.data.devOtp);
+    try {
+      const res = await api.post('/auth/send-otp', { email });
+      if (res.data?.devOtp) {
+        sessionStorage.setItem('devOtp', res.data.devOtp);
+        setDevOtp(res.data.devOtp);
+      }
+      toast({ title: 'Code sent', description: `A new code has been sent to ${email}` });
+    } catch {
+      toast({ title: 'Error', description: 'Could not resend code. Please try again.', variant: 'destructive' });
     }
-    toast({ title: 'Code sent', description: `A new code has been sent to ${email}` });
   };
 
-  if (!email && redirected) return null;
+  if ((!email && redirected) || !authChecked) return null;
 
   return (
     <div className="space-y-6">

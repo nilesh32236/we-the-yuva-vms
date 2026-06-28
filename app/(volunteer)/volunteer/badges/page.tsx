@@ -32,9 +32,9 @@ export default function VolunteerBadgesPage() {
 
   const isLoading = loadingBadges || loadingMine;
 
-  const badgeDefinitions: BadgeDefinition[] = allBadges?.badges ?? [];
+  const badgeDefinitions: BadgeDefinition[] = allBadges ?? [];
   const earnedMap: Record<string, string> = {};
-  (myBadges?.earned ?? []).forEach((eb: EarnedBadge) => {
+  (myBadges ?? []).forEach((eb: EarnedBadge) => {
     earnedMap[eb.badgeName] = eb.earnedAt;
   });
 

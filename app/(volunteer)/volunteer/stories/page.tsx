@@ -5,11 +5,14 @@ import { BookOpen, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
+import { useAuth } from '../../../../lib/auth-context';
 
 export default function MyStoriesPage() {
+  const { user } = useAuth();
   const { data, isLoading } = useQuery({
-    queryKey: ['my-stories'],
-    queryFn: () => api.get('/stories/published').then((r) => r.data),
+    queryKey: ['my-stories', user?.id],
+    queryFn: () => api.get(`/stories/published?userId=${user?.id}`).then((r) => r.data),
+    enabled: !!user,
     staleTime: 30_000,
   });
 

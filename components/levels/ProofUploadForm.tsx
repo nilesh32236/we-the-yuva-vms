@@ -12,11 +12,13 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState<{ url: string; name: string }[]>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(file: File) {
     if (uploading) return;
     if (file.size > 10 * 1024 * 1024) return;
+    setUploadError(null);
     setUploading(true);
     try {
       const formData = new FormData();
@@ -27,8 +29,9 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
       const newFiles = [...files, { url: data.url, name: file.name }];
       setFiles(newFiles);
       onFilesChange(newFiles.map((f) => f.url));
-    } catch {
-      // silent
+    } catch (err) {
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Upload failed. Please try again.';
+      setUploadError(message);
     } finally {
       setUploading(false);
     }
@@ -73,6 +76,8 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
       </button>
 
       <input ref={inputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+
+      {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
 
       {files.length > 0 && (
         <ul className="space-y-2">

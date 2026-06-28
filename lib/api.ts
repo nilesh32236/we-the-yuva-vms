@@ -71,7 +71,7 @@ api.interceptors.response.use(
             .post(
               '/api/v1/auth/refresh',
               {},
-              { withCredentials: true }
+              { withCredentials: true, timeout: 10000 }
             )
             .then((r) => r.data)
             .finally(() => {
@@ -106,10 +106,15 @@ api.interceptors.response.use(
         error.normalizedMessage = 'Network error. Please check your connection.';
       }
     } else {
-      error.normalizedMessage =
-        error.response?.data?.error ??
-        error.response?.data?.message ??
-        'Something went wrong. Please try again.';
+      const data = error.response?.data;
+      if (typeof data === 'string') {
+        error.normalizedMessage = data;
+      } else {
+        error.normalizedMessage =
+          data?.error ??
+          data?.message ??
+          'Something went wrong. Please try again.';
+      }
     }
     return Promise.reject(error);
   }

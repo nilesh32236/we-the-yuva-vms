@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
@@ -334,12 +334,12 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
         state: state || undefined,
       });
       onComplete();
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Could not save profile. Please try again.',
-        variant: 'destructive',
-      });
+    } catch (err) {
+      const message = (err as { normalizedMessage?: string; response?: { data?: { error?: string; message?: string } } })?.normalizedMessage
+        ?? (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error
+        ?? (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message
+        ?? 'Could not save profile. Please try again.';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -404,7 +404,13 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
 
 export default function SetupProfilePage() {
   const router = useRouter();
-  const { user, refetch } = useAuth();
+  const { user, isLoading, refetch } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
 
   const handleComplete = async () => {
     await refetch();

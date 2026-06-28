@@ -17,6 +17,7 @@ export default function EventFeedbackPage() {
 
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
+  const [ratingTouched, setRatingTouched] = useState(false);
   const [comments, setComments] = useState('');
   const [learnings, setLearnings] = useState('');
   const [confidence, setConfidence] = useState(0);
@@ -45,8 +46,11 @@ export default function EventFeedbackPage() {
         description: 'Thank you for sharing your experience.',
       });
       router.push('/volunteer/events');
-    } catch {
-      toast({ title: 'Error', description: 'Could not submit feedback.', variant: 'destructive' });
+    } catch (err) {
+      const message = (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })?.normalizedMessage
+        ?? (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        ?? 'Could not submit feedback.';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +83,7 @@ export default function EventFeedbackPage() {
                 <button
                   key={n}
                   type="button"
-                  onClick={() => setRating(n)}
+                  onClick={() => { setRating(n); setRatingTouched(true); }}
                   onMouseEnter={() => setHover(n)}
                   onMouseLeave={() => setHover(0)}
                   className="p-1 cursor-pointer transition-colors"
@@ -90,6 +94,9 @@ export default function EventFeedbackPage() {
                 </button>
               ))}
             </div>
+            {ratingTouched && rating === 0 && (
+              <p id="rating-error" className="text-xs text-destructive mt-1" role="alert">Please select a rating.</p>
+            )}
           </div>
 
           {/* Comments */}

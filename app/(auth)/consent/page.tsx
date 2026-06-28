@@ -2,9 +2,10 @@
 
 import { ArrowRight, Camera, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
+import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../lib/api';
 
 const PRIVACY_POLICY_TEXT = `
@@ -37,6 +38,13 @@ export default function ConsentPage() {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [mediaAccepted, setMediaAccepted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { user, isLoading: isAuthLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isAuthLoading, router]);
 
   const handleSubmit = async () => {
     if (!privacyAccepted) return;

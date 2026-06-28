@@ -8,7 +8,6 @@ const PUBLIC_ROUTES = [
   '/verify-otp',
   '/offline',
   '/scan',
-  '/notifications',
   '/consent',
   '/setup-profile',
 ];

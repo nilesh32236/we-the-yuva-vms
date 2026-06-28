@@ -146,8 +146,11 @@ export default function YouthAssessmentPage() {
         ORGANIZATION_ADMIN: '/organization/dashboard',
       };
       router.push(roleRoutes[user?.role ?? ''] ?? '/login');
-    } catch {
-      toast({ title: 'Failed to save assessment', variant: 'destructive' });
+    } catch (err) {
+      const message = (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })?.normalizedMessage
+        ?? (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        ?? 'Failed to save assessment';
+      toast({ title: message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }

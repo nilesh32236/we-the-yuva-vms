@@ -32,7 +32,6 @@ export interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
-  setUser: (user: AuthUser | null) => void;
   refetch: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -95,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, setUser, refetch: fetchUser, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, refetch: fetchUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
