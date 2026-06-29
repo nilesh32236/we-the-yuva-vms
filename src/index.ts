@@ -57,6 +57,11 @@ async function main() {
       {},
       { repeat: { pattern: '0 2 * * *' } }
     );
+    await notificationsQueue?.add(
+      'cleanup-pending-users',
+      {},
+      { repeat: { pattern: '0 3 * * *' } }
+    );
     logger.info('BullMQ repeatable jobs registered');
   } catch (error) {
     logger.warn('BullMQ/Redis unavailable — repeatable jobs skipped', {
@@ -87,11 +92,9 @@ async function main() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.error('UNHANDLED REJECTION', { err: reason, promise });
+  process.on('unhandledRejection', (reason) => {
+    logger.error('UNHANDLED REJECTION', { err: reason });
     Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)));
-    // Let process exit naturally rather than hang
-    promise.catch(() => {});
     process.exit(1);
   });
 

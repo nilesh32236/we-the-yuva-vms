@@ -16,10 +16,9 @@ export function validate(schema: ZodSchema) {
       });
 
       if (!result.success) {
-        res.status(422).json({
-          error: 'Validation failed',
-          details: result.error.flatten(),
-        });
+        const fieldErrors = result.error.flatten().fieldErrors;
+        const firstError = Object.values(fieldErrors).flat()[0];
+        res.status(422).json({ error: firstError ?? 'Validation failed' });
         return;
       }
 
@@ -33,10 +32,9 @@ export function validate(schema: ZodSchema) {
       const result = schema.safeParse(req.body);
 
       if (!result.success) {
-        res.status(422).json({
-          error: 'Validation failed',
-          details: result.error.flatten(),
-        });
+        const fieldErrors = result.error.flatten().fieldErrors;
+        const firstError = Object.values(fieldErrors).flat()[0];
+        res.status(422).json({ error: firstError ?? 'Validation failed' });
         return;
       }
 

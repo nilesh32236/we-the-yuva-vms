@@ -682,6 +682,12 @@ if (redis && notificationsQueue) {
         await updateStreaks();
       }
 
+      if (job.name === 'cleanup-pending-users') {
+        const { cleanupPendingUsers } = await import('../modules/auth/auth.service');
+        const count = await cleanupPendingUsers();
+        logger.info('Pending users cleaned up', { deleted: count, jobId: job.id });
+      }
+
       if (job.name === 'check-event-reminders') {
         const now = new Date();
         const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);

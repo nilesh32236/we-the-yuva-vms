@@ -25,9 +25,11 @@ export const OpportunitySchema = z
       .max(10, 'Maximum 10 skills allowed'),
     category: z.enum(OPPORTUNITY_CATEGORIES),
     locationId: z.string().optional(),
-    // TODO: add future-date validation only for CREATE in production
-    // Currently relaxed for editing existing records
-    startDate: z.string().datetime(),
+    // TODO: relax for UPDATE operations (existing records have past dates)
+    startDate: z.string().datetime().refine((val) => {
+      const date = new Date(val);
+      return date > new Date();
+    }, { message: 'Start date must be in the future' }),
     endDate: z.string().datetime(),
     hoursPerSession: z.number().positive('Hours per session must be positive'),
     totalSlots: z.number().int().positive('Total slots must be a positive integer'),

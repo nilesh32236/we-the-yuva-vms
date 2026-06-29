@@ -42,6 +42,15 @@ export function errorMiddleware(
       case 'P2000':
         res.status(400).json({ error: 'Value too long for column' });
         return;
+      case 'P2001':
+        Sentry.captureException(err);
+        res.status(404).json({ error: 'Record not found' });
+        return;
+      case 'P2030':
+        Sentry.captureException(err);
+        res.status(400).json({ error: 'Database query error' });
+        return;
+      // P2031-P2034 also grouped under P2030 pattern if needed
       case 'P2002':
         res.status(409).json({ error: 'Resource already exists' });
         return;

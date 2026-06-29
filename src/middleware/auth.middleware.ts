@@ -37,7 +37,9 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   const token = authHeader.split(' ')[1];
 
   try {
-    const payload = jwt.verify(token, env.JWT_ACCESS_SECRET) as JwtPayload;
+    const payload = jwt.verify(token, env.JWT_ACCESS_SECRET, {
+      issuer: 'we-the-yuva-api',
+    }) as JwtPayload;
     req.user = {
       id: payload.sub,
       role: payload.role,
@@ -47,24 +49,45 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
     next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
-      logger.warn('Auth failed: token expired', { error: err.message });
+      logger.warn('Auth failed: token expired', {
+        error: err.message,
+        path: req.path,
+        ip: req.ip,
+        tokenPrefix: token.substring(0, 7) + '...',
+      });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Token expired' });
       return;
     }
-    if (err instanceof jwt.JsonWebTokenError) {
-      logger.warn('Auth failed: invalid token', { error: err.message });
-      Sentry.captureException(err);
-      res.status(401).json({ error: 'Invalid token' });
-      return;
-    }
     if (err instanceof jwt.NotBeforeError) {
-      logger.warn('Auth failed: token not yet active', { error: err.message });
+      logger.warn('Auth failed: token not yet active', {
+        error: err.message,
+        path: req.path,
+        ip: req.ip,
+        tokenPrefix: token.substring(0, 7) + '...',
+      });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Token not yet active' });
       return;
     }
-    logger.warn('Auth failed: unauthorized', { error: (err as Error).message });
+    if (err instanceof jwt.JsonWebTokenError) {
+      logger.warn('Auth failed: invalid token', {
+        error: err.message,
+        path: req.path,
+        ip: req.ip,
+        tokenPrefix: token.substring(0, 7) + '...',
+      });
+      Sentry.captureException(err);
+      res.status(401).json({ error: 'Invalid token' });
+      return;
+    }
+    logger.warn('Auth failed: unauthorized', {
+      error: (err as Error).message,
+      errorType: (err as Error).constructor.name,
+      path: req.path,
+      ip: req.ip,
+      tokenPrefix: token.substring(0, 7) + '...',
+    });
     Sentry.captureException(err);
     res.status(401).json({ error: 'Unauthorized' });
     return;
