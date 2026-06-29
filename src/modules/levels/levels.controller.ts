@@ -123,7 +123,7 @@ export async function listPendingRequestsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const search = req.query.search as string | undefined;
+    const search = _req.query.search as string | undefined;
     const result = await listPendingRequests(search);
     res.status(200).json(result);
   } catch (err) {

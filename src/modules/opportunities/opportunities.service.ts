@@ -347,8 +347,13 @@ export async function listMyApplications(volunteerId: string, pagination?: Pagin
   if (!pagination) {
     return prisma.application.findMany({
       where: { volunteerId },
-      select: { id: true, opportunityId: true, status: true, appliedAt: true },
-      include: { opportunity: { select: { title: true, category: true } } },
+      select: {
+        id: true,
+        opportunityId: true,
+        status: true,
+        appliedAt: true,
+        opportunity: { select: { title: true, category: true } },
+      },
       orderBy: { appliedAt: 'desc' },
     });
   }
@@ -359,8 +364,13 @@ export async function listMyApplications(volunteerId: string, pagination?: Pagin
       where: { volunteerId },
       skip,
       take: limit,
-      select: { id: true, opportunityId: true, status: true, appliedAt: true },
-      include: { opportunity: { select: { title: true, category: true } } },
+      select: {
+        id: true,
+        opportunityId: true,
+        status: true,
+        appliedAt: true,
+        opportunity: { select: { title: true, category: true } },
+      },
       orderBy: { appliedAt: 'desc' },
     }),
     prisma.application.count({ where: { volunteerId } }),
