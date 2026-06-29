@@ -99,7 +99,7 @@ export default function VolunteerOpportunitiesPage() {
               }}
               placeholder="Search opportunities…"
               aria-label="Search opportunities"
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
           <select

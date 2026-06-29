@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Lock } from 'lucide-react';
+import { Award, Check, Lock, Star, Shield, Zap, Target, Heart, BookOpen, Users } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface BadgeCardProps {
@@ -11,6 +11,19 @@ interface BadgeCardProps {
   earned: boolean;
   earnedAt?: string | null;
 }
+
+const BADGE_ICONS: Record<string, typeof Award> = {
+  FIRST_STEPS: BookOpen,
+  EVENT_SEEKER: Target,
+  CENTURY_CLUB: Award,
+  COMMUNITY_BUILDER: Users,
+  PROBLEM_SOLVER: Zap,
+  MENTOR: Heart,
+  FAST_RISER: Star,
+  STREAK_MASTER: Shield,
+  STORYTELLER: BookOpen,
+  NIGHT_OWL: Star,
+};
 
 export function BadgeCard({
   name,
@@ -49,7 +62,13 @@ export function BadgeCard({
         {imageUrl ? (
           <img src={imageUrl} alt={title} className="w-12 h-12 object-contain" />
         ) : (
-          <span className="text-2xl">{earned ? '🏆' : '❓'}</span>
+          (() => {
+            const IconComponent = BADGE_ICONS[name];
+            if (IconComponent) {
+              return <IconComponent className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')} />;
+            }
+            return <Award className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')} />;
+          })()
         )}
       </div>
 

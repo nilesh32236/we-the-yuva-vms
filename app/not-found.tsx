@@ -6,7 +6,7 @@ export default function NotFoundPage() {
       <div className="max-w-md text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto border border-amber-100">
           <svg
-            className="w-8 h-8 text-amber-500"
+            className="w-8 h-8 text-amber-500 dark:text-amber-400"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}

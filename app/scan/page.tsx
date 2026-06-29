@@ -143,13 +143,13 @@ function ScanInner() {
             </div>
           ) : result === 'success' ? (
             <div className="space-y-4">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+              <CheckCircle className="w-16 h-16 text-green-500 dark:text-green-400 mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
               <p className="text-brand-muted">Redirecting to your events...</p>
             </div>
           ) : (
             <div className="space-y-4">
-              <XCircle className="w-16 h-16 text-red-500 mx-auto" />
+              <XCircle className="w-16 h-16 text-red-500 dark:text-red-400 mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Check-in Failed</h2>
               <p className="text-brand-muted">{errorMsg}</p>
               <button
@@ -179,25 +179,25 @@ function ScanInner() {
       </div>
 
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-600">
+        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-4 text-sm text-red-600 dark:text-red-400">
           {errorMsg}
         </div>
       )}
 
       {result === 'success' ? (
         <div className="text-center space-y-4 py-8">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+          <CheckCircle className="w-16 h-16 text-green-500 dark:text-green-400 mx-auto" />
           <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
         </div>
       ) : (
         <>
           {/* Mode toggle */}
-          <div className="flex gap-2 bg-gray-100 rounded-xl p-1">
+          <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
             <button
               type="button"
               onClick={() => { setMode('camera'); setErrorMsg(''); }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'camera' ? 'bg-card shadow-sm text-brand' : 'text-gray-500'
+                mode === 'camera' ? 'bg-card shadow-sm text-brand' : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               <Camera className="w-4 h-4" /> Camera
@@ -206,7 +206,7 @@ function ScanInner() {
               type="button"
               onClick={() => { setMode('manual'); setErrorMsg(''); }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'manual' ? 'bg-card shadow-sm text-brand' : 'text-gray-500'
+                mode === 'manual' ? 'bg-card shadow-sm text-brand' : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               <Keyboard className="w-4 h-4" /> Manual

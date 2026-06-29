@@ -32,7 +32,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   SPORTS: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
   TECHNOLOGY: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400',
   ACTIVE_CITIZENSHIP: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
-  OTHER: 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400',
+  OTHER: 'bg-muted text-muted-foreground',
 };
 
 export default function AlertSubscriptionsPage() {
@@ -198,7 +198,7 @@ export default function AlertSubscriptionsPage() {
                         }
                       }}
                       placeholder="Add skill, press Enter..."
-                      className="w-full pl-8 pr-3 py-2 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                      className="w-full pl-8 pr-3 py-2 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     />
                   </div>
                 </div>

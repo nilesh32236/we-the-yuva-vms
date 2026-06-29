@@ -66,17 +66,17 @@ export default function VolunteerLevelsPage() {
 
   const { data: levelRes, isLoading: levelLoading, isError: isLevelError } = useQuery<{ data: LevelData }>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/users/me/level').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
   });
 
   const { data: progressRes, isLoading: progressLoading, isError: isProgressError } = useQuery<{ data: ProgressData }>({
     queryKey: ['my-level-progress'],
-    queryFn: () => api.get('/users/me/level/progress').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level/progress').then((r) => r.data),
   });
 
   const { data: requestsRes, isLoading: requestsLoading, isError: isRequestsError } = useQuery<{ data: RequestRecord[] }>({
     queryKey: ['my-level-requests'],
-    queryFn: () => api.get('/users/me/level/requests').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level/requests').then((r) => r.data),
   });
 
   const { data: youthProfileRes } = useQuery({
@@ -209,7 +209,7 @@ export default function VolunteerLevelsPage() {
 
       {isMaxLevel && (
         <div className="bg-brand-surface rounded-2xl border border-amber-200 dark:border-amber-800 p-5 text-center">
-          <Award className="w-10 h-10 text-amber-500 mx-auto mb-2" />
+          <Award className="w-10 h-10 text-amber-500 dark:text-amber-400 mx-auto mb-2" />
           <p className="font-heading font-semibold text-brand-text">Maximum Level Reached!</p>
           <p className="text-sm text-brand-muted mt-1">You&apos;ve reached the highest tier. Keep up the great work!</p>
         </div>
@@ -264,7 +264,7 @@ export default function VolunteerLevelsPage() {
               onChange={(e) => setRequestNotes(e.target.value)}
               placeholder="Describe what you've accomplished..."
               rows={4}
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
             />
             <div className="flex gap-3 justify-end">
               <Button variant="outline" onClick={() => { setShowRequestDialog(false); setRequestNotes(''); }}>Cancel</Button>
@@ -318,11 +318,11 @@ export default function VolunteerLevelsPage() {
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex-shrink-0">
                     {req.status === 'APPROVED' ? (
-                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400" />
                     ) : req.status === 'REJECTED' ? (
                       <XCircle className="w-5 h-5 text-brand-error" />
                     ) : (
-                      <Clock className="w-5 h-5 text-amber-500" />
+                      <Clock className="w-5 h-5 text-amber-500 dark:text-amber-400" />
                     )}
                   </div>
                   <div className="min-w-0">

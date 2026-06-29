@@ -69,7 +69,7 @@ export default function NewStoryPage() {
             onChange={(e) => setTitle(e.target.value)}
             required
             placeholder="e.g. Teaching 200 Children to Read"
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
 
@@ -84,7 +84,7 @@ export default function NewStoryPage() {
             required
             rows={8}
             placeholder="Describe your experience, what you learned, and the impact you made..."
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
           />
         </div>
 

@@ -63,11 +63,11 @@ export function OrganizationTable({ orgs }: OrganizationTableProps) {
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-1.5">
                     {org.status === 'ACTIVE' ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
                     ) : org.status === 'PENDING' ? (
-                      <Clock className="w-3.5 h-3.5 text-yellow-600" />
+                      <Clock className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" />
                     ) : (
-                      <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+                      <ShieldAlert className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
                     )}
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${STATUS_COLORS[org.status] ?? ''}`}>
                       {org.status}

@@ -37,7 +37,7 @@ type TabKey = (typeof TABS)[number]['key'];
 const STATUS_BADGE: Record<string, string> = {
   PENDING: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
   ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
-  COMPLETED: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
+  COMPLETED: 'bg-muted text-muted-foreground',
 };
 
 function AvatarInitials({ name }: { name: string }) {

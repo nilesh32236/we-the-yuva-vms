@@ -131,7 +131,7 @@ export default function OpportunityChatPage({ params }: { params: Promise<{ id: 
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
                       isMe
                         ? 'bg-brand text-white rounded-br-md'
-                        : 'bg-gray-100 dark:bg-gray-800 text-brand-text rounded-bl-md'
+                        : 'bg-muted text-brand-text rounded-bl-md'
                     }`}
                   >
                     {!isMe && (

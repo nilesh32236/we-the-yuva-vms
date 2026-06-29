@@ -115,7 +115,7 @@ export default function RegisterPage() {
                 autoComplete="name"
                 placeholder="Your full name"
                 aria-describedby={errors.name ? 'name-error' : undefined}
-                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                   ${errors.name ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                 {...register('name')}
@@ -142,7 +142,7 @@ export default function RegisterPage() {
                 autoComplete="email"
                 placeholder="you@example.com"
                 aria-describedby={errors.email ? 'email-error' : undefined}
-                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                   ${errors.email ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                 {...register('email')}
@@ -163,7 +163,7 @@ export default function RegisterPage() {
             <select
               id="volunteerType"
               aria-describedby={errors.volunteerType ? 'volunteerType-error' : undefined}
-              className={`w-full px-4 py-2.5 rounded-lg border text-sm transition-colors duration-200
+              className={`w-full px-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
                 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                 ${errors.volunteerType ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
               {...register('volunteerType')}

@@ -13,7 +13,7 @@ interface BadgeDefinition {
 }
 
 interface EarnedBadge {
-  badgeName: string;
+  name: string;
   earnedAt: string;
 }
 
@@ -35,7 +35,7 @@ export default function VolunteerBadgesPage() {
   const badgeDefinitions: BadgeDefinition[] = allBadges ?? [];
   const earnedMap: Record<string, string> = {};
   (myBadges ?? []).forEach((eb: EarnedBadge) => {
-    earnedMap[eb.badgeName] = eb.earnedAt;
+    earnedMap[eb.name] = eb.earnedAt;
   });
 
   const badgeList = badgeDefinitions.map((badge) => ({

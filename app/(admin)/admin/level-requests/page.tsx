@@ -108,7 +108,7 @@ function ReviewModal({
               onChange={(e) => setReviewNote(e.target.value)}
               rows={3}
               placeholder="Add a note for the volunteer..."
-              className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+              className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
             />
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function AdminLevelRequestsPage() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by volunteer name or email…"
           aria-label="Search level-up requests"
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>
 

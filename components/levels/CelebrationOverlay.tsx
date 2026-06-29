@@ -28,7 +28,7 @@ export function CelebrationOverlay({ levelName, tier, points }: CelebrationOverl
         <div className="relative z-10 space-y-6">
           <div className="flex justify-center gap-2">
             <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />
-            <PartyPopper className="w-8 h-8 text-amber-500" />
+            <PartyPopper className="w-8 h-8 text-amber-500 dark:text-amber-400" />
             <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />
           </div>
 

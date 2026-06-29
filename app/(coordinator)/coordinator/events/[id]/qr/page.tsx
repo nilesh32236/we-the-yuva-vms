@@ -57,7 +57,7 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
                 })}
               </p>
               {data.expiresAt && (
-                <p className="text-xs text-amber-600">
+                <p className="text-xs text-amber-600 dark:text-amber-400">
                   Expires{' '}
                   {new Date(data.expiresAt).toLocaleDateString('en-IN', {
                     day: 'numeric',

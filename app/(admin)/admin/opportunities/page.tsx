@@ -9,7 +9,7 @@ import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-brand-primary/10 text-brand-primary',
-  CLOSED: 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400',
+  CLOSED: 'bg-muted text-muted-foreground',
   DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
 };
 
@@ -63,7 +63,7 @@ export default function AdminOpportunitiesPage() {
             setPage(1);
           }}
           placeholder="Search…"
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>
 
@@ -201,7 +201,7 @@ export default function AdminOpportunitiesPage() {
               <button
                 type="button"
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm rounded-lg border"
+                className="px-4 py-2 text-sm rounded-lg border bg-background text-gray-700 dark:text-gray-200"
               >
                 Cancel
               </button>

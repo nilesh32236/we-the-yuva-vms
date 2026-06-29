@@ -14,7 +14,7 @@ const ROLE_COLORS: Record<string, string> = {
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
   PENDING: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
-  INACTIVE: 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400',
+  INACTIVE: 'bg-muted text-muted-foreground',
   SUSPENDED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
 };
 

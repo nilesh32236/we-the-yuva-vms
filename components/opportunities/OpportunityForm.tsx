@@ -80,7 +80,7 @@ export function OpportunityForm({
         id={id}
         {...register(id)}
         {...extra}
-        className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary
+        className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary
           ${errors[id] ? 'border-brand-error' : 'border-brand-border'}`}
       />
       {errors[id] && <p className="text-xs text-brand-error">{errors[id]?.message as string}</p>}
@@ -106,7 +106,7 @@ export function OpportunityForm({
           {...register('description')}
           rows={4}
           placeholder="Describe the opportunity…"
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none
             ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.description && (
@@ -244,7 +244,7 @@ export function OpportunityForm({
               }
             }}
             placeholder="Add skill, press Enter"
-            className="flex-1 px-3 py-2 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="flex-1 px-3 py-2 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
           <Button type="button" variant="outline" onClick={addSkill}>
             <Plus className="w-4 h-4" />

@@ -54,8 +54,8 @@ function PillSelector({
                 ${isSelected
                   ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
                   : atLimit
-                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed border-2 border-transparent'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
+                    : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
                 }`}
             >
               {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -105,9 +105,9 @@ export default function YouthAssessmentPage() {
               rows={3}
               maxLength={500}
               className="w-full rounded-xl border border-brand-border bg-background px-4 py-3 text-sm
-                placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
+                placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
             />
-            <p className="text-xs text-gray-400 text-right">{learningGoals.length}/500</p>
+            <p className="text-xs text-muted-foreground text-right">{learningGoals.length}/500</p>
           </div>
         </div>
       ),
@@ -173,7 +173,7 @@ export default function YouthAssessmentPage() {
             {steps.map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-8 bg-brand' : i < step ? 'w-4 bg-brand/40' : 'w-4 bg-gray-200'}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-8 bg-brand' : i < step ? 'w-4 bg-brand/40' : 'w-4 bg-muted'}`}
               />
             ))}
           </div>

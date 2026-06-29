@@ -40,7 +40,7 @@ export default function LevelRequestPage() {
 
   const { data: levelRes, isLoading: levelLoading } = useQuery<{ data: { tier: number } }>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/users/me/level').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
   });
 
   const { data: levelsRes, isLoading: levelsLoading } = useQuery<{ data: LevelDefinition[] }>({
@@ -143,7 +143,7 @@ export default function LevelRequestPage() {
                         onChange={(e) => setNotes(e.target.value)}
                         rows={3}
                         placeholder="Add any additional information for the reviewer..."
-                        className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                        className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                       />
                     </div>
 

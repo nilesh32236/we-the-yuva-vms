@@ -96,6 +96,9 @@ function VerifyOtpContent() {
         // Navigate based on onboarding state
         if (!user.consent) {
           router.push('/consent');
+        } else if (user.role === 'VOLUNTEER' && !user.profile) {
+          // VOLUNTEERs with no profile must complete setup → youth-assessment → dashboard
+          router.push('/setup-profile');
         } else if (
           (['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(user.role) && !user.locationId)
         ) {

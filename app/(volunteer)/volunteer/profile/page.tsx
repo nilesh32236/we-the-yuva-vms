@@ -48,7 +48,7 @@ export default function VolunteerProfilePage() {
 
   const { data: levelData } = useQuery<{ data: { tier: number; points: number; streak: number } }>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/users/me/level').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
     staleTime: 60_000,
   });
 
@@ -188,7 +188,7 @@ export default function VolunteerProfilePage() {
       .slice(0, 2) ?? '?';
 
   const inputCls = (field: string) =>
-    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors ${
+    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
       fieldErrors[field]
         ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'

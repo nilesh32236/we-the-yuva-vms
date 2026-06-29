@@ -21,7 +21,7 @@ export function StreakBadge({ streak, size = 'sm' }: StreakBadgeProps) {
       role="status"
       aria-label={`${streak} day streak`}
     >
-      <Flame className={`${classes.icon} text-orange-500`} />
+      <Flame className={`${classes.icon} text-orange-500 dark:text-orange-400`} />
       <span className={`${classes.text} font-semibold text-orange-700 dark:text-orange-400`}>
         {streak}
       </span>

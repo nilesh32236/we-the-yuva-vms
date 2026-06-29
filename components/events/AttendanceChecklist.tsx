@@ -109,11 +109,11 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       {/* Summary bar */}
       <div className="flex items-center gap-4 text-xs text-brand-muted">
         <span className="flex items-center gap-1">
-          <LogIn className="w-3.5 h-3.5 text-emerald-600" />
+          <LogIn className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           {checkedIn} checked in
         </span>
         <span className="flex items-center gap-1">
-          <LogOut className="w-3.5 h-3.5 text-red-500" />
+          <LogOut className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
           {checkedOut} checked out
         </span>
         <span className="flex items-center gap-1">
@@ -175,7 +175,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                 <div className="flex flex-col items-end gap-0.5 text-xs text-brand-muted flex-shrink-0">
                   {v.checkedInAt && (
                     <span className="flex items-center gap-1">
-                      <LogIn className="w-3 h-3 text-emerald-600" />
+                      <LogIn className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                       {new Date(v.checkedInAt).toLocaleTimeString('en-IN', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -184,7 +184,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                   )}
                   {v.checkedOutAt && (
                     <span className="flex items-center gap-1">
-                      <LogOut className="w-3 h-3 text-red-500" />
+                      <LogOut className="w-3 h-3 text-red-500 dark:text-red-400" />
                       {new Date(v.checkedOutAt).toLocaleTimeString('en-IN', {
                         hour: '2-digit',
                         minute: '2-digit',

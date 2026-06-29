@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, ArrowLeft, Bell, CheckCheck, Info, Megaphone, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
@@ -48,7 +49,7 @@ export default function NotificationsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery<NotifResponse>({
+  const { data, isLoading, isError } = useQuery<NotifResponse>({
     queryKey: ['notifications', 'list'],
     queryFn: () => api.get('/notifications?limit=50').then((r) => r.data),
     staleTime: 30_000,
@@ -98,7 +99,11 @@ export default function NotificationsPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-1">
         {isLoading ? (
-          <div className="text-center py-16 text-brand-muted text-sm">Loading...</div>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : isError ? (
+          <div className="text-center py-16 text-brand-muted text-sm">Failed to load notifications.</div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-16 space-y-3">
             <Bell className="w-10 h-10 text-brand-muted mx-auto" />

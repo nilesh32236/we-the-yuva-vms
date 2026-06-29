@@ -38,7 +38,7 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
         id={id}
         {...register(id)}
         {...extra}
-        className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary
+        className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary
           ${errors[id] ? 'border-brand-error' : 'border-brand-border'}`}
       />
       {errors[id] && <p className="text-xs text-brand-error">{errors[id]?.message as string}</p>}
@@ -57,7 +57,7 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
           id="description"
           {...register('description')}
           rows={3}
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.description && (
           <p className="text-xs text-brand-error">{errors.description.message as string}</p>

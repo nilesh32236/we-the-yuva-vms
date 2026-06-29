@@ -17,7 +17,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   SPORTS: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
   TECHNOLOGY: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400',
   ACTIVE_CITIZENSHIP: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
-  OTHER: 'bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400',
+  OTHER: 'bg-muted text-muted-foreground',
 };
 
 interface OpportunityCardProps {

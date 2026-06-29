@@ -59,7 +59,7 @@ function TagInput({
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm
+          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background
             focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
         />
         <Button
@@ -382,7 +382,7 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
               value={value}
               onChange={(e) => setter(e.target.value)}
               placeholder={placeholder}
-              className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
           </div>
         ))}

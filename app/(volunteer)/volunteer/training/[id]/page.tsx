@@ -155,9 +155,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
               {completedCount === course.lessons.length && (
                 <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-xl p-4 text-center">
-                  <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-                  <p className="font-heading font-bold text-emerald-700">Course Complete!</p>
-                  <p className="text-sm text-emerald-600 mt-1">
+                  <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" />
+                  <p className="font-heading font-bold text-emerald-700 dark:text-emerald-300">Course Complete!</p>
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1">
                     You have finished all lessons in this course.
                   </p>
                 </div>

@@ -52,7 +52,7 @@ export default function TrainingPage() {
         <div className="flex items-center gap-2 mt-4">
           <div className="flex-1 bg-white/20 rounded-full h-2">
             <div
-              className="bg-white rounded-full h-2 transition-all"
+              className="bg-white/80 dark:bg-white/20 rounded-full h-2 transition-all"
               style={{
                 width: courses?.length ? `${(completedCount / courses.length) * 100}%` : '0%',
               }}

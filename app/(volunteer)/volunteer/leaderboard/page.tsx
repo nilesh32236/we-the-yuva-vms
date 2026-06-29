@@ -27,16 +27,21 @@ export default function VolunteerLeaderboardPage() {
     staleTime: 30_000,
   });
 
-  const entries: Array<{
-    userId: string;
+  type LeaderboardEntry = {
+    rank: number;
+    id: string;
     name: string;
     points: number;
     hours: number;
     level: { name: string; badgeIcon: string; color: string } | null;
     avatarUrl: string | null;
-  }> = data?.entries ?? [];
+  };
 
-  const currentUserEntry = data?.currentUser ?? null;
+  const entries: LeaderboardEntry[] = Array.isArray(data) ? data : [];
+
+  const currentUserEntry: LeaderboardEntry | null = user
+    ? entries.find((e) => e.id === user.id) ?? null
+    : null;
 
   const top10 = entries.slice(0, 10);
 
@@ -166,7 +171,7 @@ export default function VolunteerLeaderboardPage() {
           </div>
           {top10.map((entry, idx) => (
             <LeaderboardRow
-              key={entry.userId}
+              key={entry.id}
               rank={idx + 1}
               name={entry.name}
               points={entry.points}

@@ -27,7 +27,7 @@ interface LevelData {
 export function LevelProgressCard() {
   const { data, isLoading } = useQuery<{ data: LevelData }>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/users/me/level').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
   });
 
   if (isLoading) return <SkeletonCard />;

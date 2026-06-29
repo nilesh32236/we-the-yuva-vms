@@ -110,7 +110,7 @@ export default function EventFeedbackPage() {
               onChange={(e) => setComments(e.target.value)}
               rows={3}
               placeholder="What did you enjoy? Any suggestions for improvement?"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
             />
           </div>
 
@@ -125,7 +125,7 @@ export default function EventFeedbackPage() {
               onChange={(e) => setLearnings(e.target.value)}
               rows={3}
               placeholder="Share something new you learned or experienced..."
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
             />
           </div>
 

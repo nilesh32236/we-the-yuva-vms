@@ -62,22 +62,22 @@ export default function OrganizationDashboardPage() {
             label="Active Volunteers"
             value={stats?.activeVolunteers ?? 0}
             icon={Users}
-            accent="text-indigo-600"
-            accentBg="bg-indigo-50"
+            accent="text-indigo-600 dark:text-indigo-400"
+            accentBg="bg-indigo-50 dark:bg-indigo-950/30"
           />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}
             icon={Calendar}
-            accent="text-blue-600"
-            accentBg="bg-blue-50"
+            accent="text-blue-600 dark:text-blue-400"
+            accentBg="bg-blue-50 dark:bg-blue-950/30"
           />
           <StatsCard
             label="Active Opportunities"
             value={stats?.opportunities ?? 0}
             icon={Briefcase}
-            accent="text-sky-600"
-            accentBg="bg-sky-50"
+            accent="text-sky-600 dark:text-sky-400"
+            accentBg="bg-sky-50 dark:bg-sky-950/30"
           />
         </div>
       )}

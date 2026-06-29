@@ -203,11 +203,11 @@ interface OpportunityInfo {
                   : '⏳ Application Pending'}
             </div>
           ) : isClosed ? (
-            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-muted text-muted-foreground">
               Closed
             </span>
           ) : isFull ? (
-            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-muted text-muted-foreground">
               No slots available
             </span>
           ) : (

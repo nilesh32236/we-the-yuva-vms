@@ -10,7 +10,7 @@ import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-  CLOSED: 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400',
+  CLOSED: 'bg-muted text-muted-foreground',
   DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
 };
 

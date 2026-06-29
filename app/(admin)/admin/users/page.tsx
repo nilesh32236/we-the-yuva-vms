@@ -79,7 +79,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="e.g. Priya Sharma"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
 
@@ -96,7 +96,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               placeholder="e.g. priya@example.com"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
 
@@ -134,7 +134,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
                 value={form.locationName}
                 onChange={(e) => setForm((f) => ({ ...f, locationName: e.target.value }))}
                 placeholder="e.g. Mumbai"
-                className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
           )}
@@ -149,7 +149,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg cursor-pointer transition-colors"
+            className="flex-1 py-2.5 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg bg-background cursor-pointer transition-colors"
           >
             Cancel
           </button>
@@ -217,7 +217,7 @@ export default function AdminUsersPage() {
             }}
             placeholder="Search by name or email…"
             aria-label="Search users by name or email"
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
         <select

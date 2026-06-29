@@ -31,7 +31,7 @@ export default function LevelRequestSuccessPage() {
 
   const { data: detailRes, isLoading } = useQuery<{ data: RequestDetail }>({
     queryKey: ['level-request', requestId],
-    queryFn: () => api.get(`/users/me/level/requests`).then((r) => {
+    queryFn: () => api.get(`/levels/users/me/level/requests`).then((r) => {
       const found = r.data?.data?.find((req: RequestDetail) => req.id === requestId);
       return { data: found };
     }),

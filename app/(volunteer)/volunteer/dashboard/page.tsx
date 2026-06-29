@@ -109,7 +109,7 @@ export default function VolunteerDashboardPage() {
             label="Avg Rating"
             value={stats?.avgRating != null ? `${stats.avgRating.toFixed(1)} ★` : '—'}
             icon={Star}
-            accent="text-amber-500"
+            accent="text-amber-500 dark:text-amber-400"
             accentBg="bg-amber-50 dark:bg-amber-900/20"
           />
         </div>
