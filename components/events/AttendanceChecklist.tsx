@@ -203,14 +203,14 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
 
                 {/* Not checked out badge */}
                 {v.checkedInAt && !v.checkedOutAt && (
-                  <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full flex-shrink-0">
+                  <span className="text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full flex-shrink-0">
                     Active
                   </span>
                 )}
 
                 {/* Approved badge */}
                 {isApproved && (
-                  <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full flex-shrink-0">
+                  <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full flex-shrink-0">
                     <CheckCircle className="w-3 h-3" />
                     {v.approvedHours}h · {v.rating}★
                   </span>

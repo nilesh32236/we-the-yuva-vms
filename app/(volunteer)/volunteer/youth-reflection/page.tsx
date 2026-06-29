@@ -101,8 +101,8 @@ export default function YouthReflectionPage() {
                     ${isSelected
                       ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
                       : atLimit
-                        ? 'bg-gray-100 text-gray-300 cursor-not-allowed border-2 border-transparent'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
+                        ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
+                        : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
                     }`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -132,8 +132,8 @@ export default function YouthReflectionPage() {
                     ${isSelected
                       ? 'bg-purple-50 border-2 border-purple-500 text-purple-700 shadow-sm'
                       : atLimit
-                        ? 'bg-gray-100 text-gray-300 cursor-not-allowed border-2 border-transparent'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
+                        ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
+                        : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
                     }`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -187,9 +187,9 @@ export default function YouthReflectionPage() {
             rows={4}
             maxLength={1000}
             className="w-full rounded-xl border border-brand-border bg-background px-4 py-3 text-sm
-              placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
+              placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
           />
-          <p className="text-xs text-gray-400 text-right">{impactDescription.length}/1000</p>
+          <p className="text-xs text-muted-foreground text-right">{impactDescription.length}/1000</p>
         </div>
       </div>
 

@@ -38,19 +38,40 @@ function VerifyOtpContent() {
   useEffect(() => {
     if (!email && !redirected) {
       setRedirected(true);
-      router.push('/login');
+      router.replace('/login');
     }
   }, [email, redirected, router]);
 
-  // Redirect to dashboard if already authenticated
-  const [authChecked, setAuthChecked] = useState(false);
+  // Single navigation effect — handles both initial mount (already authenticated)
+  // and post-verify routing. Uses the FULL auth context user from /users/me
+  // to avoid race condition with the verify handler.
+  const [navHandled, setNavHandled] = useState(false);
   useEffect(() => {
-    if (!isAuthLoading && authUser) {
-      router.push('/volunteer/dashboard');
-    } else if (!isAuthLoading && !authUser) {
-      setAuthChecked(true);
+    if (isAuthLoading || navHandled) return;
+
+    if (authUser) {
+      setNavHandled(true);
+      if (!authUser.consent) {
+        router.replace('/consent');
+      } else if (authUser.role === 'VOLUNTEER' && !authUser.profile) {
+        router.replace('/setup-profile');
+      } else if (
+        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(authUser.role) && !authUser.locationId
+      ) {
+        router.replace('/setup-profile');
+      } else {
+        const roleRoutes: Record<string, string> = {
+          VOLUNTEER: '/volunteer/dashboard',
+          COORDINATOR: '/coordinator/dashboard',
+          ADMIN: '/admin/dashboard',
+          OBSERVER: '/observer/dashboard',
+          ORGANIZATION_ADMIN: '/organization/dashboard',
+          PLATFORM_MANAGER: '/admin/dashboard',
+        };
+        router.replace(roleRoutes[authUser.role] ?? '/login');
+      }
     }
-  }, [authUser, isAuthLoading, router]);
+  }, [authUser, isAuthLoading, navHandled, router]);
 
   const handleVerify = useCallback(
     async (digits: string[]) => {
@@ -73,7 +94,7 @@ function VerifyOtpContent() {
         if (!response.data?.accessToken || !response.data?.user) {
           throw new Error('Invalid server response');
         }
-        const { user, accessToken } = response.data;
+        const { accessToken } = response.data;
 
         // Clear any stale logged_out flag from previous session
         if (typeof sessionStorage !== 'undefined') {
@@ -90,30 +111,9 @@ function VerifyOtpContent() {
           document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=604800; SameSite=Strict${secure}`;
         }
 
-        // Populate auth context via refetch
+        // Populate auth context via refetch — the navigation effect above
+        // will route based on the FULL user from /users/me
         await refetch();
-
-        // Navigate based on onboarding state
-        if (!user.consent) {
-          router.push('/consent');
-        } else if (user.role === 'VOLUNTEER' && !user.profile) {
-          // VOLUNTEERs with no profile must complete setup → youth-assessment → dashboard
-          router.push('/setup-profile');
-        } else if (
-          (['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(user.role) && !user.locationId)
-        ) {
-          router.push('/setup-profile');
-        } else {
-          const roleRoutes: Record<string, string> = {
-            VOLUNTEER: '/volunteer/dashboard',
-            COORDINATOR: '/coordinator/dashboard',
-            ADMIN: '/admin/dashboard',
-            OBSERVER: '/observer/dashboard',
-            ORGANIZATION_ADMIN: '/organization/dashboard',
-            PLATFORM_MANAGER: '/admin/dashboard',
-          };
-          router.push(roleRoutes[user.role] ?? '/login');
-        }
       } catch (error) {
         const message =
           (error as { response?: { data?: { error?: string } } })?.response?.data?.error ??
@@ -125,15 +125,15 @@ function VerifyOtpContent() {
         setIsVerifying(false);
       }
     },
-    [email, router, refetch, toast]
+    [email, refetch, toast]
   );
 
   // Auto-submit when all 6 digits are entered
   useEffect(() => {
-    if (otp.every((d) => d !== '') && !isVerifying) {
+    if (otp.every((d) => d !== '') && !isVerifying && !navHandled) {
       handleVerify(otp);
     }
-  }, [otp, isVerifying, handleVerify]);
+  }, [otp, isVerifying, handleVerify, navHandled]);
 
   const handleResend = async () => {
     try {
@@ -148,7 +148,7 @@ function VerifyOtpContent() {
     }
   };
 
-  if ((!email && redirected) || !authChecked) return null;
+  if ((!email && redirected) || authUser) return null;
 
   return (
     <div className="space-y-6">

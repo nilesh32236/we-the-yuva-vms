@@ -168,7 +168,7 @@ export default function OrganizationCoordinatorsPage() {
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-brand-border flex items-center justify-between">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                   {c.status}
                 </span>
                 <button

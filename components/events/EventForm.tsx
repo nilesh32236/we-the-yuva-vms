@@ -74,7 +74,7 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
           {...register('eventDate', {
             setValueAs: (v: string) => (v ? new Date(v).toISOString() : v),
           })}
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.eventDate ? 'border-brand-error' : 'border-brand-border'}`}
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.eventDate ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.eventDate && (
           <p className="text-xs text-brand-error">{errors.eventDate.message as string}</p>
@@ -96,7 +96,7 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
           min="1"
           placeholder="30"
           {...register('capacity', { valueAsNumber: true })}
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.capacity ? 'border-brand-error' : 'border-brand-border'}`}
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.capacity ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.capacity && <p className="text-xs text-brand-error">{errors.capacity.message}</p>}
       </div>

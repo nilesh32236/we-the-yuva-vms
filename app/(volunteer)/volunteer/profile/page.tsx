@@ -195,9 +195,9 @@ export default function VolunteerProfilePage() {
     }`;
 
   const selectCls = (field: string) =>
-    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors ${
+    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
       fieldErrors[field]
-        ? 'border-brand-error focus:ring-brand-error/30'
+        ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'
     }`;
 

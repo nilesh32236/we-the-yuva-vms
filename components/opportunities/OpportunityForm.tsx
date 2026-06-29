@@ -122,7 +122,7 @@ export function OpportunityForm({
           <select
             id="category"
             {...register('category')}
-            className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-brand-surface
+            className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background
               ${errors.category ? 'border-brand-error' : 'border-brand-border'}`}
           >
             <option value="">Select category</option>
@@ -145,7 +145,7 @@ export function OpportunityForm({
             min="0.5"
             placeholder="2"
             {...register('hoursPerSession', { valueAsNumber: true })}
-            className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.hoursPerSession ? 'border-brand-error' : 'border-brand-border'}`}
+            className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.hoursPerSession ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.hoursPerSession && (
             <p className="text-xs text-brand-error">{errors.hoursPerSession.message}</p>
@@ -164,7 +164,7 @@ export function OpportunityForm({
             {...register('startDate', {
               setValueAs: (v: string) => (v ? new Date(v).toISOString() : v),
             })}
-            className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.startDate ? 'border-brand-error' : 'border-brand-border'}`}
+            className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.startDate ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.startDate && (
             <p className="text-xs text-brand-error">{errors.startDate.message as string}</p>
@@ -180,7 +180,7 @@ export function OpportunityForm({
             {...register('endDate', {
               setValueAs: (v: string) => (v ? new Date(v).toISOString() : v),
             })}
-            className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.endDate ? 'border-brand-error' : 'border-brand-border'}`}
+            className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.endDate ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.endDate && (
             <p className="text-xs text-brand-error">{errors.endDate.message as string}</p>
@@ -198,7 +198,7 @@ export function OpportunityForm({
           min="1"
           placeholder="20"
           {...register('totalSlots', { valueAsNumber: true })}
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.totalSlots ? 'border-brand-error' : 'border-brand-border'}`}
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.totalSlots ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.totalSlots && (
           <p className="text-xs text-brand-error">{errors.totalSlots.message}</p>
