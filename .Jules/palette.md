@@ -1,0 +1,3 @@
+## 2024-07-01 - Button Loading State Layout Shift & Accessibility
+Learning: Found that the global Button component completely removed its `children` when in a `loading` state. This caused two UX issues: 1) A visual layout shift as the button collapsed to the width of the spinner. 2) A critical accessibility issue where screen readers would suddenly read an empty button because the text disappeared.
+Action: Fixed by rendering both the spinner (absolutely centered) and the children (with `opacity-0` when loading) to maintain dimensions. Added `aria-busy="true"` and `aria-hidden="true"` to the spinner. Used `Loader2` to dynamically match button variant colors.
