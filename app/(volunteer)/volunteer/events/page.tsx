@@ -17,6 +17,7 @@ import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 import { haptic } from '@/lib/haptic';
+import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -234,6 +235,10 @@ function EventRow({ event }: { event: VolunteerEvent }) {
           <MessageSquare className="w-4 h-4" /> Give Feedback
         </Link>
       )}
+
+      <div className="flex items-center gap-2 pt-1">
+        <AddToCalendarButton eventId={event.id} label="Add to Calendar" />
+      </div>
 
       {!isCancelled && !isPast && (
         <div className="flex gap-2 pt-1">
