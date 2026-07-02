@@ -13,6 +13,10 @@ import type {
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
 import type {
+  OrganizationDocumentSchema,
+  RegisterOrganizationSchema,
+} from '../schemas/organization.schemas';
+import type {
   StaffProfileSchema,
   UpdateMeSchema,
   VolunteerProfileSchema,
@@ -30,6 +34,8 @@ export type EventInput = z.infer<typeof EventSchema>;
 export type ApplicationStatusInput = z.infer<typeof ApplicationStatusSchema>;
 export type AttendanceInput = z.infer<typeof AttendanceSchema>;
 export type AdminUserUpdateInput = z.infer<typeof AdminUserUpdateSchema>;
+export type OrganizationDocumentInput = z.infer<typeof OrganizationDocumentSchema>;
+export type RegisterOrganizationInput = z.infer<typeof RegisterOrganizationSchema>;
 
 export type UserRole = 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'PLATFORM_MANAGER' | 'ADMIN' | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
