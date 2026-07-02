@@ -5,6 +5,7 @@ import { ClipboardList, Download, Pencil, Plus, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api, downloadCsv } from '../../../../lib/api';
+import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -144,6 +145,7 @@ export default function CoordinatorEventsPage() {
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </Link>
+                          <AddToCalendarButton eventId={ev.id} variant="icon" />
                         </div>
                       </td>
                     </tr>
