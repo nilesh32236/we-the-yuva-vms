@@ -17,6 +17,7 @@ import { alertsRouter } from './modules/alerts/alerts.routes';
 import { authRouter } from './modules/auth/auth.routes';
 import { eventsRouter, opportunityEventsRouter } from './modules/events/events.routes';
 import { feedbackRouter } from './modules/feedback/feedback.routes';
+import { locationsRouter } from './modules/locations/locations.routes';
 import { notificationsRouter } from './modules/notifications/notifications.routes';
 import { opportunitiesRouter } from './modules/opportunities/opportunities.routes';
 import { organizationsRouter } from './modules/organizations/organizations.routes';
@@ -118,6 +119,7 @@ export function createApp(): Express {
   app.use('/api/v1/notifications', notificationsRouter);
   app.use('/api/v1/stories', storiesRouter);
   app.use('/api/v1/feedback', feedbackRouter);
+  app.use('/api/v1/locations', locationsRouter);
   app.use('/api/v1/alerts', alertsRouter);
 
   // Tier / Level System
