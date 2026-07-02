@@ -40,7 +40,7 @@ const REFRESH_COOKIE_OPTIONS = {
 
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, name, volunteerType } = req.body;
+    const { email, name, volunteerType, role } = req.body;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
@@ -48,16 +48,15 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       throw new AppError('Email already registered', 409);
     }
 
-    const volunteerRole = await prisma.role.findUnique({ where: { name: 'VOLUNTEER' } });
-    if (!volunteerRole) {
-      throw new AppError('Default role not found — run seed first', 500);
-    }
+    const roleName = role ?? 'VOLUNTEER';
+    const roleRecord = await prisma.role.findUnique({ where: { name: roleName } });
+    if (!roleRecord) throw new AppError(`Invalid role: ${roleName}`, 500);
 
     const user = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
         name: sanitizedName,
-        roleId: volunteerRole.id,
+        roleId: roleRecord.id,
         status: 'PENDING',
         ...(volunteerType && { volunteerType }),
       },
