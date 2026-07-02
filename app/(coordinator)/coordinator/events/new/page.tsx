@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { EventInput } from '@/lib/shared';
+import { AddToCalendarButton } from '../../../../../components/events/AddToCalendarButton';
 import { EventForm } from '../../../../../components/events/EventForm';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
@@ -14,6 +15,7 @@ export default function NewEventPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [opportunityId, setOpportunityId] = useState('');
+  const [createdEventId, setCreatedEventId] = useState<string | null>(null);
 
   const { data: oppData } = useQuery({
     queryKey: ['coordinator-opportunities'],
@@ -34,9 +36,9 @@ export default function NewEventPage() {
       return;
     }
     try {
-      await api.post(`/opportunities/${opportunityId}/events`, data);
+      const res = await api.post(`/opportunities/${opportunityId}/events`, data);
       toast({ title: 'Event created!' });
-      router.push('/coordinator/events');
+      setCreatedEventId(res.data.id);
     } catch (err) {
       toast({
         title: 'Error',
@@ -78,6 +80,21 @@ export default function NewEventPage() {
         </div>
 
         {opportunityId && <EventForm onSubmit={handleSubmit} submitLabel="Create Event" />}
+
+        {createdEventId && (
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center space-y-4">
+            <p className="font-medium text-brand-text text-lg">Event Created Successfully!</p>
+            <div className="flex items-center justify-center gap-3">
+              <AddToCalendarButton eventId={createdEventId} />
+              <Link
+                href="/coordinator/events"
+                className="flex items-center gap-2 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
+              >
+                Back to Events
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
