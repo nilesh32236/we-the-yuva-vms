@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { EventInput } from '@/lib/shared';
 import { AddToCalendarButton } from '../../../../../components/events/AddToCalendarButton';
@@ -12,7 +11,6 @@ import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 
 export default function NewEventPage() {
-  const router = useRouter();
   const { toast } = useToast();
   const [opportunityId, setOpportunityId] = useState('');
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
