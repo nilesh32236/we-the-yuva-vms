@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, ArrowRight, Mail, User } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Building2, Mail, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -48,10 +48,14 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
+    defaultValues: { role: 'VOLUNTEER' },
   });
+
+  const selectedRole = watch('role');
 
   const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
@@ -155,32 +159,77 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Volunteer type field */}
+          {/* Role selector */}
           <div className="space-y-1.5">
-            <label htmlFor="volunteerType" className="text-sm font-medium text-brand-text">
-              I want to volunteer as
-            </label>
-            <select
-              id="volunteerType"
-              aria-describedby={errors.volunteerType ? 'volunteerType-error' : undefined}
-              className={`w-full px-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
-                focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                ${errors.volunteerType ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-              {...register('volunteerType')}
-            >
-              <option value="">Select your volunteer type (optional)</option>
-              {VOLUNTEER_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {t.charAt(0) + t.slice(1).toLowerCase()}
-                </option>
-              ))}
-            </select>
-            {errors.volunteerType && (
-              <p id="volunteerType-error" className="text-brand-error text-xs" role="alert">
-                {errors.volunteerType.message}
-              </p>
-            )}
+            <span className="text-sm font-medium text-brand-text">I want to join as</span>
+            <div className="grid grid-cols-2 gap-3">
+              <label
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
+                  ${selectedRole === 'VOLUNTEER'
+                    ? 'border-brand-primary bg-brand-primary/5'
+                    : 'border-brand-border hover:border-brand-muted'}`}
+              >
+                <input
+                  type="radio"
+                  value="VOLUNTEER"
+                  className="sr-only"
+                  {...register('role')}
+                />
+                <Users className="w-5 h-5 text-brand-primary" />
+                <span className="text-sm font-medium text-brand-text">Volunteer</span>
+                <span className="text-xs text-brand-muted text-center">
+                  Find opportunities and track impact
+                </span>
+              </label>
+              <label
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
+                  ${selectedRole === 'ORGANIZATION_ADMIN'
+                    ? 'border-brand-primary bg-brand-primary/5'
+                    : 'border-brand-border hover:border-brand-muted'}`}
+              >
+                <input
+                  type="radio"
+                  value="ORGANIZATION_ADMIN"
+                  className="sr-only"
+                  {...register('role')}
+                />
+                <Building2 className="w-5 h-5 text-brand-primary" />
+                <span className="text-sm font-medium text-brand-text">Organization</span>
+                <span className="text-xs text-brand-muted text-center">
+                  Register and manage your organization
+                </span>
+              </label>
+            </div>
           </div>
+
+          {/* Volunteer type field */}
+          {selectedRole === 'VOLUNTEER' && (
+            <div className="space-y-1.5">
+              <label htmlFor="volunteerType" className="text-sm font-medium text-brand-text">
+                I want to volunteer as
+              </label>
+              <select
+                id="volunteerType"
+                aria-describedby={errors.volunteerType ? 'volunteerType-error' : undefined}
+                className={`w-full px-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
+                  focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
+                  ${errors.volunteerType ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
+                {...register('volunteerType')}
+              >
+                <option value="">Select your volunteer type (optional)</option>
+                {VOLUNTEER_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t.charAt(0) + t.slice(1).toLowerCase()}
+                  </option>
+                ))}
+              </select>
+              {errors.volunteerType && (
+                <p id="volunteerType-error" className="text-brand-error text-xs" role="alert">
+                  {errors.volunteerType.message}
+                </p>
+              )}
+            </div>
+          )}
 
           <Button type="submit" variant="cta" fullWidth loading={isLoading}>
             Create Account
