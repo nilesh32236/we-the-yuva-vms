@@ -297,11 +297,78 @@ interface Location {
 }
 
 function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['locations'],
     queryFn: () => api.get('/locations').then((r) => r.data.data as Location[]),
     staleTime: 300_000,
   });
+
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newDistrict, setNewDistrict] = useState('');
+  const [newState, setNewState] = useState('');
+  const [creating, setCreating] = useState(false);
+
+  const handleCreate = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    try {
+      const res = await api.post('/locations', {
+        name: newName.trim(),
+        district: newDistrict.trim() || undefined,
+        state: newState.trim() || undefined,
+      });
+      const loc = res.data.data as Location;
+      onChange(loc.id);
+      setNewName('');
+      setNewDistrict('');
+      setNewState('');
+      setShowNewForm(false);
+      refetch();
+    } catch {
+      // silently fail — save button will show server error
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  if (showNewForm) {
+    return (
+      <div className="space-y-2">
+        <label htmlFor="new-location-name" className="text-sm font-medium text-brand-text">New Location</label>
+        <input
+          id="new-location-name"
+          type="text"
+          placeholder="Location name *"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
+        />
+        <input
+          type="text"
+          placeholder="District (optional)"
+          value={newDistrict}
+          onChange={(e) => setNewDistrict(e.target.value)}
+          className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
+        />
+        <input
+          type="text"
+          placeholder="State (optional)"
+          value={newState}
+          onChange={(e) => setNewState(e.target.value)}
+          className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
+        />
+        <div className="flex gap-2 pt-1">
+          <Button variant="outline" onClick={() => setShowNewForm(false)} disabled={creating}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleCreate} loading={creating}>
+            Add & Select
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-1.5">
@@ -311,7 +378,13 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
       <select
         id="locationId"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          if (e.target.value === '__new__') {
+            setShowNewForm(true);
+            return;
+          }
+          onChange(e.target.value);
+        }}
         className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
       >
         <option value="">Select location (optional)</option>
@@ -321,6 +394,9 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
             {loc.name}{loc.district ? `, ${loc.district}` : ''}{loc.state ? `, ${loc.state}` : ''}
           </option>
         ))}
+        <option value="__new__" className="text-brand-primary font-medium">
+          + Add new location...
+        </option>
       </select>
     </div>
   );
