@@ -1,10 +1,12 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
+import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
 
 const CATEGORIES = [
@@ -255,7 +257,7 @@ export function OpportunityForm({
         )}
       </div>
 
-      {field('locationId', 'Location ID', { placeholder: 'Enter location ID' })}
+      <LocationSelect value={watch('locationId') ?? ''} onChange={(v) => setValue('locationId', v)} />
 
       {/* Remote toggle */}
       <label htmlFor="isRemote" className="flex items-center gap-3 cursor-pointer">
@@ -284,5 +286,42 @@ export function OpportunityForm({
         {submitLabel}
       </Button>
     </form>
+  );
+}
+
+interface Location {
+  id: string;
+  name: string;
+  district: string | null;
+  state: string | null;
+}
+
+function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => api.get('/locations').then((r) => r.data.data as Location[]),
+    staleTime: 300_000,
+  });
+
+  return (
+    <div className="space-y-1.5">
+      <label htmlFor="locationId" className="text-sm font-medium text-brand-text">
+        Location
+      </label>
+      <select
+        id="locationId"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
+      >
+        <option value="">Select location (optional)</option>
+        {isLoading && <option disabled>Loading...</option>}
+        {(data ?? []).map((loc) => (
+          <option key={loc.id} value={loc.id}>
+            {loc.name}{loc.district ? `, ${loc.district}` : ''}{loc.state ? `, ${loc.state}` : ''}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
