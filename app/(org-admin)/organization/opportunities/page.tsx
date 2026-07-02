@@ -50,23 +50,62 @@ export default function OrgAdminOpportunitiesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">
-                  <th scope="col" className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Title</th>
-                  <th scope="col" className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell">Category</th>
-                  <th scope="col" className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Status</th>
-                  <th scope="col" className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell">Slots</th>
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                  >
+                    Title
+                  </th>
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell"
+                  >
+                    Category
+                  </th>
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+                  >
+                    Slots
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border">
-                {data?.data?.map((opp: { id: string; title: string; category: string; status: string; totalSlots: number; _count?: { applications: number } }) => (
-                  <tr key={opp.id} className="hover:bg-brand-bg/50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-brand-text max-w-[200px] truncate">{opp.title}</td>
-                    <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">{opp.category}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[opp.status] ?? ''}`}>{opp.status}</span>
-                    </td>
-                    <td className="px-4 py-3 text-brand-muted hidden md:table-cell">{opp._count?.applications ?? 0} / {opp.totalSlots}</td>
-                  </tr>
-                ))}
+                {data?.data?.map(
+                  (opp: {
+                    id: string;
+                    title: string;
+                    category: string;
+                    status: string;
+                    totalSlots: number;
+                    _count?: { applications: number };
+                  }) => (
+                    <tr key={opp.id} className="hover:bg-brand-bg/50 transition-colors">
+                      <td className="px-4 py-3 font-medium text-brand-text max-w-[200px] truncate">
+                        {opp.title}
+                      </td>
+                      <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
+                        {opp.category}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[opp.status] ?? ''}`}
+                        >
+                          {opp.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
+                        {opp._count?.applications ?? 0} / {opp.totalSlots}
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
           </div>

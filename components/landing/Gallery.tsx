@@ -10,12 +10,36 @@ interface GalleryImage {
 }
 
 const images: GalleryImage[] = [
-  { id: 'volunteer-tree-planting', src: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80', span: 'col-span-2 row-span-2' },
-  { id: 'community-event', src: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&q=80', span: '' },
-  { id: 'volunteers-group', src: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=600&q=80', span: '' },
-  { id: 'team-activity', src: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&q=80', span: '' },
-  { id: 'teaching-session', src: 'https://images.unsplash.com/photo-1571847140471-1d7766e825ea?w=600&q=80', span: '' },
-  { id: 'community-discussion', src: 'https://images.unsplash.com/photo-1551836022-deb4983ccfd0?w=600&q=80', span: '' },
+  {
+    id: 'volunteer-tree-planting',
+    src: 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80',
+    span: 'col-span-2 row-span-2',
+  },
+  {
+    id: 'community-event',
+    src: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&q=80',
+    span: '',
+  },
+  {
+    id: 'volunteers-group',
+    src: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=600&q=80',
+    span: '',
+  },
+  {
+    id: 'team-activity',
+    src: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&q=80',
+    span: '',
+  },
+  {
+    id: 'teaching-session',
+    src: 'https://images.unsplash.com/photo-1571847140471-1d7766e825ea?w=600&q=80',
+    span: '',
+  },
+  {
+    id: 'community-discussion',
+    src: 'https://images.unsplash.com/photo-1551836022-deb4983ccfd0?w=600&q=80',
+    span: '',
+  },
 ];
 
 export function Gallery() {

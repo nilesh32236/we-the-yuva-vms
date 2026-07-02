@@ -76,7 +76,9 @@ const OpportunityCard = memo(function OpportunityCard({
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: ['opportunities'] });
 
-      const previousQueries = qc.getQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] });
+      const previousQueries = qc.getQueriesData<OpportunityCacheData>({
+        queryKey: ['opportunities'],
+      });
 
       qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] }, (oldData) => {
         if (!oldData) return oldData;
@@ -165,7 +167,9 @@ const OpportunityCard = memo(function OpportunityCard({
   const applying = applyMutation.isPending;
 
   const card = (
-    <div className={`bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 ${detailHref ? 'cursor-pointer' : 'cursor-default'}`}>
+    <div
+      className={`bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 ${detailHref ? 'cursor-pointer' : 'cursor-default'}`}
+    >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <span

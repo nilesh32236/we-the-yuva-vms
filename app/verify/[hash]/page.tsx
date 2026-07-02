@@ -104,8 +104,7 @@ export default function VerifyCertificatePage() {
 
           <div className="pt-2">
             <p className="text-xs text-brand-muted">
-              Verified by{' '}
-              <span className="font-semibold text-brand-text">WeTheYuva VMS</span>
+              Verified by <span className="font-semibold text-brand-text">WeTheYuva VMS</span>
             </p>
           </div>
         </div>

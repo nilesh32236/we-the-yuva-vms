@@ -11,10 +11,21 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
 const SKILL_SUGGESTIONS = [
-  'Teaching', 'Mentoring', 'Public Speaking', 'Event Planning',
-  'Teamwork', 'Leadership', 'Communication', 'Problem Solving',
-  'Time Management', 'Advocacy', 'Project Management', 'Data Analysis',
-  'Community Outreach', 'Counselling', 'First Aid',
+  'Teaching',
+  'Mentoring',
+  'Public Speaking',
+  'Event Planning',
+  'Teamwork',
+  'Leadership',
+  'Communication',
+  'Problem Solving',
+  'Time Management',
+  'Advocacy',
+  'Project Management',
+  'Data Analysis',
+  'Community Outreach',
+  'Counselling',
+  'First Aid',
 ];
 
 export default function YouthReflectionPage() {
@@ -57,14 +68,23 @@ export default function YouthReflectionPage() {
   });
 
   const toggleSkill = (v: string) =>
-    setSkillsDeveloped((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p));
+    setSkillsDeveloped((p) =>
+      p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p
+    );
 
   const toggleGrowth = (v: string) =>
-    setGrowthAreas((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p));
+    setGrowthAreas((p) =>
+      p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p
+    );
 
   const canSubmit = skillsDeveloped.length > 0 && growthAreas.length > 0 && confidenceLevel > 0;
 
-  if (isLoading) return <div className="max-w-xl mx-auto py-8"><SkeletonCard /></div>;
+  if (isLoading)
+    return (
+      <div className="max-w-xl mx-auto py-8">
+        <SkeletonCard />
+      </div>
+    );
 
   return (
     <div className="max-w-xl mx-auto py-8 px-4 space-y-8">
@@ -98,11 +118,12 @@ export default function YouthReflectionPage() {
                   disabled={atLimit}
                   onClick={() => toggleSkill(s)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
-                    ${isSelected
-                      ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
-                      : atLimit
-                        ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
-                        : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
+                    ${
+                      isSelected
+                        ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
+                        : atLimit
+                          ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
+                          : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
                     }`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -129,11 +150,12 @@ export default function YouthReflectionPage() {
                   disabled={atLimit}
                   onClick={() => toggleGrowth(g)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
-                    ${isSelected
-                      ? 'bg-purple-50 border-2 border-purple-500 text-purple-700 shadow-sm'
-                      : atLimit
-                        ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
-                        : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
+                    ${
+                      isSelected
+                        ? 'bg-purple-50 border-2 border-purple-500 text-purple-700 shadow-sm'
+                        : atLimit
+                          ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
+                          : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
                     }`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -159,9 +181,7 @@ export default function YouthReflectionPage() {
               >
                 <Star
                   className={`w-8 h-8 transition-all ${
-                    confidenceLevel >= star
-                      ? 'fill-amber-400 text-amber-400'
-                      : 'text-brand-border'
+                    confidenceLevel >= star ? 'fill-amber-400 text-amber-400' : 'text-brand-border'
                   }`}
                 />
               </button>
@@ -189,17 +209,27 @@ export default function YouthReflectionPage() {
             className="w-full rounded-xl border border-brand-border bg-background px-4 py-3 text-sm
               placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
           />
-          <p className="text-xs text-muted-foreground text-right">{impactDescription.length}/1000</p>
+          <p className="text-xs text-muted-foreground text-right">
+            {impactDescription.length}/1000
+          </p>
         </div>
       </div>
 
       <Button
-        onClick={() => mutation.mutate({ skillsDeveloped, growthAreas, confidenceLevel, impactDescription: impactDescription || undefined })}
+        onClick={() =>
+          mutation.mutate({
+            skillsDeveloped,
+            growthAreas,
+            confidenceLevel,
+            impactDescription: impactDescription || undefined,
+          })
+        }
         loading={mutation.isPending}
         disabled={!canSubmit}
         className="w-full"
       >
-        {alreadyReflected ? 'Update Reflection' : 'Submit Reflection'} <ArrowRight className="w-4 h-4 ml-1" />
+        {alreadyReflected ? 'Update Reflection' : 'Submit Reflection'}{' '}
+        <ArrowRight className="w-4 h-4 ml-1" />
       </Button>
     </div>
   );

@@ -24,10 +24,7 @@ export const OpportunitySchema = z
       .min(1, 'Please add at least one skill')
       .max(10, 'Maximum 10 skills allowed'),
     category: z.enum(OPPORTUNITY_CATEGORIES),
-    locationId: z.preprocess(
-      (v) => (v === '' ? undefined : v),
-      z.string().optional()
-    ),
+    locationId: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
     startDate: z
       .string()
       .datetime()

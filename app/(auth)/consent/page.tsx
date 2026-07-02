@@ -57,7 +57,9 @@ export default function ConsentPage() {
       });
       router.push('/setup-profile');
     } catch (error) {
-      const axiosError = error as { response?: { status?: number; data?: { error?: string; message?: string } } };
+      const axiosError = error as {
+        response?: { status?: number; data?: { error?: string; message?: string } };
+      };
       const status = axiosError?.response?.status;
       if (status === 409) {
         // Already consented — move on

@@ -61,7 +61,11 @@ export default function VolunteerProfilePage() {
       setFieldErrors({});
       toast({ title: 'Profile updated successfully' });
     },
-    onError: (err: { response?: { data?: { error?: string; details?: { fieldErrors?: Record<string, string[]> } } } }) => {
+    onError: (err: {
+      response?: {
+        data?: { error?: string; details?: { fieldErrors?: Record<string, string[]> } };
+      };
+    }) => {
       const details = err?.response?.data?.details;
       if (details?.fieldErrors) {
         const flat: Record<string, string> = {};
@@ -98,16 +102,20 @@ export default function VolunteerProfilePage() {
     setDirty(false);
   }, []);
 
-  const hasChanges = useCallback(function hasChanges() {
-    return (
-      bio !== (user?.profile?.bio ?? '') ||
-      volunteerType !== (user?.volunteerType ?? '') ||
-      skills !== ((user?.profile?.skills ?? []).join(', ')) ||
-      interests !== ((user?.profile?.interests ?? []).join(', ')) ||
-      JSON.stringify(selectedDays) !== JSON.stringify(user?.profile?.availability?.days ?? []) ||
-      JSON.stringify(selectedSlots) !== JSON.stringify(user?.profile?.availability?.timeSlots ?? [])
-    );
-  }, [bio, volunteerType, skills, interests, selectedDays, selectedSlots, user]);
+  const hasChanges = useCallback(
+    function hasChanges() {
+      return (
+        bio !== (user?.profile?.bio ?? '') ||
+        volunteerType !== (user?.volunteerType ?? '') ||
+        skills !== (user?.profile?.skills ?? []).join(', ') ||
+        interests !== (user?.profile?.interests ?? []).join(', ') ||
+        JSON.stringify(selectedDays) !== JSON.stringify(user?.profile?.availability?.days ?? []) ||
+        JSON.stringify(selectedSlots) !==
+          JSON.stringify(user?.profile?.availability?.timeSlots ?? [])
+      );
+    },
+    [bio, volunteerType, skills, interests, selectedDays, selectedSlots, user]
+  );
 
   function save() {
     haptic.medium();
@@ -145,7 +153,9 @@ export default function VolunteerProfilePage() {
       if (cancelRef.current) return;
       const target = e.target as HTMLElement;
       if (!target.closest('[data-profile-editor]') && !target.closest('.Toastify')) {
-        const confirmed = window.confirm('You have unsaved changes. Are you sure you want to leave?');
+        const confirmed = window.confirm(
+          'You have unsaved changes. Are you sure you want to leave?'
+        );
         if (!confirmed) {
           e.stopPropagation();
           e.preventDefault();
@@ -321,7 +331,9 @@ export default function VolunteerProfilePage() {
           fullWidth
           onClick={() => {
             if (dirty) {
-              const confirmed = window.confirm('You have unsaved changes. Are you sure you want to cancel?');
+              const confirmed = window.confirm(
+                'You have unsaved changes. Are you sure you want to cancel?'
+              );
               if (!confirmed) return;
             }
             cancelEdit();
@@ -329,12 +341,7 @@ export default function VolunteerProfilePage() {
         >
           <X className="w-4 h-4" /> Cancel
         </Button>
-        <Button
-          variant="primary"
-          fullWidth
-          onClick={save}
-          loading={mutation.isPending}
-        >
+        <Button variant="primary" fullWidth onClick={save} loading={mutation.isPending}>
           <Check className="w-4 h-4" /> Save Changes
         </Button>
       </div>
@@ -414,16 +421,35 @@ export default function VolunteerProfilePage() {
             <div className="flex items-center gap-3">
               <LevelBadge
                 tier={levelData.data.tier}
-                name={['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ?? 'Sprout'}
-                badgeIcon={['Sprout', 'Users', 'Wrench', 'Crown'][levelData.data.tier - 1] ?? 'Sprout'}
-                color={['from-green-400 to-emerald-600', 'from-blue-400 to-indigo-600', 'from-purple-400 to-violet-600', 'from-amber-400 to-orange-600'][levelData.data.tier - 1] ?? 'from-green-400 to-emerald-600'}
-                badgeShape={['circle', 'hexagon', 'shield', 'star'][levelData.data.tier - 1] as 'circle' | 'hexagon' | 'shield' | 'star'}
+                name={
+                  ['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ??
+                  'Sprout'
+                }
+                badgeIcon={
+                  ['Sprout', 'Users', 'Wrench', 'Crown'][levelData.data.tier - 1] ?? 'Sprout'
+                }
+                color={
+                  [
+                    'from-green-400 to-emerald-600',
+                    'from-blue-400 to-indigo-600',
+                    'from-purple-400 to-violet-600',
+                    'from-amber-400 to-orange-600',
+                  ][levelData.data.tier - 1] ?? 'from-green-400 to-emerald-600'
+                }
+                badgeShape={
+                  ['circle', 'hexagon', 'shield', 'star'][levelData.data.tier - 1] as
+                    | 'circle'
+                    | 'hexagon'
+                    | 'shield'
+                    | 'star'
+                }
                 size="md"
               />
               <div>
                 <p className="text-xs text-brand-muted">Current Level</p>
                 <p className="font-heading font-semibold text-brand-text">
-                  {['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ?? 'Sprout'}
+                  {['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ??
+                    'Sprout'}
                 </p>
               </div>
             </div>
@@ -449,9 +475,7 @@ export default function VolunteerProfilePage() {
           {/* Bio (view mode) */}
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
             <h2 className="font-heading font-semibold text-sm text-brand-text">About</h2>
-            <p className="text-sm text-brand-muted">
-              {user?.profile?.bio || 'No bio added yet.'}
-            </p>
+            <p className="text-sm text-brand-muted">{user?.profile?.bio || 'No bio added yet.'}</p>
           </div>
 
           {/* Skills (view mode) */}

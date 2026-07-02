@@ -257,7 +257,10 @@ export function OpportunityForm({
         )}
       </div>
 
-      <LocationSelect value={watch('locationId') ?? ''} onChange={(v) => setValue('locationId', v)} />
+      <LocationSelect
+        value={watch('locationId') ?? ''}
+        onChange={(v) => setValue('locationId', v)}
+      />
 
       {/* Remote toggle */}
       <label htmlFor="isRemote" className="flex items-center gap-3 cursor-pointer">
@@ -335,7 +338,9 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   if (showNewForm) {
     return (
       <div className="space-y-2">
-        <label htmlFor="new-location-name" className="text-sm font-medium text-brand-text">New Location</label>
+        <label htmlFor="new-location-name" className="text-sm font-medium text-brand-text">
+          New Location
+        </label>
         <input
           id="new-location-name"
           type="text"
@@ -391,7 +396,9 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
         {isLoading && <option disabled>Loading...</option>}
         {(data ?? []).map((loc) => (
           <option key={loc.id} value={loc.id}>
-            {loc.name}{loc.district ? `, ${loc.district}` : ''}{loc.state ? `, ${loc.state}` : ''}
+            {loc.name}
+            {loc.district ? `, ${loc.district}` : ''}
+            {loc.state ? `, ${loc.state}` : ''}
           </option>
         ))}
         <option value="__new__" className="text-brand-primary font-medium">

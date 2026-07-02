@@ -22,7 +22,11 @@ const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
 
 export default function VolunteerDashboardPage() {
   const { user } = useAuth();
-  const { data: stats, isLoading, isError } = useQuery({
+  const {
+    data: stats,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['stats', 'volunteer'],
     queryFn: () => api.get('/stats/volunteer').then((r) => r.data),
     staleTime: 60_000,
@@ -50,7 +54,10 @@ export default function VolunteerDashboardPage() {
               {user?.name?.split(' ')?.[0]}!
             </h1>
             <span className="inline-block mt-2 text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full">
-              Volunteer{user?.volunteerType ? ` • ${VOLUNTEER_TYPE_LABELS[user.volunteerType] ?? user.volunteerType}` : ''}
+              Volunteer
+              {user?.volunteerType
+                ? ` • ${VOLUNTEER_TYPE_LABELS[user.volunteerType] ?? user.volunteerType}`
+                : ''}
             </span>
             <p className="text-white/80 text-sm mt-3 max-w-xs">
               Welcome to WeTheYuva VMS. Here&apos;s your overview for today.

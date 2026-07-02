@@ -29,8 +29,8 @@ export function CTA() {
             inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          Join thousands of youth across India who are turning their passion into purpose.
-          Your journey from volunteer to leader starts here.
+          Join thousands of youth across India who are turning their passion into purpose. Your
+          journey from volunteer to leader starts here.
         </p>
 
         <div

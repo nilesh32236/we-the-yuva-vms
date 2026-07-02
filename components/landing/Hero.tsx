@@ -60,8 +60,8 @@ export function Hero() {
               inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            WeTheYuva connects passionate volunteers with meaningful opportunities.
-            Join thousands of change-makers transforming communities across India.
+            WeTheYuva connects passionate volunteers with meaningful opportunities. Join thousands
+            of change-makers transforming communities across India.
           </p>
 
           <div

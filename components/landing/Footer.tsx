@@ -35,8 +35,8 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
-              Building India&apos;s largest youth volunteer network — empowering young citizens
-              to lead and serve their communities.
+              Building India&apos;s largest youth volunteer network — empowering young citizens to
+              lead and serve their communities.
             </p>
           </div>
 

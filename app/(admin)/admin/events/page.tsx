@@ -41,7 +41,7 @@ export default function AdminEventsPage() {
         <div className="text-center py-12 text-brand-muted text-sm">No events found</div>
       ) : (
         <div className="overflow-x-auto">
-            <div className="bg-card rounded-2xl border border-brand-border">
+          <div className="bg-card rounded-2xl border border-brand-border">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">

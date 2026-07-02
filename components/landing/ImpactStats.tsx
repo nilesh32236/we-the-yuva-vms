@@ -5,7 +5,13 @@ import { useInView } from '@/hooks/useInView';
 import { Users, Clock, Heart, MapPin } from 'lucide-react';
 
 const stats = [
-  { icon: Users, value: 7000, suffix: '+', label: 'Volunteers Registered', color: 'text-emerald-500' },
+  {
+    icon: Users,
+    value: 7000,
+    suffix: '+',
+    label: 'Volunteers Registered',
+    color: 'text-emerald-500',
+  },
   { icon: Clock, value: 50000, suffix: '+', label: 'Hours Contributed', color: 'text-cyan-500' },
   { icon: Heart, value: 200, suffix: '+', label: 'Communities Impacted', color: 'text-violet-500' },
   { icon: MapPin, value: 15, suffix: '+', label: 'States Reached', color: 'text-amber-500' },
@@ -34,7 +40,8 @@ function AnimatedCounter({ target, suffix }: { target: number; suffix: string })
 
   return (
     <span>
-      {count.toLocaleString()}{suffix}
+      {count.toLocaleString()}
+      {suffix}
     </span>
   );
 }
@@ -68,7 +75,9 @@ export function ImpactStats() {
               style={{ transitionDelay: `${i * 150}ms` }}
             >
               <stat.icon className={`w-8 h-8 mx-auto mb-4 ${stat.color}`} />
-              <div className={`text-3xl sm:text-4xl font-bold text-brand-text ${inView ? '' : 'invisible'}`}>
+              <div
+                className={`text-3xl sm:text-4xl font-bold text-brand-text ${inView ? '' : 'invisible'}`}
+              >
                 {inView ? <AnimatedCounter target={stat.value} suffix={stat.suffix} /> : '0'}
               </div>
               <div className="text-sm text-brand-muted mt-2">{stat.label}</div>

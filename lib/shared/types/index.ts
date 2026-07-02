@@ -37,5 +37,11 @@ export type AdminUserUpdateInput = z.infer<typeof AdminUserUpdateSchema>;
 export type OrganizationDocumentInput = z.infer<typeof OrganizationDocumentSchema>;
 export type RegisterOrganizationInput = z.infer<typeof RegisterOrganizationSchema>;
 
-export type UserRole = 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'PLATFORM_MANAGER' | 'ADMIN' | 'OBSERVER';
+export type UserRole =
+  | 'VOLUNTEER'
+  | 'COORDINATOR'
+  | 'ORGANIZATION_ADMIN'
+  | 'PLATFORM_MANAGER'
+  | 'ADMIN'
+  | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';

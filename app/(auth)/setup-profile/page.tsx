@@ -135,8 +135,10 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
       onComplete();
     } catch (error) {
       const message =
-        (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error ??
-        (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message ??
+        (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+          ?.error ??
+        (error as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+          ?.message ??
         'Could not save profile. Please try again.';
       toast({
         title: 'Error',
@@ -335,10 +337,18 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
       });
       onComplete();
     } catch (err) {
-      const message = (err as { normalizedMessage?: string; response?: { data?: { error?: string; message?: string } } })?.normalizedMessage
-        ?? (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error
-        ?? (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message
-        ?? 'Could not save profile. Please try again.';
+      const message =
+        (
+          err as {
+            normalizedMessage?: string;
+            response?: { data?: { error?: string; message?: string } };
+          }
+        )?.normalizedMessage ??
+        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+          ?.error ??
+        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+          ?.message ??
+        'Could not save profile. Please try again.';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     } finally {
       setIsLoading(false);
@@ -428,7 +438,12 @@ export default function SetupProfilePage() {
     router.push(roleRoutes[user?.role ?? ''] ?? '/login');
   };
 
-  if (!user) return <div className="py-8"><SkeletonCard /></div>;
+  if (!user)
+    return (
+      <div className="py-8">
+        <SkeletonCard />
+      </div>
+    );
 
   return (
     <div className="space-y-4">

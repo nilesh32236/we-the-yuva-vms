@@ -48,7 +48,9 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 >
                   <Icon className="w-5 h-5" />
                 </div>
-                <span className={`text-[10px] font-semibold leading-none text-center ${active ? 'text-brand-primary' : ''}`}>
+                <span
+                  className={`text-[10px] font-semibold leading-none text-center ${active ? 'text-brand-primary' : ''}`}
+                >
                   {item.label.replace(/^My\s+/i, '')}
                 </span>
               </Link>

@@ -1,13 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  CheckCircle,
-  Handshake,
-  MessageSquare,
-  UserPlus,
-  XCircle,
-} from 'lucide-react';
+import { CheckCircle, Handshake, MessageSquare, UserPlus, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
@@ -181,13 +175,7 @@ function MentorshipCard({
   );
 }
 
-function RequestMentorForm({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [menteeId, setMenteeId] = useState('');
@@ -223,7 +211,10 @@ function RequestMentorForm({
         <h2 className="font-heading font-semibold text-lg text-brand-text">Request Mentor</h2>
 
         <div>
-          <label htmlFor="mentor-input" className="text-xs font-medium text-brand-muted mb-1.5 block">
+          <label
+            htmlFor="mentor-input"
+            className="text-xs font-medium text-brand-muted mb-1.5 block"
+          >
             Mentor Email or Name
           </label>
           <input
@@ -237,7 +228,10 @@ function RequestMentorForm({
         </div>
 
         <div>
-          <label htmlFor="mentor-message" className="text-xs font-medium text-brand-muted mb-1.5 block">
+          <label
+            htmlFor="mentor-message"
+            className="text-xs font-medium text-brand-muted mb-1.5 block"
+          >
             Message <span className="text-brand-muted">(optional)</span>
           </label>
           <textarea
@@ -294,8 +288,7 @@ export default function MentorshipPage() {
     queryFn: () => api.get('/mentorship/requests').then((r) => r.data?.data ?? r.data ?? []),
   });
 
-  const isLoading =
-    mentorsLoading || menteesLoading || pendingFromLoading || pendingToLoading;
+  const isLoading = mentorsLoading || menteesLoading || pendingFromLoading || pendingToLoading;
 
   function renderTab() {
     if (isLoading) {
@@ -314,9 +307,7 @@ export default function MentorshipPage() {
           <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
             <Handshake className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" />
             <p className="text-sm font-medium text-brand-text">No mentors yet</p>
-            <p className="text-xs text-brand-muted mt-1">
-              Request a mentor to get started.
-            </p>
+            <p className="text-xs text-brand-muted mt-1">Request a mentor to get started.</p>
           </div>
         );
       }
@@ -361,9 +352,7 @@ export default function MentorshipPage() {
         <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
           <MessageSquare className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" />
           <p className="text-sm font-medium text-brand-text">No requests</p>
-          <p className="text-xs text-brand-muted mt-1">
-            You have no pending mentorship requests.
-          </p>
+          <p className="text-xs text-brand-muted mt-1">You have no pending mentorship requests.</p>
         </div>
       );
     }

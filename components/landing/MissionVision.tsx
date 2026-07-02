@@ -29,9 +29,9 @@ export function MissionVision() {
             </div>
             <h3 className="text-xl font-bold text-brand-text mb-3">Our Mission</h3>
             <p className="text-brand-muted leading-relaxed">
-              To build a structured, scalable volunteer movement that empowers every young
-              Indian to discover their potential through active citizenship, community service,
-              and leadership development.
+              To build a structured, scalable volunteer movement that empowers every young Indian to
+              discover their potential through active citizenship, community service, and leadership
+              development.
             </p>
             <ul className="mt-6 space-y-3">
               {[
@@ -57,9 +57,9 @@ export function MissionVision() {
             </div>
             <h3 className="text-xl font-bold text-brand-text mb-3">Our Vision</h3>
             <p className="text-brand-muted leading-relaxed">
-              A self-sustaining ecosystem of 16,000+ active citizens across India by 2030,
-              where every young person progresses from an onboarded volunteer to a community
-              leader driving lasting change.
+              A self-sustaining ecosystem of 16,000+ active citizens across India by 2030, where
+              every young person progresses from an onboarded volunteer to a community leader
+              driving lasting change.
             </p>
             <ul className="mt-6 space-y-3">
               {[

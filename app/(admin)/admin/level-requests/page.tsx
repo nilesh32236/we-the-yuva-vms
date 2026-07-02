@@ -1,17 +1,10 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  CheckCircle,
-  Download,
-  FileText,
-  Loader2,
-  Search,
-  X,
-  XCircle,
-} from 'lucide-react';
+import { CheckCircle, Download, FileText, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { Button } from '../../../../components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 
@@ -26,27 +19,30 @@ interface LevelRequest {
   createdAt: string;
 }
 
-function ReviewModal({
-  request,
-  onClose,
-}: {
-  request: LevelRequest;
-  onClose: () => void;
-}) {
+function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () => void }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [reviewNote, setReviewNote] = useState('');
 
   const reviewMutation = useMutation({
     mutationFn: ({ status }: { status: string }) =>
-      api.patch(`/levels/admin/level-requests/${request.id}`, { status, reviewNote: reviewNote || undefined }),
+      api.patch(`/levels/admin/level-requests/${request.id}`, {
+        status,
+        reviewNote: reviewNote || undefined,
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-level-requests'] });
-      toast({ title: `Request ${reviewMutation.variables?.status === 'APPROVED' ? 'approved' : 'rejected'}` });
+      toast({
+        title: `Request ${reviewMutation.variables?.status === 'APPROVED' ? 'approved' : 'rejected'}`,
+      });
       onClose();
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {
-      toast({ title: 'Failed', description: err?.response?.data?.error ?? 'Something went wrong', variant: 'destructive' });
+      toast({
+        title: 'Failed',
+        description: err?.response?.data?.error ?? 'Something went wrong',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -56,14 +52,18 @@ function ReviewModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="review-title"
-      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
+      }}
     >
       <div className="bg-brand-surface rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border">
-          <h2 id="review-title" className="font-heading font-bold text-lg text-brand-text">Review Request</h2>
-          <button type="button" onClick={onClose} aria-label="Close dialog" className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors">
-            <X className="w-4 h-4 text-brand-muted" />
-          </button>
+          <h2 id="review-title" className="font-heading font-bold text-lg text-brand-text">
+            Review Request
+          </h2>
+          <Button variant="icon" size="icon" onClick={onClose} aria-label="Close dialog">
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
         <div className="p-6 space-y-4">
@@ -82,7 +82,9 @@ function ReviewModal({
           {request.notes && (
             <div className="space-y-1">
               <p className="text-xs font-medium text-brand-muted">Notes from Volunteer</p>
-              <p className="text-sm text-brand-text bg-brand-bg rounded-xl px-3 py-2.5">{request.notes}</p>
+              <p className="text-sm text-brand-text bg-brand-bg rounded-xl px-3 py-2.5">
+                {request.notes}
+              </p>
             </div>
           )}
 
@@ -91,7 +93,13 @@ function ReviewModal({
               <p className="text-xs font-medium text-brand-muted">Proof Files</p>
               <div className="space-y-1.5">
                 {request.proofUrls.map((url, i) => (
-                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-brand-primary hover:underline cursor-pointer">
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-brand-primary hover:underline cursor-pointer"
+                  >
                     <Download className="w-3.5 h-3.5" />
                     Proof {i + 1}
                   </a>
@@ -101,7 +109,9 @@ function ReviewModal({
           )}
 
           <div className="space-y-1.5">
-            <label htmlFor="review-note" className="block text-xs font-medium text-brand-muted">Review Note</label>
+            <label htmlFor="review-note" className="block text-xs font-medium text-brand-muted">
+              Review Note
+            </label>
             <textarea
               id="review-note"
               value={reviewNote}
@@ -114,24 +124,25 @@ function ReviewModal({
         </div>
 
         <div className="flex gap-3 px-6 pb-6">
-          <button
-            type="button"
+          <Button
+            variant="outline"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
+            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
+            className="flex-1 border-brand-error text-brand-error hover:bg-brand-error/5 hover:text-brand-error"
           >
-            {reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED' ? <Loader2 className="w-4 h-4 animate-spin inline mr-1" /> : <XCircle className="w-4 h-4 inline mr-1" />}
+            {!reviewMutation.isPending && <XCircle className="w-4 h-4" />}
             Reject
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 cursor-pointer transition-colors disabled:opacity-60"
+            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
           >
-            {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? <Loader2 className="w-4 h-4 animate-spin inline mr-1" /> : <CheckCircle className="w-4 h-4 inline mr-1" />}
+            {!reviewMutation.isPending && <CheckCircle className="w-4 h-4" />}
             Approve
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -160,7 +171,9 @@ export default function AdminLevelRequestsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading font-bold text-xl text-brand-text">Level-Up Requests</h1>
-          <p className="text-brand-muted text-sm mt-0.5">Review and approve volunteer level-up requests.</p>
+          <p className="text-brand-muted text-sm mt-0.5">
+            Review and approve volunteer level-up requests.
+          </p>
         </div>
       </div>
 
@@ -179,7 +192,9 @@ export default function AdminLevelRequestsPage() {
       {/* List */}
       {isLoading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       ) : requests.length === 0 ? (
         <div className="text-center py-12 text-brand-muted text-sm bg-brand-surface rounded-2xl border border-brand-border">
@@ -190,19 +205,24 @@ export default function AdminLevelRequestsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4">
           {requests.map((req) => (
-            <div key={req.id} className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4 hover:shadow-md transition-shadow">
+            <div
+              key={req.id}
+              className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4 hover:shadow-md transition-shadow"
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <p className="font-heading font-semibold text-brand-text">{req.volunteer.name}</p>
                   <p className="text-sm text-brand-muted">{req.volunteer.email}</p>
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  req.status === 'PENDING'
-                    ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                    : req.status === 'APPROVED'
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                    : 'bg-red-100 dark:bg-red-900/30 text-brand-error'
-                }`}>
+                <span
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                    req.status === 'PENDING'
+                      ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                      : req.status === 'APPROVED'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        : 'bg-red-100 dark:bg-red-900/30 text-brand-error'
+                  }`}
+                >
                   {req.status}
                 </span>
               </div>
@@ -222,7 +242,13 @@ export default function AdminLevelRequestsPage() {
               {req.proofUrls && req.proofUrls.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {req.proofUrls.map((url, i) => (
-                    <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:underline cursor-pointer">
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-brand-primary hover:underline cursor-pointer"
+                    >
                       <Download className="w-3 h-3" /> Proof {i + 1}
                     </a>
                   ))}
@@ -230,15 +256,22 @@ export default function AdminLevelRequestsPage() {
               )}
 
               <div className="flex items-center justify-between gap-3 pt-2 border-t border-brand-border">
-                <p className="text-xs text-brand-muted">{new Date(req.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <p className="text-xs text-brand-muted">
+                  {new Date(req.createdAt).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </p>
                 {req.status === 'PENDING' && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer"
+                    className="h-auto p-0 hover:bg-transparent hover:underline"
                   >
                     Review
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -246,7 +279,9 @@ export default function AdminLevelRequestsPage() {
         </div>
       )}
 
-      {selectedRequest && <ReviewModal request={selectedRequest} onClose={() => setSelectedRequest(null)} />}
+      {selectedRequest && (
+        <ReviewModal request={selectedRequest} onClose={() => setSelectedRequest(null)} />
+      )}
     </div>
   );
 }

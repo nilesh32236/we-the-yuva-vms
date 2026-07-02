@@ -21,9 +21,7 @@ export default function VolunteerLeaderboardPage() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['leaderboard', scope, timeframe, sortBy],
     queryFn: () =>
-      api
-        .get('/leaderboard', { params: { scope, timeframe, sortBy } })
-        .then((r) => r.data),
+      api.get('/leaderboard', { params: { scope, timeframe, sortBy } }).then((r) => r.data),
     staleTime: 30_000,
   });
 
@@ -40,7 +38,7 @@ export default function VolunteerLeaderboardPage() {
   const entries: LeaderboardEntry[] = Array.isArray(data) ? data : [];
 
   const currentUserEntry: LeaderboardEntry | null = user
-    ? entries.find((e) => e.id === user.id) ?? null
+    ? (entries.find((e) => e.id === user.id) ?? null)
     : null;
 
   const top10 = entries.slice(0, 10);
@@ -50,9 +48,7 @@ export default function VolunteerLeaderboardPage() {
       {/* Header */}
       <div>
         <h1 className="font-heading font-bold text-xl text-brand-text">Leaderboard</h1>
-        <p className="text-brand-muted text-sm mt-1">
-          See how you rank among fellow volunteers.
-        </p>
+        <p className="text-brand-muted text-sm mt-1">See how you rank among fellow volunteers.</p>
       </div>
 
       {/* Filters */}
@@ -128,18 +124,23 @@ export default function VolunteerLeaderboardPage() {
       {/* Loading State */}
       {isLoading && (
         <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array
-            <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-surface border border-brand-border">
-              <Skeleton className="w-8 h-6 rounded" />
-              <Skeleton className="w-10 h-10 rounded-full" />
-              <div className="flex-1 space-y-1.5">
-                <Skeleton className="h-4 w-1/3 rounded" />
-                <Skeleton className="h-3 w-1/5 rounded" />
+          {Array.from({ length: 5 }).map((_, i) => {
+            const key = `skeleton-${i}`;
+            return (
+              <div
+                key={key}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-surface border border-brand-border"
+              >
+                <Skeleton className="w-8 h-6 rounded" />
+                <Skeleton className="w-10 h-10 rounded-full" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-4 w-1/3 rounded" />
+                  <Skeleton className="h-3 w-1/5 rounded" />
+                </div>
+                <Skeleton className="h-5 w-14 rounded" />
               </div>
-              <Skeleton className="h-5 w-14 rounded" />
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -167,7 +168,12 @@ export default function VolunteerLeaderboardPage() {
         <div className="bg-brand-surface rounded-2xl border border-brand-border divide-y divide-brand-border/50 overflow-hidden">
           <div className="px-4 py-3 border-b border-brand-border">
             <h2 className="text-xs font-semibold text-brand-muted uppercase tracking-wider">
-              Top 10 — {timeframe === 'weekly' ? 'This Week' : timeframe === 'monthly' ? 'This Month' : 'All Time'}
+              Top 10 —{' '}
+              {timeframe === 'weekly'
+                ? 'This Week'
+                : timeframe === 'monthly'
+                  ? 'This Month'
+                  : 'All Time'}
             </h2>
           </div>
           {top10.map((entry, idx) => (

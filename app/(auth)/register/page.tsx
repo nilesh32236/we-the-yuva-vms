@@ -65,7 +65,10 @@ export default function RegisterPage() {
       if (otpRes.data?.devOtp) sessionStorage.setItem('devOtp', otpRes.data.devOtp);
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
-      const err = error as { normalizedMessage?: string; response?: { status?: number; data?: { error?: string } } };
+      const err = error as {
+        normalizedMessage?: string;
+        response?: { status?: number; data?: { error?: string } };
+      };
       const status = err?.response?.status;
       if (status === 409) {
         toast({
@@ -74,7 +77,10 @@ export default function RegisterPage() {
           variant: 'destructive',
         });
       } else {
-        const message = err?.normalizedMessage ?? err?.response?.data?.error ?? 'Something went wrong. Please try again.';
+        const message =
+          err?.normalizedMessage ??
+          err?.response?.data?.error ??
+          'Something went wrong. Please try again.';
         toast({ title: 'Error', description: message, variant: 'destructive' });
       }
     } finally {
@@ -86,7 +92,6 @@ export default function RegisterPage() {
 
   return (
     <div className="space-y-6">
-
       {/* Back link */}
       <Link
         href="/login"
@@ -165,16 +170,13 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               <label
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${selectedRole === 'VOLUNTEER'
-                    ? 'border-brand-primary bg-brand-primary/5'
-                    : 'border-brand-border hover:border-brand-muted'}`}
+                  ${
+                    selectedRole === 'VOLUNTEER'
+                      ? 'border-brand-primary bg-brand-primary/5'
+                      : 'border-brand-border hover:border-brand-muted'
+                  }`}
               >
-                <input
-                  type="radio"
-                  value="VOLUNTEER"
-                  className="sr-only"
-                  {...register('role')}
-                />
+                <input type="radio" value="VOLUNTEER" className="sr-only" {...register('role')} />
                 <Users className="w-5 h-5 text-brand-primary" />
                 <span className="text-sm font-medium text-brand-text">Volunteer</span>
                 <span className="text-xs text-brand-muted text-center">
@@ -183,9 +185,11 @@ export default function RegisterPage() {
               </label>
               <label
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${selectedRole === 'ORGANIZATION_ADMIN'
-                    ? 'border-brand-primary bg-brand-primary/5'
-                    : 'border-brand-border hover:border-brand-muted'}`}
+                  ${
+                    selectedRole === 'ORGANIZATION_ADMIN'
+                      ? 'border-brand-primary bg-brand-primary/5'
+                      : 'border-brand-border hover:border-brand-muted'
+                  }`}
               >
                 <input
                   type="radio"

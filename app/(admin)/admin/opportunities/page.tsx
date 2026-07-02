@@ -196,7 +196,9 @@ export default function AdminOpportunitiesPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-card rounded-lg p-6 max-w-sm mx-4 shadow-xl">
             <h3 className="font-semibold text-lg mb-2">Confirm</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Close &ldquo;{confirmAction.title}&rdquo;?</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Close &ldquo;{confirmAction.title}&rdquo;?
+            </p>
             <div className="flex justify-end gap-2">
               <button
                 type="button"

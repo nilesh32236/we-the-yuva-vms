@@ -42,7 +42,9 @@ export default function AdminOrganizationsPage() {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1" />
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-brand-muted uppercase tracking-wider">Status:</span>
+          <span className="text-xs font-semibold text-brand-muted uppercase tracking-wider">
+            Status:
+          </span>
           <div className="flex bg-brand-surface border border-brand-border p-1 rounded-xl shadow-sm">
             {STATUSES.map((s) => (
               <button
@@ -77,7 +79,7 @@ export default function AdminOrganizationsPage() {
       ) : (
         <>
           <OrganizationTable orgs={data.orgs} />
-          
+
           {data.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-4">
               <button

@@ -34,11 +34,18 @@ export default function OrgAdminProfilePage() {
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-brand-primary flex items-center justify-center shadow-sm">
               <span className="text-white font-heading font-bold text-xl">
-                {user?.name?.split(' ')?.map((n: string) => n[0])?.join('')?.toUpperCase()?.slice(0, 2) ?? '?'}
+                {user?.name
+                  ?.split(' ')
+                  ?.map((n: string) => n[0])
+                  ?.join('')
+                  ?.toUpperCase()
+                  ?.slice(0, 2) ?? '?'}
               </span>
             </div>
             <div>
-              <h2 className="font-heading font-bold text-lg text-brand-text">{profile?.name ?? user?.name ?? '—'}</h2>
+              <h2 className="font-heading font-bold text-lg text-brand-text">
+                {profile?.name ?? user?.name ?? '—'}
+              </h2>
               <span className="inline-block mt-1 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded-full">
                 Org Admin
               </span>
@@ -52,7 +59,9 @@ export default function OrgAdminProfilePage() {
             </div>
             <div className="flex items-center gap-3 text-sm">
               <Briefcase className="w-4 h-4 text-brand-muted" />
-              <span className="text-brand-text">{profile?.organization?.name ?? 'Organization admin'}</span>
+              <span className="text-brand-text">
+                {profile?.organization?.name ?? 'Organization admin'}
+              </span>
             </div>
             <div className="flex items-center gap-3 text-sm">
               <User className="w-4 h-4 text-brand-muted" />

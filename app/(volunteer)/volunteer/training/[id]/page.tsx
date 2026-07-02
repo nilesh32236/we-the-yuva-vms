@@ -129,7 +129,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               {!currentLesson.completed && (
                 <button
                   type="button"
-                  onClick={() => { haptic.medium(); complete.mutate(currentLesson.id); }}
+                  onClick={() => {
+                    haptic.medium();
+                    complete.mutate(currentLesson.id);
+                  }}
                   disabled={complete.isPending}
                   className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
                 >
@@ -156,7 +159,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               {completedCount === course.lessons.length && (
                 <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-xl p-4 text-center">
                   <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" />
-                  <p className="font-heading font-bold text-emerald-700 dark:text-emerald-300">Course Complete!</p>
+                  <p className="font-heading font-bold text-emerald-700 dark:text-emerald-300">
+                    Course Complete!
+                  </p>
                   <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1">
                     You have finished all lessons in this course.
                   </p>

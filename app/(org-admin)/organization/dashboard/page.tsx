@@ -44,7 +44,8 @@ export default function OrganizationDashboardPage() {
             Register Your Organization
           </h2>
           <p className="text-brand-muted text-sm max-w-md mx-auto mb-6">
-            Set up your organization profile to start creating opportunities, managing events, and tracking volunteer impact.
+            Set up your organization profile to start creating opportunities, managing events, and
+            tracking volunteer impact.
           </p>
           <Link
             href="/register-organization"

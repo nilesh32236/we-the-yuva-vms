@@ -103,7 +103,9 @@ export default function OpportunityChatPage({ params }: { params: Promise<{ id: 
           <div className="flex flex-col items-center justify-center h-full text-center">
             <MessageCircle className="w-10 h-10 text-brand-muted/40 mb-3" />
             <p className="text-sm text-brand-muted">No messages yet.</p>
-            <p className="text-xs text-brand-muted/60 mt-1">Be the first to start a conversation!</p>
+            <p className="text-xs text-brand-muted/60 mt-1">
+              Be the first to start a conversation!
+            </p>
           </div>
         ) : (
           <>

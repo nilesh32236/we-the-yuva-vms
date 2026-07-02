@@ -40,7 +40,9 @@ const INNER_CLASSES: Record<string, string> = {
 
 function calcCompletion(levels: TierInfo[], currentLevelId?: string | null): number {
   if (!currentLevelId) return 0;
-  const idx = levels.findIndex((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId);
+  const idx = levels.findIndex(
+    (l) => l.tier.toString() === currentLevelId || l.name === currentLevelId
+  );
   if (idx === -1) return 0;
   return Math.round((idx / (levels.length - 1)) * 100);
 }
@@ -67,11 +69,12 @@ export function TierPathVisualizer({
 
         {levels.map((level, _index) => {
           const isEarned = currentLevelId
-            ? level.tier <= (levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)?.tier ?? 0)
+            ? level.tier <=
+              (levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)
+                ?.tier ?? 0)
             : false;
           const isCurrent =
-            level.tier.toString() === currentLevelId ||
-            level.name === currentLevelId;
+            level.tier.toString() === currentLevelId || level.name === currentLevelId;
           const Icon = ICON_MAP[level.badgeIcon] ?? ICON_MAP.Sprout;
           const shapeClass = SHAPE_CLASSES[level.badgeShape] ?? 'rounded-full';
           const innerClass = INNER_CLASSES[level.badgeShape] ?? '';
@@ -79,7 +82,9 @@ export function TierPathVisualizer({
           const stateClass = isEarned
             ? `bg-gradient-to-br ${level.gradient} text-white shadow-md`
             : 'bg-brand-border text-brand-muted';
-          const pulseClass = isCurrent ? 'animate-pulse ring-2 ring-brand-primary ring-offset-2 ring-offset-brand-surface' : '';
+          const pulseClass = isCurrent
+            ? 'animate-pulse ring-2 ring-brand-primary ring-offset-2 ring-offset-brand-surface'
+            : '';
 
           return (
             <div key={level.tier} className="relative z-10 flex flex-col items-center gap-1.5">

@@ -27,7 +27,8 @@ export default function OrganizationCoordinatorsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['org-coordinators', orgId],
-    queryFn: () => api.get<Coordinator[]>(`/organizations/${orgId}/coordinators`).then((r) => r.data),
+    queryFn: () =>
+      api.get<Coordinator[]>(`/organizations/${orgId}/coordinators`).then((r) => r.data),
     enabled: !!orgId,
   });
 
@@ -50,8 +51,7 @@ export default function OrganizationCoordinatorsPage() {
   });
 
   const removeMut = useMutation({
-    mutationFn: (userId: string) =>
-      api.delete(`/organizations/${orgId}/coordinators/${userId}`),
+    mutationFn: (userId: string) => api.delete(`/organizations/${orgId}/coordinators/${userId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['org-coordinators', orgId] });
       toast({ title: 'Success', description: 'Coordinator removed successfully' });
@@ -68,9 +68,12 @@ export default function OrganizationCoordinatorsPage() {
   if (!orgId) {
     return (
       <div className="flex flex-col items-center justify-center h-64 bg-card rounded-2xl border border-brand-border p-6 text-center">
-        <h2 className="font-heading font-bold text-lg text-brand-text mb-2">No Organization Found</h2>
+        <h2 className="font-heading font-bold text-lg text-brand-text mb-2">
+          No Organization Found
+        </h2>
         <p className="text-brand-muted max-w-sm">
-          You are not currently associated with an organization. Please register or join an organization first.
+          You are not currently associated with an organization. Please register or join an
+          organization first.
         </p>
       </div>
     );
@@ -91,7 +94,9 @@ export default function OrganizationCoordinatorsPage() {
 
       {isAdding && (
         <div className="bg-card rounded-2xl border border-brand-border p-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
-          <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Add New Coordinator</h2>
+          <h2 className="font-heading font-bold text-lg text-brand-text mb-4">
+            Add New Coordinator
+          </h2>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -100,7 +105,9 @@ export default function OrganizationCoordinatorsPage() {
             className="grid gap-4 sm:grid-cols-2"
           >
             <div className="space-y-1.5">
-              <label htmlFor="name" className="text-sm font-medium text-brand-text">Name</label>
+              <label htmlFor="name" className="text-sm font-medium text-brand-text">
+                Name
+              </label>
               <input
                 id="name"
                 required
@@ -111,7 +118,9 @@ export default function OrganizationCoordinatorsPage() {
               />
             </div>
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-sm font-medium text-brand-text">Email</label>
+              <label htmlFor="email" className="text-sm font-medium text-brand-text">
+                Email
+              </label>
               <input
                 id="email"
                 type="email"
@@ -144,23 +153,32 @@ export default function OrganizationCoordinatorsPage() {
 
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
         </div>
       ) : data?.length === 0 ? (
         <div className="bg-card rounded-2xl border border-brand-border p-12 text-center">
           <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center mx-auto mb-4">
-             <Plus className="w-8 h-8 text-brand-primary" />
+            <Plus className="w-8 h-8 text-brand-primary" />
           </div>
           <p className="font-medium text-brand-text">No coordinators yet</p>
-          <p className="text-sm text-brand-muted mt-1">Add your first coordinator to start managing your org.</p>
+          <p className="text-sm text-brand-muted mt-1">
+            Add your first coordinator to start managing your org.
+          </p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data?.map((c) => (
-            <div key={c.id} className="bg-card rounded-2xl border border-brand-border p-5 flex flex-col justify-between hover:shadow-md transition-shadow group">
+            <div
+              key={c.id}
+              className="bg-card rounded-2xl border border-brand-border p-5 flex flex-col justify-between hover:shadow-md transition-shadow group"
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h3 className="font-heading font-bold text-brand-text group-hover:text-brand-primary transition-colors truncate">{c.name}</h3>
+                  <h3 className="font-heading font-bold text-brand-text group-hover:text-brand-primary transition-colors truncate">
+                    {c.name}
+                  </h3>
                   <p className="text-sm text-brand-muted truncate">{c.email}</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-brand-bg flex items-center justify-center text-brand-primary font-bold flex-shrink-0">

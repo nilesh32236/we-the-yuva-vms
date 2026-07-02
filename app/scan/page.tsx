@@ -109,7 +109,7 @@ function ScanInner() {
         setMode('manual');
       });
 
-      return () => {
+    return () => {
       scanner.stop().catch(() => {});
       scannerRef.current = null;
       setScannerReady(false);
@@ -194,18 +194,28 @@ function ScanInner() {
           <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
             <button
               type="button"
-              onClick={() => { setMode('camera'); setErrorMsg(''); }}
+              onClick={() => {
+                setMode('camera');
+                setErrorMsg('');
+              }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'camera' ? 'bg-card shadow-sm text-brand' : 'text-gray-500 dark:text-gray-400'
+                mode === 'camera'
+                  ? 'bg-card shadow-sm text-brand'
+                  : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               <Camera className="w-4 h-4" /> Camera
             </button>
             <button
               type="button"
-              onClick={() => { setMode('manual'); setErrorMsg(''); }}
+              onClick={() => {
+                setMode('manual');
+                setErrorMsg('');
+              }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'manual' ? 'bg-card shadow-sm text-brand' : 'text-gray-500 dark:text-gray-400'
+                mode === 'manual'
+                  ? 'bg-card shadow-sm text-brand'
+                  : 'text-gray-500 dark:text-gray-400'
               }`}
             >
               <Keyboard className="w-4 h-4" /> Manual
@@ -221,9 +231,7 @@ function ScanInner() {
                 className="w-full aspect-square bg-black"
               />
               {!scannerReady && (
-                <div className="text-center py-4 text-sm text-brand-muted">
-                  Starting camera...
-                </div>
+                <div className="text-center py-4 text-sm text-brand-muted">Starting camera...</div>
               )}
             </div>
           )}
@@ -247,7 +255,11 @@ function ScanInner() {
                   className="w-full px-4 py-3 rounded-xl bg-background border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
                 />
               </div>
-              <Button onClick={handleManualSubmit} loading={checkinMutation.isPending} className="w-full">
+              <Button
+                onClick={handleManualSubmit}
+                loading={checkinMutation.isPending}
+                className="w-full"
+              >
                 Check In
               </Button>
             </div>
