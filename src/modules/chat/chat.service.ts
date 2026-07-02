@@ -1,5 +1,4 @@
 import { prisma } from '../../lib/prisma';
-import { AppError } from '../../middleware/error.middleware';
 
 export async function getOrCreateRoom(opportunityId: string) {
   return prisma.chatRoom.upsert({

@@ -476,7 +476,7 @@ if (redis && notificationsQueue) {
       }
 
       if (job.name === 'send-push') {
-        const { userId, title, body, data } = job.data as {
+        const { userId, title, body, data: _data } = job.data as {
           userId: string;
           title: string;
           body: string;

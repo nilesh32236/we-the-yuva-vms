@@ -18,6 +18,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().default(''),
   SMTP_FROM: z.string().email().default('noreply@example.com'),
   RESEND_API_KEY: z.string().optional(),
+  SENTRY_DSN: z.string().optional(),
   VAPID_PUBLIC_KEY: z.string().optional().default(''),
   VAPID_PRIVATE_KEY: z.string().optional().default(''),
   FRONTEND_URL: z.string().min(1, 'FRONTEND_URL is required'),
@@ -32,6 +33,14 @@ if (!parsed.success) {
     console.error(`  ${key}: ${messages?.join(', ')}`);
   });
   process.exit(1);
+}
+
+if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PUBLIC_KEY) {
+  console.warn('⚠️  VAPID_PUBLIC_KEY is empty — web push notifications will fail at runtime');
+}
+
+if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PRIVATE_KEY) {
+  console.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
 }
 
 export const env = parsed.data;

@@ -24,7 +24,10 @@ export const OpportunitySchema = z
       .min(1, 'Please add at least one skill')
       .max(10, 'Maximum 10 skills allowed'),
     category: z.enum(OPPORTUNITY_CATEGORIES),
-    locationId: z.string().optional(),
+    locationId: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().optional()
+    ),
     // TODO: relax for UPDATE operations (existing records have past dates)
     startDate: z.string().datetime().refine((val) => {
       const date = new Date(val);

@@ -623,7 +623,7 @@ model AuditLog {
   metadata  Json?    // arbitrary extra data
   createdAt DateTime @default(now())
 
-  user User @relation("AuditLogAuthor", fields: [userId], references: [id])
+  user User @relation("AuditLogAuthor", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([action])
@@ -710,7 +710,7 @@ model PointTransaction {
   reference String?
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
@@ -748,8 +748,8 @@ model Mentorship {
   endedAt     DateTime?
   hoursServed Float            @default(0)
 
-  mentor User @relation("MentorRelation", fields: [mentorId], references: [id])
-  mentee User @relation("MenteeRelation", fields: [menteeId], references: [id])
+  mentor User @relation("MentorRelation", fields: [mentorId], references: [id], onDelete: Cascade)
+  mentee User @relation("MenteeRelation", fields: [menteeId], references: [id], onDelete: Cascade)
 
   @@unique([mentorId, menteeId])
 }
@@ -762,7 +762,7 @@ model Certificate {
   verificationHash String   @unique
   issuedAt         DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   level Level @relation(fields: [levelId], references: [id])
 
   @@index([userId])

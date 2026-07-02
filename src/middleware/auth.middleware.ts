@@ -39,6 +39,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   try {
     const payload = jwt.verify(token, env.JWT_ACCESS_SECRET, {
       issuer: 'we-the-yuva-api',
+      algorithms: ['HS256'],
     }) as JwtPayload;
     req.user = {
       id: payload.sub,
@@ -53,7 +54,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         error: err.message,
         path: req.path,
         ip: req.ip,
-        tokenPrefix: token.substring(0, 7) + '...',
+        tokenPrefix: `${token.substring(0, 7)}...`,
       });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Token expired' });
@@ -64,7 +65,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         error: err.message,
         path: req.path,
         ip: req.ip,
-        tokenPrefix: token.substring(0, 7) + '...',
+        tokenPrefix: `${token.substring(0, 7)}...`,
       });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Token not yet active' });
@@ -75,7 +76,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         error: err.message,
         path: req.path,
         ip: req.ip,
-        tokenPrefix: token.substring(0, 7) + '...',
+        tokenPrefix: `${token.substring(0, 7)}...`,
       });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Invalid token' });
@@ -86,7 +87,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
       errorType: (err as Error).constructor.name,
       path: req.path,
       ip: req.ip,
-      tokenPrefix: token.substring(0, 7) + '...',
+      tokenPrefix: `${token.substring(0, 7)}...`,
     });
     Sentry.captureException(err);
     res.status(401).json({ error: 'Unauthorized' });
