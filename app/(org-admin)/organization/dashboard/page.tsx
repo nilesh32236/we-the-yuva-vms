@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, Calendar, Users } from 'lucide-react';
+import { Briefcase, Building2, Calendar, ArrowRight, Users } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -18,6 +18,45 @@ export default function OrganizationDashboardPage() {
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  if (!user?.organizationId) {
+    return (
+      <div className="space-y-6 max-w-5xl">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-500 p-6 md:p-8">
+          <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
+          <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
+          <div className="relative z-10">
+            <p className="text-white/70 text-sm font-medium mb-1">{greeting}</p>
+            <h1 className="font-heading font-bold text-2xl md:text-3xl text-white">
+              {user?.name?.split(' ')?.[0]}!
+            </h1>
+            <span className="inline-block mt-2 text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full">
+              Org Admin
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-8 text-center">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-brand-primary/10 flex items-center justify-center mb-4">
+            <Building2 className="w-8 h-8 text-brand-primary" />
+          </div>
+          <h2 className="font-heading font-semibold text-xl text-brand-text mb-2">
+            Register Your Organization
+          </h2>
+          <p className="text-brand-muted text-sm max-w-md mx-auto mb-6">
+            Set up your organization profile to start creating opportunities, managing events, and tracking volunteer impact.
+          </p>
+          <Link
+            href="/register-organization"
+            className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-secondary transition-all"
+          >
+            Get Started
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl">
