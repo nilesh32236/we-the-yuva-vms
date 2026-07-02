@@ -20,7 +20,7 @@ export function MissionVision() {
 
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
           <div
-            className={`bg-brand-bg rounded-2xl p-8 sm:p-10 transition-all duration-700 ${
+            className={`bg-brand-bg rounded-2xl p-8 sm:p-10 motion-safe:transition-all duration-700 ${
               inView ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             }`}
           >
@@ -48,7 +48,7 @@ export function MissionVision() {
           </div>
 
           <div
-            className={`bg-brand-bg rounded-2xl p-8 sm:p-10 transition-all duration-700 delay-200 ${
+            className={`bg-brand-bg rounded-2xl p-8 sm:p-10 motion-safe:transition-all duration-700 delay-200 ${
               inView ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
             }`}
           >
@@ -77,7 +77,7 @@ export function MissionVision() {
         </div>
 
         <div
-          className={`mt-12 text-center bg-gradient-to-r from-brand-primary/5 via-brand-cta/5 to-brand-primary/5 rounded-2xl p-8 sm:p-10 transition-all duration-700 delay-400 ${
+          className={`mt-12 text-center bg-gradient-to-r from-brand-primary/5 via-brand-cta/5 to-brand-primary/5 rounded-2xl p-8 sm:p-10 motion-safe:transition-all duration-700 delay-400 ${
             inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >

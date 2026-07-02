@@ -17,7 +17,7 @@ export function CTA() {
 
       <div ref={ref} className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
         <h2
-          className={`text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight transition-all duration-700 ${
+          className={`text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight motion-safe:transition-all duration-700 ${
             inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
@@ -25,7 +25,7 @@ export function CTA() {
         </h2>
 
         <p
-          className={`mt-6 text-lg text-emerald-100/80 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-100 ${
+          className={`mt-6 text-lg text-emerald-100/80 max-w-2xl mx-auto leading-relaxed motion-safe:transition-all duration-700 delay-100 ${
             inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
@@ -34,7 +34,7 @@ export function CTA() {
         </p>
 
         <div
-          className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-200 ${
+          className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 motion-safe:transition-all duration-700 delay-200 ${
             inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
@@ -55,7 +55,7 @@ export function CTA() {
         </div>
 
         <p
-          className={`mt-8 text-sm text-emerald-100/60 transition-all duration-700 delay-300 ${
+          className={`mt-8 text-sm text-emerald-100/60 motion-safe:transition-all duration-700 delay-300 ${
             inView ? 'opacity-100' : 'opacity-0'
           }`}
         >

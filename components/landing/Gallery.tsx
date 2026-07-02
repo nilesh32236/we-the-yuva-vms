@@ -40,7 +40,7 @@ export function Gallery() {
           {images.map((img) => (
             <div
               key={img.id}
-              className={`relative group overflow-hidden rounded-2xl ${img.span} transition-all duration-700 ${
+              className={`relative group overflow-hidden rounded-2xl ${img.span} motion-safe:transition-all duration-700 ${
                 inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
               }`}
             >

@@ -41,12 +41,12 @@ export function Header() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-brand-muted hover:text-brand-primary transition-colors"
+                className="text-sm font-medium text-brand-muted hover:text-brand-primary transition-colors focus:outline-none focus-visible:text-brand-primary"
               >
                 {link.label}
               </a>
@@ -56,13 +56,13 @@ export function Header() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="/login"
-              className="text-sm font-medium text-brand-text hover:text-brand-primary transition-colors px-4 py-2"
+              className="text-sm font-medium text-brand-text hover:text-brand-primary transition-colors px-4 py-2 focus:outline-none focus-visible:text-brand-primary"
             >
               Sign In
             </Link>
             <Link
               href="/register"
-              className="text-sm font-medium bg-brand-primary text-white px-5 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors active-bounce"
+              className="text-sm font-medium bg-brand-primary text-white px-5 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors active-bounce focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/50"
             >
               Get Started
             </Link>
@@ -73,6 +73,7 @@ export function Header() {
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden p-2 text-brand-text"
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -80,14 +81,14 @@ export function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden bg-white dark:bg-slate-900 border-t border-brand-border">
+        <nav className="md:hidden bg-white dark:bg-slate-900 border-t border-brand-border" aria-label="Mobile navigation">
           <div className="px-4 py-4 space-y-3">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className="block text-sm font-medium text-brand-muted hover:text-brand-primary transition-colors py-2"
+                className="block text-sm font-medium text-brand-muted hover:text-brand-primary transition-colors py-2 focus:outline-none focus-visible:text-brand-primary"
               >
                 {link.label}
               </a>
@@ -95,19 +96,19 @@ export function Header() {
             <div className="pt-3 flex flex-col gap-2">
               <Link
                 href="/login"
-                className="text-sm font-medium text-center text-brand-text border border-brand-border px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors"
+                className="text-sm font-medium text-center text-brand-text border border-brand-border px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-border"
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="text-sm font-medium text-center bg-brand-primary text-white px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors"
+                className="text-sm font-medium text-center bg-brand-primary text-white px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/50"
               >
                 Get Started
               </Link>
             </div>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

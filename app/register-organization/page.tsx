@@ -18,6 +18,7 @@ interface DocItem {
   fileName: string;
   fileUrl: string;
   uploading: boolean;
+  error?: string;
 }
 
 const STEPS = ['Organization Info', 'Documents', 'Review & Submit'];
@@ -77,11 +78,32 @@ export default function RegisterOrganizationPage() {
           )
         );
       } catch {
-        setDocs((prev) => prev.filter((d) => d !== doc));
-        toast({ title: 'Upload failed', description: 'Please try again', variant: 'destructive' });
+        setDocs((prev) =>
+          prev.map((d) => (d === doc ? { ...d, uploading: false, error: 'Upload failed. Click to retry.' } : d))
+        );
       }
     };
     input.click();
+  };
+
+  const retryUpload = async (doc: DocItem) => {
+    setDocs((prev) => prev.map((d) => (d === doc ? { ...d, uploading: true, error: undefined } : d)));
+    try {
+      const formData = new FormData();
+      formData.append('file', doc.file);
+      const res = await api.post('/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setDocs((prev) =>
+        prev.map((d) =>
+          d === doc ? { ...d, fileUrl: res.data.url, fileName: res.data.filename, uploading: false } : d
+        )
+      );
+    } catch {
+      setDocs((prev) =>
+        prev.map((d) => (d === doc ? { ...d, uploading: false, error: 'Upload failed. Click to retry.' } : d))
+      );
+    }
   };
 
   const removeDoc = (index: number) => {
@@ -89,7 +111,13 @@ export default function RegisterOrganizationPage() {
   };
 
   const canProceedToReview = () => {
-    return docs.length >= 2 && docs.every((d) => !d.uploading && d.fileUrl);
+    const hasCert = docs.some(
+      (d) => d.type === 'REGISTRATION_CERTIFICATE' && !d.uploading && d.fileUrl
+    );
+    const hasGovtId = docs.some(
+      (d) => d.type === 'GOVT_ID' && !d.uploading && d.fileUrl
+    );
+    return hasCert && hasGovtId;
   };
 
   const onSubmit = async (data: RegisterOrganizationInput) => {
@@ -256,100 +284,136 @@ export default function RegisterOrganizationPage() {
 
               <div className="space-y-2">
                 <span className="text-sm font-medium text-brand-text">Registration Certificate *</span>
-                {docs.find((d) => d.type === 'REGISTRATION_CERTIFICATE') ? (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-brand-bg border border-brand-border">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-brand-primary" />
-                      <span className="text-sm text-brand-text">
-                        {docs.find((d) => d.type === 'REGISTRATION_CERTIFICATE')?.fileName}
-                      </span>
-                      {docs.find((d) => d.type === 'REGISTRATION_CERTIFICATE')?.uploading && (
-                        <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeDoc(docs.findIndex((d) => d.type === 'REGISTRATION_CERTIFICATE'))}
-                      className="text-xs text-brand-error hover:underline"
+                {((): React.ReactNode => {
+                  const d = docs.find((d) => d.type === 'REGISTRATION_CERTIFICATE');
+                  if (!d) {
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
+                      >
+                        <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
+                        <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
+                      </button>
+                    );
+                  }
+                  return (
+                    // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
+                    <div
+                      role="button"
+                      tabIndex={d.error ? 0 : undefined}
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
+                      onClick={d.error ? () => retryUpload(d) : undefined}
+                      onKeyDown={d.error ? (e) => { if (e.key === 'Enter' || e.key === ' ') retryUpload(d); } : undefined}
                     >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
-                    className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
-                  >
-                    <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
-                    <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
-                  </button>
-                )}
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-brand-primary" />
+                        <div>
+                          <span className="text-sm text-brand-text">{d.fileName}</span>
+                          {d.error && <p className="text-xs text-brand-error">{d.error}</p>}
+                        </div>
+                        {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE')); }}
+                        className="text-xs text-brand-error hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="space-y-2">
                 <span className="text-sm font-medium text-brand-text">Government ID *</span>
-                {docs.find((d) => d.type === 'GOVT_ID') ? (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-brand-bg border border-brand-border">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-brand-primary" />
-                      <span className="text-sm text-brand-text">
-                        {docs.find((d) => d.type === 'GOVT_ID')?.fileName}
-                      </span>
-                      {docs.find((d) => d.type === 'GOVT_ID')?.uploading && (
-                        <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeDoc(docs.findIndex((d) => d.type === 'GOVT_ID'))}
-                      className="text-xs text-brand-error hover:underline"
+                {((): React.ReactNode => {
+                  const d = docs.find((d) => d.type === 'GOVT_ID');
+                  if (!d) {
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => addDoc('GOVT_ID')}
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
+                      >
+                        <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
+                        <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
+                      </button>
+                    );
+                  }
+                  return (
+                    // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
+                    <div
+                      role="button"
+                      tabIndex={d.error ? 0 : undefined}
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
+                      onClick={d.error ? () => retryUpload(d) : undefined}
+                      onKeyDown={d.error ? (e) => { if (e.key === 'Enter' || e.key === ' ') retryUpload(d); } : undefined}
                     >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => addDoc('GOVT_ID')}
-                    className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
-                  >
-                    <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
-                    <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
-                  </button>
-                )}
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-brand-primary" />
+                        <div>
+                          <span className="text-sm text-brand-text">{d.fileName}</span>
+                          {d.error && <p className="text-xs text-brand-error">{d.error}</p>}
+                        </div>
+                        {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID')); }}
+                        className="text-xs text-brand-error hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="space-y-2">
                 <span className="text-sm font-medium text-brand-text">Other Document (optional)</span>
-                {docs.find((d) => d.type === 'OTHER') ? (
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-brand-bg border border-brand-border">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-brand-primary" />
-                      <span className="text-sm text-brand-text">
-                        {docs.find((d) => d.type === 'OTHER')?.fileName}
-                      </span>
-                      {docs.find((d) => d.type === 'OTHER')?.uploading && (
-                        <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeDoc(docs.findIndex((d) => d.type === 'OTHER'))}
-                      className="text-xs text-brand-error hover:underline"
+                {((): React.ReactNode => {
+                  const d = docs.find((d) => d.type === 'OTHER');
+                  if (!d) {
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => addDoc('OTHER')}
+                        className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
+                      >
+                        <span className="text-sm text-brand-muted">+ Add optional document</span>
+                      </button>
+                    );
+                  }
+                  return (
+                    // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
+                    <div
+                      role="button"
+                      tabIndex={d.error ? 0 : undefined}
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
+                      onClick={d.error ? () => retryUpload(d) : undefined}
+                      onKeyDown={d.error ? (e) => { if (e.key === 'Enter' || e.key === ' ') retryUpload(d); } : undefined}
                     >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => addDoc('OTHER')}
-                    className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
-                  >
-                    <span className="text-sm text-brand-muted">+ Add optional document</span>
-                  </button>
-                )}
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-brand-primary" />
+                        <div>
+                          <span className="text-sm text-brand-text">{d.fileName}</span>
+                          {d.error && <p className="text-xs text-brand-error">{d.error}</p>}
+                        </div>
+                        {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); removeDoc(docs.findIndex((x) => x.type === 'OTHER')); }}
+                        className="text-xs text-brand-error hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="flex justify-between pt-4">
@@ -407,9 +471,8 @@ export default function RegisterOrganizationPage() {
                     Edit
                   </button>
                 </div>
-                {docs.map((d, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: stable list
-                  <div key={i} className="flex items-center gap-2 text-sm text-brand-text">
+                {docs.map((d) => (
+                  <div key={d.fileName} className="flex items-center gap-2 text-sm text-brand-text">
                     <Check className="w-3.5 h-3.5 text-brand-primary" />
                     {d.fileName}
                     <span className="text-xs text-brand-muted ml-auto">{d.type.replace(/_/g, ' ')}</span>

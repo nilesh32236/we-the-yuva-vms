@@ -12,10 +12,14 @@ const stats = [
 ];
 
 export function Hero() {
-  const { inView } = useInView(0.2);
+  const { ref, inView } = useInView(0.2);
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center overflow-hidden">
+    <section
+      ref={ref}
+      id="hero"
+      className="relative min-h-screen flex items-center overflow-hidden"
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 dark:from-slate-950 dark:via-emerald-950 dark:to-slate-900" />
 
       <div className="absolute inset-0 opacity-10">
@@ -29,9 +33,9 @@ export function Hero() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
         <div className="max-w-3xl mx-auto text-center">
           <div
-          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8 motion-safe:transition-all motion-safe:duration-700 ${
-            inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
+            className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8 motion-safe:transition-all motion-safe:duration-700 ${
+              inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-sm text-emerald-100 font-medium">
@@ -40,7 +44,7 @@ export function Hero() {
           </div>
 
           <h1
-            className={`text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight tracking-tight transition-all duration-700 delay-100 ${
+            className={`text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight tracking-tight motion-safe:transition-all motion-safe:duration-700 delay-100 ${
               inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
@@ -52,7 +56,7 @@ export function Hero() {
           </h1>
 
           <p
-            className={`mt-6 text-lg sm:text-xl text-emerald-100/80 max-w-2xl mx-auto leading-relaxed transition-all duration-700 delay-200 ${
+            className={`mt-6 text-lg sm:text-xl text-emerald-100/80 max-w-2xl mx-auto leading-relaxed motion-safe:transition-all motion-safe:duration-700 delay-200 ${
               inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
@@ -61,20 +65,20 @@ export function Hero() {
           </p>
 
           <div
-            className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 delay-300 ${
+            className={`mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 motion-safe:transition-all motion-safe:duration-700 delay-300 ${
               inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 bg-white text-emerald-900 font-semibold px-8 py-3.5 rounded-xl hover:bg-emerald-50 transition-all hover:shadow-xl hover:scale-105 active-bounce"
+              className="inline-flex items-center gap-2 bg-white text-emerald-900 font-semibold px-8 py-3.5 rounded-xl hover:bg-emerald-50 transition-all hover:shadow-xl hover:scale-105 active-bounce focus:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
             >
               Join as Volunteer
               <ArrowRight size={18} />
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 border-2 border-white/30 text-white font-semibold px-8 py-3.5 rounded-xl hover:bg-white/10 transition-all hover:border-white/50 active-bounce"
+              className="inline-flex items-center gap-2 border-2 border-white/30 text-white font-semibold px-8 py-3.5 rounded-xl hover:bg-white/10 transition-all hover:border-white/50 active-bounce focus:outline-none focus-visible:ring-4 focus-visible:ring-white/50"
             >
               Register Organization
               <Building2 size={18} />
@@ -83,7 +87,7 @@ export function Hero() {
         </div>
 
         <div
-          className={`mt-20 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 transition-all duration-700 delay-500 ${
+          className={`mt-20 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 motion-safe:transition-all motion-safe:duration-700 delay-500 ${
             inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
           }`}
         >

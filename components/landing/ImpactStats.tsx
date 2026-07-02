@@ -59,13 +59,13 @@ export function ImpactStats() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat) => (
+          {stats.map((stat, i) => (
             <div
               key={stat.label}
-              className={`text-center p-8 rounded-2xl bg-brand-bg border border-brand-border transition-all duration-700 hover:shadow-lg ${
+              className={`text-center p-8 rounded-2xl bg-brand-bg border border-brand-border motion-safe:transition-all duration-700 hover:shadow-lg ${
                 inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
               }`}
-              style={{ transitionDelay: `${stats.indexOf(stat) * 150}ms` }}
+              style={{ transitionDelay: `${i * 150}ms` }}
             >
               <stat.icon className={`w-8 h-8 mx-auto mb-4 ${stat.color}`} />
               <div className={`text-3xl sm:text-4xl font-bold text-brand-text ${inView ? '' : 'invisible'}`}>

@@ -64,15 +64,7 @@ export function Footer() {
             &copy; {new Date().getFullYear()} WeTheYuva. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="text-xs hover:text-emerald-300 transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="text-xs hover:text-emerald-300 transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="/contact" className="text-xs hover:text-emerald-300 transition-colors">
-              Contact
-            </Link>
+            <span className="text-xs text-emerald-100/50">Volunteer Management System</span>
           </div>
         </div>
       </div>

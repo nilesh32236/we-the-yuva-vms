@@ -55,7 +55,7 @@ function LevelCard({ level, index }: { level: (typeof levels)[0]; index: number 
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ${
+      className={`motion-safe:transition-all duration-700 ${
         inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
       style={{ transitionDelay: `${index * 150}ms` }}
@@ -115,7 +115,7 @@ export function LevelPathway() {
             return (
               <div
                 key={level.title}
-                className={`contents transition-all duration-700 ${
+                className={`contents motion-safe:transition-all duration-700 ${
                   sectionInView ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{ transitionDelay: `${i * 150}ms` }}
