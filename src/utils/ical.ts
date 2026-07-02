@@ -6,6 +6,7 @@ export interface IcalEventInput {
   startDate: Date;
   endDate: Date;
   organizerName: string;
+  dtstamp?: Date;
 }
 
 function formatIcalDate(date: Date): string {
@@ -23,7 +24,7 @@ export function generateIcs(event: IcalEventInput): string {
     'PRODID:-//WeTheYuva VMS//EN',
     'BEGIN:VEVENT',
     `UID:${event.uid}@wetheyuva`,
-    `DTSTAMP:${formatIcalDate(event.startDate)}`,
+    `DTSTAMP:${formatIcalDate(event.dtstamp ?? new Date())}`,
     `DTSTART:${formatIcalDate(event.startDate)}`,
     `DTEND:${formatIcalDate(event.endDate)}`,
     `SUMMARY:${escapeIcalText(event.title)}`,
@@ -32,5 +33,5 @@ export function generateIcs(event: IcalEventInput): string {
     `ORGANIZER;CN=${escapeIcalText(event.organizerName)}`,
     'END:VEVENT',
     'END:VCALENDAR',
-  ].join('\r\n');
+  ].join('\r\n') + '\r\n';
 }

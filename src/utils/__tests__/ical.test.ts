@@ -11,6 +11,7 @@ describe('generateIcs', () => {
       startDate: new Date('2026-07-15T09:00:00Z'),
       endDate: new Date('2026-07-15T12:00:00Z'),
       organizerName: 'WeTheYuva',
+      dtstamp: new Date('2026-07-02T12:00:00Z'),
     });
 
     expect(ics).toContain('BEGIN:VCALENDAR');
@@ -23,6 +24,7 @@ describe('generateIcs', () => {
     expect(ics).toContain('LOCATION:Powai Lake\\, Mumbai');
     expect(ics).toContain('DTSTART:20260715T090000Z');
     expect(ics).toContain('DTEND:20260715T120000Z');
+    expect(ics).toContain('DTSTAMP:20260702T120000Z');
     expect(ics).toContain('ORGANIZER;CN=WeTheYuva');
     expect(ics).toContain('END:VEVENT');
     expect(ics).toContain('END:VCALENDAR');
@@ -57,18 +59,4 @@ describe('generateIcs', () => {
     expect(ics).toContain('DTEND:20261225T110000Z');
   });
 
-  it('includes DTSTAMP', () => {
-    const now = new Date('2026-07-02T12:00:00Z');
-    const ics = generateIcs({
-      uid: '3',
-      title: 'T',
-      description: '',
-      location: '',
-      startDate: now,
-      endDate: now,
-      organizerName: 'O',
-    });
-
-    expect(ics).toContain('DTSTAMP:20260702T120000Z');
-  });
 });
