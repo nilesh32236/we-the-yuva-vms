@@ -15,6 +15,7 @@ const CATEGORIES = [
   'ARTS',
   'SPORTS',
   'TECHNOLOGY',
+  'ACTIVE_CITIZENSHIP',
   'OTHER',
 ] as const;
 
@@ -33,7 +34,6 @@ export function OpportunityForm({
     register,
     handleSubmit,
     setValue,
-    setError,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<OpportunityInput>({

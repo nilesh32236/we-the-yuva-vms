@@ -31,15 +31,16 @@ export function RequirementChecklist({
   if (entries.length === 0) return null;
 
   return (
-    <div className="space-y-3" role="list" aria-label={`Requirements for ${levelName}`}>
+    <div className="space-y-3">
       <h4 className="text-sm font-semibold text-brand-text">Requirements</h4>
+      <ul className="space-y-3" aria-label={`Requirements for ${levelName}`}>
       {entries.map(([key, required]) => {
         const current = progress[key] ?? 0;
         const met = current >= required;
         const pct = Math.min((current / required) * 100, 100);
 
         return (
-          <div key={key} className="flex items-start gap-3" role="listitem">
+          <li key={key} className="flex items-start gap-3">
             <div className="mt-0.5 flex-shrink-0">
               {met ? (
                 <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400" />
@@ -63,9 +64,10 @@ export function RequirementChecklist({
                 />
               </div>
             </div>
-          </div>
+          </li>
         );
       })}
+      </ul>
     </div>
   );
 }

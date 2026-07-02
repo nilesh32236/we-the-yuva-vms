@@ -14,6 +14,9 @@ export const VOLUNTEER_TYPES = [
 export const TIME_SLOTS = ['Morning', 'Afternoon', 'Evening', 'Weekend'] as const;
 
 export const VolunteerProfileSchema = z.object({
+  volunteerType: z.enum(VOLUNTEER_TYPES, {
+    errorMap: () => ({ message: 'Please select a valid volunteer type' }),
+  }),
   skills: z
     .array(z.string().min(1, 'Skill cannot be empty'))
     .min(1, 'Please add at least one skill')
@@ -40,4 +43,5 @@ export const StaffProfileSchema = z.object({
 export const UpdateMeSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   email: z.string().email().optional(),
+  volunteerType: z.enum(VOLUNTEER_TYPES).optional(),
 });

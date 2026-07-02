@@ -45,7 +45,9 @@ export async function proxy(req: NextRequest) {
       return response;
     }
     const secret = new TextEncoder().encode(jwtSecret);
-    const { payload } = await jwtVerify(accessToken, secret);
+    const { payload } = await jwtVerify(accessToken, secret, {
+      algorithms: ['HS256'],
+    });
     const role = payload.role as string;
     const rolePrefix = ROLE_ROUTES[role];
 

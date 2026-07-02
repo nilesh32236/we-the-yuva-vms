@@ -92,13 +92,13 @@ export default function VolunteerProfilePage() {
     setEditing(true);
   }
 
-  function cancelEdit() {
+  const cancelEdit = useCallback(function cancelEdit() {
     setEditing(false);
     setFieldErrors({});
     setDirty(false);
-  }
+  }, []);
 
-  function hasChanges() {
+  const hasChanges = useCallback(function hasChanges() {
     return (
       bio !== (user?.profile?.bio ?? '') ||
       volunteerType !== (user?.volunteerType ?? '') ||
@@ -107,7 +107,7 @@ export default function VolunteerProfilePage() {
       JSON.stringify(selectedDays) !== JSON.stringify(user?.profile?.availability?.days ?? []) ||
       JSON.stringify(selectedSlots) !== JSON.stringify(user?.profile?.availability?.timeSlots ?? [])
     );
-  }
+  }, [bio, volunteerType, skills, interests, selectedDays, selectedSlots, user]);
 
   function save() {
     haptic.medium();
@@ -137,7 +137,7 @@ export default function VolunteerProfilePage() {
   useEffect(() => {
     if (!editing) return;
     setDirty(hasChanges());
-  }, [bio, volunteerType, skills, interests, selectedDays, selectedSlots, editing]);
+  }, [editing, hasChanges]);
 
   useEffect(() => {
     if (!editing || !dirty) return;
@@ -157,7 +157,7 @@ export default function VolunteerProfilePage() {
     // Use capture phase to catch clicks outside
     document.addEventListener('click', handler, true);
     return () => document.removeEventListener('click', handler, true);
-  }, [editing, dirty]);
+  }, [editing, dirty, cancelEdit]);
 
   // Beforeunload for browser navigation
   useEffect(() => {

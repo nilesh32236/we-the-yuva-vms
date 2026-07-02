@@ -54,7 +54,7 @@ export function TierPathVisualizer({
   const completionPct = calcCompletion(levels, currentLevelId);
 
   return (
-    <div className="w-full" role="navigation" aria-label="Tier progression path">
+    <nav className="w-full" aria-label="Tier progression path">
       <div className="relative flex items-center justify-between">
         {/* Connection line background */}
         <div className="absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2 bg-brand-border rounded-full" />
@@ -65,9 +65,9 @@ export function TierPathVisualizer({
           style={{ width: `${completionPct}%` }}
         />
 
-        {levels.map((level, index) => {
+        {levels.map((level, _index) => {
           const isEarned = currentLevelId
-            ? level.tier <= levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)?.tier!
+            ? level.tier <= (levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)?.tier ?? 0)
             : false;
           const isCurrent =
             level.tier.toString() === currentLevelId ||
@@ -104,6 +104,6 @@ export function TierPathVisualizer({
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }

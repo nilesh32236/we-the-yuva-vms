@@ -77,7 +77,7 @@ function ScanInner() {
         },
         (decodedText) => {
           // Extract token from URL if it's a full URL, otherwise use raw text
-          let qrToken = decodedText;
+          const qrToken = decodedText;
           try {
             const url = new URL(decodedText);
             const t = url.searchParams.get('token');
@@ -104,18 +104,17 @@ function ScanInner() {
         }
       )
       .then(() => setScannerReady(true))
-      .catch((err) => {
+      .catch((_err) => {
         setErrorMsg('Camera access denied or unavailable. Switch to manual entry.');
         setMode('manual');
       });
 
-    return () => {
+      return () => {
       scanner.stop().catch(() => {});
       scannerRef.current = null;
       setScannerReady(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, result]);
+  }, [mode, result, doCheckin, eventId]);
 
   const handleManualSubmit = () => {
     if (!eventId) {

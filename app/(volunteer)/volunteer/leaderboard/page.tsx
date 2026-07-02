@@ -129,6 +129,7 @@ export default function VolunteerLeaderboardPage() {
       {isLoading && (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array
             <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-brand-surface border border-brand-border">
               <Skeleton className="w-8 h-6 rounded" />
               <Skeleton className="w-10 h-10 rounded-full" />

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Award, Check, Lock, Star, Shield, Zap, Target, Heart, BookOpen, Users } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -60,7 +61,7 @@ export function BadgeCard({
         )}
       >
         {imageUrl ? (
-          <img src={imageUrl} alt={title} className="w-12 h-12 object-contain" />
+          <Image src={imageUrl} alt={title} width={48} height={48} className="w-12 h-12 object-contain" />
         ) : (
           (() => {
             const IconComponent = BADGE_ICONS[name];

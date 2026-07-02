@@ -20,6 +20,7 @@ const CATEGORIES = [
   'ARTS',
   'SPORTS',
   'TECHNOLOGY',
+  'ACTIVE_CITIZENSHIP',
   'OTHER',
 ];
 
@@ -138,9 +139,9 @@ export default function AlertSubscriptionsPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-medium text-brand-muted uppercase tracking-wider">
+                <span className="text-xs font-medium text-brand-muted uppercase tracking-wider">
                   Categories
-                </label>
+                </span>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => (
                     <button
@@ -164,7 +165,7 @@ export default function AlertSubscriptionsPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-medium text-brand-muted uppercase tracking-wider">
+                <label htmlFor="alert-skills" className="text-xs font-medium text-brand-muted uppercase tracking-wider">
                   Skills (optional)
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
@@ -188,6 +189,7 @@ export default function AlertSubscriptionsPage() {
                   <div className="relative flex-1">
                     <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-muted" />
                     <input
+                      id="alert-skills"
                       value={skillInput}
                       onChange={(e) => setSkillInput(e.target.value)}
                       onKeyDown={(e) => {

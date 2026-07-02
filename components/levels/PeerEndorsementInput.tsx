@@ -44,12 +44,11 @@ export function PeerEndorsementInput({
       <h4 className="text-sm font-semibold text-brand-text">Peer Endorsements</h4>
 
       {endorsements.length > 0 && (
-        <div className="space-y-2" role="list" aria-label="Added endorsements">
+        <ul className="space-y-2" aria-label="Added endorsements">
           {endorsements.map((end, index) => (
-            <div
+            <li
               key={end.userId}
               className="flex items-start gap-3 p-3 rounded-xl bg-brand-bg border border-brand-border"
-              role="listitem"
             >
               <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center flex-shrink-0">
                 <User className="w-4 h-4 text-brand-primary" />
@@ -66,9 +65,9 @@ export function PeerEndorsementInput({
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       {isAdding ? (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, Clock, Flame, Star, Trophy } from 'lucide-react';
+import { ArrowRight, Clock, Star, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';

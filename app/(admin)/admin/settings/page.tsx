@@ -12,6 +12,7 @@ const CATEGORIES = [
   'ARTS',
   'SPORTS',
   'TECHNOLOGY',
+  'ACTIVE_CITIZENSHIP',
   'OTHER',
 ];
 

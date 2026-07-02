@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Award, Copy, Download, ExternalLink, Share2 } from 'lucide-react';
+import { ArrowLeft, Award, Copy, Download, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';

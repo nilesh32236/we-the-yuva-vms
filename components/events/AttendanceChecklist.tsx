@@ -222,8 +222,9 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                 <div className="mt-3 flex items-end gap-3 pl-8">
                   {/* Hours input */}
                   <div className="flex-1">
-                    <label className="text-xs text-brand-muted block mb-1">Hours</label>
+                    <label htmlFor={`hours-input-${v.volunteerId}`} className="text-xs text-brand-muted block mb-1">Hours</label>
                     <input
+                      id={`hours-input-${v.volunteerId}`}
                       type="number"
                       min="0"
                       step="0.5"
@@ -238,7 +239,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
 
                   {/* Rating stars */}
                   <div>
-                    <label className="text-xs text-brand-muted block mb-1">Rating</label>
+                    <label htmlFor={`rating-${v.volunteerId}`} className="text-xs text-brand-muted block mb-1">Rating</label>
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button

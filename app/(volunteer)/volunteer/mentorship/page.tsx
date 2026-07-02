@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   CheckCircle,
   Handshake,
-  Loader2,
   MessageSquare,
   UserPlus,
   XCircle,
@@ -224,10 +223,11 @@ function RequestMentorForm({
         <h2 className="font-heading font-semibold text-lg text-brand-text">Request Mentor</h2>
 
         <div>
-          <label className="text-xs font-medium text-brand-muted mb-1.5 block">
+          <label htmlFor="mentor-input" className="text-xs font-medium text-brand-muted mb-1.5 block">
             Mentor Email or Name
           </label>
           <input
+            id="mentor-input"
             type="text"
             value={menteeId}
             onChange={(e) => setMenteeId(e.target.value)}
@@ -237,10 +237,11 @@ function RequestMentorForm({
         </div>
 
         <div>
-          <label className="text-xs font-medium text-brand-muted mb-1.5 block">
+          <label htmlFor="mentor-message" className="text-xs font-medium text-brand-muted mb-1.5 block">
             Message <span className="text-brand-muted">(optional)</span>
           </label>
           <textarea
+            id="mentor-message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Why do you want this mentor?"

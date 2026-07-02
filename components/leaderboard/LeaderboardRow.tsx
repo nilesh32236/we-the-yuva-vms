@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { LevelBadge } from '../levels/LevelBadge';
 import { cn } from '../../lib/utils';
 
@@ -50,7 +51,7 @@ export function LeaderboardRow({
       {/* Avatar */}
       <div className="w-10 h-10 rounded-full bg-brand-border flex items-center justify-center flex-shrink-0 overflow-hidden">
         {avatarUrl ? (
-          <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+          <Image src={avatarUrl} alt={name} width={40} height={40} className="w-full h-full object-cover" />
         ) : (
           <span className="text-xs font-bold text-brand-muted">
             {name

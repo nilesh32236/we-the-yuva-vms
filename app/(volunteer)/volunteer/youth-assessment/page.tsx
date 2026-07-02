@@ -91,6 +91,7 @@ export default function YouthAssessmentPage() {
 
   const steps = [
     {
+      id: 'learn',
       title: 'What do you want to learn?',
       subtitle: 'Select the skills and areas you hope to develop through volunteering',
       content: (
@@ -114,6 +115,7 @@ export default function YouthAssessmentPage() {
       canProceed: aspirations.length > 0,
     },
     {
+      id: 'skills',
       title: 'What skills can you bring?',
       subtitle: 'Select the skills you already have',
       content: (
@@ -122,6 +124,7 @@ export default function YouthAssessmentPage() {
       canProceed: skills.length > 0,
     },
     {
+      id: 'passion',
       title: 'What are you passionate about?',
       subtitle: 'Select the causes that matter most to you',
       content: (
@@ -170,10 +173,10 @@ export default function YouthAssessmentPage() {
           <p className="text-brand-muted text-sm">{current.subtitle}</p>
           {/* Step indicator */}
           <div className="flex justify-center gap-1.5 pt-2">
-            {steps.map((_, i) => (
+            {steps.map((s, idx) => (
               <div
-                key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-8 bg-brand' : i < step ? 'w-4 bg-brand/40' : 'w-4 bg-muted'}`}
+                key={s.id}
+                className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? 'w-8 bg-brand' : idx < step ? 'w-4 bg-brand/40' : 'w-4 bg-muted'}`}
               />
             ))}
           </div>
