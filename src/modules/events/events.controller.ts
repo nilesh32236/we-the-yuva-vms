@@ -9,6 +9,7 @@ import {
   exportEventsCsv,
   getAttendanceList,
   getEventById,
+  getIcalEvent,
   getMyEvents,
   getOrCreateEventQrToken,
   listAllEvents,
@@ -254,6 +255,22 @@ export async function exportEventsCsvHandler(
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="events-export.csv"');
     res.status(200).send(csv);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function downloadIcalHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const ics = await getIcalEvent(req.params.id);
+    const filename = `event-${req.params.id.slice(0, 8)}.ics`;
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.status(200).send(ics);
   } catch (err) {
     next(err);
   }

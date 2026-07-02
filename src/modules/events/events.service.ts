@@ -8,6 +8,7 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
+import { generateIcs } from '../../utils/ical';
 
 // ─── Event CRUD ───────────────────────────────────────────────────
 
@@ -157,6 +158,72 @@ export async function getEventById(id: string) {
   }
 
   return event;
+}
+
+export async function getIcalEvent(eventId: string): Promise<string> {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: {
+      opportunity: {
+        select: {
+          title: true,
+          createdBy: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  if (!event) {
+    throw new AppError('Event not found', 404);
+  }
+  if (event.status === 'CANCELLED') {
+    throw new AppError('Event has been cancelled', 410);
+  }
+
+  const startTimeParts = event.startTime?.split(':').map(Number) ?? [9, 0];
+  const endTimeParts = event.endTime?.split(':').map(Number) ?? [10, 0];
+  const eventDate = new Date(event.eventDate);
+
+  const startDate = new Date(
+    Date.UTC(
+      eventDate.getFullYear(),
+      eventDate.getMonth(),
+      eventDate.getDate(),
+      startTimeParts[0],
+      startTimeParts[1],
+      0
+    )
+  );
+
+  const endDate = new Date(
+    Date.UTC(
+      eventDate.getFullYear(),
+      eventDate.getMonth(),
+      eventDate.getDate(),
+      endTimeParts[0],
+      endTimeParts[1],
+      0
+    )
+  );
+
+  // If end <= start, add 1 hour
+  if (endDate <= startDate) {
+    endDate.setTime(startDate.getTime() + 3_600_000);
+  }
+
+  const location = event.isVirtual
+    ? `Online: ${event.meetingLink ?? ''}`
+    : (event.venue ?? '');
+
+  return generateIcs({
+    uid: event.id,
+    title: event.title,
+    description: `${event.opportunity.title}\n${event.description ?? ''}\n\nWeTheYuva VMS`,
+    location,
+    startDate,
+    endDate,
+    organizerName: event.opportunity.createdBy.name ?? 'WeTheYuva',
+  });
 }
 
 export async function updateEvent(

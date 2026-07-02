@@ -10,6 +10,7 @@ import {
   checkInHandler,
   checkOutHandler,
   createEventHandler,
+  downloadIcalHandler,
   exportEventsCsvHandler,
   getAttendanceListHandler,
   getEventHandler,
@@ -135,6 +136,8 @@ eventsRouter.get(
  *       200:
  *         description: Event details
  */
+eventsRouter.get('/:id/ical', requireAuth, downloadIcalHandler);
+
 eventsRouter.get('/:id', requireAuth, getEventHandler);
 
 /**
