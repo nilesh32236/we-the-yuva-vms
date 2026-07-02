@@ -1,6 +1,8 @@
 import { type IRouter, Router } from 'express';
+import { RegisterOrganizationSchema, OrganizationDocumentSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
+import { validate } from '../../middleware/validate.middleware';
 import { Permissions } from '../../shared/permissions';
 import {
   addCoordinatorHandler,
@@ -21,6 +23,7 @@ organizationsRouter.post(
   '/register',
   requireAuth,
   requirePermission(Permissions.ORG_CREATE),
+  validate(RegisterOrganizationSchema),
   registerOrgHandler
 );
 
@@ -37,6 +40,7 @@ organizationsRouter.post(
   '/:id/documents',
   requireAuth,
   requirePermission(Permissions.ORG_MANAGE),
+  validate(OrganizationDocumentSchema),
   uploadDocumentHandler
 );
 
