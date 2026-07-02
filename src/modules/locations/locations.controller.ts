@@ -15,3 +15,19 @@ export async function listLocationsHandler(
     next(err);
   }
 }
+
+export async function createLocationHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { name, district, state } = req.body;
+    const location = await prisma.location.create({
+      data: { name, district, state },
+    });
+    res.status(201).json({ data: location });
+  } catch (err) {
+    next(err);
+  }
+}
