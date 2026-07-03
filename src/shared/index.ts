@@ -9,5 +9,6 @@ export * from './schemas/stories.schemas';
 export * from './schemas/training.schemas';
 export * from './schemas/youth.schemas';
 export * from './schemas/organization.schemas';
+export * from './schemas/blog.schemas';
 export * from './helpers';
 export * from './types/index';

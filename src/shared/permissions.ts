@@ -63,6 +63,13 @@ export const Permissions = {
   // Chat
   CHAT_READ: 'chat:read',
   CHAT_SEND: 'chat:send',
+
+  // Blog
+  BLOG_CREATE: 'blog:create',
+  BLOG_EDIT: 'blog:edit',
+  BLOG_DELETE: 'blog:delete',
+  BLOG_PUBLISH: 'blog:publish',
+  BLOG_VIEW_ALL: 'blog:view:all',
 } as const;
 
 export type Permission = (typeof Permissions)[keyof typeof Permissions];

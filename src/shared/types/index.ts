@@ -42,6 +42,7 @@ import type {
   UpdateCourseSchema,
   UpdateLessonSchema,
 } from '../schemas/training.schemas';
+import type { CreateBlogPostSchema, UpdateBlogPostSchema } from '../schemas/blog.schemas';
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type SendOtpInput = z.infer<typeof SendOtpSchema>;
@@ -74,6 +75,8 @@ export type CreateCourseInput = z.infer<typeof CreateCourseSchema>;
 export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
 export type CreateLessonInput = z.infer<typeof CreateLessonSchema>;
 export type UpdateLessonInput = z.infer<typeof UpdateLessonSchema>;
+export type CreateBlogPostInput = z.infer<typeof CreateBlogPostSchema>;
+export type UpdateBlogPostInput = z.infer<typeof UpdateBlogPostSchema>;
 
 export type UserRole =
   | 'VOLUNTEER'
