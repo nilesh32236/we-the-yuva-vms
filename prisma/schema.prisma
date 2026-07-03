@@ -92,6 +92,11 @@ enum AuditLogAction {
   STORY_DELETE
   STORY_PUBLISH
   STORY_UNPUBLISH
+  BLOG_CREATE
+  BLOG_UPDATE
+  BLOG_DELETE
+  BLOG_PUBLISH
+  BLOG_ARCHIVE
   OTP_SENT
   OTP_VERIFIED
   COURSE_CREATE
@@ -136,6 +141,12 @@ enum MentorshipStatus {
   PENDING
   ACTIVE
   COMPLETED
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 // ─── Permission System ──────────────────────────────────────────
@@ -237,6 +248,7 @@ model User {
   pushSubscriptions    PushSubscription[]
   notifications        Notification[]
   stories              Story[]
+  authoredPosts        BlogPost[] @relation("AuthoredPosts")
   feedbackSubmissions  EventFeedback[] @relation("VolunteerFeedback")
   auditLogs            AuditLog[] @relation("AuditLogAuthor")
   notificationPrefs    NotificationPreference[]
@@ -612,6 +624,29 @@ model Story {
   @@index([published])
   @@index([createdAt])
   @@index([userId])
+}
+
+model BlogPost {
+  id            String     @id @default(cuid())
+  title         String
+  slug          String     @unique
+  excerpt       String?
+  content       String
+  featuredImage String?
+  tags          String[]
+  category      String?
+  status        PostStatus @default(DRAFT)
+  authorId      String
+  publishedAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  author User @relation("AuthoredPosts", fields: [authorId], references: [id])
+
+  @@index([status])
+  @@index([authorId])
+  @@index([slug])
+  @@index([publishedAt])
 }
 
 model AuditLog {
