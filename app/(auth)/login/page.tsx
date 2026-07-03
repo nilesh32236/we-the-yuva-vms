@@ -30,12 +30,25 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [ready, setReady] = useState(false);
 
-  // Redirect to dashboard if already authenticated
+  // Redirect to dashboard or onboarding if already authenticated
   useEffect(() => {
     if (!isAuthLoading) {
       if (user) {
-        const route = ROLE_ROUTES[user.role] ?? '/login';
-        router.push(route);
+        if (!user.consent) {
+          router.replace('/consent');
+        } else if (user.role === 'VOLUNTEER' && !user.profile) {
+          router.replace('/setup-profile');
+        } else if (
+          ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
+            user.role
+          ) &&
+          !user.locationId
+        ) {
+          router.replace('/setup-profile');
+        } else {
+          const route = ROLE_ROUTES[user.role] ?? '/login';
+          router.replace(route);
+        }
       } else {
         setReady(true);
       }

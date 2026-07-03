@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { api, setAccessToken } from './api';
 import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
@@ -48,6 +49,8 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const fetchUser = useCallback(async () => {
     // Skip if user just logged out (sessionStorage flag set during logout)
@@ -82,6 +85,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     fetchUser();
   }, [fetchUser]);
+
+  useEffect(() => {
+    if (isLoading || !user) return;
+
+    const isPublic = isPublicRoute(pathname);
+    const isOnboarding = ['/consent', '/setup-profile'].includes(pathname);
+
+    if (!isPublic && !isOnboarding) {
+      if (!user.consent) {
+        router.replace('/consent');
+      } else if (user.role === 'VOLUNTEER' && !user.profile) {
+        router.replace('/setup-profile');
+      } else if (
+        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
+          user.role
+        ) &&
+        !user.locationId
+      ) {
+        router.replace('/setup-profile');
+      }
+    }
+  }, [user, isLoading, pathname, router]);
 
   const logout = async () => {
     try {
