@@ -18,6 +18,7 @@ import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
+import { Button } from '../../../../../components/ui/Button';
 
 const CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
@@ -264,8 +265,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                     : '⏳ Application Pending'}
               </div>
               {myApp.status === 'PENDING' && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
                     if (window.confirm('Withdraw your application?')) {
                       haptic.error();
@@ -273,10 +276,11 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                     }
                   }}
                   disabled={withdraw.isPending}
-                  className="block text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer disabled:opacity-50"
+                  loading={withdraw.isPending}
+                  className="mt-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30 w-fit"
                 >
-                  {withdraw.isPending ? 'Withdrawing…' : 'Withdraw Application'}
-                </button>
+                  Withdraw Application
+                </Button>
               )}
             </div>
           ) : isClosed ? (
@@ -288,17 +292,19 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
               No slots available
             </span>
           ) : (
-            <button
+            <Button
               type="button"
               onClick={() => {
                 haptic.medium();
                 apply.mutate(undefined);
               }}
               disabled={apply.isPending}
-              className="bg-brand-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
+              loading={apply.isPending}
+              variant="primary"
+              className="px-6 py-2.5"
             >
-              {apply.isPending ? 'Applying…' : 'Apply Now'}
-            </button>
+              Apply Now
+            </Button>
           )}
         </div>
       </div>

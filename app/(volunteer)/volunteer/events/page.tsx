@@ -18,6 +18,7 @@ import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
+import { Button } from '../../../../components/ui/Button';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -243,26 +244,29 @@ function EventRow({ event }: { event: VolunteerEvent }) {
       {!isCancelled && !isPast && (
         <div className="flex gap-2 pt-1">
           {!isCheckedIn && (
-            <button
+            <Button
               type="button"
               onClick={handleCheckIn}
               disabled={busy}
-              className="flex items-center gap-1.5 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
+              loading={busy}
+              variant="primary"
+              className="px-4 py-2 rounded-xl"
             >
               <LogIn className="w-4 h-4" />
-              {busy ? 'Locating…' : 'Check In'}
-            </button>
+              Check In
+            </Button>
           )}
           {isCheckedIn && !isCheckedOut && (
-            <button
+            <Button
               type="button"
               onClick={handleCheckOut}
               disabled={busy}
-              className="flex items-center gap-1.5 text-sm font-medium bg-brand-error text-white px-4 py-2 rounded-xl hover:bg-brand-error/80 transition-colors cursor-pointer disabled:opacity-60"
+              loading={busy}
+              className="px-4 py-2 rounded-xl bg-brand-error text-white hover:bg-brand-error/80"
             >
               <LogOut className="w-4 h-4" />
-              {busy ? 'Locating…' : 'Check Out'}
-            </button>
+              Check Out
+            </Button>
           )}
           {event.isVirtual && event.meetingLink && (
             <a
