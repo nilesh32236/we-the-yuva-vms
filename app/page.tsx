@@ -21,6 +21,23 @@ const ROLE_ROUTES: Record<string, string> = {
   OBSERVER: '/observer/dashboard',
 };
 
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-brand-bg">
+      <div className="h-16 bg-brand-surface border-b border-brand-border animate-pulse" />
+      <div className="mx-auto max-w-5xl px-4 py-20 space-y-8">
+        <div className="h-12 w-3/4 bg-brand-border rounded animate-pulse mx-auto" />
+        <div className="h-6 w-1/2 bg-brand-border rounded animate-pulse mx-auto" />
+        <div className="grid md:grid-cols-3 gap-4 mt-12">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-40 bg-brand-border rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
@@ -32,7 +49,8 @@ export default function HomePage() {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading || user) return null;
+  if (isLoading) return <LoadingSkeleton />;
+  if (user) return <LoadingSkeleton />;
 
   return (
     <>
