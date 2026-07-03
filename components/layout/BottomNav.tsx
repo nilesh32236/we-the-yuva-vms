@@ -48,7 +48,9 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 >
                   <Icon className="w-5 h-5" aria-hidden="true" />
                 </div>
-                <span className={`text-[10px] font-semibold leading-none text-center ${active ? 'text-brand-primary' : ''}`}>
+                <span
+                  className={`text-[10px] font-semibold leading-none text-center ${active ? 'text-brand-primary' : ''}`}
+                >
                   {item.label.replace(/^My\s+/i, '')}
                 </span>
               </Link>
@@ -125,7 +127,10 @@ export function BottomNav({ navItems }: BottomNavProps) {
                       className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
                       ${active ? 'bg-white/20' : 'bg-brand-bg'}`}
                     >
-                      <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-brand-primary'}`} aria-hidden="true" />
+                      <Icon
+                        className={`w-4 h-4 ${active ? 'text-white' : 'text-brand-primary'}`}
+                        aria-hidden="true"
+                      />
                     </div>
                     <span className="text-sm font-medium flex-1">{item.label}</span>
                   </Link>

@@ -20,7 +20,11 @@ export default function ObserverLayout({ children }: { children: React.ReactNode
       <TopNav />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar navItems={navItems} />
-        <main id="main" className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6" data-scroll>
+        <main
+          id="main"
+          className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6"
+          data-scroll
+        >
           {children}
         </main>
       </div>

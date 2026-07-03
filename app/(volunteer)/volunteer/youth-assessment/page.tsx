@@ -10,18 +10,43 @@ import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 
 const ALL_SKILLS = [
-  'Teaching', 'Mentoring', 'Event Planning', 'Fundraising',
-  'Social Media', 'Photography', 'Writing', 'Design',
-  'Data Entry', 'Translation', 'Cooking', 'Gardening',
-  'First Aid', 'Counselling', 'Coaching', 'Advocacy',
-  'Research', 'Accounting', 'Legal', 'Healthcare',
+  'Teaching',
+  'Mentoring',
+  'Event Planning',
+  'Fundraising',
+  'Social Media',
+  'Photography',
+  'Writing',
+  'Design',
+  'Data Entry',
+  'Translation',
+  'Cooking',
+  'Gardening',
+  'First Aid',
+  'Counselling',
+  'Coaching',
+  'Advocacy',
+  'Research',
+  'Accounting',
+  'Legal',
+  'Healthcare',
 ];
 
 const ALL_INTERESTS = [
-  'Education', 'Health', 'Environment', 'Community',
-  'Arts & Culture', 'Sports', 'Technology', 'Animal Welfare',
-  'Disaster Relief', 'Youth Development', 'Senior Care',
-  'Women Empowerment', 'Livelihood', 'Rural Development',
+  'Education',
+  'Health',
+  'Environment',
+  'Community',
+  'Arts & Culture',
+  'Sports',
+  'Technology',
+  'Animal Welfare',
+  'Disaster Relief',
+  'Youth Development',
+  'Senior Care',
+  'Women Empowerment',
+  'Livelihood',
+  'Rural Development',
 ];
 
 function PillSelector({
@@ -39,7 +64,9 @@ function PillSelector({
 }) {
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-brand-muted">{label} (select up to {max})</p>
+      <p className="text-sm font-medium text-brand-muted">
+        {label} (select up to {max})
+      </p>
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => {
           const isSelected = selected.includes(opt);
@@ -51,11 +78,12 @@ function PillSelector({
               disabled={atLimit}
               onClick={() => onToggle(opt)}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
-                ${isSelected
-                  ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
-                  : atLimit
-                    ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
-                    : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
+                ${
+                  isSelected
+                    ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
+                    : atLimit
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
+                      : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
                 }`}
             >
               {isSelected && <Check className="w-3.5 h-3.5" />}
@@ -82,14 +110,17 @@ export default function YouthAssessmentPage() {
   const [interests, setInterests] = useState<string[]>([]);
 
   useEffect(() => {
-    api.get('/youth-profiles/me')
+    api
+      .get('/youth-profiles/me')
       .then((res) => {
         if (res.data?.initialCompletedAt) {
           toast({ title: 'Assessment already completed' });
           router.push('/volunteer/dashboard');
         }
       })
-      .catch(() => { /* no profile yet — first time */ })
+      .catch(() => {
+        /* no profile yet — first time */
+      })
       .finally(() => setChecking(false));
   }, [router, toast]);
 
@@ -102,7 +133,9 @@ export default function YouthAssessmentPage() {
   }
 
   const toggleAspiration = (v: string) =>
-    setAspirations((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p));
+    setAspirations((p) =>
+      p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p
+    );
 
   const toggleSkill = (v: string) =>
     setSkills((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p));
@@ -117,7 +150,13 @@ export default function YouthAssessmentPage() {
       subtitle: 'Select the skills and areas you hope to develop through volunteering',
       content: (
         <div className="space-y-6">
-          <PillSelector label="Aspirations" options={ASPIRATIONS} selected={aspirations} onToggle={toggleAspiration} max={5} />
+          <PillSelector
+            label="Aspirations"
+            options={ASPIRATIONS}
+            selected={aspirations}
+            onToggle={toggleAspiration}
+            max={5}
+          />
           <div className="space-y-2">
             <p className="text-sm font-medium text-brand-muted">Learning goals (optional)</p>
             <textarea
@@ -140,7 +179,13 @@ export default function YouthAssessmentPage() {
       title: 'What skills can you bring?',
       subtitle: 'Select the skills you already have',
       content: (
-        <PillSelector label="Skills" options={ALL_SKILLS} selected={skills} onToggle={toggleSkill} max={10} />
+        <PillSelector
+          label="Skills"
+          options={ALL_SKILLS}
+          selected={skills}
+          onToggle={toggleSkill}
+          max={10}
+        />
       ),
       canProceed: skills.length > 0,
     },
@@ -149,7 +194,13 @@ export default function YouthAssessmentPage() {
       title: 'What are you passionate about?',
       subtitle: 'Select the causes that matter most to you',
       content: (
-        <PillSelector label="Interests" options={ALL_INTERESTS} selected={interests} onToggle={toggleInterest} max={10} />
+        <PillSelector
+          label="Interests"
+          options={ALL_INTERESTS}
+          selected={interests}
+          onToggle={toggleInterest}
+          max={10}
+        />
       ),
       canProceed: interests.length > 0,
     },
@@ -158,7 +209,12 @@ export default function YouthAssessmentPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await api.post('/youth-profiles/me/initial', { aspirations, learningGoals: learningGoals || undefined, skills, interests });
+      await api.post('/youth-profiles/me/initial', {
+        aspirations,
+        learningGoals: learningGoals || undefined,
+        skills,
+        interests,
+      });
       await refetch();
       toast({ title: 'Assessment saved!' });
       const roleRoutes: Record<string, string> = {
@@ -171,9 +227,11 @@ export default function YouthAssessmentPage() {
       };
       router.push(roleRoutes[user?.role ?? ''] ?? '/login');
     } catch (err) {
-      const message = (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })?.normalizedMessage
-        ?? (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-        ?? 'Failed to save assessment';
+      const message =
+        (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })
+          ?.normalizedMessage ??
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        'Failed to save assessment';
       toast({ title: message, variant: 'destructive' });
     } finally {
       setLoading(false);
@@ -222,7 +280,12 @@ export default function YouthAssessmentPage() {
               Next <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} loading={loading} disabled={!current.canProceed} className="flex-1">
+            <Button
+              onClick={handleSubmit}
+              loading={loading}
+              disabled={!current.canProceed}
+              className="flex-1"
+            >
               Complete Assessment <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           )}

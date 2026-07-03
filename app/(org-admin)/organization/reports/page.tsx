@@ -27,9 +27,27 @@ export default function OrgAdminReportsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard label="Active Volunteers" value={stats?.activeVolunteers ?? 0} icon={Users} accent="text-cyan-600 dark:text-cyan-400" accentBg="bg-cyan-50 dark:bg-cyan-950/30" />
-          <StatsCard label="Events This Month" value={stats?.eventsThisMonth ?? 0} icon={Calendar} accent="text-sky-600 dark:text-sky-400" accentBg="bg-sky-50 dark:bg-sky-950/30" />
-          <StatsCard label="Active Opportunities" value={stats?.opportunities ?? 0} icon={Briefcase} accent="text-blue-600 dark:text-blue-400" accentBg="bg-blue-50 dark:bg-blue-950/30" />
+          <StatsCard
+            label="Active Volunteers"
+            value={stats?.activeVolunteers ?? 0}
+            icon={Users}
+            accent="text-cyan-600 dark:text-cyan-400"
+            accentBg="bg-cyan-50 dark:bg-cyan-950/30"
+          />
+          <StatsCard
+            label="Events This Month"
+            value={stats?.eventsThisMonth ?? 0}
+            icon={Calendar}
+            accent="text-sky-600 dark:text-sky-400"
+            accentBg="bg-sky-50 dark:bg-sky-950/30"
+          />
+          <StatsCard
+            label="Active Opportunities"
+            value={stats?.opportunities ?? 0}
+            icon={Briefcase}
+            accent="text-blue-600 dark:text-blue-400"
+            accentBg="bg-blue-50 dark:bg-blue-950/30"
+          />
         </div>
       )}
 

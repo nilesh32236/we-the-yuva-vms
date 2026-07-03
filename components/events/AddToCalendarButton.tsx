@@ -9,7 +9,11 @@ interface Props {
   variant?: 'icon' | 'button';
 }
 
-export function AddToCalendarButton({ eventId, label = 'Add to Calendar', variant = 'button' }: Props) {
+export function AddToCalendarButton({
+  eventId,
+  label = 'Add to Calendar',
+  variant = 'button',
+}: Props) {
   const handleDownload = async () => {
     try {
       const response = await api.get(`/events/${eventId}/ical`, {

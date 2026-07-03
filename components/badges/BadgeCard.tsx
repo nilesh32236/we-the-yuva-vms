@@ -1,7 +1,18 @@
 'use client';
 
 import Image from 'next/image';
-import { Award, Check, Lock, Star, Shield, Zap, Target, Heart, BookOpen, Users } from 'lucide-react';
+import {
+  Award,
+  Check,
+  Lock,
+  Star,
+  Shield,
+  Zap,
+  Target,
+  Heart,
+  BookOpen,
+  Users,
+} from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface BadgeCardProps {
@@ -50,7 +61,11 @@ export function BadgeCard({
           earned ? 'bg-emerald-500 text-white' : 'bg-brand-border text-brand-muted'
         )}
       >
-        {earned ? <Check className="w-3.5 h-3.5" strokeWidth={3} /> : <Lock className="w-3.5 h-3.5" />}
+        {earned ? (
+          <Check className="w-3.5 h-3.5" strokeWidth={3} />
+        ) : (
+          <Lock className="w-3.5 h-3.5" />
+        )}
       </div>
 
       {/* Badge Image */}
@@ -61,12 +76,22 @@ export function BadgeCard({
         )}
       >
         {imageUrl ? (
-          <Image src={imageUrl} alt={title} width={48} height={48} className="w-12 h-12 object-contain" />
+          <Image
+            src={imageUrl}
+            alt={title}
+            width={48}
+            height={48}
+            className="w-12 h-12 object-contain"
+          />
         ) : (
           (() => {
             const IconComponent = BADGE_ICONS[name];
             if (IconComponent) {
-              return <IconComponent className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')} />;
+              return (
+                <IconComponent
+                  className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')}
+                />
+              );
             }
             return <Award className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')} />;
           })()
@@ -75,7 +100,9 @@ export function BadgeCard({
 
       {/* Title */}
       <div>
-        <h3 className={cn('text-sm font-semibold', earned ? 'text-brand-text' : 'text-brand-muted')}>
+        <h3
+          className={cn('text-sm font-semibold', earned ? 'text-brand-text' : 'text-brand-muted')}
+        >
           {title}
         </h3>
         <p className="text-xs text-brand-muted mt-0.5 line-clamp-2">{description}</p>
@@ -87,9 +114,7 @@ export function BadgeCard({
           Earned {new Date(earnedAt).toLocaleDateString()}
         </span>
       )}
-      {!earned && (
-        <span className="text-[10px] text-brand-muted/40 mt-auto">Not yet earned</span>
-      )}
+      {!earned && <span className="text-[10px] text-brand-muted/40 mt-auto">Not yet earned</span>}
     </div>
   );
 }

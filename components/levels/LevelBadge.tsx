@@ -65,9 +65,7 @@ export function LevelBadge({
           <Icon />
         </div>
       </div>
-      {size === 'lg' && (
-        <span className="text-xs font-medium text-brand-muted">{name}</span>
-      )}
+      {size === 'lg' && <span className="text-xs font-medium text-brand-muted">{name}</span>}
     </div>
   );
 }

@@ -5,13 +5,7 @@ import { Send, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
-const SUBJECTS = [
-  'General Inquiry',
-  'Partnership',
-  'Volunteer Support',
-  'Media',
-  'Other',
-] as const;
+const SUBJECTS = ['General Inquiry', 'Partnership', 'Volunteer Support', 'Media', 'Other'] as const;
 
 export function ContactForm() {
   const [name, setName] = useState('');

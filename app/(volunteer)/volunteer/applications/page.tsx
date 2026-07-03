@@ -39,7 +39,7 @@ export default function MyApplicationsPage() {
         .catch(() => []),
   });
 
-  const applications: Application[] = Array.isArray(data) ? data : data?.data ?? [];
+  const applications: Application[] = Array.isArray(data) ? data : (data?.data ?? []);
 
   if (isLoading)
     return (

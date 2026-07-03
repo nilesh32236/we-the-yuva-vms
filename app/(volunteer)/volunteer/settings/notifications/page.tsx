@@ -129,18 +129,13 @@ export default function NotificationPrefsPage() {
           ) : (
             <div className="space-y-3">
               {prefs.map((p: { type: string; email: boolean; push: boolean }) => (
-                <div
-                  key={p.type}
-                  className="rounded-xl border border-brand-border overflow-hidden"
-                >
+                <div key={p.type} className="rounded-xl border border-brand-border overflow-hidden">
                   <div className="px-4 py-3.5 bg-brand-bg/50 border-b border-brand-border">
                     <p className="text-sm font-semibold text-brand-text">
                       {TYPE_LABELS[p.type] ?? p.type}
                     </p>
                     {TYPE_DESCRIPTIONS[p.type] && (
-                      <p className="text-xs text-brand-muted mt-0.5">
-                        {TYPE_DESCRIPTIONS[p.type]}
-                      </p>
+                      <p className="text-xs text-brand-muted mt-0.5">{TYPE_DESCRIPTIONS[p.type]}</p>
                     )}
                   </div>
                   <div className="px-4 py-3 flex items-center gap-6">
@@ -155,7 +150,10 @@ export default function NotificationPrefsPage() {
                       <ToggleSwitch
                         id={`notif-${p.type}-email`}
                         checked={p.email}
-                        onChange={() => { haptic.light(); updateMut.mutate({ type: p.type, email: !p.email }); }}
+                        onChange={() => {
+                          haptic.light();
+                          updateMut.mutate({ type: p.type, email: !p.email });
+                        }}
                       />
                     </label>
                     <div className="w-px h-6 bg-brand-border" />
@@ -170,7 +168,10 @@ export default function NotificationPrefsPage() {
                       <ToggleSwitch
                         id={`notif-${p.type}-push`}
                         checked={p.push}
-                        onChange={() => { haptic.light(); updateMut.mutate({ type: p.type, push: !p.push }); }}
+                        onChange={() => {
+                          haptic.light();
+                          updateMut.mutate({ type: p.type, push: !p.push });
+                        }}
                       />
                     </label>
                   </div>

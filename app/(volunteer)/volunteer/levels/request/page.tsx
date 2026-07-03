@@ -14,10 +14,38 @@ import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const TIER_DATA = [
-  { tier: 1, name: 'Sprout', badgeIcon: 'Sprout', color: 'from-green-400 to-emerald-600', gradient: 'from-green-400 to-emerald-600', badgeShape: 'circle' as const },
-  { tier: 2, name: 'Volunteer', badgeIcon: 'Users', color: 'from-blue-400 to-indigo-600', gradient: 'from-blue-400 to-indigo-600', badgeShape: 'hexagon' as const },
-  { tier: 3, name: 'Contributor', badgeIcon: 'Wrench', color: 'from-purple-400 to-violet-600', gradient: 'from-purple-400 to-violet-600', badgeShape: 'shield' as const },
-  { tier: 4, name: 'Champion', badgeIcon: 'Crown', color: 'from-amber-400 to-orange-600', gradient: 'from-amber-400 to-orange-600', badgeShape: 'star' as const },
+  {
+    tier: 1,
+    name: 'Sprout',
+    badgeIcon: 'Sprout',
+    color: 'from-green-400 to-emerald-600',
+    gradient: 'from-green-400 to-emerald-600',
+    badgeShape: 'circle' as const,
+  },
+  {
+    tier: 2,
+    name: 'Volunteer',
+    badgeIcon: 'Users',
+    color: 'from-blue-400 to-indigo-600',
+    gradient: 'from-blue-400 to-indigo-600',
+    badgeShape: 'hexagon' as const,
+  },
+  {
+    tier: 3,
+    name: 'Contributor',
+    badgeIcon: 'Wrench',
+    color: 'from-purple-400 to-violet-600',
+    gradient: 'from-purple-400 to-violet-600',
+    badgeShape: 'shield' as const,
+  },
+  {
+    tier: 4,
+    name: 'Champion',
+    badgeIcon: 'Crown',
+    color: 'from-amber-400 to-orange-600',
+    gradient: 'from-amber-400 to-orange-600',
+    badgeShape: 'star' as const,
+  },
 ];
 
 interface LevelDefinition {
@@ -57,7 +85,11 @@ export default function LevelRequestPage() {
       router.push(`/volunteer/levels/request/${requestId}/success`);
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {
-      toast({ title: 'Failed', description: err?.response?.data?.error ?? 'Something went wrong', variant: 'destructive' });
+      toast({
+        title: 'Failed',
+        description: err?.response?.data?.error ?? 'Something went wrong',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -68,7 +100,11 @@ export default function LevelRequestPage() {
   function handleSubmit() {
     if (!selectedLevel) return;
     haptic.medium();
-    submitMutation.mutate({ levelId: selectedLevel, notes: notes || undefined, proofUrls: proofUrls.length > 0 ? proofUrls : undefined });
+    submitMutation.mutate({
+      levelId: selectedLevel,
+      notes: notes || undefined,
+      proofUrls: proofUrls.length > 0 ? proofUrls : undefined,
+    });
   }
 
   if (levelLoading || levelsLoading) {
@@ -84,18 +120,26 @@ export default function LevelRequestPage() {
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link href="/volunteer/levels" onClick={() => haptic.light()} className="w-9 h-9 rounded-xl border border-brand-border flex items-center justify-center hover:bg-brand-bg transition-colors cursor-pointer">
+        <Link
+          href="/volunteer/levels"
+          onClick={() => haptic.light()}
+          className="w-9 h-9 rounded-xl border border-brand-border flex items-center justify-center hover:bg-brand-bg transition-colors cursor-pointer"
+        >
           <ArrowLeft className="w-4 h-4 text-brand-muted" />
         </Link>
         <div>
           <h1 className="font-heading font-bold text-xl text-brand-text">Request Level-Up</h1>
-          <p className="text-brand-muted text-sm mt-0.5">Select the level you want to advance to.</p>
+          <p className="text-brand-muted text-sm mt-0.5">
+            Select the level you want to advance to.
+          </p>
         </div>
       </div>
 
       {requestableLevels.length === 0 ? (
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-8 text-center">
-          <p className="text-brand-muted text-sm">You&apos;ve reached the maximum level. No more levels to request.</p>
+          <p className="text-brand-muted text-sm">
+            You&apos;ve reached the maximum level. No more levels to request.
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -103,18 +147,39 @@ export default function LevelRequestPage() {
             const tierInfo = TIER_DATA[lvl.tier - 1] ?? TIER_DATA[0];
             const isOpen = selectedLevel === lvl.id;
             return (
-              <div key={lvl.id} className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden transition-all duration-200">
+              <div
+                key={lvl.id}
+                className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden transition-all duration-200"
+              >
                 <button
                   type="button"
-                  onClick={() => { haptic.light(); setSelectedLevel(isOpen ? null : lvl.id); setProofUrls([]); setNotes(''); }}
+                  onClick={() => {
+                    haptic.light();
+                    setSelectedLevel(isOpen ? null : lvl.id);
+                    setProofUrls([]);
+                    setNotes('');
+                  }}
                   className="w-full flex items-center gap-4 p-5 text-left hover:bg-brand-bg/50 transition-colors cursor-pointer"
                 >
-                  <LevelBadge tier={tierInfo.tier} name={tierInfo.name} badgeIcon={tierInfo.badgeIcon} color={tierInfo.gradient} badgeShape={tierInfo.badgeShape} size="md" />
+                  <LevelBadge
+                    tier={tierInfo.tier}
+                    name={tierInfo.name}
+                    badgeIcon={tierInfo.badgeIcon}
+                    color={tierInfo.gradient}
+                    badgeShape={tierInfo.badgeShape}
+                    size="md"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="font-heading font-semibold text-brand-text">{tierInfo.name}</p>
-                    <p className="text-xs text-brand-muted">Tier {lvl.tier} · {lvl.pointsRequired} points required</p>
+                    <p className="text-xs text-brand-muted">
+                      Tier {lvl.tier} · {lvl.pointsRequired} points required
+                    </p>
                   </div>
-                  {isOpen ? <ChevronUp className="w-5 h-5 text-brand-muted" /> : <ChevronDown className="w-5 h-5 text-brand-muted" />}
+                  {isOpen ? (
+                    <ChevronUp className="w-5 h-5 text-brand-muted" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-brand-muted" />
+                  )}
                 </button>
 
                 {isOpen && (
@@ -125,9 +190,15 @@ export default function LevelRequestPage() {
                         <p className="text-sm font-medium text-brand-text">Required Criteria</p>
                         <ul className="space-y-1">
                           {Object.entries(lvl.requirements).map(([key, val]) => (
-                            <li key={key} className="text-sm text-brand-muted flex items-center gap-2">
+                            <li
+                              key={key}
+                              className="text-sm text-brand-muted flex items-center gap-2"
+                            >
                               <Check className="w-3.5 h-3.5 text-brand-primary" />
-                              <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>: <span className="font-medium text-brand-text">{val}</span>
+                              <span className="capitalize">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}
+                              </span>
+                              : <span className="font-medium text-brand-text">{val}</span>
                             </li>
                           ))}
                         </ul>
@@ -136,7 +207,9 @@ export default function LevelRequestPage() {
 
                     {/* Notes */}
                     <div className="space-y-1.5">
-                      <label htmlFor="notes" className="block text-sm font-medium text-brand-text">Notes (optional)</label>
+                      <label htmlFor="notes" className="block text-sm font-medium text-brand-text">
+                        Notes (optional)
+                      </label>
                       <textarea
                         id="notes"
                         value={notes}

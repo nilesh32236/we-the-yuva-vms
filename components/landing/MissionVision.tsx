@@ -39,18 +39,18 @@ export function MissionVision() {
           What WeTheYuva does
         </h2>
         <p className="text-slate-500 dark:text-slate-400 mt-4 text-center max-w-2xl mx-auto">
-          We connect volunteers with organisations that need them, and track every hour, every skill,
-          and every community you reach.
+          We connect volunteers with organisations that need them, and track every hour, every
+          skill, and every community you reach.
         </p>
 
         <div className="grid md:grid-cols-3 gap-8 mt-14">
           {cards.map((card) => (
-            <div
-              key={card.title}
-              className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 sm:p-8"
-            >
+            <div key={card.title} className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 sm:p-8">
               <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
-                <card.icon className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
+                <card.icon
+                  className="w-5 h-5 text-emerald-700 dark:text-emerald-400"
+                  aria-hidden="true"
+                />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-4">
                 {card.title}

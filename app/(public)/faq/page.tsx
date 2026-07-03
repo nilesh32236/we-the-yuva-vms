@@ -8,7 +8,7 @@ const faqData = [
       {
         question: 'How do I join WeTheYuva?',
         answer:
-          'Sign up on the platform, attend a brief orientation session, and you\'re ready to start volunteering. We\'ll walk you through everything step by step.',
+          "Sign up on the platform, attend a brief orientation session, and you're ready to start volunteering. We'll walk you through everything step by step.",
       },
       {
         question: 'Is there any fee to volunteer?',
@@ -18,7 +18,7 @@ const faqData = [
       {
         question: 'Do I need prior experience?',
         answer:
-          'Not at all. We provide training and orientation for every opportunity. If you have the willingness to contribute, we\'ll equip you with everything you need.',
+          "Not at all. We provide training and orientation for every opportunity. If you have the willingness to contribute, we'll equip you with everything you need.",
       },
       {
         question: 'What is the minimum time commitment?',
@@ -33,7 +33,7 @@ const faqData = [
       {
         question: 'How do I find opportunities near me?',
         answer:
-          'Head to the Opportunities page and use the filters to search by location, category, or cause. You\'ll find volunteering options that match your interests and area.',
+          "Head to the Opportunities page and use the filters to search by location, category, or cause. You'll find volunteering options that match your interests and area.",
       },
       {
         question: 'How are hours tracked?',
@@ -43,7 +43,7 @@ const faqData = [
       {
         question: 'Can I volunteer with a friend?',
         answer:
-          'Absolutely. You can form a team and volunteer together. Many hands make light work, and it\'s more fun too.',
+          "Absolutely. You can form a team and volunteer together. Many hands make light work, and it's more fun too.",
       },
     ],
   },
@@ -96,17 +96,11 @@ const jsonLd = {
         '@type': 'Answer',
         text: item.answer,
       },
-    })),
+    }))
   ),
 };
 
-function AccordionItem({
-  question,
-  children,
-}: {
-  question: string;
-  children: React.ReactNode;
-}) {
+function AccordionItem({ question, children }: { question: string; children: React.ReactNode }) {
   return (
     <details className="group rounded-2xl border border-brand-border bg-brand-surface [&:not(:last-child)]:mb-3">
       <summary className="flex items-center justify-between p-5 cursor-pointer font-heading font-medium text-brand-text list-none [&::-webkit-details-marker]:hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-primary focus-visible:outline-none rounded-2xl">
@@ -116,9 +110,7 @@ function AccordionItem({
           aria-hidden="true"
         />
       </summary>
-      <div className="px-5 pb-5 text-sm text-brand-muted leading-relaxed">
-        {children}
-      </div>
+      <div className="px-5 pb-5 text-sm text-brand-muted leading-relaxed">{children}</div>
     </details>
   );
 }
@@ -126,10 +118,9 @@ function AccordionItem({
 export default function FAQPage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-      >{JSON.stringify(jsonLd)}</script>
+      <script type="application/ld+json" suppressHydrationWarning>
+        {JSON.stringify(jsonLd)}
+      </script>
       <div className="min-h-dvh bg-brand-bg">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="text-center mb-12">
@@ -137,8 +128,8 @@ export default function FAQPage() {
               Frequently Asked Questions
             </h1>
             <p className="mt-3 text-brand-muted max-w-xl mx-auto">
-              Everything you need to know about volunteering with WeTheYuva.
-              Can&apos;t find what you&apos;re looking for?{' '}
+              Everything you need to know about volunteering with WeTheYuva. Can&apos;t find what
+              you&apos;re looking for?{' '}
               <a
                 href="mailto:support@wetheyuva.org"
                 className="text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded"
@@ -156,10 +147,7 @@ export default function FAQPage() {
                   {section.section}
                 </h2>
                 {section.items.map((item) => (
-                  <AccordionItem
-                    key={item.question}
-                    question={item.question}
-                  >
+                  <AccordionItem key={item.question} question={item.question}>
                     {item.answer}
                   </AccordionItem>
                 ))}

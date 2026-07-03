@@ -40,5 +40,11 @@ export type RegisterOrganizationInput = z.infer<typeof RegisterOrganizationSchem
 export type CreateBlogPostInput = z.infer<typeof CreateBlogPostSchema>;
 export type UpdateBlogPostInput = z.infer<typeof UpdateBlogPostSchema>;
 
-export type UserRole = 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'PLATFORM_MANAGER' | 'ADMIN' | 'OBSERVER';
+export type UserRole =
+  | 'VOLUNTEER'
+  | 'COORDINATOR'
+  | 'ORGANIZATION_ADMIN'
+  | 'PLATFORM_MANAGER'
+  | 'ADMIN'
+  | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';

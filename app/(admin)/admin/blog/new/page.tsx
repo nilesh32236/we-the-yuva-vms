@@ -18,7 +18,8 @@ export default function NewBlogPostPage() {
       toast({ title: 'Post created!', description: 'Your draft has been saved.' });
       router.push('/admin/blog');
     } catch (err) {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to create post';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to create post';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     }
   };

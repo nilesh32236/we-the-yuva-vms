@@ -44,10 +44,7 @@ export function Testimonials() {
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {testimonials.map((t) => (
-            <div
-              key={t.name}
-              className="rounded-2xl bg-slate-50 p-6 sm:p-8 dark:bg-slate-800"
-            >
+            <div key={t.name} className="rounded-2xl bg-slate-50 p-6 sm:p-8 dark:bg-slate-800">
               <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
                 &quot;{t.quote}&quot;
               </p>

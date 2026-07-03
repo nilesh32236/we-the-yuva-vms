@@ -80,7 +80,12 @@ export default function VolunteerOpportunitiesPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {recommended?.slice(0, 3).map((opp: VolunteerOpportunity) => (
-                <OpportunityCard key={opp.id} opportunity={opp} showApply detailHref={`/volunteer/opportunities/${opp.id}`} />
+                <OpportunityCard
+                  key={opp.id}
+                  opportunity={opp}
+                  showApply
+                  detailHref={`/volunteer/opportunities/${opp.id}`}
+                />
               ))}
             </div>
           )}
@@ -135,7 +140,12 @@ export default function VolunteerOpportunitiesPage() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {list?.data?.map((opp: VolunteerOpportunity) => (
-                <OpportunityCard key={opp.id} opportunity={opp} showApply detailHref={`/volunteer/opportunities/${opp.id}`} />
+                <OpportunityCard
+                  key={opp.id}
+                  opportunity={opp}
+                  showApply
+                  detailHref={`/volunteer/opportunities/${opp.id}`}
+                />
               ))}
             </div>
             {/* Pagination */}

@@ -107,7 +107,8 @@ export default function CertificateDetailPage() {
           <div>
             <h1 className="font-heading font-semibold text-lg text-brand-text">{cert.levelName}</h1>
             <p className="text-sm text-brand-muted mt-0.5">
-              Issued {new Date(cert.issuedAt).toLocaleDateString('en-IN', {
+              Issued{' '}
+              {new Date(cert.issuedAt).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
@@ -118,7 +119,9 @@ export default function CertificateDetailPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-brand-bg rounded-xl px-4 py-3">
-            <p className="text-[10px] text-brand-muted font-medium uppercase tracking-wider">Status</p>
+            <p className="text-[10px] text-brand-muted font-medium uppercase tracking-wider">
+              Status
+            </p>
             <span className="text-sm font-semibold text-green-600 dark:text-green-400">
               {cert.status}
             </span>

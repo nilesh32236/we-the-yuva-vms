@@ -14,10 +14,7 @@ interface PeerEndorsementInputProps {
   onChange: (endorsements: Endorsement[]) => void;
 }
 
-export function PeerEndorsementInput({
-  endorsements,
-  onChange,
-}: PeerEndorsementInputProps) {
+export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsementInputProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newStatement, setNewStatement] = useState('');

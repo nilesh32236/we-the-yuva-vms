@@ -141,15 +141,15 @@ function QuickActionsPanel({
         {ctaDisabled ? (
           <div className="flex items-center justify-between p-4 rounded-xl bg-brand-bg border border-brand-border opacity-60">
             <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-brand-border flex items-center justify-center">
-                  <Lock className="w-4 h-4 text-brand-muted" aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-brand-text">{ctaLabel}</p>
-                  <p className="text-xs text-brand-muted">Coming in Phase 2</p>
-                </div>
+              <div className="w-9 h-9 rounded-lg bg-brand-border flex items-center justify-center">
+                <Lock className="w-4 h-4 text-brand-muted" aria-hidden="true" />
               </div>
-              <ArrowRight className="w-4 h-4 text-brand-muted flex-shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-medium text-brand-text">{ctaLabel}</p>
+                <p className="text-xs text-brand-muted">Coming in Phase 2</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-brand-muted flex-shrink-0" aria-hidden="true" />
           </div>
         ) : (
           <Link
@@ -158,12 +158,15 @@ function QuickActionsPanel({
               hover:bg-brand-secondary transition-colors duration-200 cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
-                  <ArrowRight className="w-4 h-4 text-white" aria-hidden="true" />
-                </div>
-                <p className="text-sm font-semibold">{ctaLabel}</p>
+              <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+                <ArrowRight className="w-4 h-4 text-white" aria-hidden="true" />
               </div>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+              <p className="text-sm font-semibold">{ctaLabel}</p>
+            </div>
+            <ArrowRight
+              className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+              aria-hidden="true"
+            />
           </Link>
         )}
 
@@ -201,7 +204,10 @@ function QuickActionsPanel({
                 </div>
                 <p className="text-sm font-medium text-brand-text">{action.label}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-colors" aria-hidden="true" />
+              <ArrowRight
+                className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-colors"
+                aria-hidden="true"
+              />
             </Link>
           );
         })}

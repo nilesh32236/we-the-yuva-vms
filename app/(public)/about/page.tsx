@@ -41,7 +41,7 @@ const timeline = [
   {
     year: '2026',
     title: '7,000+ volunteers, 15 states, 200+ communities',
-    desc: 'From Kerala to Assam, thousands showing up every week. We\'re just getting started.',
+    desc: "From Kerala to Assam, thousands showing up every week. We're just getting started.",
   },
 ];
 
@@ -82,8 +82,9 @@ export default function AboutPage() {
             Building India's largest youth volunteer network
           </h1>
           <p className="text-emerald-100 text-lg sm:text-xl mt-5 max-w-2xl mx-auto leading-relaxed">
-            WeTheYuva is a volunteer management platform built by youth, for youth. We connect passionate
-            young citizens with verified opportunities to serve their communities and build a better India.
+            WeTheYuva is a volunteer management platform built by youth, for youth. We connect
+            passionate young citizens with verified opportunities to serve their communities and
+            build a better India.
           </p>
         </div>
       </section>
@@ -114,8 +115,8 @@ export default function AboutPage() {
               </h2>
               <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 A India where every young person is an active citizen — where volunteerism is a
-                norm, not an exception, and where youth-led civic change is the driving force
-                behind stronger, more resilient communities across the nation.
+                norm, not an exception, and where youth-led civic change is the driving force behind
+                stronger, more resilient communities across the nation.
               </p>
             </div>
           </div>
@@ -171,14 +172,15 @@ export default function AboutPage() {
                 className="rounded-2xl border border-emerald-100 dark:border-slate-700 p-8 transition-shadow hover:shadow-lg"
               >
                 <div className="w-11 h-11 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mb-4">
-                  <val.icon className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
+                  <val.icon
+                    className="w-5 h-5 text-emerald-700 dark:text-emerald-400"
+                    aria-hidden="true"
+                  />
                 </div>
                 <h3 className="font-heading text-xl font-bold text-slate-900 dark:text-white mb-2">
                   {val.title}
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  {val.desc}
-                </p>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{val.desc}</p>
               </div>
             ))}
           </div>
@@ -190,9 +192,7 @@ export default function AboutPage() {
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white">
             Ready to make a difference?
           </h2>
-          <p className="text-emerald-100 text-lg mt-4">
-            Join 7,000+ volunteers across India
-          </p>
+          <p className="text-emerald-100 text-lg mt-4">Join 7,000+ volunteers across India</p>
           <div className="mt-8">
             <Link
               href="/register"

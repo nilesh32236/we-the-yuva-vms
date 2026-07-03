@@ -69,7 +69,9 @@ export function OrganizationTable({ orgs }: OrganizationTableProps) {
                     ) : (
                       <ShieldAlert className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
                     )}
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${STATUS_COLORS[org.status] ?? ''}`}>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${STATUS_COLORS[org.status] ?? ''}`}
+                    >
                       {org.status}
                     </span>
                   </div>
@@ -78,9 +80,11 @@ export function OrganizationTable({ orgs }: OrganizationTableProps) {
                   {org._count.users}
                 </td>
                 <td className="px-4 py-4 text-center hidden md:table-cell">
-                   <span className={`px-2 py-0.5 rounded-lg text-xs ${org._count.documents > 0 ? 'bg-brand-bg text-brand-text border border-brand-border' : 'text-brand-muted'}`}>
-                     {org._count.documents}
-                   </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-lg text-xs ${org._count.documents > 0 ? 'bg-brand-bg text-brand-text border border-brand-border' : 'text-brand-muted'}`}
+                  >
+                    {org._count.documents}
+                  </span>
                 </td>
                 <td className="px-4 py-4 text-brand-muted text-xs hidden lg:table-cell">
                   {new Date(org.createdAt).toLocaleDateString('en-IN', {
@@ -104,12 +108,7 @@ export function OrganizationTable({ orgs }: OrganizationTableProps) {
         </table>
       </div>
 
-      {selectedOrg && (
-        <VerifyOrgModal
-          org={selectedOrg}
-          onClose={() => setSelectedOrg(null)}
-        />
-      )}
+      {selectedOrg && <VerifyOrgModal org={selectedOrg} onClose={() => setSelectedOrg(null)} />}
     </div>
   );
 }

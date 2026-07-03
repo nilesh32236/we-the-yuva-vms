@@ -74,12 +74,16 @@ export default function RegisterOrganizationPage() {
         });
         setDocs((prev) =>
           prev.map((d) =>
-            d === doc ? { ...d, fileUrl: res.data.url, fileName: res.data.filename, uploading: false } : d
+            d === doc
+              ? { ...d, fileUrl: res.data.url, fileName: res.data.filename, uploading: false }
+              : d
           )
         );
       } catch {
         setDocs((prev) =>
-          prev.map((d) => (d === doc ? { ...d, uploading: false, error: 'Upload failed. Click to retry.' } : d))
+          prev.map((d) =>
+            d === doc ? { ...d, uploading: false, error: 'Upload failed. Click to retry.' } : d
+          )
         );
       }
     };
@@ -87,7 +91,9 @@ export default function RegisterOrganizationPage() {
   };
 
   const retryUpload = async (doc: DocItem) => {
-    setDocs((prev) => prev.map((d) => (d === doc ? { ...d, uploading: true, error: undefined } : d)));
+    setDocs((prev) =>
+      prev.map((d) => (d === doc ? { ...d, uploading: true, error: undefined } : d))
+    );
     try {
       const formData = new FormData();
       formData.append('file', doc.file);
@@ -96,12 +102,16 @@ export default function RegisterOrganizationPage() {
       });
       setDocs((prev) =>
         prev.map((d) =>
-          d === doc ? { ...d, fileUrl: res.data.url, fileName: res.data.filename, uploading: false } : d
+          d === doc
+            ? { ...d, fileUrl: res.data.url, fileName: res.data.filename, uploading: false }
+            : d
         )
       );
     } catch {
       setDocs((prev) =>
-        prev.map((d) => (d === doc ? { ...d, uploading: false, error: 'Upload failed. Click to retry.' } : d))
+        prev.map((d) =>
+          d === doc ? { ...d, uploading: false, error: 'Upload failed. Click to retry.' } : d
+        )
       );
     }
   };
@@ -114,9 +124,7 @@ export default function RegisterOrganizationPage() {
     const hasCert = docs.some(
       (d) => d.type === 'REGISTRATION_CERTIFICATE' && !d.uploading && d.fileUrl
     );
-    const hasGovtId = docs.some(
-      (d) => d.type === 'GOVT_ID' && !d.uploading && d.fileUrl
-    );
+    const hasGovtId = docs.some((d) => d.type === 'GOVT_ID' && !d.uploading && d.fileUrl);
     return hasCert && hasGovtId;
   };
 
@@ -134,11 +142,20 @@ export default function RegisterOrganizationPage() {
         });
       }
 
-      toast({ title: 'Organization registered', description: 'Your application is pending review.' });
+      toast({
+        title: 'Organization registered',
+        description: 'Your application is pending review.',
+      });
       router.push('/organization/dashboard');
     } catch (error) {
-      const err = error as { normalizedMessage?: string; response?: { status?: number; data?: { error?: string } } };
-      const message = err?.normalizedMessage ?? err?.response?.data?.error ?? 'Registration failed. Please try again.';
+      const err = error as {
+        normalizedMessage?: string;
+        response?: { status?: number; data?: { error?: string } };
+      };
+      const message =
+        err?.normalizedMessage ??
+        err?.response?.data?.error ??
+        'Registration failed. Please try again.';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
@@ -159,7 +176,9 @@ export default function RegisterOrganizationPage() {
         </Link>
 
         <div className="mb-8">
-          <h1 className="font-heading font-bold text-2xl text-brand-text">Register Your Organization</h1>
+          <h1 className="font-heading font-bold text-2xl text-brand-text">
+            Register Your Organization
+          </h1>
           <p className="text-brand-muted text-sm mt-1">
             Set up your organization profile to start managing volunteers and opportunities.
           </p>
@@ -182,7 +201,9 @@ export default function RegisterOrganizationPage() {
                 {label}
               </span>
               {i < STEPS.length - 1 && (
-                <div className={`w-8 sm:w-12 h-0.5 ${i < step ? 'bg-brand-primary' : 'bg-brand-border'}`} />
+                <div
+                  className={`w-8 sm:w-12 h-0.5 ${i < step ? 'bg-brand-primary' : 'bg-brand-border'}`}
+                />
               )}
             </div>
           ))}
@@ -192,12 +213,16 @@ export default function RegisterOrganizationPage() {
           {step === 0 && (
             <div className="space-y-5">
               <div>
-                <h2 className="font-heading font-semibold text-lg text-brand-text">Organization Information</h2>
+                <h2 className="font-heading font-semibold text-lg text-brand-text">
+                  Organization Information
+                </h2>
                 <p className="text-brand-muted text-sm mt-1">Tell us about your organization.</p>
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="name" className="text-sm font-medium text-brand-text">Organization name *</label>
+                <label htmlFor="name" className="text-sm font-medium text-brand-text">
+                  Organization name *
+                </label>
                 <input
                   id="name"
                   type="text"
@@ -209,7 +234,9 @@ export default function RegisterOrganizationPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="description" className="text-sm font-medium text-brand-text">Description</label>
+                <label htmlFor="description" className="text-sm font-medium text-brand-text">
+                  Description
+                </label>
                 <textarea
                   id="description"
                   rows={3}
@@ -220,7 +247,9 @@ export default function RegisterOrganizationPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="address" className="text-sm font-medium text-brand-text">Address</label>
+                <label htmlFor="address" className="text-sm font-medium text-brand-text">
+                  Address
+                </label>
                 <textarea
                   id="address"
                   rows={2}
@@ -232,7 +261,9 @@ export default function RegisterOrganizationPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label htmlFor="phone" className="text-sm font-medium text-brand-text">Phone</label>
+                  <label htmlFor="phone" className="text-sm font-medium text-brand-text">
+                    Phone
+                  </label>
                   <input
                     id="phone"
                     type="tel"
@@ -242,7 +273,9 @@ export default function RegisterOrganizationPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label htmlFor="email" className="text-sm font-medium text-brand-text">Email</label>
+                  <label htmlFor="email" className="text-sm font-medium text-brand-text">
+                    Email
+                  </label>
                   <input
                     id="email"
                     type="email"
@@ -254,7 +287,9 @@ export default function RegisterOrganizationPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="website" className="text-sm font-medium text-brand-text">Website</label>
+                <label htmlFor="website" className="text-sm font-medium text-brand-text">
+                  Website
+                </label>
                 <input
                   id="website"
                   type="url"
@@ -265,7 +300,19 @@ export default function RegisterOrganizationPage() {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button type="button" variant="primary" onClick={handleSubmit(() => setStep(1), () => toast({ title: 'Validation Error', description: 'Please fix the highlighted fields before proceeding.', variant: 'destructive' }))}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handleSubmit(
+                    () => setStep(1),
+                    () =>
+                      toast({
+                        title: 'Validation Error',
+                        description: 'Please fix the highlighted fields before proceeding.',
+                        variant: 'destructive',
+                      })
+                  )}
+                >
                   Next: Documents
                   <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -276,14 +323,19 @@ export default function RegisterOrganizationPage() {
           {step === 1 && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-heading font-semibold text-lg text-brand-text">Verification Documents</h2>
+                <h2 className="font-heading font-semibold text-lg text-brand-text">
+                  Verification Documents
+                </h2>
                 <p className="text-brand-muted text-sm mt-1">
-                  Upload your organization&apos;s registration certificate and government ID for verification.
+                  Upload your organization&apos;s registration certificate and government ID for
+                  verification.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <span className="text-sm font-medium text-brand-text">Registration Certificate *</span>
+                <span className="text-sm font-medium text-brand-text">
+                  Registration Certificate *
+                </span>
                 {((): React.ReactNode => {
                   const d = docs.find((d) => d.type === 'REGISTRATION_CERTIFICATE');
                   if (!d) {
@@ -305,7 +357,13 @@ export default function RegisterOrganizationPage() {
                       tabIndex={d.error ? 0 : undefined}
                       className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
                       onClick={d.error ? () => retryUpload(d) : undefined}
-                      onKeyDown={d.error ? (e) => { if (e.key === 'Enter' || e.key === ' ') retryUpload(d); } : undefined}
+                      onKeyDown={
+                        d.error
+                          ? (e) => {
+                              if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
+                            }
+                          : undefined
+                      }
                     >
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4 text-brand-primary" />
@@ -313,11 +371,16 @@ export default function RegisterOrganizationPage() {
                           <span className="text-sm text-brand-text">{d.fileName}</span>
                           {d.error && <p className="text-xs text-brand-error">{d.error}</p>}
                         </div>
-                        {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
+                        {d.uploading && (
+                          <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
+                        )}
                       </div>
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE')); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'));
+                        }}
                         className="text-xs text-brand-error hover:underline"
                       >
                         Remove
@@ -350,7 +413,13 @@ export default function RegisterOrganizationPage() {
                       tabIndex={d.error ? 0 : undefined}
                       className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
                       onClick={d.error ? () => retryUpload(d) : undefined}
-                      onKeyDown={d.error ? (e) => { if (e.key === 'Enter' || e.key === ' ') retryUpload(d); } : undefined}
+                      onKeyDown={
+                        d.error
+                          ? (e) => {
+                              if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
+                            }
+                          : undefined
+                      }
                     >
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4 text-brand-primary" />
@@ -358,11 +427,16 @@ export default function RegisterOrganizationPage() {
                           <span className="text-sm text-brand-text">{d.fileName}</span>
                           {d.error && <p className="text-xs text-brand-error">{d.error}</p>}
                         </div>
-                        {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
+                        {d.uploading && (
+                          <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
+                        )}
                       </div>
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID')); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'));
+                        }}
                         className="text-xs text-brand-error hover:underline"
                       >
                         Remove
@@ -373,7 +447,9 @@ export default function RegisterOrganizationPage() {
               </div>
 
               <div className="space-y-2">
-                <span className="text-sm font-medium text-brand-text">Other Document (optional)</span>
+                <span className="text-sm font-medium text-brand-text">
+                  Other Document (optional)
+                </span>
                 {((): React.ReactNode => {
                   const d = docs.find((d) => d.type === 'OTHER');
                   if (!d) {
@@ -394,7 +470,13 @@ export default function RegisterOrganizationPage() {
                       tabIndex={d.error ? 0 : undefined}
                       className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
                       onClick={d.error ? () => retryUpload(d) : undefined}
-                      onKeyDown={d.error ? (e) => { if (e.key === 'Enter' || e.key === ' ') retryUpload(d); } : undefined}
+                      onKeyDown={
+                        d.error
+                          ? (e) => {
+                              if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
+                            }
+                          : undefined
+                      }
                     >
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4 text-brand-primary" />
@@ -402,11 +484,16 @@ export default function RegisterOrganizationPage() {
                           <span className="text-sm text-brand-text">{d.fileName}</span>
                           {d.error && <p className="text-xs text-brand-error">{d.error}</p>}
                         </div>
-                        {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
+                        {d.uploading && (
+                          <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
+                        )}
                       </div>
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); removeDoc(docs.findIndex((x) => x.type === 'OTHER')); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeDoc(docs.findIndex((x) => x.type === 'OTHER'));
+                        }}
                         className="text-xs text-brand-error hover:underline"
                       >
                         Remove
@@ -437,8 +524,12 @@ export default function RegisterOrganizationPage() {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h2 className="font-heading font-semibold text-lg text-brand-text">Review & Submit</h2>
-                <p className="text-brand-muted text-sm mt-1">Please verify your information before submitting.</p>
+                <h2 className="font-heading font-semibold text-lg text-brand-text">
+                  Review & Submit
+                </h2>
+                <p className="text-brand-muted text-sm mt-1">
+                  Please verify your information before submitting.
+                </p>
               </div>
 
               <div className="space-y-3 p-4 rounded-xl bg-brand-bg border border-brand-border">
@@ -475,7 +566,9 @@ export default function RegisterOrganizationPage() {
                   <div key={d.fileName} className="flex items-center gap-2 text-sm text-brand-text">
                     <Check className="w-3.5 h-3.5 text-brand-primary" />
                     {d.fileName}
-                    <span className="text-xs text-brand-muted ml-auto">{d.type.replace(/_/g, ' ')}</span>
+                    <span className="text-xs text-brand-muted ml-auto">
+                      {d.type.replace(/_/g, ' ')}
+                    </span>
                   </div>
                 ))}
               </div>

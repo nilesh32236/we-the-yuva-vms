@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type RegisterInput, RegisterSchema, VOLUNTEER_TYPES } from '@/lib/shared';
+import { type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { Button } from '../../../components/ui/Button';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
@@ -61,12 +61,18 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       await api.post('/auth/register', data);
-      toast({ title: 'Account created!', description: 'Check your email for the verification code.' });
+      toast({
+        title: 'Account created!',
+        description: 'Check your email for the verification code.',
+      });
       const otpRes = await api.post('/auth/send-otp', { email: data.email });
       if (otpRes.data?.devOtp) sessionStorage.setItem('devOtp', otpRes.data.devOtp);
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
-      const err = error as { normalizedMessage?: string; response?: { status?: number; data?: { error?: string } } };
+      const err = error as {
+        normalizedMessage?: string;
+        response?: { status?: number; data?: { error?: string } };
+      };
       const status = err?.response?.status;
       if (status === 409) {
         toast({
@@ -75,7 +81,10 @@ export default function RegisterPage() {
           variant: 'destructive',
         });
       } else {
-        const message = err?.normalizedMessage ?? err?.response?.data?.error ?? 'Something went wrong. Please try again.';
+        const message =
+          err?.normalizedMessage ??
+          err?.response?.data?.error ??
+          'Something went wrong. Please try again.';
         toast({ title: 'Error', description: message, variant: 'destructive' });
       }
     } finally {
@@ -87,7 +96,6 @@ export default function RegisterPage() {
 
   return (
     <div className="space-y-6">
-
       {/* Back link */}
       <Link
         href="/login"
@@ -166,16 +174,13 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               <label
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${selectedRole === 'VOLUNTEER'
-                    ? 'border-brand-primary bg-brand-primary/5'
-                    : 'border-brand-border hover:border-brand-muted'}`}
+                  ${
+                    selectedRole === 'VOLUNTEER'
+                      ? 'border-brand-primary bg-brand-primary/5'
+                      : 'border-brand-border hover:border-brand-muted'
+                  }`}
               >
-                <input
-                  type="radio"
-                  value="VOLUNTEER"
-                  className="sr-only"
-                  {...register('role')}
-                />
+                <input type="radio" value="VOLUNTEER" className="sr-only" {...register('role')} />
                 <Users className="w-5 h-5 text-brand-primary" />
                 <span className="text-sm font-medium text-brand-text">Volunteer</span>
                 <span className="text-xs text-brand-muted text-center">
@@ -184,9 +189,11 @@ export default function RegisterPage() {
               </label>
               <label
                 className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${selectedRole === 'ORGANIZATION_ADMIN'
-                    ? 'border-brand-primary bg-brand-primary/5'
-                    : 'border-brand-border hover:border-brand-muted'}`}
+                  ${
+                    selectedRole === 'ORGANIZATION_ADMIN'
+                      ? 'border-brand-primary bg-brand-primary/5'
+                      : 'border-brand-border hover:border-brand-muted'
+                  }`}
               >
                 <input
                   type="radio"
@@ -202,35 +209,6 @@ export default function RegisterPage() {
               </label>
             </div>
           </div>
-
-          {/* Volunteer type field */}
-          {selectedRole === 'VOLUNTEER' && (
-            <div className="space-y-1.5">
-              <label htmlFor="volunteerType" className="text-sm font-medium text-brand-text">
-                I want to volunteer as
-              </label>
-              <select
-                id="volunteerType"
-                aria-describedby={errors.volunteerType ? 'volunteerType-error' : undefined}
-                className={`w-full px-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
-                  focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                  ${errors.volunteerType ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-                {...register('volunteerType')}
-              >
-                <option value="">Select your volunteer type (optional)</option>
-                {VOLUNTEER_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t.charAt(0) + t.slice(1).toLowerCase()}
-                  </option>
-                ))}
-              </select>
-              {errors.volunteerType && (
-                <p id="volunteerType-error" className="text-brand-error text-xs" role="alert">
-                  {errors.volunteerType.message}
-                </p>
-              )}
-            </div>
-          )}
 
           <Button type="submit" variant="cta" fullWidth loading={isLoading}>
             Create Account

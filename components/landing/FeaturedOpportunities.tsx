@@ -40,9 +40,7 @@ export async function FeaturedOpportunities() {
           <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 sm:text-4xl">
             Volunteer opportunities near you
           </h2>
-          <p className="mt-3 text-slate-500">
-            Real projects. Real impact. Updated daily.
-          </p>
+          <p className="mt-3 text-slate-500">Real projects. Real impact. Updated daily.</p>
         </div>
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">

@@ -26,7 +26,8 @@ export default function EditBlogPostPage() {
       toast({ title: 'Post updated!' });
       router.push('/admin/blog');
     } catch (err) {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to update post';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to update post';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     }
   };
@@ -37,7 +38,9 @@ export default function EditBlogPostPage() {
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
           <div className="h-6 w-40 bg-brand-bg rounded animate-pulse mb-5" />
           <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-10 bg-brand-bg rounded-xl animate-pulse" />)}
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-10 bg-brand-bg rounded-xl animate-pulse" />
+            ))}
           </div>
         </div>
       </div>
@@ -47,7 +50,10 @@ export default function EditBlogPostPage() {
   if (!post) {
     return (
       <div className="max-w-2xl space-y-5">
-        <Link href="/admin/blog" className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text">
+        <Link
+          href="/admin/blog"
+          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text"
+        >
           <ArrowLeft className="w-4 h-4" /> Back
         </Link>
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">

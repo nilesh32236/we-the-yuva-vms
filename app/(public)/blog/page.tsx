@@ -3,10 +3,12 @@ import { BlogPageClient } from './client';
 
 export const metadata: Metadata = {
   title: 'Volunteer Stories & Updates | WeTheYuva Blog',
-  description: 'Read stories, insights, and updates from the WeTheYuva volunteer community across India.',
+  description:
+    'Read stories, insights, and updates from the WeTheYuva volunteer community across India.',
   openGraph: {
     title: 'Volunteer Stories & Updates | WeTheYuva Blog',
-    description: 'Read stories, insights, and updates from the WeTheYuva volunteer community across India.',
+    description:
+      'Read stories, insights, and updates from the WeTheYuva volunteer community across India.',
     type: 'website',
     locale: 'en_IN',
     siteName: 'WeTheYuva',
@@ -14,7 +16,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Volunteer Stories & Updates | WeTheYuva Blog',
-    description: 'Read stories, insights, and updates from the WeTheYuva volunteer community across India.',
+    description:
+      'Read stories, insights, and updates from the WeTheYuva volunteer community across India.',
   },
 };
 

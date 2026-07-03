@@ -32,9 +32,7 @@ export function HowItWorks() {
           <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 sm:text-4xl">
             From first click to community leader
           </h2>
-          <p className="mt-3 text-slate-500">
-            Three steps. One platform. A lifetime of impact.
-          </p>
+          <p className="mt-3 text-slate-500">Three steps. One platform. A lifetime of impact.</p>
         </div>
 
         <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -47,12 +45,8 @@ export function HowItWorks() {
                 <div className="mt-4 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
                   <step.icon className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                  {step.desc}
-                </p>
+                <h3 className="mt-4 text-lg font-semibold text-slate-900">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-500">{step.desc}</p>
               </div>
             </div>
           ))}

@@ -37,8 +37,8 @@ export default function TermsPage() {
           </h2>
           <p className="text-brand-muted leading-relaxed">
             You are responsible for providing accurate information when creating an account and for
-            maintaining the security of your account credentials. Each account is intended for use by
-            one individual only. You must notify us immediately of any unauthorized use of your
+            maintaining the security of your account credentials. Each account is intended for use
+            by one individual only. You must notify us immediately of any unauthorized use of your
             account.
           </p>
         </section>

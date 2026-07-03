@@ -48,8 +48,8 @@ export function Footer() {
             </Link>
 
             <p className="mb-6 max-w-xs text-sm leading-relaxed text-slate-400">
-              Building India&apos;s largest youth volunteer network — empowering young citizens
-              to lead, serve, and transform their communities from the ground up.
+              Building India&apos;s largest youth volunteer network — empowering young citizens to
+              lead, serve, and transform their communities from the ground up.
             </p>
 
             {/* Contact info */}

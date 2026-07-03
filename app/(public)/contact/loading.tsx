@@ -20,10 +20,7 @@ export default function ContactLoading() {
 
           <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="rounded-2xl border border-brand-border p-6 bg-brand-surface"
-              >
+              <div key={i} className="rounded-2xl border border-brand-border p-6 bg-brand-surface">
                 <div className="flex items-start gap-4">
                   <Skeleton className="h-10 w-10 shrink-0 rounded-xl" aria-hidden="true" />
                   <div className="flex-1 space-y-2">

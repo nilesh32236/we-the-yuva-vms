@@ -61,7 +61,8 @@ export default function LoginPage() {
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       const message =
-        (error as { normalizedMessage?: string; response?: { data?: { error?: string } } })?.normalizedMessage ??
+        (error as { normalizedMessage?: string; response?: { data?: { error?: string } } })
+          ?.normalizedMessage ??
         (error as { response?: { data?: { error?: string } } })?.response?.data?.error ??
         'Something went wrong. Please try again.';
       toast({ title: 'Error', description: message, variant: 'destructive' });

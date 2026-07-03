@@ -9,10 +9,38 @@ import { StreakBadge } from './StreakBadge';
 import { TierPathVisualizer } from './TierPathVisualizer';
 
 const TIER_DATA = [
-  { tier: 1, name: 'Sprout', badgeIcon: 'Sprout', color: 'from-green-400 to-emerald-600', gradient: 'from-green-400 to-emerald-600', badgeShape: 'circle' },
-  { tier: 2, name: 'Volunteer', badgeIcon: 'Users', color: 'from-blue-400 to-indigo-600', gradient: 'from-blue-400 to-indigo-600', badgeShape: 'hexagon' },
-  { tier: 3, name: 'Contributor', badgeIcon: 'Wrench', color: 'from-purple-400 to-violet-600', gradient: 'from-purple-400 to-violet-600', badgeShape: 'shield' },
-  { tier: 4, name: 'Champion', badgeIcon: 'Crown', color: 'from-amber-400 to-orange-600', gradient: 'from-amber-400 to-orange-600', badgeShape: 'star' },
+  {
+    tier: 1,
+    name: 'Sprout',
+    badgeIcon: 'Sprout',
+    color: 'from-green-400 to-emerald-600',
+    gradient: 'from-green-400 to-emerald-600',
+    badgeShape: 'circle',
+  },
+  {
+    tier: 2,
+    name: 'Volunteer',
+    badgeIcon: 'Users',
+    color: 'from-blue-400 to-indigo-600',
+    gradient: 'from-blue-400 to-indigo-600',
+    badgeShape: 'hexagon',
+  },
+  {
+    tier: 3,
+    name: 'Contributor',
+    badgeIcon: 'Wrench',
+    color: 'from-purple-400 to-violet-600',
+    gradient: 'from-purple-400 to-violet-600',
+    badgeShape: 'shield',
+  },
+  {
+    tier: 4,
+    name: 'Champion',
+    badgeIcon: 'Crown',
+    color: 'from-amber-400 to-orange-600',
+    gradient: 'from-amber-400 to-orange-600',
+    badgeShape: 'star',
+  },
 ];
 
 interface LevelData {
@@ -36,9 +64,8 @@ export function LevelProgressCard() {
   if (!level) return null;
 
   const currentTier = TIER_DATA[level.tier - 1] ?? TIER_DATA[0];
-  const progressPct = level.pointsToNext > 0
-    ? Math.min((level.points / level.pointsToNext) * 100, 100)
-    : 100;
+  const progressPct =
+    level.pointsToNext > 0 ? Math.min((level.points / level.pointsToNext) * 100, 100) : 100;
   const isMaxLevel = level.tier >= TIER_DATA.length;
 
   return (
@@ -62,18 +89,15 @@ export function LevelProgressCard() {
           </div>
 
           {/* Tier path */}
-          <TierPathVisualizer
-            levels={TIER_DATA}
-            currentLevelId={String(level.tier)}
-            size="sm"
-          />
+          <TierPathVisualizer levels={TIER_DATA} currentLevelId={String(level.tier)} size="sm" />
 
           {/* Progress to next level */}
           {!isMaxLevel && level.pointsToNext > 0 && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-brand-muted">
-                  <span className="font-semibold text-brand-text">{level.points}</span> / {level.pointsToNext} points
+                  <span className="font-semibold text-brand-text">{level.points}</span> /{' '}
+                  {level.pointsToNext} points
                 </span>
                 <span className="text-brand-muted">{Math.round(progressPct)}%</span>
               </div>

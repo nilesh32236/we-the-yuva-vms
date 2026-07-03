@@ -5,10 +5,11 @@ import { ContactForm } from './client';
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Contact Us | WeTheYuva',
-    description: "Get in touch with the WeTheYuva team. We'd love to hear from you — whether you're a volunteer, NGO partner, or just curious.",
+    description:
+      "Get in touch with the WeTheYuva team. We'd love to hear from you — whether you're a volunteer, NGO partner, or just curious.",
     openGraph: {
       title: 'Contact Us | WeTheYuva',
-      description: "Get in touch with the WeTheYuva team.",
+      description: 'Get in touch with the WeTheYuva team.',
       type: 'website',
       locale: 'en_IN',
       siteName: 'WeTheYuva',
@@ -16,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: 'Contact Us | WeTheYuva',
-      description: "Get in touch with the WeTheYuva team.",
+      description: 'Get in touch with the WeTheYuva team.',
     },
   };
 }

@@ -104,10 +104,9 @@ export default async function OpportunityDetailPage({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-      >{JSON.stringify(jsonLd)}</script>
+      <script type="application/ld+json" suppressHydrationWarning>
+        {JSON.stringify(jsonLd)}
+      </script>
       <div className="min-h-dvh bg-brand-bg">
         <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 lg:py-12">
           {/* Back link */}
@@ -165,9 +164,7 @@ export default async function OpportunityDetailPage({
               </div>
               <div className="flex items-center gap-2.5 text-brand-muted">
                 <Users className="w-4 h-4 text-brand-primary shrink-0" aria-hidden="true" />
-                <span>
-                  {isFull ? 'Full' : `${slotsLeft} of ${opp.totalSlots} slots left`}
-                </span>
+                <span>{isFull ? 'Full' : `${slotsLeft} of ${opp.totalSlots} slots left`}</span>
               </div>
               <div className="flex items-center gap-2.5 text-brand-muted">
                 {opp.isRemote ? (
@@ -211,9 +208,7 @@ export default async function OpportunityDetailPage({
           {/* Skills */}
           {opp.skills?.length > 0 && (
             <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 md:p-8 mt-5 space-y-3">
-              <h2 className="font-heading font-semibold text-sm text-brand-text">
-                Skills needed
-              </h2>
+              <h2 className="font-heading font-semibold text-sm text-brand-text">Skills needed</h2>
               <div className="flex flex-wrap gap-2">
                 {opp.skills.map((s: string) => (
                   <span

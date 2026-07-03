@@ -92,7 +92,9 @@ export default function CoordinatorDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">View Opportunities</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">→</span>
+            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
+              →
+            </span>
           </Link>
           <Link
             href="/coordinator/opportunities/new"
@@ -106,14 +108,18 @@ export default function CoordinatorDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">Manage Events</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">→</span>
+            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
+              →
+            </span>
           </Link>
           <Link
             href="/coordinator/volunteers"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">View Volunteers</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">→</span>
+            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
+              →
+            </span>
           </Link>
         </div>
       </div>

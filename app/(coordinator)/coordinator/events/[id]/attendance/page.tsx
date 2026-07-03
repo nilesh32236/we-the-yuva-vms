@@ -165,7 +165,9 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
               <p className="text-xs text-brand-muted">Checked In</p>
             </div>
             <div className="text-center">
-              <p className="font-heading font-bold text-2xl text-emerald-600 dark:text-emerald-400">{checkedOutCount}</p>
+              <p className="font-heading font-bold text-2xl text-emerald-600 dark:text-emerald-400">
+                {checkedOutCount}
+              </p>
               <p className="text-xs text-brand-muted">Checked Out</p>
             </div>
             <div className="text-center">
@@ -269,9 +271,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
         {isLoading ? (
           <SkeletonCard />
         ) : volunteers.length === 0 ? (
-          <p className="text-center text-brand-muted py-8">
-            No volunteers for this event yet.
-          </p>
+          <p className="text-center text-brand-muted py-8">No volunteers for this event yet.</p>
         ) : (
           <AttendanceChecklist
             volunteers={volunteers}

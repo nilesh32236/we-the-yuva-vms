@@ -32,9 +32,11 @@ export default function NewStoryPage() {
       toast({ title: 'Story submitted!', description: 'It will be published after review.' });
       router.push('/volunteer/stories');
     } catch (err) {
-      const message = (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })?.normalizedMessage
-        ?? (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-        ?? 'Could not submit story.';
+      const message =
+        (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })
+          ?.normalizedMessage ??
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        'Could not submit story.';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     } finally {
       setSubmitting(false);

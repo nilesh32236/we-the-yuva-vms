@@ -26,9 +26,7 @@ export function Header() {
   return (
     <header
       className={`fixed top-0 right-0 left-0 z-50 transition-colors duration-200 ${
-        scrolled
-          ? 'bg-white/95 shadow-sm backdrop-blur-sm dark:bg-slate-900/95'
-          : 'bg-transparent'
+        scrolled ? 'bg-white/95 shadow-sm backdrop-blur-sm dark:bg-slate-900/95' : 'bg-transparent'
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
@@ -95,14 +93,18 @@ export function Header() {
             scrolled ? 'text-slate-900 dark:text-white' : 'text-white'
           }`}
         >
-          {mobileOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
+          {mobileOpen ? (
+            <X className="h-6 w-6" aria-hidden="true" />
+          ) : (
+            <Menu className="h-6 w-6" aria-hidden="true" />
+          )}
         </button>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="border-b border-slate-200 bg-white px-6 pb-4 md:hidden dark:border-slate-700 dark:bg-slate-900">
-           <nav className="flex flex-col gap-3 pt-2">
+          <nav className="flex flex-col gap-3 pt-2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}

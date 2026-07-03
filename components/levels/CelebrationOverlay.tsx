@@ -39,7 +39,8 @@ export function CelebrationOverlay({ levelName, tier, points }: CelebrationOverl
           <div>
             <h2 className="font-heading font-bold text-2xl text-brand-text">Congratulations!</h2>
             <p className="text-brand-muted mt-2">
-              You&apos;ve reached <span className="font-semibold text-brand-text">{levelName}</span> (Tier {tier})
+              You&apos;ve reached <span className="font-semibold text-brand-text">{levelName}</span>{' '}
+              (Tier {tier})
             </p>
           </div>
 

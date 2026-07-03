@@ -14,9 +14,7 @@ export function CTA() {
           inView ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <h2 className="text-3xl font-bold text-white sm:text-4xl">
-          Start volunteering this week
-        </h2>
+        <h2 className="text-3xl font-bold text-white sm:text-4xl">Start volunteering this week</h2>
         <p className="mx-auto mt-4 max-w-lg text-emerald-100/80">
           Create a free account, find an opportunity near you, and show up. That&apos;s it.
         </p>

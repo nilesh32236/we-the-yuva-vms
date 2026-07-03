@@ -1,7 +1,17 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Briefcase, Calendar, Clock, MapPin, MessageCircle, Tag, Users, Wifi } from 'lucide-react';
+import {
+  ArrowLeft,
+  Briefcase,
+  Calendar,
+  Clock,
+  MapPin,
+  MessageCircle,
+  Tag,
+  Users,
+  Wifi,
+} from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
@@ -42,20 +52,20 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     staleTime: 60_000,
   });
 
-  const myApp = (Array.isArray(myApplications) ? myApplications : myApplications?.data ?? []).find(
-    (a: { opportunityId: string; status: string }) => a.opportunityId === id
-  );
+  const myApp = (
+    Array.isArray(myApplications) ? myApplications : (myApplications?.data ?? [])
+  ).find((a: { opportunityId: string; status: string }) => a.opportunityId === id);
 
-interface ApplicationInfo {
-  id: string;
-  opportunityId: string;
-  status: string;
-}
+  interface ApplicationInfo {
+    id: string;
+    opportunityId: string;
+    status: string;
+  }
 
-interface OpportunityInfo {
-  _count?: { applications: number };
-  [key: string]: unknown;
-}
+  interface OpportunityInfo {
+    _count?: { applications: number };
+    [key: string]: unknown;
+  }
 
   const apply = useMutation({
     mutationFn: () => api.post(`/opportunities/${id}/apply`),
@@ -280,7 +290,10 @@ interface OpportunityInfo {
           ) : (
             <button
               type="button"
-              onClick={() => { haptic.medium(); apply.mutate(undefined); }}
+              onClick={() => {
+                haptic.medium();
+                apply.mutate(undefined);
+              }}
               disabled={apply.isPending}
               className="bg-brand-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
             >
@@ -300,18 +313,18 @@ interface OpportunityInfo {
         </p>
       </div>
 
-        {/* Chat link for accepted volunteers */}
-        {myApp?.status === 'ACCEPTED' && (
-          <Link
-            href={`/volunteer/opportunities/${id}/chat`}
-            onClick={() => haptic.light()}
-            className="flex items-center gap-2 text-sm font-medium text-brand hover:text-brand-secondary transition-colors pt-1"
-          >
-            <MessageCircle className="w-4 h-4" /> Join Discussion
-          </Link>
-        )}
+      {/* Chat link for accepted volunteers */}
+      {myApp?.status === 'ACCEPTED' && (
+        <Link
+          href={`/volunteer/opportunities/${id}/chat`}
+          onClick={() => haptic.light()}
+          className="flex items-center gap-2 text-sm font-medium text-brand hover:text-brand-secondary transition-colors pt-1"
+        >
+          <MessageCircle className="w-4 h-4" /> Join Discussion
+        </Link>
+      )}
 
-        {/* Skills */}
+      {/* Skills */}
       {opp.skills?.length > 0 && (
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-3">
           <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">

@@ -69,11 +69,7 @@ api.interceptors.response.use(
       try {
         if (!refreshPromise) {
           refreshPromise = axios
-            .post(
-              '/api/v1/auth/refresh',
-              {},
-              { withCredentials: true, timeout: 10000 }
-            )
+            .post('/api/v1/auth/refresh', {}, { withCredentials: true, timeout: 10000 })
             .then((r) => r.data)
             .finally(() => {
               refreshPromise = null;
@@ -91,7 +87,12 @@ api.interceptors.response.use(
         }
         return api(originalRequest);
       } catch {
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !isAuthEndpoint && !isPublicRoute(window.location.pathname)) {
+        if (
+          typeof window !== 'undefined' &&
+          !window.location.pathname.startsWith('/login') &&
+          !isAuthEndpoint &&
+          !isPublicRoute(window.location.pathname)
+        ) {
           sessionStorage.setItem('logged_out', 'true');
           window.location.href = '/login';
         }
@@ -112,9 +113,7 @@ api.interceptors.response.use(
         error.normalizedMessage = data;
       } else {
         error.normalizedMessage =
-          data?.error ??
-          data?.message ??
-          'Something went wrong. Please try again.';
+          data?.error ?? data?.message ?? 'Something went wrong. Please try again.';
       }
     }
     return Promise.reject(error);

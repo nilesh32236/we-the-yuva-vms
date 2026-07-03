@@ -102,11 +102,7 @@ export default function AlertSubscriptionsPage() {
               </div>
             </div>
             {!showForm && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setShowForm(true)}
-              >
+              <Button variant="primary" size="sm" onClick={() => setShowForm(true)}>
                 <Plus className="w-4 h-4" /> New Alert
               </Button>
             )}
@@ -149,9 +145,11 @@ export default function AlertSubscriptionsPage() {
                       key={cat}
                       onClick={() => toggleCat(cat)}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer
-                        ${selectedCats.includes(cat)
-                          ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
-                          : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary hover:text-brand-text'}`}
+                        ${
+                          selectedCats.includes(cat)
+                            ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
+                            : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary hover:text-brand-text'
+                        }`}
                     >
                       {cat.charAt(0) + cat.slice(1).toLowerCase()}
                     </button>
@@ -165,7 +163,10 @@ export default function AlertSubscriptionsPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="alert-skills" className="text-xs font-medium text-brand-muted uppercase tracking-wider">
+                <label
+                  htmlFor="alert-skills"
+                  className="text-xs font-medium text-brand-muted uppercase tracking-wider"
+                >
                   Skills (optional)
                 </label>
                 <div className="flex flex-wrap gap-1.5 mb-2">
@@ -213,7 +214,10 @@ export default function AlertSubscriptionsPage() {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => { haptic.medium(); createMut.mutate({ categories: selectedCats, skills }); }}
+                  onClick={() => {
+                    haptic.medium();
+                    createMut.mutate({ categories: selectedCats, skills });
+                  }}
                   loading={createMut.isPending}
                 >
                   <BellRing className="w-3.5 h-3.5" /> Create Alert
@@ -272,7 +276,10 @@ export default function AlertSubscriptionsPage() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => { haptic.light(); deleteMut.mutate(s.id); }}
+                      onClick={() => {
+                        haptic.light();
+                        deleteMut.mutate(s.id);
+                      }}
                       className="p-2 rounded-lg text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-brand-error transition-colors cursor-pointer shrink-0"
                       aria-label="Remove alert"
                     >

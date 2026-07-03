@@ -70,9 +70,7 @@ export function LevelPathway() {
                   >
                     {level.step}
                   </div>
-                  {!isLast && (
-                    <div className="w-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                  )}
+                  {!isLast && <div className="w-px flex-1 bg-slate-200 dark:bg-slate-700" />}
                 </div>
 
                 <div className={isLast ? '' : 'pb-10'}>

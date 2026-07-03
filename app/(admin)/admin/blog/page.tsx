@@ -31,38 +31,54 @@ export default function AdminBlogPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">{[1, 2, 3].map((i) => <SkeletonCard key={i} />)}</div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       ) : data?.data?.length === 0 ? (
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center space-y-3">
           <FileText className="w-10 h-10 text-brand-muted mx-auto" />
           <p className="font-medium text-brand-text">No posts yet</p>
           <Link href="/admin/blog/new">
-            <Button type="button" variant="primary">Create your first post</Button>
+            <Button type="button" variant="primary">
+              Create your first post
+            </Button>
           </Link>
         </div>
       ) : (
         <div className="space-y-3">
-          {data?.data?.map((post: {
-            id: string; title: string; status: string; slug: string;
-            author: { name: string }; createdAt: string; category?: string;
-          }) => (
-            <Link
-              key={post.id}
-              href={`/admin/blog/${post.id}/edit`}
-              className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-brand-border hover:shadow-sm transition-all"
-            >
-              <div className="min-w-0 flex-1">
-                <h2 className="font-medium text-brand-text truncate">{post.title}</h2>
-                <p className="text-xs text-brand-muted mt-0.5">
-                  by {post.author.name} &middot; {new Date(post.createdAt).toLocaleDateString('en-IN')}
-                  {post.category && <>&middot; {post.category}</>}
-                </p>
-              </div>
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ml-4 ${statusColor[post.status] ?? ''}`}>
-                {post.status}
-              </span>
-            </Link>
-          ))}
+          {data?.data?.map(
+            (post: {
+              id: string;
+              title: string;
+              status: string;
+              slug: string;
+              author: { name: string };
+              createdAt: string;
+              category?: string;
+            }) => (
+              <Link
+                key={post.id}
+                href={`/admin/blog/${post.id}/edit`}
+                className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-brand-border hover:shadow-sm transition-all"
+              >
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-medium text-brand-text truncate">{post.title}</h2>
+                  <p className="text-xs text-brand-muted mt-0.5">
+                    by {post.author.name} &middot;{' '}
+                    {new Date(post.createdAt).toLocaleDateString('en-IN')}
+                    {post.category && <>&middot; {post.category}</>}
+                  </p>
+                </div>
+                <span
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 ml-4 ${statusColor[post.status] ?? ''}`}
+                >
+                  {post.status}
+                </span>
+              </Link>
+            )
+          )}
         </div>
       )}
     </div>

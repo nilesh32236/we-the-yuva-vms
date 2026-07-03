@@ -50,10 +50,9 @@ export default async function OpportunitiesPage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-      >{JSON.stringify(jsonLd)}</script>
+      <script type="application/ld+json" suppressHydrationWarning>
+        {JSON.stringify(jsonLd)}
+      </script>
       <OpportunitiesClient opportunities={opportunities} />
     </>
   );

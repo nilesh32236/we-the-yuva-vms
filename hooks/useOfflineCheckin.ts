@@ -11,7 +11,9 @@ interface UseOfflineCheckinOptions {
 }
 
 export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineCheckinOptions) {
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  );
   const [queuedCount, setQueuedCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -37,7 +39,9 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     setQueuedCount(items.length);
   }, []);
 
-  useEffect(() => { refreshQueue(); }, [refreshQueue]);
+  useEffect(() => {
+    refreshQueue();
+  }, [refreshQueue]);
 
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {

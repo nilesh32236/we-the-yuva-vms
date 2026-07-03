@@ -113,8 +113,7 @@ export function VerifyOrgModal({ org, onClose }: VerifyOrgModalProps) {
                       </div>
                     </div>
                     <a
-                        href={doc.fileUrl}
-
+                      href={doc.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-2 text-brand-muted hover:text-brand-primary transition-colors"

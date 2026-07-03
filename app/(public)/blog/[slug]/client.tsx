@@ -66,7 +66,9 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" aria-hidden="true" />
                 {new Date(post.publishedAt).toLocaleDateString('en-IN', {
-                  day: 'numeric', month: 'long', year: 'numeric',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
                 })}
               </span>
               {post.category && (
@@ -78,7 +80,10 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
             {post.tags?.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag: string) => (
-                  <span key={tag} className="text-xs bg-brand-primary/10 text-brand-primary px-3 py-1 rounded-full">
+                  <span
+                    key={tag}
+                    className="text-xs bg-brand-primary/10 text-brand-primary px-3 py-1 rounded-full"
+                  >
                     {tag}
                   </span>
                 ))}

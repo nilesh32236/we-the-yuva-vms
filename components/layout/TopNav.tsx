@@ -1,7 +1,17 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Moon, Star, Sun } from 'lucide-react';
+import {
+  AlertTriangle,
+  Bell,
+  CheckCheck,
+  Info,
+  LogOut,
+  Megaphone,
+  Moon,
+  Star,
+  Sun,
+} from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -21,8 +31,16 @@ const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> 
     color: 'text-teal-700 dark:text-teal-400',
     bg: 'bg-teal-100 dark:bg-teal-900/30',
   },
-  ADMIN: { label: 'Admin', color: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/30' },
-  OBSERVER: { label: 'Observer', color: 'text-slate-700 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-slate-800/50' },
+  ADMIN: {
+    label: 'Admin',
+    color: 'text-purple-700 dark:text-purple-400',
+    bg: 'bg-purple-100 dark:bg-purple-900/30',
+  },
+  OBSERVER: {
+    label: 'Observer',
+    color: 'text-slate-700 dark:text-slate-400',
+    bg: 'bg-slate-100 dark:bg-slate-800/50',
+  },
 };
 
 const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
@@ -291,9 +309,7 @@ export function TopNav() {
                   {role.label}
                 </span>
                 {user?.role === 'VOLUNTEER' && user?.volunteerType && (
-                  <span
-                    className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary"
-                  >
+                  <span className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-brand-primary/10 text-brand-primary">
                     {VOLUNTEER_TYPE_LABELS[user.volunteerType] ?? user.volunteerType}
                   </span>
                 )}

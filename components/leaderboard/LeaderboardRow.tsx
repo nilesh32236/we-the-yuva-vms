@@ -51,7 +51,13 @@ export function LeaderboardRow({
       {/* Avatar */}
       <div className="w-10 h-10 rounded-full bg-brand-border flex items-center justify-center flex-shrink-0 overflow-hidden">
         {avatarUrl ? (
-          <Image src={avatarUrl} alt={name} width={40} height={40} className="w-full h-full object-cover" />
+          <Image
+            src={avatarUrl}
+            alt={name}
+            width={40}
+            height={40}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <span className="text-xs font-bold text-brand-muted">
             {name
@@ -66,7 +72,12 @@ export function LeaderboardRow({
 
       {/* Name + Level */}
       <div className="flex-1 min-w-0">
-        <p className={cn('text-sm font-semibold truncate', isCurrentUser ? 'text-brand-primary' : 'text-brand-text')}>
+        <p
+          className={cn(
+            'text-sm font-semibold truncate',
+            isCurrentUser ? 'text-brand-primary' : 'text-brand-text'
+          )}
+        >
           {name}
           {isCurrentUser && (
             <span className="ml-1.5 text-[10px] font-medium text-brand-primary/70">(You)</span>

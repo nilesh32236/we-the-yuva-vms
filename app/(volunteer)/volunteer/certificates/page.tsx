@@ -75,7 +75,8 @@ export default function CertificatesPage() {
                     {cert.levelName}
                   </h3>
                   <p className="text-xs text-brand-muted mt-0.5">
-                    Issued {new Date(cert.issuedAt).toLocaleDateString('en-IN', {
+                    Issued{' '}
+                    {new Date(cert.issuedAt).toLocaleDateString('en-IN', {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric',
@@ -95,7 +96,12 @@ export default function CertificatesPage() {
 
               <div className="flex gap-2">
                 <Link href={`/volunteer/certificates/${cert.id}`} className="flex-1">
-                  <Button variant="primary" size="sm" className="w-full" onClick={() => haptic.light()}>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => haptic.light()}
+                  >
                     <ExternalLink className="w-3.5 h-3.5" /> View
                   </Button>
                 </Link>

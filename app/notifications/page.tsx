@@ -1,7 +1,16 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ArrowLeft, Bell, CheckCheck, Info, Megaphone, Star, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Bell,
+  CheckCheck,
+  Info,
+  Megaphone,
+  Star,
+  Trash2,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
@@ -91,7 +100,10 @@ export default function NotificationsPage() {
       <header className="h-16 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
         <button
           type="button"
-          onClick={() => { haptic.light(); router.back(); }}
+          onClick={() => {
+            haptic.light();
+            router.back();
+          }}
           className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -100,7 +112,10 @@ export default function NotificationsPage() {
         {unreadCount > 0 && (
           <button
             type="button"
-            onClick={() => { haptic.light(); markAllReadMut.mutate(); }}
+            onClick={() => {
+              haptic.light();
+              markAllReadMut.mutate();
+            }}
             className="text-xs text-brand-primary hover:underline cursor-pointer font-medium"
           >
             Mark all read
@@ -111,10 +126,14 @@ export default function NotificationsPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-1">
         {isLoading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+            {[1, 2, 3].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         ) : isError ? (
-          <div className="text-center py-16 text-brand-muted text-sm">Failed to load notifications.</div>
+          <div className="text-center py-16 text-brand-muted text-sm">
+            Failed to load notifications.
+          </div>
         ) : notifications.length === 0 ? (
           <div className="text-center py-16 space-y-3">
             <Bell className="w-10 h-10 text-brand-muted mx-auto" />
@@ -155,12 +174,14 @@ export default function NotificationsPage() {
                   <p className="text-[10px] text-brand-muted mt-1">{timeAgo(n.createdAt)}</p>
                 </div>
                 <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-                  {!n.read && (
-                    <span className="w-2 h-2 rounded-full bg-brand-primary" />
-                  )}
+                  {!n.read && <span className="w-2 h-2 rounded-full bg-brand-primary" />}
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); haptic.light(); deleteMut.mutate(n.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      haptic.light();
+                      deleteMut.mutate(n.id);
+                    }}
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
                     aria-label="Dismiss notification"
                   >

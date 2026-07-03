@@ -56,7 +56,10 @@ function VerifyOtpContent() {
       } else if (authUser.role === 'VOLUNTEER' && !authUser.profile) {
         router.replace('/setup-profile');
       } else if (
-        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(authUser.role) && !authUser.locationId
+        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
+          authUser.role
+        ) &&
+        !authUser.locationId
       ) {
         router.replace('/setup-profile');
       } else {
@@ -144,7 +147,11 @@ function VerifyOtpContent() {
       }
       toast({ title: 'Code sent', description: `A new code has been sent to ${email}` });
     } catch {
-      toast({ title: 'Error', description: 'Could not resend code. Please try again.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Could not resend code. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -207,7 +214,13 @@ function VerifyOtpContent() {
 
 export default function VerifyOtpPage() {
   return (
-    <Suspense fallback={<div className="max-w-md mx-auto p-6"><SkeletonCard /></div>}>
+    <Suspense
+      fallback={
+        <div className="max-w-md mx-auto p-6">
+          <SkeletonCard />
+        </div>
+      }
+    >
       <VerifyOtpContent />
     </Suspense>
   );

@@ -29,8 +29,8 @@ export function Hero() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-lg text-emerald-50/80 leading-relaxed">
-          WeTheYuva is a volunteer network that gives you real work, real skills,
-          and real recognition. Free to join.
+          WeTheYuva is a volunteer network that gives you real work, real skills, and real
+          recognition. Free to join.
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">

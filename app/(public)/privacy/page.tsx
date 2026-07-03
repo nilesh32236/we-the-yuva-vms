@@ -13,9 +13,7 @@ export default function PrivacyPage() {
     <>
       <section className="bg-emerald-800 py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <h1 className="font-heading text-3xl font-bold text-white sm:text-4xl">
-            Privacy Policy
-          </h1>
+          <h1 className="font-heading text-3xl font-bold text-white sm:text-4xl">Privacy Policy</h1>
           <p className="mt-3 text-emerald-100/80 text-sm">Last updated: July 2026</p>
         </div>
       </section>
@@ -50,8 +48,8 @@ export default function PrivacyPage() {
           </h2>
           <p className="text-brand-muted leading-relaxed">
             We use your information to match you with volunteering opportunities, track your impact,
-            communicate with you about platform updates, and improve our services. Your data helps us
-            create a better volunteering experience for everyone.
+            communicate with you about platform updates, and improve our services. Your data helps
+            us create a better volunteering experience for everyone.
           </p>
         </section>
 

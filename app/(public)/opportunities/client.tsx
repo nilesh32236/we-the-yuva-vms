@@ -125,9 +125,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           <div className="text-center py-16">
             <Search className="w-10 h-10 mx-auto mb-3 text-brand-muted/40" aria-hidden="true" />
             <p className="font-medium text-brand-text">No opportunities found</p>
-            <p className="text-sm text-brand-muted mt-1">
-              Try adjusting your search or filters
-            </p>
+            <p className="text-sm text-brand-muted mt-1">Try adjusting your search or filters</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
