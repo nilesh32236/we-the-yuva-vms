@@ -94,7 +94,7 @@ export default function AlertSubscriptionsPage() {
               </div>
               <div>
                 <h1 className="font-heading font-bold text-xl text-brand-text">
-                  Opportunity Alerts
+                  Alert Subscriptions
                 </h1>
                 <p className="text-xs text-brand-muted mt-0.5">
                   Get notified when new opportunities match your interests

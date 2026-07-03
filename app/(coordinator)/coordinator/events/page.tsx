@@ -1,9 +1,11 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { ClipboardList, Download, Pencil, Plus, QrCode } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ClipboardList, Download, Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { useToast } from '../../../../hooks/use-toast';
 import { api, downloadCsv } from '../../../../lib/api';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 
@@ -14,11 +16,40 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function CoordinatorEventsPage() {
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const [cancelling, setCancelling] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
+
   const { data, isLoading } = useQuery({
     queryKey: ['coordinator-events'],
     queryFn: () => api.get('/events', { params: { limit: 50 } }).then((r) => r.data),
     staleTime: 30_000,
   });
+
+  const handleCancel = (id: string, title: string) => {
+    setConfirmAction({ id, title });
+  };
+
+  const executeCancel = async () => {
+    if (!confirmAction) return;
+    const { id } = confirmAction;
+    setConfirmAction(null);
+    setCancelling(id);
+    try {
+      await api.delete(`/events/${id}`);
+      toast({ title: 'Event cancelled' });
+      qc.invalidateQueries({ queryKey: ['coordinator-events'] });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Could not cancel event.',
+        variant: 'destructive',
+      });
+    } finally {
+      setCancelling(null);
+    }
+  };
 
   return (
     <div className="space-y-5 max-w-5xl">
@@ -145,6 +176,17 @@ export default function CoordinatorEventsPage() {
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </Link>
+                          {ev.status === 'SCHEDULED' && (
+                            <button
+                              type="button"
+                              onClick={() => handleCancel(ev.id, ev.title)}
+                              disabled={cancelling === ev.id}
+                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                              title="Cancel event"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                           <AddToCalendarButton eventId={ev.id} variant="icon" />
                         </div>
                       </td>
@@ -153,6 +195,33 @@ export default function CoordinatorEventsPage() {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
+            <h3 className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
+            <p className="text-sm text-brand-muted mb-4">
+              Cancel &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmAction(null)}
+                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors"
+              >
+                Keep
+              </button>
+              <button
+                type="button"
+                onClick={executeCancel}
+                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors"
+              >
+                Cancel Event
+              </button>
+            </div>
           </div>
         </div>
       )}

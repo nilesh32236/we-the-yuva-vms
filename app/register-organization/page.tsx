@@ -265,7 +265,7 @@ export default function RegisterOrganizationPage() {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button type="button" variant="primary" onClick={handleSubmit(() => setStep(1))}>
+                <Button type="button" variant="primary" onClick={handleSubmit(() => setStep(1), () => toast({ title: 'Validation Error', description: 'Please fix the highlighted fields before proceeding.', variant: 'destructive' }))}>
                   Next: Documents
                   <ArrowRight className="w-4 h-4" />
                 </Button>

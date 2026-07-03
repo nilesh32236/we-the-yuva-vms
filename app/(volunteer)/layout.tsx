@@ -7,6 +7,7 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/volunteer/dashboard', icon: 'LayoutDashboard' },
   { label: 'My Profile', href: '/volunteer/profile', icon: 'User' },
   { label: 'Opportunities', href: '/volunteer/opportunities', icon: 'Search' },
+  { label: 'My Applications', href: '/volunteer/applications', icon: 'FileText' },
   { label: 'My Events', href: '/volunteer/events', icon: 'Calendar' },
   { label: 'Training', href: '/volunteer/training', icon: 'BookOpen' },
   { label: 'Stories', href: '/volunteer/stories', icon: 'BookOpen' },

@@ -1,11 +1,12 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, ArrowLeft, Bell, CheckCheck, Info, Megaphone, Star } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Bell, CheckCheck, Info, Megaphone, Star, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { useToast } from '@/hooks/use-toast';
 
 const TYPE_ICON: Record<string, React.ElementType> = {
   info: Info,
@@ -48,6 +49,7 @@ interface NotifResponse {
 export default function NotificationsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data, isLoading, isError } = useQuery<NotifResponse>({
     queryKey: ['notifications', 'list'],
@@ -69,6 +71,15 @@ export default function NotificationsPage() {
   const markAllReadMut = useMutation({
     mutationFn: () => api.post('/notifications/read-all'),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => api.delete(`/notifications/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      toast({ title: 'Notification dismissed' });
+    },
+    onError: () => toast({ title: 'Failed to dismiss notification', variant: 'destructive' }),
   });
 
   const notifications = data?.data ?? [];
@@ -143,9 +154,19 @@ export default function NotificationsPage() {
                   <p className="text-xs text-brand-muted mt-0.5 line-clamp-2">{n.body}</p>
                   <p className="text-[10px] text-brand-muted mt-1">{timeAgo(n.createdAt)}</p>
                 </div>
-                {!n.read && (
-                  <span className="w-2 h-2 rounded-full bg-brand-primary flex-shrink-0 mt-2.5" />
-                )}
+                <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                  {!n.read && (
+                    <span className="w-2 h-2 rounded-full bg-brand-primary" />
+                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); haptic.light(); deleteMut.mutate(n.id); }}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+                    aria-label="Dismiss notification"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </button>
             );
           })

@@ -413,9 +413,11 @@ export default function SetupProfilePage() {
   }, [user, isLoading, router]);
 
   const handleComplete = async () => {
+    const res = await api.get('/users/me');
     await refetch();
-    if (user?.role === 'VOLUNTEER') {
-      router.push('/volunteer/youth-assessment');
+    const role: string | undefined = res.data?.role;
+    if (role === 'VOLUNTEER') {
+      router.push('/volunteer/dashboard');
       return;
     }
     const roleRoutes: Record<string, string> = {
@@ -425,7 +427,7 @@ export default function SetupProfilePage() {
       OBSERVER: '/observer/dashboard',
       ORGANIZATION_ADMIN: '/organization/dashboard',
     };
-    router.push(roleRoutes[user?.role ?? ''] ?? '/login');
+    router.push(roleRoutes[role ?? ''] ?? '/login');
   };
 
   if (!user) return <div className="py-8"><SkeletonCard /></div>;

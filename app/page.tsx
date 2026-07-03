@@ -12,6 +12,20 @@ export const metadata = {
   title: 'WeTheYuva — Empowering India\'s Youth Volunteers',
   description:
     'Join India\'s largest youth volunteer network. Connect with meaningful opportunities, grow from volunteer to leader, and build the communities you care about.',
+  openGraph: {
+    title: 'WeTheYuva — Empowering India\'s Youth Volunteers',
+    description:
+      'Join India\'s largest youth volunteer network. Connect with meaningful opportunities, grow from volunteer to leader, and build the communities you care about.',
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'WeTheYuva',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'WeTheYuva — Empowering India\'s Youth Volunteers',
+    description:
+      'Join India\'s largest youth volunteer network. Connect with meaningful opportunities, grow from volunteer to leader, and build the communities you care about.',
+  },
 };
 
 export default function HomePage() {

@@ -87,6 +87,20 @@ export default function VolunteerLevelsPage() {
 
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [requestNotes, setRequestNotes] = useState('');
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  const cancelMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/levels/requests/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['my-level-requests'] });
+      toast({ title: 'Request cancelled' });
+      setCancellingId(null);
+    },
+    onError: (err: { response?: { data?: { error?: string } } }) => {
+      toast({ title: 'Failed', description: err?.response?.data?.error ?? 'Something went wrong', variant: 'destructive' });
+      setCancellingId(null);
+    },
+  });
 
   const requestMutation = useMutation({
     mutationFn: ({ levelId, notes }: { levelId: string; notes: string }) => api.post(`/levels/${levelId}/request`, { notes }),
@@ -157,9 +171,9 @@ export default function VolunteerLevelsPage() {
                 <Trophy className="w-3 h-3" /> Tier {currentTier.tier}
               </span>
               {level && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full">
+                <Link href="/volunteer/impact" onClick={() => haptic.light()} className="inline-flex items-center gap-1 text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full hover:bg-white/30 transition-colors">
                   <Medal className="w-3 h-3" /> {level.points} pts
-                </span>
+                </Link>
               )}
               {level && level.streak > 0 && (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold bg-white/20 text-white px-3 py-1 rounded-full">
@@ -331,13 +345,30 @@ export default function VolunteerLevelsPage() {
                     {req.reviewNote && <p className="text-xs text-brand-muted mt-0.5 italic">&ldquo;{req.reviewNote}&rdquo;</p>}
                   </div>
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${
-                  req.status === 'APPROVED' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                  req.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-brand-error' :
-                  'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                }`}>
-                  {req.status}
-                </span>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {req.status === 'PENDING' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('Cancel this level-up request?')) {
+                          setCancellingId(req.id);
+                          cancelMutation.mutate(req.id);
+                        }
+                      }}
+                      disabled={cancellingId === req.id}
+                      className="text-xs font-medium text-brand-error hover:underline disabled:opacity-50"
+                    >
+                      {cancellingId === req.id ? 'Cancelling...' : 'Cancel'}
+                    </button>
+                  )}
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                    req.status === 'APPROVED' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
+                    req.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-brand-error' :
+                    'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                  }`}>
+                    {req.status}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

@@ -64,21 +64,23 @@ export default function ObserverReportsPage() {
         </div>
       )}
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-card rounded-2xl border border-brand-border p-5">
-          <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
-            Opportunities by Category
-          </h2>
-          <CategoryPieChart data={stats?.byCategory ?? []} />
+      {/* Charts — only render when API provides data */}
+      {stats?.byCategory && stats.byCategory.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="bg-card rounded-2xl border border-brand-border p-5">
+            <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
+              Opportunities by Category
+            </h2>
+            <CategoryPieChart data={stats.byCategory} />
+          </div>
+          <div className="bg-card rounded-2xl border border-brand-border p-5">
+            <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
+              Hours Served by Month
+            </h2>
+            <HoursBarChart data={stats?.hoursByMonth ?? []} />
+          </div>
         </div>
-        <div className="bg-card rounded-2xl border border-brand-border p-5">
-          <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
-            Hours Served by Month
-          </h2>
-          <HoursBarChart data={stats?.hoursByMonth ?? []} />
-        </div>
-      </div>
+      )}
     </div>
   );
 }

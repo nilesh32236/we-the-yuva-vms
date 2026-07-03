@@ -47,6 +47,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
   );
 
 interface ApplicationInfo {
+  id: string;
   opportunityId: string;
   status: string;
 }
@@ -67,7 +68,7 @@ interface OpportunityInfo {
 
       qc.setQueryData<ApplicationInfo[]>(['my-applications'], (old = []) => [
         ...old,
-        { opportunityId: id, status: 'PENDING' },
+        { id: 'optimistic', opportunityId: id, status: 'PENDING' },
       ]);
 
       if (previousOpportunity) {
@@ -99,6 +100,55 @@ interface OpportunityInfo {
     },
     onSuccess: () => {
       toast({ title: 'Applied!', description: 'Your application has been submitted.' });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['my-applications'] });
+      qc.invalidateQueries({ queryKey: ['opportunity', id] });
+      qc.invalidateQueries({ queryKey: ['opportunities'] });
+    },
+  });
+
+  const withdraw = useMutation({
+    mutationFn: () => api.delete(`/opportunities/applications/${myApp!.id}`),
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: ['my-applications'] });
+      await qc.cancelQueries({ queryKey: ['opportunity', id] });
+
+      const previousMyApplications = qc.getQueryData<ApplicationInfo[]>(['my-applications']);
+      const previousOpportunity = qc.getQueryData<OpportunityInfo>(['opportunity', id]);
+
+      qc.setQueryData<ApplicationInfo[]>(['my-applications'], (old = []) =>
+        old.filter((a) => a.opportunityId !== id)
+      );
+
+      if (previousOpportunity) {
+        qc.setQueryData<OpportunityInfo>(['opportunity', id], {
+          ...previousOpportunity,
+          _count: {
+            ...previousOpportunity._count,
+            applications: Math.max(0, (previousOpportunity._count?.applications ?? 1) - 1),
+          },
+        });
+      }
+
+      return { previousMyApplications, previousOpportunity };
+    },
+    onError: (e: unknown, _variables: unknown, context) => {
+      if (context?.previousMyApplications) {
+        qc.setQueryData(['my-applications'], context.previousMyApplications);
+      }
+      if (context?.previousOpportunity) {
+        qc.setQueryData(['opportunity', id], context.previousOpportunity);
+      }
+      const axiosError = e as { response?: { data?: { error?: string } } };
+      toast({
+        title: 'Failed',
+        description: axiosError?.response?.data?.error ?? 'Could not withdraw. Try again.',
+        variant: 'destructive',
+      });
+    },
+    onSuccess: () => {
+      toast({ title: 'Withdrawn', description: 'Your application has been withdrawn.' });
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ['my-applications'] });
@@ -192,15 +242,32 @@ interface OpportunityInfo {
         {/* Apply button */}
         <div className="pt-2">
           {myApp ? (
-            <div
-              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
-              ${myApp.status === 'ACCEPTED' ? 'bg-brand-primary/10 text-brand-primary' : myApp.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}
-            >
-              {myApp.status === 'ACCEPTED'
-                ? '✓ Accepted'
-                : myApp.status === 'REJECTED'
-                  ? '✗ Rejected'
-                  : '⏳ Application Pending'}
+            <div className="space-y-2">
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
+                ${myApp.status === 'ACCEPTED' ? 'bg-brand-primary/10 text-brand-primary' : myApp.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}
+              >
+                {myApp.status === 'ACCEPTED'
+                  ? '✓ Accepted'
+                  : myApp.status === 'REJECTED'
+                    ? '✗ Rejected'
+                    : '⏳ Application Pending'}
+              </div>
+              {myApp.status === 'PENDING' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm('Withdraw your application?')) {
+                      haptic.error();
+                      withdraw.mutate(undefined);
+                    }
+                  }}
+                  disabled={withdraw.isPending}
+                  className="block text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {withdraw.isPending ? 'Withdrawing…' : 'Withdraw Application'}
+                </button>
+              )}
             </div>
           ) : isClosed ? (
             <span className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-muted text-muted-foreground">

@@ -18,11 +18,15 @@ export default function VolunteerLeaderboardPage() {
   const [timeframe, setTimeframe] = useState<Timeframe>('weekly');
   const [sortBy, setSortBy] = useState<SortBy>('points');
 
+  const locationId = (user as { locationId?: string | null })?.locationId;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['leaderboard', scope, timeframe, sortBy],
+    queryKey: ['leaderboard', scope, timeframe, sortBy, locationId],
     queryFn: () =>
       api
-        .get('/leaderboard', { params: { scope, timeframe, sortBy } })
+        .get('/leaderboard', {
+          params: { scope, timeframe, sortBy, ...(scope === 'location' && locationId ? { locationId } : {}) },
+        })
         .then((r) => r.data),
     staleTime: 30_000,
   });

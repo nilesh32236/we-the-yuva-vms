@@ -67,14 +67,20 @@ export default function EditOpportunityPage() {
     );
   }
 
+  const toDatetimeLocal = (iso: string) => {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   const defaultValues: Partial<OpportunityInput> = {
     title: opp.title,
     description: opp.description,
     skills: opp.skills,
     category: opp.category,
     locationId: opp.locationId ?? undefined,
-    startDate: new Date(opp.startDate).toISOString(),
-    endDate: new Date(opp.endDate).toISOString(),
+    startDate: toDatetimeLocal(opp.startDate),
+    endDate: toDatetimeLocal(opp.endDate),
     hoursPerSession: opp.hoursPerSession,
     totalSlots: opp.totalSlots,
     isRemote: opp.isRemote,

@@ -1,8 +1,8 @@
 'use client';
 
-import { ArrowRight, Check, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ASPIRATIONS } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
@@ -75,10 +75,31 @@ export default function YouthAssessmentPage() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  const [checking, setChecking] = useState(true);
   const [aspirations, setAspirations] = useState<string[]>([]);
   const [learningGoals, setLearningGoals] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
+
+  useEffect(() => {
+    api.get('/youth-profiles/me')
+      .then((res) => {
+        if (res.data?.initialCompletedAt) {
+          toast({ title: 'Assessment already completed' });
+          router.push('/volunteer/dashboard');
+        }
+      })
+      .catch(() => { /* no profile yet — first time */ })
+      .finally(() => setChecking(false));
+  }, [router, toast]);
+
+  if (checking) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-brand animate-spin" />
+      </div>
+    );
+  }
 
   const toggleAspiration = (v: string) =>
     setAspirations((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p));
