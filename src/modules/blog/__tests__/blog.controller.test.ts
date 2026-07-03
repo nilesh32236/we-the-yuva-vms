@@ -29,7 +29,7 @@ describe('blog.controller', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     req = {
-      body: {}, params: {}, query: {},
+      body: {}, params: { id: 'p1' }, query: {},
       user: { id: 'admin-1', role: 'ADMIN', permissions: [], organizationId: null },
     };
     res = {
@@ -49,6 +49,12 @@ describe('blog.controller', () => {
   it('listPublishedHandler should return 200', async () => {
     vi.mocked(svc.getPublishedPosts).mockResolvedValue({ data: [], total: 0, page: 1, limit: 20, totalPages: 0 } as never);
     await listPublishedHandler(req as Request, res as Response, next);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('getByIdHandler should return 200', async () => {
+    vi.mocked(svc.getPostById).mockResolvedValue({ id: 'p1' } as never);
+    await getByIdHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 

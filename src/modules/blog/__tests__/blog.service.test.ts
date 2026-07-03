@@ -102,6 +102,12 @@ describe('blog.service', () => {
     it('should throw 403 if not admin', async () => {
       await expect(archivePost('p1', 'u1', 'VOLUNTEER')).rejects.toThrow('Forbidden');
     });
+    it('should archive successfully', async () => {
+      vi.mocked(prisma.blogPost.findUnique).mockResolvedValue({ id: 'p1', status: 'PUBLISHED' } as never);
+      vi.mocked(prisma.blogPost.update).mockResolvedValue({ id: 'p1', status: 'ARCHIVED' } as never);
+      const result = await archivePost('p1', 'admin', 'ADMIN');
+      expect(result.status).toBe('ARCHIVED');
+    });
   });
 
   describe('deletePost', () => {
