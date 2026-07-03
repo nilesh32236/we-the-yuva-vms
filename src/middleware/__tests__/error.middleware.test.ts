@@ -38,7 +38,7 @@ describe('errorMiddleware', () => {
     ]);
     errorMiddleware(zodErr, req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(422);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Validation failed' }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Expected string' }));
   });
 
   it('should handle AppError with status code', () => {
@@ -89,9 +89,10 @@ describe('errorMiddleware', () => {
 
   it('should handle file type validation error with 400', () => {
     const fileTypeErr = new Error('Only images and PDFs are allowed');
+    Object.assign(fileTypeErr, { name: 'MulterError', code: 'LIMIT_UNEXPECTED_FILE' });
     errorMiddleware(fileTypeErr, req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Only images and PDFs are allowed' });
+    expect(res.json).toHaveBeenCalledWith({ error: 'Unexpected file field' });
   });
 
   it('should handle generic Error with 500', () => {

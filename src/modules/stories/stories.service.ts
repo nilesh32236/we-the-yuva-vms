@@ -55,7 +55,7 @@ export async function getPublishedStories(page = 1, limit = 20, userId?: string)
 
 export async function getStoryById(id: string) {
   const story = await prisma.story.findUnique({
-    where: { id },
+    where: { id, published: true },
     include: { user: { select: { name: true } } },
   });
   if (!story) throw new AppError('Story not found', 404);

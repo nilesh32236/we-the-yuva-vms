@@ -2,6 +2,7 @@ import type { OpportunityInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
 import { onApplicationAccepted } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
+import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -328,16 +329,40 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
 
   // Notify the opportunity creator (non-blocking)
   if (oppInfo?.createdById && oppInfo.createdById !== volunteerId) {
-    notificationsQueue
-      ?.add('send-push', {
-        userId: oppInfo.createdById,
-        title: 'New Application',
-        body: `A volunteer applied to "${oppInfo.title}"`,
-        data: { opportunityId, type: 'new_application' },
-      })
-      .catch((err) =>
-        logger.warn('Failed to enqueue application notification', { error: (err as Error).message })
-      );
+    const notify = async () => {
+      if (notificationsQueue) {
+        try {
+          await notificationsQueue.add('send-push', {
+            userId: oppInfo.createdById,
+            title: 'New Application',
+            body: `A volunteer applied to "${oppInfo.title}"`,
+            data: { opportunityId, type: 'new_application' },
+          });
+          return;
+        } catch (err) {
+          logger.warn('Failed to enqueue app notification, trying direct', {
+            error: (err as Error).message,
+          });
+        }
+      }
+
+      const creator = await prisma.user.findUnique({
+        where: { id: oppInfo.createdById },
+        select: { email: true },
+      });
+      if (creator?.email) {
+        await sendEmail(
+          creator.email,
+          'New Application',
+          `<h2>New Application</h2><p>A volunteer applied to "${oppInfo.title}".</p>`,
+          `A volunteer applied to "${oppInfo.title}".`
+        ).catch((err) =>
+          logger.warn('Failed to send direct notification email', { error: (err as Error).message })
+        );
+      }
+    };
+
+    notify();
   }
 
   return application;

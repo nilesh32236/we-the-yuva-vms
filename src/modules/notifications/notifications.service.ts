@@ -1,6 +1,7 @@
 import type { NotificationPreferenceType, NotificationType } from '@prisma/client';
 import webpush from 'web-push';
 import { env } from '../../config/env';
+import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
@@ -73,6 +74,33 @@ export async function sendPushToUser(
           logger.warn('Failed to clean up push subscription', { error: (err as Error).message })
         );
     }
+  }
+}
+
+export async function sendEmailToUser(
+  userId: string,
+  subject: string,
+  html: string,
+  text: string,
+  prefType?: NotificationPreferenceType
+) {
+  try {
+    if (prefType) {
+      const pref = await prisma.notificationPreference.findUnique({
+        where: { userId_type: { userId, type: prefType } },
+      });
+      if (pref && !pref.email) return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    if (!user?.email) return;
+
+    await sendEmail(user.email, subject, html, text);
+  } catch (err) {
+    logger.error('Failed to send email notification', { userId, error: (err as Error).message });
   }
 }
 

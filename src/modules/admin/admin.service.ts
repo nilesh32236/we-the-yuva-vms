@@ -1,5 +1,6 @@
 import type { User } from '@prisma/client';
 import { logAudit } from '../../lib/audit';
+import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -197,16 +198,35 @@ export async function updateUser(
       data: { revokedAt: new Date() },
     });
 
-    // Enqueue account-suspended notification
-    await notificationsQueue
-      ?.add('account-suspended', {
-        userId: id,
-        email: user.email,
-      })
-      .catch((err) =>
-        logger.warn('Failed to enqueue suspension notification', { error: (err as Error).message })
-      );
+    if (notificationsQueue) {
+      try {
+        await notificationsQueue.add('account-suspended', {
+          userId: id,
+          email: user.email,
+        });
+      } catch (err) {
+        logger.warn('Failed to enqueue suspension notification, trying direct', {
+          error: (err as Error).message,
+        });
+        if (user.email) await sendSuspensionEmailDirect(user.email);
+      }
+    } else {
+      if (user.email) await sendSuspensionEmailDirect(user.email);
+    }
   }
 
   return user;
+}
+
+async function sendSuspensionEmailDirect(email: string) {
+  try {
+    await sendEmail(
+      email,
+      'Your WeTheYuva account has been suspended',
+      '<h2>Account suspended</h2><p>Your WeTheYuva account has been suspended. You will not be able to log in until the suspension is lifted.</p><p>If you believe this is a mistake, please contact our support team.</p>',
+      'Your WeTheYuva account has been suspended. If you believe this is a mistake, please contact our support team.'
+    );
+  } catch (err) {
+    logger.warn('Failed to send suspension email directly', { error: (err as Error).message });
+  }
 }

@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
+import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -73,14 +74,31 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {
+  if (notificationsQueue) {
+    try {
+      await notificationsQueue.add(
+        'send-otp',
+        { email, otp },
+        { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
+      );
+      return;
+    } catch (err) {
+      logger.warn('Failed to enqueue OTP email, trying direct send', {
+        error: (err as Error).message,
+      });
+    }
+  }
+
+  // Fallback: send directly when queue is unavailable
   try {
-    await notificationsQueue?.add(
-      'send-otp',
-      { email, otp },
-      { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
+    await sendEmail(
+      email,
+      'Your WeTheYuva verification code',
+      `<h1>Your verification code</h1><p style="font-size:32px;letter-spacing:8px;font-weight:bold;">${otp}</p><p>This code expires in 5 minutes.</p>`,
+      `Your WeTheYuva verification code is: ${otp}\n\nThis code expires in 5 minutes.`
     );
   } catch (err) {
-    logger.warn('Failed to enqueue OTP email', { error: (err as Error).message });
+    logger.error('Failed to send OTP email directly', { error: (err as Error).message });
     throw new AppError('Failed to send OTP email. Please try again.', 500);
   }
 }

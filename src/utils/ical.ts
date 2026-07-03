@@ -18,7 +18,7 @@ function escapeIcalText(text: string): string {
 }
 
 export function generateIcs(event: IcalEventInput): string {
-  return [
+  return `${[
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//WeTheYuva VMS//EN',
@@ -33,5 +33,5 @@ export function generateIcs(event: IcalEventInput): string {
     `ORGANIZER;CN=${escapeIcalText(event.organizerName)}`,
     'END:VEVENT',
     'END:VCALENDAR',
-  ].join('\r\n') + '\r\n';
+  ].join('\r\n')}\r\n`;
 }

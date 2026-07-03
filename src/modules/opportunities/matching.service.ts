@@ -117,6 +117,6 @@ export async function getRecommendedOpportunities(volunteerId: string) {
     }));
   } catch (error) {
     logger.error('Matching failed', { error });
-    throw error;
+    return [];
   }
 }

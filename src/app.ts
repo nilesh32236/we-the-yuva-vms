@@ -86,6 +86,8 @@ export function createApp(): Express {
   // HTTP request logging
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
+
+
   // Health check — used by Railway
   app.get('/api/v1/health', async (_req, res) => {
     try {

@@ -127,7 +127,8 @@ export async function getEventQrCodeHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const qrData = await getOrCreateEventQrToken(req.params.id);
+    const force = req.query.force === 'true';
+    const qrData = await getOrCreateEventQrToken(req.params.id, force);
     res.status(200).json(qrData);
   } catch (err) {
     next(err);

@@ -4,6 +4,7 @@ import type { EventInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
 import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
+import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -63,17 +64,41 @@ export async function createEvent(
   });
 
   for (const { volunteerId } of acceptedApplications) {
-    notificationsQueue
-      ?.add('event-invitation', {
-        volunteerId,
-        eventId: event.id,
-        eventTitle: event.title,
-        eventDate: event.eventDate,
-        venue: event.venue ?? event.meetingLink,
-      })
-      .catch((err) =>
-        logger.warn('Failed to enqueue event invitation', { error: (err as Error).message })
-      );
+    const send = async () => {
+      if (notificationsQueue) {
+        try {
+          await notificationsQueue.add('event-invitation', {
+            volunteerId,
+            eventId: event.id,
+            eventTitle: event.title,
+            eventDate: event.eventDate,
+            venue: event.venue ?? event.meetingLink,
+          });
+          return;
+        } catch (err) {
+          logger.warn('Failed to enqueue event invitation, trying direct', {
+            error: (err as Error).message,
+          });
+        }
+      }
+
+      const volunteer = await prisma.user.findUnique({
+        where: { id: volunteerId },
+        select: { email: true },
+      });
+      if (volunteer?.email) {
+        await sendEmail(
+          volunteer.email,
+          `You're invited — ${event.title}`,
+          `<h2>You're invited!</h2><p>You have been invited to <strong>${event.title}</strong>.</p><p><strong>Date:</strong> ${event.eventDate.toISOString()}${event.venue ? `<br><strong>Venue:</strong> ${event.venue}` : ''}</p>`,
+          `You're invited to "${event.title}" on ${event.eventDate.toISOString()}${event.venue ? ` at ${event.venue}` : ''}.`
+        ).catch((err) =>
+          logger.warn('Failed to send direct event invitation', { error: (err as Error).message })
+        );
+      }
+    };
+
+    send();
   }
 
   return event;
@@ -542,7 +567,10 @@ function generateQrToken(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
-export async function getOrCreateEventQrToken(eventId: string): Promise<{
+export async function getOrCreateEventQrToken(
+  eventId: string,
+  force = false
+): Promise<{
   token: string;
   expiresAt: Date | null;
   eventDate: Date;
@@ -552,7 +580,7 @@ export async function getOrCreateEventQrToken(eventId: string): Promise<{
 
   if (!event) throw new AppError('Event not found', 404);
 
-  if (event.qrToken) {
+  if (event.qrToken && !force) {
     return {
       token: event.qrToken,
       expiresAt: event.qrExpiresAt,
@@ -563,6 +591,19 @@ export async function getOrCreateEventQrToken(eventId: string): Promise<{
 
   const qrExpiresAt = new Date(event.eventDate.getTime() + 24 * 60 * 60 * 1000);
   const token = generateQrToken();
+
+  if (force) {
+    await prisma.event.update({
+      where: { id: eventId },
+      data: { qrToken: token, qrExpiresAt },
+    });
+    return {
+      token,
+      expiresAt: qrExpiresAt,
+      eventDate: event.eventDate,
+      eventTitle: event.title,
+    };
+  }
 
   // Atomic: only succeeds if qrToken is still null (race-condition-safe)
   const { count } = await prisma.event.updateMany({

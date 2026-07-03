@@ -13,10 +13,6 @@ vi.mock('bcryptjs', () => ({
   compare: vi.fn(),
 }));
 
-vi.mock('@/lib/redis', () => ({
-  redis: { incr: vi.fn(), expire: vi.fn(), get: vi.fn(), del: vi.fn() },
-}));
-
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     otpRecord: { updateMany: vi.fn(), create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
@@ -30,7 +26,6 @@ vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
 
-const { redis } = await import('@/lib/redis');
 const { prisma } = await import('@/lib/prisma');
 const { notificationsQueue } = await import('@/lib/queue');
 
@@ -42,9 +37,6 @@ const {
   revokeRefreshToken,
   checkOtpRateLimit,
   generateAndStoreOtp,
-  checkOtpFailedAttempts,
-  incrementOtpFailedAttempts,
-  resetOtpFailedAttempts,
   verifyOtp,
   enqueueOtpEmail,
 } = await import('../auth.service');
@@ -214,15 +206,8 @@ describe('auth.service (OTP functions)', () => {
   });
 
   describe('checkOtpRateLimit', () => {
-    it('should set expiry on first request', async () => {
-      vi.mocked(redis.incr).mockResolvedValue(1);
-      await checkOtpRateLimit('test@test.com');
-      expect(redis.expire).toHaveBeenCalledWith('otp:ratelimit:test@test.com', 60);
-    });
-
-    it('should throw 429 when rate limit exceeded', async () => {
-      vi.mocked(redis.incr).mockResolvedValue(25);
-      await expect(checkOtpRateLimit('test@test.com')).rejects.toThrow('Too many OTP requests');
+    it('should be a no-op and resolve successfully', async () => {
+      await expect(checkOtpRateLimit('test@test.com')).resolves.toBeUndefined();
     });
   });
 
@@ -244,55 +229,17 @@ describe('auth.service (OTP functions)', () => {
     });
   });
 
-  describe('checkOtpFailedAttempts', () => {
-    it('should throw 429 when failed attempts threshold exceeded', async () => {
-      vi.mocked(redis.get).mockResolvedValue('5');
-      await expect(checkOtpFailedAttempts('test@test.com')).rejects.toThrow(
-        'Too many failed attempts'
-      );
-    });
-
-    it('should pass when under threshold', async () => {
-      vi.mocked(redis.get).mockResolvedValue('2');
-      await expect(checkOtpFailedAttempts('test@test.com')).resolves.toBeUndefined();
-    });
-  });
-
-  describe('incrementOtpFailedAttempts', () => {
-    it('should set expiry on first increment', async () => {
-      vi.mocked(redis.incr).mockResolvedValue(1);
-      await incrementOtpFailedAttempts('test@test.com');
-      expect(redis.expire).toHaveBeenCalledWith('otp:failed:test@test.com', 900);
-    });
-
-    it('should increment count', async () => {
-      vi.mocked(redis.incr).mockResolvedValue(3);
-      await incrementOtpFailedAttempts('test@test.com');
-      expect(redis.incr).toHaveBeenCalledWith('otp:failed:test@test.com');
-    });
-  });
-
-  describe('resetOtpFailedAttempts', () => {
-    it('should delete fail count from redis', async () => {
-      await resetOtpFailedAttempts('test@test.com');
-      expect(redis.del).toHaveBeenCalledWith('otp:failed:test@test.com');
-    });
-  });
-
   describe('verifyOtp', () => {
-    it('should bypass with 000000 and reset failed attempts', async () => {
-      await verifyOtp('test@test.com', '000000');
-      expect(redis.del).toHaveBeenCalledWith('otp:failed:test@test.com');
+    it('should bypass with 000000', async () => {
+      await expect(verifyOtp('test@test.com', '000000')).resolves.toBeUndefined();
     });
 
     it('should throw 400 when no valid OTP record found', async () => {
-      vi.mocked(redis.get).mockResolvedValue(null);
       vi.mocked(prisma.otpRecord.findFirst).mockResolvedValue(null);
       await expect(verifyOtp('test@test.com', '123456')).rejects.toThrow('Invalid or expired OTP');
     });
 
     it('should throw 400 when OTP hash does not match', async () => {
-      vi.mocked(redis.get).mockResolvedValue(null);
       vi.mocked(prisma.otpRecord.findFirst).mockResolvedValue({
         id: '1',
         otpHash: 'hashed-otp',
@@ -307,8 +254,7 @@ describe('auth.service (OTP functions)', () => {
       );
     });
 
-    it('should verify successfully and reset failed attempts', async () => {
-      vi.mocked(redis.get).mockResolvedValue(null);
+    it('should verify successfully and mark OTP as used', async () => {
       vi.mocked(prisma.otpRecord.findFirst).mockResolvedValue({
         id: '1',
         otpHash: 'hashed-otp',
@@ -323,7 +269,6 @@ describe('auth.service (OTP functions)', () => {
       expect(prisma.otpRecord.update).toHaveBeenCalledWith(
         expect.objectContaining({ data: { used: true } })
       );
-      expect(redis.del).toHaveBeenCalledWith('otp:failed:test@test.com');
     });
   });
 

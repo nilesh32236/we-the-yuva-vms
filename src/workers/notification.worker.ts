@@ -1,8 +1,7 @@
 import { type Job, Worker } from 'bullmq';
 import type { NotificationPreferenceType } from '@prisma/client';
-import nodemailer from 'nodemailer';
-import { Resend } from 'resend';
 import webpush from 'web-push';
+import { sendEmail } from '../lib/email';
 import { env } from '../config/env';
 import { logger } from '../lib/logger';
 import { prisma } from '../lib/prisma';
@@ -71,40 +70,6 @@ async function sendPushToUser(
     }
   } catch (err) {
     logger.error('Failed to send push notification', { userId, error: (err as Error).message });
-  }
-}
-
-// Use Resend SDK if API key is set (production), otherwise fall back to SMTP (local dev)
-const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
-
-const smtpTransporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_PORT === 465,
-  auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-  connectionTimeout: 10000,
-  socketTimeout: 15000,
-  greetingTimeout: 10000,
-});
-
-async function sendEmail(to: string, subject: string, html: string, text: string) {
-  if (resend) {
-    const { error } = await resend.emails.send({
-      from: env.SMTP_FROM,
-      to,
-      subject,
-      html,
-      text,
-    });
-    if (error) throw new Error(error.message);
-  } else {
-    await smtpTransporter.sendMail({
-      from: `"WeTheYuva VMS" <${env.SMTP_FROM}>`,
-      to,
-      subject,
-      html,
-      text,
-    });
   }
 }
 

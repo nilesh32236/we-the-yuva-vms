@@ -35,12 +35,15 @@ async function main() {
         'file:upload',
         'youth:profile:manage',
         'youth:profile:view',
+        'chat:read',
+        'chat:send',
       ],
     },
     {
       name: 'COORDINATOR',
       description: 'Manages opportunities, events, and volunteers for an organization',
       permissions: [
+        'opportunity:view',
         'opportunity:create',
         'opportunity:edit',
         'opportunity:manage',
@@ -74,6 +77,7 @@ async function main() {
         'coordinator:manage',
         'org:manage',
         'org:verify',
+        'opportunity:view',
         'opportunity:create',
         'opportunity:edit',
         'opportunity:manage',

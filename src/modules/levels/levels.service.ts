@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
@@ -118,9 +119,9 @@ export async function createLevelRequest(
       status: isAutoApproved ? 'AUTO_APPROVED' : 'PENDING',
       proofUrls: data.proofUrls ?? [],
       videoUrl: data.videoUrl,
-      proofData: data.proofData as any,
+      proofData: data.proofData as Prisma.InputJsonValue,
       notes: data.notes,
-      peerEndorsements: data.peerEndorsements as any,
+      peerEndorsements: data.peerEndorsements as Prisma.InputJsonValue,
       approvedAt: isAutoApproved ? new Date() : null,
     },
     include: { level: true },
