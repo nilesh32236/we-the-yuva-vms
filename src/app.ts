@@ -29,6 +29,7 @@ import { usersRouter } from './modules/users/users.routes';
 import { levelsRouter } from './modules/levels/levels.routes';
 import { leaderboardRouter } from './modules/leaderboard/leaderboard.routes';
 import { badgesRouter } from './modules/badges/badges.routes';
+import { blogRouter } from './modules/blog/blog.routes';
 import { mentorshipRouter } from './modules/mentorship/mentorship.routes';
 import { certificatesRouter } from './modules/certificates/certificates.routes';
 import { chatRouter } from './modules/chat/chat.routes';
@@ -118,6 +119,7 @@ export function createApp(): Express {
   app.use('/api/v1/training', trainingRouter);
   app.use('/api/v1/notifications', notificationsRouter);
   app.use('/api/v1/stories', storiesRouter);
+  app.use('/api/v1/blog', blogRouter);
   app.use('/api/v1/feedback', feedbackRouter);
   app.use('/api/v1/locations', locationsRouter);
   app.use('/api/v1/alerts', alertsRouter);
