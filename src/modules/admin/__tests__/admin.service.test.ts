@@ -109,7 +109,9 @@ describe('admin.service', () => {
       vi.mocked(prisma.user.count).mockResolvedValue(0);
       await listUsers({ role: 'COORDINATOR' }, { page: 1, limit: 20 });
       expect(prisma.user.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: expect.objectContaining({ roleRef: { name: 'COORDINATOR' } }) })
+        expect.objectContaining({
+          where: expect.objectContaining({ roleRef: { name: 'COORDINATOR' } }),
+        })
       );
     });
 
@@ -140,7 +142,9 @@ describe('admin.service', () => {
 
     it('should throw 400 on invalid role', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
-        id: 'user-1', roleId: 'role-id', status: 'ACTIVE',
+        id: 'user-1',
+        roleId: 'role-id',
+        status: 'ACTIVE',
       } as never);
       vi.mocked(prisma.role.findUnique).mockResolvedValue(null);
       await expect(updateUser('user-1', { role: 'FAKE' })).rejects.toThrow('Invalid role');
@@ -148,32 +152,39 @@ describe('admin.service', () => {
 
     it('should update user status and log USER_UPDATE audit', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
-        id: 'user-1', roleId: 'role-id', status: 'ACTIVE',
+        id: 'user-1',
+        roleId: 'role-id',
+        status: 'ACTIVE',
       } as never);
       vi.mocked(prisma.role.findUnique).mockResolvedValue({
-        id: 'role-id', name: 'VOLUNTEER',
+        id: 'role-id',
+        name: 'VOLUNTEER',
       } as never);
       vi.mocked(prisma.user.update).mockResolvedValue({
-        id: 'user-1', status: 'INACTIVE', roleId: 'role-id',
+        id: 'user-1',
+        status: 'INACTIVE',
+        roleId: 'role-id',
       } as never);
 
       const result = await updateUser('user-1', { status: 'INACTIVE' }, 'admin-1');
       expect(result.status).toBe('INACTIVE');
-      expect(logAudit).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'USER_UPDATE' })
-      );
+      expect(logAudit).toHaveBeenCalledWith(expect.objectContaining({ action: 'USER_UPDATE' }));
     });
 
     it('should update role and log USER_CHANGE_ROLE audit', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
-        id: 'user-1', roleId: 'old-role-id', status: 'ACTIVE',
+        id: 'user-1',
+        roleId: 'old-role-id',
+        status: 'ACTIVE',
       } as never);
       // First call: lookup new role by name (COORDINATOR), second: lookup existing role by id
       vi.mocked(prisma.role.findUnique)
         .mockResolvedValueOnce({ id: 'new-role-id', name: 'COORDINATOR' } as never)
         .mockResolvedValueOnce({ id: 'old-role-id', name: 'VOLUNTEER' } as never);
       vi.mocked(prisma.user.update).mockResolvedValue({
-        id: 'user-1', roleId: 'new-role-id', status: 'ACTIVE',
+        id: 'user-1',
+        roleId: 'new-role-id',
+        status: 'ACTIVE',
       } as never);
 
       const result = await updateUser('user-1', { role: 'COORDINATOR' }, 'admin-1');
@@ -185,13 +196,20 @@ describe('admin.service', () => {
 
     it('should revoke tokens and enqueue notification on SUSPENDED', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
-        id: 'user-1', roleId: 'role-id', status: 'ACTIVE', email: 'u@t.com',
+        id: 'user-1',
+        roleId: 'role-id',
+        status: 'ACTIVE',
+        email: 'u@t.com',
       } as never);
       vi.mocked(prisma.role.findUnique).mockResolvedValue({
-        id: 'role-id', name: 'VOLUNTEER',
+        id: 'role-id',
+        name: 'VOLUNTEER',
       } as never);
       vi.mocked(prisma.user.update).mockResolvedValue({
-        id: 'user-1', status: 'SUSPENDED', roleId: 'role-id', email: 'u@t.com',
+        id: 'user-1',
+        status: 'SUSPENDED',
+        roleId: 'role-id',
+        email: 'u@t.com',
       } as never);
       vi.mocked(prisma.refreshToken.updateMany).mockResolvedValue({ count: 1 });
       vi.mocked(notificationsQueue.add).mockResolvedValue({ id: 'job-1' } as never);
@@ -199,12 +217,10 @@ describe('admin.service', () => {
       const result = await updateUser('user-1', { status: 'SUSPENDED' }, 'admin-1');
       expect(result.status).toBe('SUSPENDED');
       expect(prisma.refreshToken.updateMany).toHaveBeenCalled();
-      expect(logAudit).toHaveBeenCalledWith(
-        expect.objectContaining({ action: 'USER_SUSPEND' })
-      );
+      expect(logAudit).toHaveBeenCalledWith(expect.objectContaining({ action: 'USER_SUSPEND' }));
       expect(notificationsQueue.add).toHaveBeenCalledWith(
         'account-suspended',
-        expect.objectContaining({ userId: 'user-1' }),
+        expect.objectContaining({ userId: 'user-1' })
       );
     });
   });

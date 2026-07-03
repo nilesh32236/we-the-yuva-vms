@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  AlertSubscriptionSchema,
-  AlertSubscriptionUpdateSchema,
-} from '../schemas/alerts.schemas';
+import { AlertSubscriptionSchema, AlertSubscriptionUpdateSchema } from '../schemas/alerts.schemas';
 
 describe('alerts.schemas', () => {
   describe('AlertSubscriptionSchema', () => {

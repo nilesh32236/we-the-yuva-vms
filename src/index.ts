@@ -52,11 +52,7 @@ async function main() {
       {},
       { repeat: { pattern: '0 0 * * *' } }
     );
-    await notificationsQueue?.add(
-      'daily-streak-update',
-      {},
-      { repeat: { pattern: '0 2 * * *' } }
-    );
+    await notificationsQueue?.add('daily-streak-update', {}, { repeat: { pattern: '0 2 * * *' } });
     await notificationsQueue?.add(
       'cleanup-pending-users',
       {},

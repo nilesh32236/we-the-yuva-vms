@@ -10,11 +10,18 @@ export interface IcalEventInput {
 }
 
 function formatIcalDate(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  return date
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
 }
 
 function escapeIcalText(text: string): string {
-  return text.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
 }
 
 export function generateIcs(event: IcalEventInput): string {

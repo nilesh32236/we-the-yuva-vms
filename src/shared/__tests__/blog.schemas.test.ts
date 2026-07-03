@@ -4,7 +4,9 @@ import { CreateBlogPostSchema, UpdateBlogPostSchema } from '../schemas/blog.sche
 describe('CreateBlogPostSchema', () => {
   it('should accept valid input', () => {
     const result = CreateBlogPostSchema.safeParse({
-      title: 'My Post', content: 'Hello world', tags: ['tech'],
+      title: 'My Post',
+      content: 'Hello world',
+      tags: ['tech'],
     });
     expect(result.success).toBe(true);
   });

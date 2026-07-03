@@ -66,7 +66,8 @@ export async function reviewMentorshipRequest(
 ) {
   const mentorship = await prisma.mentorship.findUnique({ where: { id: requestId } });
   if (!mentorship) throw new AppError('Mentorship request not found', 404);
-  if (mentorship.mentorId !== mentorId) throw new AppError('Not authorized to review this request', 403);
+  if (mentorship.mentorId !== mentorId)
+    throw new AppError('Not authorized to review this request', 403);
   if (mentorship.status !== 'PENDING') throw new AppError('Request is not pending', 400);
 
   const result = await prisma.mentorship.update({
@@ -135,7 +136,8 @@ export async function completeMentorship(requestId: string, userId: string) {
 export async function cancelMentorshipRequest(requestId: string, userId: string) {
   const mentorship = await prisma.mentorship.findUnique({ where: { id: requestId } });
   if (!mentorship) throw new AppError('Mentorship request not found', 404);
-  if (mentorship.menteeId !== userId) throw new AppError('Only the mentee can cancel a request', 403);
+  if (mentorship.menteeId !== userId)
+    throw new AppError('Only the mentee can cancel a request', 403);
   if (mentorship.status !== 'PENDING') throw new AppError('Can only cancel pending requests', 400);
 
   await prisma.mentorship.delete({ where: { id: requestId } });

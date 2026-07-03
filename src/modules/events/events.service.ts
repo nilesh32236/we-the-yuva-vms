@@ -236,9 +236,7 @@ export async function getIcalEvent(eventId: string): Promise<string> {
     endDate.setTime(startDate.getTime() + 3_600_000);
   }
 
-  const location = event.isVirtual
-    ? `Online: ${event.meetingLink ?? ''}`
-    : (event.venue ?? '');
+  const location = event.isVirtual ? `Online: ${event.meetingLink ?? ''}` : (event.venue ?? '');
 
   return generateIcs({
     uid: event.id,
@@ -522,7 +520,10 @@ export async function approveAttendance(
 
   const isSysAdmin = hasSystemRole(coordinatorRole);
   const isOwner = event.opportunity.createdById === coordinatorId;
-  const isSameOrg = event.opportunity.organizationId && coordinatorOrgId && event.opportunity.organizationId === coordinatorOrgId;
+  const isSameOrg =
+    event.opportunity.organizationId &&
+    coordinatorOrgId &&
+    event.opportunity.organizationId === coordinatorOrgId;
   if (!isSysAdmin && !isOwner && !isSameOrg) throw new AppError('Forbidden', 403);
 
   const attendance = await prisma.attendance.findUnique({
@@ -533,7 +534,13 @@ export async function approveAttendance(
   if (attendance.approvedAt) throw new AppError('Hours already approved', 400);
 
   const rawHours = attendance.checkedOutAt
-    ? Math.min(Math.max(0, (attendance.checkedOutAt.getTime() - attendance.checkedInAt.getTime()) / 3_600_000), 16)
+    ? Math.min(
+        Math.max(
+          0,
+          (attendance.checkedOutAt.getTime() - attendance.checkedInAt.getTime()) / 3_600_000
+        ),
+        16
+      )
     : 0;
 
   const result = await prisma.$transaction(async (tx) => {

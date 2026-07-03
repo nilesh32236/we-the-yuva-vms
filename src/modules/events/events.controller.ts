@@ -182,7 +182,11 @@ export async function getAttendanceListHandler(
   }
 }
 
-export async function approveAttendanceHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function approveAttendanceHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
     const { approvedHours, rating } = req.body;
     const record = await approveAttendance(
@@ -194,7 +198,9 @@ export async function approveAttendanceHandler(req: Request, res: Response, next
       { approvedHours: Number(approvedHours), rating: Number(rating) }
     );
     res.status(200).json(record);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 }
 
 // ─── Volunteer "My Events" Handler ───────────────────────────────

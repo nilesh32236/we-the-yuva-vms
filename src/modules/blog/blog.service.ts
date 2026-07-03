@@ -14,15 +14,27 @@ async function generateUniqueSlug(title: string): Promise<string> {
   return slug;
 }
 
-export async function createPost(authorId: string, data: {
-  title: string; excerpt?: string; content: string;
-  featuredImage?: string; tags?: string[]; category?: string;
-}) {
+export async function createPost(
+  authorId: string,
+  data: {
+    title: string;
+    excerpt?: string;
+    content: string;
+    featuredImage?: string;
+    tags?: string[];
+    category?: string;
+  }
+) {
   const slug = await generateUniqueSlug(data.title);
   const post = await prisma.blogPost.create({
     data: { ...data, slug, authorId, tags: data.tags ?? [] },
   });
-  await logAudit({ userId: authorId, action: 'BLOG_CREATE', targetId: post.id, targetType: 'BlogPost' });
+  await logAudit({
+    userId: authorId,
+    action: 'BLOG_CREATE',
+    targetId: post.id,
+    targetType: 'BlogPost',
+  });
   return post;
 }
 
@@ -60,10 +72,17 @@ export async function getPostById(id: string) {
 }
 
 export async function updatePost(
-  id: string, userId: string, data: {
-    title?: string; excerpt?: string; content?: string;
-    featuredImage?: string; tags?: string[]; category?: string;
-  }, callerRole: string
+  id: string,
+  userId: string,
+  data: {
+    title?: string;
+    excerpt?: string;
+    content?: string;
+    featuredImage?: string;
+    tags?: string[];
+    category?: string;
+  },
+  callerRole: string
 ) {
   const post = await prisma.blogPost.findUnique({ where: { id } });
   if (!post) throw new AppError('Post not found', 404);

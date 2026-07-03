@@ -137,9 +137,11 @@ describe('organizations.service', () => {
 
     it('should update organization successfully', async () => {
       vi.mocked(prisma.organization.findUnique).mockResolvedValue({ id: 'org-1' } as never);
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(
-        { id: 'user-1', organizationId: 'org-1', roleRef: { name: 'ORGANIZATION_ADMIN' } } as never
-      );
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: 'user-1',
+        organizationId: 'org-1',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.organization.update).mockResolvedValue({
         id: 'org-1',
         name: 'Updated Name',

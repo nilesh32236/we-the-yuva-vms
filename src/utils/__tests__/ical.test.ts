@@ -50,13 +50,12 @@ describe('generateIcs', () => {
       title: 'T',
       description: '',
       location: '',
-      startDate: new Date('2026-12-25T14:30:00+05:30'),  // 09:00 UTC
-      endDate: new Date('2026-12-25T16:30:00+05:30'),     // 11:00 UTC
+      startDate: new Date('2026-12-25T14:30:00+05:30'), // 09:00 UTC
+      endDate: new Date('2026-12-25T16:30:00+05:30'), // 11:00 UTC
       organizerName: 'O',
     });
 
     expect(ics).toContain('DTSTART:20261225T090000Z');
     expect(ics).toContain('DTEND:20261225T110000Z');
   });
-
 });

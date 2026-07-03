@@ -24,15 +24,18 @@ export const OpportunitySchema = z
       .min(1, 'Please add at least one skill')
       .max(10, 'Maximum 10 skills allowed'),
     category: z.enum(OPPORTUNITY_CATEGORIES),
-    locationId: z.preprocess(
-      (v) => (v === '' ? undefined : v),
-      z.string().optional()
-    ),
+    locationId: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
     // TODO: relax for UPDATE operations (existing records have past dates)
-    startDate: z.string().datetime().refine((val) => {
-      const date = new Date(val);
-      return date > new Date();
-    }, { message: 'Start date must be in the future' }),
+    startDate: z
+      .string()
+      .datetime()
+      .refine(
+        (val) => {
+          const date = new Date(val);
+          return date > new Date();
+        },
+        { message: 'Start date must be in the future' }
+      ),
     endDate: z.string().datetime(),
     hoursPerSession: z.number().positive('Hours per session must be positive'),
     totalSlots: z.number().int().positive('Total slots must be a positive integer'),

@@ -15,7 +15,9 @@ export const OrganizationDocumentSchema = z.object({
   fileName: z.string().min(1, 'File name is required'),
   fileUrl: z.string().min(1, 'File URL is required'),
   type: z.enum(['REGISTRATION_CERTIFICATE', 'GOVT_ID', 'OTHER'], {
-    errorMap: () => ({ message: 'Document type must be REGISTRATION_CERTIFICATE, GOVT_ID, or OTHER' }),
+    errorMap: () => ({
+      message: 'Document type must be REGISTRATION_CERTIFICATE, GOVT_ID, or OTHER',
+    }),
   }),
 });
 

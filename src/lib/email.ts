@@ -12,7 +12,9 @@ if (provider === 'resend') {
   if (env.RESEND_API_KEY) {
     resend = new Resend(env.RESEND_API_KEY);
   } else {
-    logger.warn('EMAIL_PROVIDER is "resend" but RESEND_API_KEY is not set — email sending disabled');
+    logger.warn(
+      'EMAIL_PROVIDER is "resend" but RESEND_API_KEY is not set — email sending disabled'
+    );
   }
 } else {
   if (env.SMTP_HOST && env.SMTP_USER) {

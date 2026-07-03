@@ -1,31 +1,48 @@
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 
-function haversineDistance(
-  lat1: number, lng1: number,
-  lat2: number, lng2: number
-): number {
+function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
 function computeLocationScore(
-  volunteerLocation: { lat: number | null; lng: number | null; district: string | null; state: string | null; name: string } | null,
-  oppLocation: { lat: number | null; lng: number | null; district: string | null; state: string | null; name: string } | null
+  volunteerLocation: {
+    lat: number | null;
+    lng: number | null;
+    district: string | null;
+    state: string | null;
+    name: string;
+  } | null,
+  oppLocation: {
+    lat: number | null;
+    lng: number | null;
+    district: string | null;
+    state: string | null;
+    name: string;
+  } | null
 ): number {
   if (!volunteerLocation || !oppLocation) return 0;
 
   // Precise geo match (both have lat/lng)
-  if (volunteerLocation.lat != null && volunteerLocation.lng != null && oppLocation.lat != null && oppLocation.lng != null) {
-    const distance = haversineDistance(volunteerLocation.lat, volunteerLocation.lng, oppLocation.lat, oppLocation.lng);
+  if (
+    volunteerLocation.lat != null &&
+    volunteerLocation.lng != null &&
+    oppLocation.lat != null &&
+    oppLocation.lng != null
+  ) {
+    const distance = haversineDistance(
+      volunteerLocation.lat,
+      volunteerLocation.lng,
+      oppLocation.lat,
+      oppLocation.lng
+    );
     if (distance <= 5) return 25;
     if (distance <= 10) return 20;
     if (distance <= 25) return 15;
@@ -35,9 +52,15 @@ function computeLocationScore(
   }
 
   // Fallback: same district or same city name
-  if (volunteerLocation.district && oppLocation.district && volunteerLocation.district === oppLocation.district) return 15;
+  if (
+    volunteerLocation.district &&
+    oppLocation.district &&
+    volunteerLocation.district === oppLocation.district
+  )
+    return 15;
   if (volunteerLocation.name.toLowerCase() === oppLocation.name.toLowerCase()) return 15;
-  if (volunteerLocation.state && oppLocation.state && volunteerLocation.state === oppLocation.state) return 5;
+  if (volunteerLocation.state && oppLocation.state && volunteerLocation.state === oppLocation.state)
+    return 5;
 
   return 0;
 }
@@ -81,7 +104,10 @@ export async function getRecommendedOpportunities(volunteerId: string) {
           return locB - locA || b.createdAt.getTime() - a.createdAt.getTime();
         })
         .slice(0, 10)
-        .map((o) => ({ ...o, matchScore: Math.round(computeLocationScore(volunteerLocation, o.location)) }));
+        .map((o) => ({
+          ...o,
+          matchScore: Math.round(computeLocationScore(volunteerLocation, o.location)),
+        }));
     }
 
     // 5. Score each opportunity with new weighting
@@ -93,13 +119,13 @@ export async function getRecommendedOpportunities(volunteerId: string) {
 
       const interestMatch = profile.interests.some(
         (i) => i.toLowerCase() === o.category.toLowerCase()
-      ) ? 1 : 0;
+      )
+        ? 1
+        : 0;
 
       const locationScore = computeLocationScore(volunteerLocation, o.location);
 
-      const score = Math.round(
-        skillOverlap * 40 + interestMatch * 20 + locationScore
-      );
+      const score = Math.round(skillOverlap * 40 + interestMatch * 20 + locationScore);
 
       return { ...o, matchScore: score };
     });

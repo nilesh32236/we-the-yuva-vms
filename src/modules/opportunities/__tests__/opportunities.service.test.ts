@@ -100,7 +100,11 @@ describe('opportunities.service', () => {
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: unknown) => Promise<unknown>) => {
           const tx = {
-            opportunity: { findUnique: vi.fn().mockResolvedValue({ id: 'opp-1', status: 'CLOSED', totalSlots: 5 }) },
+            opportunity: {
+              findUnique: vi
+                .fn()
+                .mockResolvedValue({ id: 'opp-1', status: 'CLOSED', totalSlots: 5 }),
+            },
           };
           return cb(tx);
         }
@@ -114,7 +118,11 @@ describe('opportunities.service', () => {
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: unknown) => Promise<unknown>) => {
           const tx = {
-            opportunity: { findUnique: vi.fn().mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 2 }) },
+            opportunity: {
+              findUnique: vi
+                .fn()
+                .mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 2 }),
+            },
             application: { count: vi.fn().mockResolvedValue(2) },
           };
           return cb(tx);
@@ -127,8 +135,15 @@ describe('opportunities.service', () => {
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: unknown) => Promise<unknown>) => {
           const tx = {
-            opportunity: { findUnique: vi.fn().mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 5 }) },
-            application: { count: vi.fn().mockResolvedValue(1), create: vi.fn().mockRejectedValue({ code: 'P2002' }) },
+            opportunity: {
+              findUnique: vi
+                .fn()
+                .mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 5 }),
+            },
+            application: {
+              count: vi.fn().mockResolvedValue(1),
+              create: vi.fn().mockRejectedValue({ code: 'P2002' }),
+            },
           };
           return cb(tx);
         }
@@ -140,8 +155,15 @@ describe('opportunities.service', () => {
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: unknown) => Promise<unknown>) => {
           const tx = {
-            opportunity: { findUnique: vi.fn().mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 5 }) },
-            application: { count: vi.fn().mockResolvedValue(1), create: vi.fn().mockResolvedValue({ id: 'app-1', status: 'PENDING' }) },
+            opportunity: {
+              findUnique: vi
+                .fn()
+                .mockResolvedValue({ id: 'opp-1', status: 'ACTIVE', totalSlots: 5 }),
+            },
+            application: {
+              count: vi.fn().mockResolvedValue(1),
+              create: vi.fn().mockResolvedValue({ id: 'app-1', status: 'PENDING' }),
+            },
           };
           return cb(tx);
         }
@@ -189,7 +211,9 @@ describe('opportunities.service', () => {
       vi.mocked(prisma.opportunity.count).mockResolvedValue(0);
       await listOpportunities({ skills: ['Teaching'] }, pagination);
       expect(prisma.opportunity.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: expect.objectContaining({ skills: { hasSome: ['Teaching'] } }) })
+        expect.objectContaining({
+          where: expect.objectContaining({ skills: { hasSome: ['Teaching'] } }),
+        })
       );
     });
 
@@ -219,7 +243,9 @@ describe('opportunities.service', () => {
       vi.mocked(prisma.opportunity.count).mockResolvedValue(0);
       await listOpportunities({ search: 'teach' }, pagination);
       expect(prisma.opportunity.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: expect.objectContaining({ title: { contains: 'teach', mode: 'insensitive' } }) })
+        expect.objectContaining({
+          where: expect.objectContaining({ title: { contains: 'teach', mode: 'insensitive' } }),
+        })
       );
     });
 
@@ -423,7 +449,12 @@ describe('opportunities.service', () => {
         volunteerId: 'v-1',
         status: 'PENDING',
         opportunityId: 'opp-1',
-        opportunity: { title: 'Test Opp', createdById: 'user-1', organizationId: 'org-1', totalSlots: 5 },
+        opportunity: {
+          title: 'Test Opp',
+          createdById: 'user-1',
+          organizationId: 'org-1',
+          totalSlots: 5,
+        },
       } as never);
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: unknown) => Promise<unknown>) => {
@@ -436,7 +467,13 @@ describe('opportunities.service', () => {
           return cb(tx);
         }
       );
-      const result = await updateApplicationStatus('app-1', 'ACCEPTED', 'user-1', 'COORDINATOR', 'org-1');
+      const result = await updateApplicationStatus(
+        'app-1',
+        'ACCEPTED',
+        'user-1',
+        'COORDINATOR',
+        'org-1'
+      );
       expect(result.status).toBe('ACCEPTED');
     });
 
@@ -446,7 +483,12 @@ describe('opportunities.service', () => {
         volunteerId: 'v-1',
         status: 'PENDING',
         opportunityId: 'opp-1',
-        opportunity: { title: 'Test Opp', createdById: 'user-1', organizationId: 'org-1', totalSlots: 5 },
+        opportunity: {
+          title: 'Test Opp',
+          createdById: 'user-1',
+          organizationId: 'org-1',
+          totalSlots: 5,
+        },
       } as never);
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: unknown) => Promise<unknown>) => {
@@ -458,7 +500,13 @@ describe('opportunities.service', () => {
           return cb(tx);
         }
       );
-      const result = await updateApplicationStatus('app-1', 'REJECTED', 'user-1', 'COORDINATOR', 'org-1');
+      const result = await updateApplicationStatus(
+        'app-1',
+        'REJECTED',
+        'user-1',
+        'COORDINATOR',
+        'org-1'
+      );
       expect(result.status).toBe('REJECTED');
     });
   });

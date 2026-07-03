@@ -144,7 +144,11 @@ export async function createLevelRequest(
     try {
       await generateCertificate(userId, level.id);
     } catch (err) {
-      logger.warn('Failed to generate certificate on level approval', { err, userId, levelId: level.id });
+      logger.warn('Failed to generate certificate on level approval', {
+        err,
+        userId,
+        levelId: level.id,
+      });
     }
     try {
       await checkAndAwardBadges(userId);
@@ -188,7 +192,10 @@ export async function cancelLevelRequest(requestId: string, userId: string) {
 
 export async function listPendingRequests(search?: string) {
   const where = search
-    ? { status: 'PENDING' as const, user: { name: { contains: search, mode: 'insensitive' as const } } }
+    ? {
+        status: 'PENDING' as const,
+        user: { name: { contains: search, mode: 'insensitive' as const } },
+      }
     : { status: 'PENDING' as const };
   return prisma.userLevel.findMany({
     where,
@@ -258,12 +265,19 @@ export async function reviewLevelRequest(
     try {
       await generateCertificate(request.userId, request.levelId);
     } catch (err) {
-      logger.warn('Failed to generate certificate on level approval', { err, userId: request.userId, levelId: request.levelId });
+      logger.warn('Failed to generate certificate on level approval', {
+        err,
+        userId: request.userId,
+        levelId: request.levelId,
+      });
     }
     try {
       await checkAndAwardBadges(request.userId);
     } catch (err) {
-      logger.warn('Failed to check and award badges on level approval', { err, userId: request.userId });
+      logger.warn('Failed to check and award badges on level approval', {
+        err,
+        userId: request.userId,
+      });
     }
   }
 

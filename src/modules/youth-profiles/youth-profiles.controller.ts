@@ -14,7 +14,11 @@ export async function getYouthProfileHandler(req: Request, res: Response, next: 
   }
 }
 
-export async function submitInitialAssessmentHandler(req: Request, res: Response, next: NextFunction) {
+export async function submitInitialAssessmentHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const result = await service.submitInitialAssessment(req.user!.id, req.body);
     res.status(200).json(result);

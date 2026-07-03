@@ -72,7 +72,13 @@ describe('matching.service', () => {
       availability: { days: ['Monday'] },
     } as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      location: { lat: 23.0225, lng: 72.5714, name: 'Ahmedabad', district: 'Ahmedabad', state: 'Gujarat' },
+      location: {
+        lat: 23.0225,
+        lng: 72.5714,
+        name: 'Ahmedabad',
+        district: 'Ahmedabad',
+        state: 'Gujarat',
+      },
     } as never);
     vi.mocked(prisma.opportunity.findMany).mockResolvedValue([baseOpp] as never);
     const result = await getRecommendedOpportunities('user-1');
@@ -83,12 +89,24 @@ describe('matching.service', () => {
     const nearbyOpp = {
       ...baseOpp,
       id: 'opp-nearby',
-      location: { lat: 23.03, lng: 72.58, name: 'Ahmedabad', district: 'Ahmedabad', state: 'Gujarat' },
+      location: {
+        lat: 23.03,
+        lng: 72.58,
+        name: 'Ahmedabad',
+        district: 'Ahmedabad',
+        state: 'Gujarat',
+      },
     };
     const farOpp = {
       ...baseOpp,
       id: 'opp-far',
-      location: { lat: 19.076, lng: 72.877, name: 'Mumbai', district: 'Mumbai', state: 'Maharashtra' },
+      location: {
+        lat: 19.076,
+        lng: 72.877,
+        name: 'Mumbai',
+        district: 'Mumbai',
+        state: 'Maharashtra',
+      },
     };
     vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({
       skills: [],
@@ -96,7 +114,13 @@ describe('matching.service', () => {
       availability: { days: [] },
     } as never);
     vi.mocked(prisma.user.findUnique).mockResolvedValue({
-      location: { lat: 23.0225, lng: 72.5714, name: 'Ahmedabad', district: 'Ahmedabad', state: 'Gujarat' },
+      location: {
+        lat: 23.0225,
+        lng: 72.5714,
+        name: 'Ahmedabad',
+        district: 'Ahmedabad',
+        state: 'Gujarat',
+      },
     } as never);
     vi.mocked(prisma.opportunity.findMany).mockResolvedValue([nearbyOpp, farOpp] as never);
     const result = await getRecommendedOpportunities('user-1');

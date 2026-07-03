@@ -40,7 +40,7 @@ const REFRESH_COOKIE_OPTIONS = {
 
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, name, volunteerType, role } = req.body;
+    const { email, name, role } = req.body;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
@@ -58,7 +58,6 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         name: sanitizedName,
         roleId: roleRecord.id,
         status: 'PENDING',
-        ...(volunteerType && { volunteerType }),
       },
     });
 

@@ -13,7 +13,14 @@ export async function getMyBadges(userId: string) {
 
   const allBadges = await prisma.badge.findMany({
     orderBy: { name: 'asc' },
-    select: { id: true, name: true, title: true, description: true, imageUrl: true, criteria: true },
+    select: {
+      id: true,
+      name: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      criteria: true,
+    },
   });
 
   const earnedBadgeIds = new Set(userBadges.map((ub) => ub.badgeId));

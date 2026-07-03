@@ -33,7 +33,10 @@ export const InitialAssessmentSchema = z.object({
     .max(5, 'Select up to 5 aspirations'),
   learningGoals: z.string().max(500, 'Max 500 characters').optional(),
   skills: z.array(z.string().min(1)).min(1, 'Add at least one skill').max(10, 'Max 10 skills'),
-  interests: z.array(z.string().min(1)).min(1, 'Add at least one interest').max(10, 'Max 10 interests'),
+  interests: z
+    .array(z.string().min(1))
+    .min(1, 'Add at least one interest')
+    .max(10, 'Max 10 interests'),
 });
 
 export const ReflectionSchema = z.object({

@@ -73,9 +73,7 @@ describe('alerts.service', () => {
     });
 
     it('should return paginated subscriptions', async () => {
-      vi.mocked(prisma.alertSubscription.findMany).mockResolvedValue([
-        { id: 'sub-1' },
-      ] as never);
+      vi.mocked(prisma.alertSubscription.findMany).mockResolvedValue([{ id: 'sub-1' }] as never);
       vi.mocked(prisma.alertSubscription.count).mockResolvedValue(1);
       const result = await getMySubscriptions('user-1', { page: 1, limit: 20 });
       expect(result.totalPages).toBe(1);

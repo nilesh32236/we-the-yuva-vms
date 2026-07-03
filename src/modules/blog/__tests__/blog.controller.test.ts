@@ -16,9 +16,15 @@ vi.mock('../blog.service', () => ({
 const svc = await import('../blog.service');
 
 import {
-  archiveHandler, createHandler, deleteHandler,
-  getByIdHandler, getPublishedBySlugHandler,
-  listAllHandler, listPublishedHandler, publishHandler, updateHandler,
+  archiveHandler,
+  createHandler,
+  deleteHandler,
+  getByIdHandler,
+  getPublishedBySlugHandler,
+  listAllHandler,
+  listPublishedHandler,
+  publishHandler,
+  updateHandler,
 } from '../blog.controller';
 
 describe('blog.controller', () => {
@@ -29,7 +35,9 @@ describe('blog.controller', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     req = {
-      body: {}, params: { id: 'p1' }, query: {},
+      body: {},
+      params: { id: 'p1' },
+      query: {},
       user: { id: 'admin-1', role: 'ADMIN', permissions: [], organizationId: null },
     };
     res = {
@@ -47,7 +55,13 @@ describe('blog.controller', () => {
   });
 
   it('listPublishedHandler should return 200', async () => {
-    vi.mocked(svc.getPublishedPosts).mockResolvedValue({ data: [], total: 0, page: 1, limit: 20, totalPages: 0 } as never);
+    vi.mocked(svc.getPublishedPosts).mockResolvedValue({
+      data: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 0,
+    } as never);
     await listPublishedHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(200);
   });

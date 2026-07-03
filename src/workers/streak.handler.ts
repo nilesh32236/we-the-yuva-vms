@@ -20,7 +20,9 @@ export async function updateStreaks() {
 
   for (const profile of profiles) {
     const wasActiveYesterday =
-      profile.lastActiveAt && profile.lastActiveAt >= yesterday && profile.lastActiveAt < todayStart;
+      profile.lastActiveAt &&
+      profile.lastActiveAt >= yesterday &&
+      profile.lastActiveAt < todayStart;
 
     if (wasActiveYesterday) {
       const newStreak = profile.currentStreak + 1;
@@ -44,8 +46,10 @@ export async function updateStreaks() {
 }
 
 export async function updateLastActive(userId: string) {
-  await prisma.volunteerProfile.updateMany({
-    where: { userId },
-    data: { lastActiveAt: new Date() },
-  }).catch(() => {});
+  await prisma.volunteerProfile
+    .updateMany({
+      where: { userId },
+      data: { lastActiveAt: new Date() },
+    })
+    .catch(() => {});
 }

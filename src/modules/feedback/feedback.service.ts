@@ -39,7 +39,11 @@ export async function submitFeedback(
   try {
     await onFeedbackSubmitted(volunteerId, eventId);
   } catch (err) {
-    logger.warn('Failed to award badge/points on feedback submission', { err, userId: volunteerId, eventId });
+    logger.warn('Failed to award badge/points on feedback submission', {
+      err,
+      userId: volunteerId,
+      eventId,
+    });
   }
 
   return result;

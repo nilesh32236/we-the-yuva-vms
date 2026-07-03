@@ -441,7 +441,12 @@ if (redis && notificationsQueue) {
       }
 
       if (job.name === 'send-push') {
-        const { userId, title, body, data: _data } = job.data as {
+        const {
+          userId,
+          title,
+          body,
+          data: _data,
+        } = job.data as {
           userId: string;
           title: string;
           body: string;
@@ -500,7 +505,13 @@ if (redis && notificationsQueue) {
           undefined,
           'INFO'
         );
-        await sendPushToUser(volunteerId, 'Event Invitation', `You're invited to "${eventTitle}"!`, undefined, 'EVENT_REMINDER');
+        await sendPushToUser(
+          volunteerId,
+          'Event Invitation',
+          `You're invited to "${eventTitle}"!`,
+          undefined,
+          'EVENT_REMINDER'
+        );
 
         logger.info('Event invitation email sent', { volunteerId, jobId: job.id });
       }
@@ -564,7 +575,13 @@ if (redis && notificationsQueue) {
             undefined,
             'WARNING'
           );
-          await sendPushToUser(userId, 'Account Suspended', 'Your account has been suspended.', undefined, 'SYSTEM_ANNOUNCEMENT');
+          await sendPushToUser(
+            userId,
+            'Account Suspended',
+            'Your account has been suspended.',
+            undefined,
+            'SYSTEM_ANNOUNCEMENT'
+          );
         }
 
         logger.info('Account suspended email sent', { email, jobId: job.id });

@@ -62,7 +62,7 @@ describe('auth.controller', () => {
 
   describe('register', () => {
     it('should create a new user successfully', async () => {
-      req.body = { email: 'new@test.com', name: 'New User', volunteerType: 'STUDENT' };
+      req.body = { email: 'new@test.com', name: 'New User' };
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
       vi.mocked(prisma.role.findUnique).mockResolvedValue({
         id: 'role-vol',

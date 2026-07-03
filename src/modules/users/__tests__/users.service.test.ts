@@ -159,20 +159,58 @@ describe('users.service', () => {
 
     it('should filter by search query', async () => {
       vi.mocked(prisma.user.findMany).mockResolvedValue([
-        { id: 'v-1', name: 'John Doe', email: 'john@t.com', volunteerType: null, profile: null, _count: { applications: 0 } },
-        { id: 'v-2', name: 'Jane Smith', email: 'jane@t.com', volunteerType: null, profile: null, _count: { applications: 0 } },
+        {
+          id: 'v-1',
+          name: 'John Doe',
+          email: 'john@t.com',
+          volunteerType: null,
+          profile: null,
+          _count: { applications: 0 },
+        },
+        {
+          id: 'v-2',
+          name: 'Jane Smith',
+          email: 'jane@t.com',
+          volunteerType: null,
+          profile: null,
+          _count: { applications: 0 },
+        },
       ] as never);
-      const result = await getCoordinatorVolunteers('coord-1', 'org-1', { search: 'john' }, { page: 1, limit: 20 });
+      const result = await getCoordinatorVolunteers(
+        'coord-1',
+        'org-1',
+        { search: 'john' },
+        { page: 1, limit: 20 }
+      );
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe('v-1');
     });
 
     it('should filter by skills', async () => {
       vi.mocked(prisma.user.findMany).mockResolvedValue([
-        { id: 'v-1', name: 'A', email: 'a@t.com', volunteerType: null, profile: { skills: ['Teaching'] }, _count: { applications: 1 } },
-        { id: 'v-2', name: 'B', email: 'b@t.com', volunteerType: null, profile: { skills: ['Cooking'] }, _count: { applications: 1 } },
+        {
+          id: 'v-1',
+          name: 'A',
+          email: 'a@t.com',
+          volunteerType: null,
+          profile: { skills: ['Teaching'] },
+          _count: { applications: 1 },
+        },
+        {
+          id: 'v-2',
+          name: 'B',
+          email: 'b@t.com',
+          volunteerType: null,
+          profile: { skills: ['Cooking'] },
+          _count: { applications: 1 },
+        },
       ] as never);
-      const result = await getCoordinatorVolunteers('coord-1', 'org-1', { skills: ['Teaching'] }, { page: 1, limit: 20 });
+      const result = await getCoordinatorVolunteers(
+        'coord-1',
+        'org-1',
+        { skills: ['Teaching'] },
+        { page: 1, limit: 20 }
+      );
       expect(result.data).toHaveLength(1);
       expect(result.data[0].id).toBe('v-1');
     });

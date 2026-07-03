@@ -5,13 +5,22 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('jsonwebtoken', () => {
   const verify = vi.fn();
   class TokenExpiredError extends Error {
-    constructor(m: string) { super(m); this.name = 'TokenExpiredError'; }
+    constructor(m: string) {
+      super(m);
+      this.name = 'TokenExpiredError';
+    }
   }
   class NotBeforeError extends Error {
-    constructor(m: string) { super(m); this.name = 'NotBeforeError'; }
+    constructor(m: string) {
+      super(m);
+      this.name = 'NotBeforeError';
+    }
   }
   class JsonWebTokenError extends Error {
-    constructor(m: string) { super(m); this.name = 'JsonWebTokenError'; }
+    constructor(m: string) {
+      super(m);
+      this.name = 'JsonWebTokenError';
+    }
   }
   return {
     default: { verify, TokenExpiredError, NotBeforeError, JsonWebTokenError },

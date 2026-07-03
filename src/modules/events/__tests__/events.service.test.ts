@@ -209,7 +209,9 @@ describe('events.service', () => {
   describe('cancelEvent', () => {
     it('should throw 404 when event not found', async () => {
       vi.mocked(prisma.event.findUnique).mockResolvedValue(null);
-      await expect(cancelEvent('bad-id', 'user-1', 'COORDINATOR', 'org-1')).rejects.toThrow('Event not found');
+      await expect(cancelEvent('bad-id', 'user-1', 'COORDINATOR', 'org-1')).rejects.toThrow(
+        'Event not found'
+      );
     });
 
     it('should throw 403 when not authorized', async () => {
@@ -217,7 +219,9 @@ describe('events.service', () => {
         ...baseEvent,
         opportunity: { ...baseOpp, createdById: 'other-user', organizationId: 'other-org' },
       });
-      await expect(cancelEvent('event-1', 'user-1', 'VOLUNTEER', 'org-1')).rejects.toThrow('Forbidden');
+      await expect(cancelEvent('event-1', 'user-1', 'VOLUNTEER', 'org-1')).rejects.toThrow(
+        'Forbidden'
+      );
     });
 
     it('should cancel event successfully', async () => {
@@ -253,9 +257,9 @@ describe('events.service', () => {
         ...baseEvent,
         opportunity: { ...baseOpp, createdById: 'other-user', organizationId: 'other-org' },
       });
-      await expect(
-        markAttendance('event-1', 'user-1', 'VOLUNTEER', 'org-1', [])
-      ).rejects.toThrow('Forbidden');
+      await expect(markAttendance('event-1', 'user-1', 'VOLUNTEER', 'org-1', [])).rejects.toThrow(
+        'Forbidden'
+      );
     });
 
     it('should mark attendance and update hours', async () => {
@@ -325,7 +329,11 @@ describe('events.service', () => {
     it('should handle race condition fallback when count is 0', async () => {
       vi.mocked(prisma.event.findUnique)
         .mockResolvedValueOnce(baseEvent)
-        .mockResolvedValueOnce({ ...baseEvent, qrToken: 'fallback-token', qrExpiresAt: new Date() });
+        .mockResolvedValueOnce({
+          ...baseEvent,
+          qrToken: 'fallback-token',
+          qrExpiresAt: new Date(),
+        });
       vi.mocked(prisma.event.updateMany).mockResolvedValue({ count: 0 });
       const result = await getOrCreateEventQrToken('event-1');
       expect(result.token).toBe('fallback-token');
@@ -336,7 +344,9 @@ describe('events.service', () => {
         .mockResolvedValueOnce(baseEvent)
         .mockResolvedValueOnce({ ...baseEvent, qrToken: null, qrExpiresAt: null });
       vi.mocked(prisma.event.updateMany).mockResolvedValue({ count: 0 });
-      await expect(getOrCreateEventQrToken('event-1')).rejects.toThrow('Failed to generate QR token');
+      await expect(getOrCreateEventQrToken('event-1')).rejects.toThrow(
+        'Failed to generate QR token'
+      );
     });
   });
 
