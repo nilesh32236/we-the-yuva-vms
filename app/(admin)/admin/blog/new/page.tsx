@@ -3,9 +3,9 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BlogPostForm } from '../../../../../components/blog/BlogPostForm';
-import { useToast } from '../../../../../hooks/use-toast';
-import { api } from '../../../../../lib/api';
+import { BlogPostForm } from '@/components/blog/BlogPostForm';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import type { CreateBlogPostInput } from '@/lib/shared';
 
 export default function NewBlogPostPage() {
