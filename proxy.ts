@@ -58,8 +58,8 @@ export async function proxy(req: NextRequest) {
       return response;
     }
 
-    // Redirect authenticated users away from auth pages (but not onboarding)
-    if (isPublic && pathname !== '/' && !ONBOARDING_ROUTES.some((r) => pathname === r)) {
+    // Redirect authenticated users away from public pages (including landing '/') and auth pages
+    if (isPublic && !ONBOARDING_ROUTES.some((r) => pathname === r)) {
       return NextResponse.redirect(new URL(`${rolePrefix}/dashboard`, req.url));
     }
 
