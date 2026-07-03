@@ -61,7 +61,7 @@ export function TierPathVisualizer({
 
         {/* Connection line fill */}
         <div
-          className="absolute top-1/2 left-0 h-1 -translate-y-1/2 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full transition-all duration-700"
+          className="absolute top-1/2 left-0 h-1 -translate-y-1/2 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full transition-width duration-700"
           style={{ width: `${completionPct}%` }}
         />
 
@@ -84,7 +84,7 @@ export function TierPathVisualizer({
           return (
             <div key={level.tier} className="relative z-10 flex flex-col items-center gap-1.5">
               <div
-                className={`${shapeClass} ${stateClass} ${pulseClass} flex items-center justify-center transition-all duration-300`}
+                className={`${shapeClass} ${stateClass} ${pulseClass} flex items-center justify-center transition-colors duration-300`}
                 style={{ width: badgePx, height: badgePx }}
                 role="img"
                 aria-label={`${level.name}${isCurrent ? ' (current)' : ''}`}

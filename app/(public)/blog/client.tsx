@@ -4,10 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Calendar, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { SkeletonCard } from '../../components/shared/SkeletonCard';
-import { api } from '../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
-export default function BlogPage() {
+export function BlogPageClient() {
   const { data, isLoading } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: () => api.get('/blog?limit=50').then((r) => r.data),
@@ -32,7 +32,7 @@ export default function BlogPage() {
           </div>
         ) : data?.data?.length === 0 ? (
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
-            <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" />
+            <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" aria-hidden="true" />
             <p className="text-brand-text font-medium">No posts yet</p>
             <p className="text-sm text-brand-muted mt-1">Check back soon for new content.</p>
           </div>
@@ -68,10 +68,10 @@ export default function BlogPage() {
                   )}
                   <div className="flex items-center gap-3 text-xs text-brand-muted pt-2">
                     <span className="flex items-center gap-1">
-                      <User className="w-3 h-3" /> {post.author.name}
+                      <User className="w-3 h-3" aria-hidden="true" /> {post.author.name}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
+                      <Calendar className="w-3 h-3" aria-hidden="true" />
                       {new Date(post.publishedAt).toLocaleDateString('en-IN', {
                         day: 'numeric', month: 'short', year: 'numeric',
                       })}

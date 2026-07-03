@@ -10,7 +10,16 @@ const PUBLIC_ROUTES = [
   '/scan',
   '/consent',
   '/setup-profile',
+  '/about',
+  '/contact',
+  '/faq',
+  '/privacy',
+  '/terms',
+  '/opportunities',
+  '/blog',
 ];
+// Truly public informational pages — no redirect even when authenticated
+const TRULY_PUBLIC = ['/about', '/contact', '/faq', '/privacy', '/terms', '/opportunities', '/blog'];
 const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
 
 const ROLE_ROUTES: Record<string, string> = {
@@ -40,6 +49,11 @@ export async function proxy(req: NextRequest) {
   try {
     const jwtSecret = process.env.JWT_ACCESS_SECRET;
     if (!jwtSecret) {
+      if (isPublic) {
+        const response = NextResponse.next();
+        response.cookies.delete('access_token');
+        return response;
+      }
       const response = NextResponse.redirect(new URL('/login', req.url));
       response.cookies.delete('access_token');
       return response;
@@ -52,14 +66,19 @@ export async function proxy(req: NextRequest) {
     const rolePrefix = ROLE_ROUTES[role];
 
     if (!rolePrefix) {
-      // Unknown role — clear cookie and redirect
+      // Unknown role — clear cookie and redirect (let public pages through)
+      if (isPublic) {
+        const response = NextResponse.next();
+        response.cookies.delete('access_token');
+        return response;
+      }
       const response = NextResponse.redirect(new URL('/login', req.url));
       response.cookies.delete('access_token');
       return response;
     }
 
-    // Redirect authenticated users away from public pages (including landing '/') and auth pages
-    if (isPublic && !ONBOARDING_ROUTES.some((r) => pathname === r)) {
+    // Redirect authenticated users away from login/auth public pages (not truly public info pages)
+    if (isPublic && !TRULY_PUBLIC.some((r) => pathname === r || pathname.startsWith(`${r}/`))) {
       return NextResponse.redirect(new URL(`${rolePrefix}/dashboard`, req.url));
     }
 
@@ -74,7 +93,12 @@ export async function proxy(req: NextRequest) {
 
     return NextResponse.next();
   } catch {
-    // Token expired or invalid — clear and redirect
+    // Token expired or invalid — allow public pages, redirect auth pages
+    if (isPublic) {
+      const response = NextResponse.next();
+      response.cookies.delete('access_token');
+      return response;
+    }
     const response = NextResponse.redirect(new URL('/login', req.url));
     response.cookies.delete('access_token');
     return response;

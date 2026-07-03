@@ -166,7 +166,7 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
                   <button
                     type="button"
                     onClick={(e) => handleMenuClick(u.id, e)}
-                    className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-all cursor-pointer"
+                    className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer"
                     disabled={loading === u.id}
                     aria-label={`Actions for ${u.name}`}
                   >

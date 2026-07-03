@@ -35,7 +35,20 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
+    icon: '/favicon.ico',
     apple: '/icons/icon-192.png',
+  },
+  openGraph: {
+    title: 'WeTheYuva VMS',
+    description: 'Volunteer Management System — Connecting volunteers with purpose',
+    type: 'website',
+    locale: 'en_IN',
+    siteName: 'WeTheYuva',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'WeTheYuva VMS',
+    description: 'Volunteer Management System — Connecting volunteers with purpose',
   },
 };
 
@@ -53,6 +66,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${poppins.variable} ${openSans.variable}`} suppressHydrationWarning>
       <body className="bg-brand-bg text-brand-text font-body antialiased">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-primary focus:text-white focus:rounded-xl focus:outline-none"
+        >
+          Skip to main content
+        </a>
         <Providers>{children}</Providers>
         <Analytics />
         <SpeedInsights />

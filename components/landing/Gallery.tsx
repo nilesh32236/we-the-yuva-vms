@@ -64,7 +64,7 @@ export function Gallery() {
                 className="object-cover"
                 sizes="(max-width: 768px) 50vw, 33vw"
               />
-              <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/40" />
+              <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/40" aria-hidden="true" />
               <p className="absolute bottom-0 left-0 right-0 p-3 text-sm font-medium text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 {img.caption}
               </p>

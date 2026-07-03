@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { api, setAccessToken } from './api';
 import { queryClient } from './query-client';
+import { isPublicRoute } from './public-routes';
 
 export interface AuthUser {
   id: string;
@@ -68,6 +69,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && isPublicRoute(window.location.pathname)) {
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
     fetchUser();
   }, [fetchUser]);
 

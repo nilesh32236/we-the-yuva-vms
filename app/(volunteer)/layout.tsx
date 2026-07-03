@@ -25,7 +25,7 @@ export default function VolunteerLayout({ children }: { children: React.ReactNod
       <TopNav />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar navItems={navItems} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6" data-scroll>
+        <main id="main" className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6" data-scroll>
           {children}
         </main>
       </div>

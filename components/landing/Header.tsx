@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { Leaf, Menu, X } from 'lucide-react';
 
 const navLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'Pathway', href: '#pathway' },
-  { label: 'Impact', href: '#impact' },
-  { label: 'Gallery', href: '#gallery' },
+  { label: 'Opportunities', href: '/opportunities' },
+  { label: 'How It Works', href: '/#pathway' },
+  { label: 'About', href: '/about' },
+  { label: 'FAQ', href: '/faq' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 export function Header() {
@@ -51,7 +52,7 @@ export function Header() {
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className={`text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none ${
@@ -61,7 +62,7 @@ export function Header() {
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -94,23 +95,23 @@ export function Header() {
             scrolled ? 'text-slate-900 dark:text-white' : 'text-white'
           }`}
         >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
         </button>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="border-b border-slate-200 bg-white px-6 pb-4 md:hidden dark:border-slate-700 dark:bg-slate-900">
-          <nav className="flex flex-col gap-3 pt-2">
+           <nav className="flex flex-col gap-3 pt-2">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className="text-sm font-medium text-slate-600 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none dark:text-slate-300 dark:hover:text-white"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 

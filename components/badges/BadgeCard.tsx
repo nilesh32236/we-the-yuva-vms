@@ -37,7 +37,7 @@ export function BadgeCard({
   return (
     <div
       className={cn(
-        'relative rounded-2xl border p-5 flex flex-col items-center text-center gap-3 transition-all',
+        'relative rounded-2xl border p-5 flex flex-col items-center text-center gap-3 transition-shadow',
         earned
           ? 'bg-brand-surface border-brand-border shadow-sm'
           : 'bg-brand-surface/50 border-brand-border/30 opacity-60'

@@ -169,7 +169,7 @@ export default function RegisterOrganizationPage() {
           {STEPS.map((label, i) => (
             <div key={label} className="flex items-center gap-2">
               <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-all
+                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-colors
                   ${i < step ? 'bg-brand-primary text-white' : ''}
                   ${i === step ? 'bg-brand-primary text-white ring-4 ring-brand-primary/20' : ''}
                   ${i > step ? 'bg-brand-border text-brand-muted' : ''}`}
@@ -291,7 +291,7 @@ export default function RegisterOrganizationPage() {
                       <button
                         type="button"
                         onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
-                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
                       >
                         <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                         <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
@@ -336,7 +336,7 @@ export default function RegisterOrganizationPage() {
                       <button
                         type="button"
                         onClick={() => addDoc('GOVT_ID')}
-                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
                       >
                         <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                         <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
@@ -381,7 +381,7 @@ export default function RegisterOrganizationPage() {
                       <button
                         type="button"
                         onClick={() => addDoc('OTHER')}
-                        className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-all text-center cursor-pointer"
+                        className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
                       >
                         <span className="text-sm text-brand-muted">+ Add optional document</span>
                       </button>

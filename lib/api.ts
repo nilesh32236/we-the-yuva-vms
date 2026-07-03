@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isPublicRoute } from './public-routes';
 
 export const api = axios.create({
   baseURL: '/api/v1',
@@ -90,7 +91,7 @@ api.interceptors.response.use(
         }
         return api(originalRequest);
       } catch {
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !isAuthEndpoint) {
+        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !isAuthEndpoint && !isPublicRoute(window.location.pathname)) {
           sessionStorage.setItem('logged_out', 'true');
           window.location.href = '/login';
         }

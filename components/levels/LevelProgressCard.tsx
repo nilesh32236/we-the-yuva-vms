@@ -43,7 +43,7 @@ export function LevelProgressCard() {
 
   return (
     <Link href="/volunteer/levels" className="block group">
-      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-md hover:border-brand-primary/30 transition-all duration-200">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-md hover:border-brand-primary/30 transition-shadow duration-200">
         <div className="p-5 space-y-5">
           {/* Current level header */}
           <div className="flex items-center justify-between">
@@ -58,7 +58,7 @@ export function LevelProgressCard() {
                 <p className="font-heading font-bold text-lg text-brand-text">{currentTier.name}</p>
               </div>
             </div>
-            <ArrowRight className="w-5 h-5 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" />
+            <ArrowRight className="w-5 h-5 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-colors" />
           </div>
 
           {/* Tier path */}
@@ -79,7 +79,7 @@ export function LevelProgressCard() {
               </div>
               <div className="h-2 bg-brand-border rounded-full overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary transition-all duration-700"
+                  className="h-full rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary transition-width duration-700"
                   style={{ width: `${progressPct}%` }}
                 />
               </div>

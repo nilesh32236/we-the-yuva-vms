@@ -3,7 +3,7 @@ import { Twitter, Instagram, Linkedin, Youtube, Mail, MapPin } from 'lucide-reac
 
 const footerLinks = {
   Platform: [
-    { label: 'Volunteer Opportunities', href: '/volunteer/opportunities' },
+    { label: 'Browse Opportunities', href: '/opportunities' },
     { label: 'Events & Drives', href: '/volunteer/events' },
     { label: 'Training Modules', href: '/volunteer/training' },
     { label: 'Leaderboard', href: '/volunteer/leaderboard' },
@@ -16,11 +16,12 @@ const footerLinks = {
     { label: 'Post Opportunities', href: '/organization/opportunities' },
   ],
   Explore: [
-    { label: 'About Us', href: '#about' },
-    { label: 'Growth Pathway', href: '#pathway' },
-    { label: 'Impact Stats', href: '#impact' },
-    { label: 'Gallery', href: '#gallery' },
-    { label: 'Volunteer Stories', href: '#testimonials' },
+    { label: 'How It Works', href: '/#pathway' },
+    { label: 'Opportunities', href: '/opportunities' },
+    { label: 'About Us', href: '/about' },
+    { label: 'FAQ', href: '/faq' },
+    { label: 'Contact', href: '/contact' },
+    { label: 'Blog', href: '/blog' },
   ],
 };
 

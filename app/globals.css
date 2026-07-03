@@ -151,6 +151,8 @@
     box-sizing: border-box;
     /* Remove tap highlight on mobile */
     -webkit-tap-highlight-color: transparent;
+    /* Prevent 300ms double-tap delay on mobile */
+    touch-action: manipulation;
   }
 
   html {
@@ -182,6 +184,7 @@
   h5,
   h6 {
     font-family: var(--font-heading);
+    scroll-margin-top: 5rem;
   }
 
   /* Allow scrolling inside scroll containers without bouncing the page */

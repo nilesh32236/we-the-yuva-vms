@@ -38,7 +38,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 key={item.href}
                 href={item.href}
                 onClick={() => haptic.light()}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce
                   ${active ? 'text-brand-primary' : 'text-brand-muted hover:text-brand-text'}`}
                 aria-current={active ? 'page' : undefined}
               >
@@ -46,7 +46,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
                   className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors
                   ${active ? 'bg-brand-bg' : ''}`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-5 h-5" aria-hidden="true" />
                 </div>
                 <span className={`text-[10px] font-semibold leading-none text-center ${active ? 'text-brand-primary' : ''}`}>
                   {item.label.replace(/^My\s+/i, '')}
@@ -63,12 +63,12 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 haptic.light();
                 setMenuOpen(true);
               }}
-              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce text-brand-muted hover:text-brand-text"
+              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce text-brand-muted hover:text-brand-text"
               aria-label="More menu items"
               aria-expanded={menuOpen}
             >
               <div className="w-8 h-8 rounded-xl flex items-center justify-center">
-                <Ellipsis className="w-5 h-5" />
+                <Ellipsis className="w-5 h-5" aria-hidden="true" />
               </div>
               <span className="text-[10px] font-semibold leading-none text-center">More</span>
             </button>
@@ -87,7 +87,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
           />
           {/* Drawer */}
           <div
-            className="absolute bottom-0 left-0 right-0 bg-brand-surface rounded-t-2xl border-t border-brand-border shadow-xl animate-in slide-in-from-bottom-8 duration-200"
+            className="absolute bottom-0 left-0 right-0 bg-brand-surface rounded-t-2xl border-t border-brand-border shadow-xl animate-in slide-in-from-bottom-8 duration-200 overscroll-contain"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             role="dialog"
             aria-label="Navigation menu"
@@ -102,7 +102,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
                 aria-label="Close menu"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
             <div className="px-3 pb-4 space-y-0.5 max-h-[60vh] overflow-y-auto">
@@ -117,7 +117,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
                       haptic.light();
                       setMenuOpen(false);
                     }}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-150 cursor-pointer
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-150 cursor-pointer
                       ${active ? 'bg-brand-primary text-white shadow-sm' : 'text-brand-muted hover:bg-brand-bg hover:text-brand-text'}`}
                     aria-current={active ? 'page' : undefined}
                   >
@@ -125,7 +125,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
                       className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
                       ${active ? 'bg-white/20' : 'bg-brand-bg'}`}
                     >
-                      <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-brand-primary'}`} />
+                      <Icon className={`w-4 h-4 ${active ? 'text-white' : 'text-brand-primary'}`} aria-hidden="true" />
                     </div>
                     <span className="text-sm font-medium flex-1">{item.label}</span>
                   </Link>

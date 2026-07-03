@@ -100,7 +100,7 @@ export function PWAInstallBanner() {
         <button
           type="button"
           onClick={handleInstall}
-          className="flex items-center justify-center gap-2.5 bg-emerald-400 hover:bg-emerald-300 active:scale-95 text-emerald-950 font-heading font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/40 transition-all duration-150 cursor-pointer w-full md:w-auto flex-shrink-0"
+          className="flex items-center justify-center gap-2.5 bg-emerald-400 hover:bg-emerald-300 active:scale-95 text-emerald-950 font-heading font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/40 transition-colors duration-150 cursor-pointer w-full md:w-auto flex-shrink-0"
         >
           <Download className="w-4 h-4" />
           Install App

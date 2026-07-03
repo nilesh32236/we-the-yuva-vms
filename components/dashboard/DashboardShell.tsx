@@ -141,15 +141,15 @@ function QuickActionsPanel({
         {ctaDisabled ? (
           <div className="flex items-center justify-between p-4 rounded-xl bg-brand-bg border border-brand-border opacity-60">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-brand-border flex items-center justify-center">
-                <Lock className="w-4 h-4 text-brand-muted" />
+                <div className="w-9 h-9 rounded-lg bg-brand-border flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-brand-muted" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-brand-text">{ctaLabel}</p>
+                  <p className="text-xs text-brand-muted">Coming in Phase 2</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-brand-text">{ctaLabel}</p>
-                <p className="text-xs text-brand-muted">Coming in Phase 2</p>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-brand-muted flex-shrink-0" />
+              <ArrowRight className="w-4 h-4 text-brand-muted flex-shrink-0" aria-hidden="true" />
           </div>
         ) : (
           <Link
@@ -158,12 +158,12 @@ function QuickActionsPanel({
               hover:bg-brand-secondary transition-colors duration-200 cursor-pointer group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
-                <ArrowRight className="w-4 h-4 text-white" />
+                <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+                  <ArrowRight className="w-4 h-4 text-white" aria-hidden="true" />
+                </div>
+                <p className="text-sm font-semibold">{ctaLabel}</p>
               </div>
-              <p className="text-sm font-semibold">{ctaLabel}</p>
-            </div>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
           </Link>
         )}
 
@@ -177,14 +177,14 @@ function QuickActionsPanel({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-brand-border flex items-center justify-center">
-                    <Lock className="w-4 h-4 text-brand-muted" />
+                    <Lock className="w-4 h-4 text-brand-muted" aria-hidden="true" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-brand-text">{action.label}</p>
                     <p className="text-xs text-brand-muted">Coming in Phase 2</p>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-brand-muted flex-shrink-0" />
+                <ArrowRight className="w-4 h-4 text-brand-muted flex-shrink-0" aria-hidden="true" />
               </div>
             );
           }
@@ -193,15 +193,15 @@ function QuickActionsPanel({
               key={action.label}
               href={action.href}
               className="flex items-center justify-between p-4 rounded-xl border border-brand-border
-                hover:bg-brand-bg hover:border-brand-primary/40 transition-all duration-200 cursor-pointer group"
+                hover:bg-brand-bg hover:border-brand-primary/40 transition-colors duration-200 cursor-pointer group"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-brand-bg flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-brand-primary" />
+                  <Icon className="w-4 h-4 text-brand-primary" aria-hidden="true" />
                 </div>
                 <p className="text-sm font-medium text-brand-text">{action.label}</p>
               </div>
-              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" />
+              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-colors" aria-hidden="true" />
             </Link>
           );
         })}
@@ -253,12 +253,12 @@ export function DashboardShell({
             <div
               key={stat.label}
               className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4
-                hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 cursor-default"
+                hover:shadow-md hover:border-brand-primary/30 transition-shadow duration-200 cursor-default"
             >
               <div
                 className={`w-12 h-12 rounded-xl ${accentBg} flex items-center justify-center flex-shrink-0`}
               >
-                <Icon className={`w-6 h-6 ${accent}`} />
+                <Icon className={`w-6 h-6 ${accent}`} aria-hidden="true" />
               </div>
               <div className="min-w-0">
                 <p className="font-heading font-bold text-2xl text-brand-text leading-none">

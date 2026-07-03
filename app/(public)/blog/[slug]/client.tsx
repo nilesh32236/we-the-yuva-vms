@@ -4,12 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Calendar, Tag, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { api } from '../../../lib/api';
+import { api } from '@/lib/api';
 
-export default function BlogPostPage() {
-  const { slug } = useParams<{ slug: string }>();
-
+export function BlogPostPageClient({ slug }: { slug: string }) {
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', slug],
     queryFn: () => api.get(`/blog/${slug}`).then((r) => r.data),
@@ -64,10 +61,10 @@ export default function BlogPostPage() {
             </h1>
             <div className="flex flex-wrap items-center gap-4 text-sm text-brand-muted">
               <span className="flex items-center gap-1.5">
-                <User className="w-4 h-4" /> {post.author?.name}
+                <User className="w-4 h-4" aria-hidden="true" /> {post.author?.name}
               </span>
               <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
+                <Calendar className="w-4 h-4" aria-hidden="true" />
                 {new Date(post.publishedAt).toLocaleDateString('en-IN', {
                   day: 'numeric', month: 'long', year: 'numeric',
                 })}

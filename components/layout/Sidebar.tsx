@@ -91,7 +91,7 @@ export function Sidebar({ navItems }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 cursor-pointer group relative
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 cursor-pointer group relative
                 ${
                   isActive
                     ? 'bg-brand-primary text-white shadow-sm'

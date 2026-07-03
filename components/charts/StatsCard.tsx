@@ -21,7 +21,7 @@ export function StatsCard({
   trend,
 }: StatsCardProps) {
   return (
-    <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200">
+    <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 hover:shadow-md hover:border-brand-primary/30 transition-shadow duration-200">
       <div
         className={`w-12 h-12 rounded-xl ${accentBg} flex items-center justify-center flex-shrink-0`}
       >

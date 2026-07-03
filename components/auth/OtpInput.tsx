@@ -80,7 +80,7 @@ export function OtpInput({ value, onChange, disabled = false }: OtpInputProps) {
           onFocus={(e) => e.target.select()}
           disabled={disabled}
           aria-label={`Digit ${index + 1} of 6`}
-          className={`w-11 h-12 text-center text-xl font-bold rounded-lg border-2 transition-all duration-200
+          className={`w-11 h-12 text-center text-xl font-bold rounded-lg border-2 transition-colors duration-200
             focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary
             disabled:opacity-50 disabled:cursor-not-allowed
             ${

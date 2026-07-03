@@ -35,7 +35,7 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
 
   return (
     <div
-      className={`bg-brand-surface rounded-2xl border p-5 flex flex-col gap-3 transition-all duration-200
+      className={`bg-brand-surface rounded-2xl border p-5 flex flex-col gap-3 transition-shadow duration-200
       ${isPast ? 'border-brand-border opacity-80' : 'border-brand-border hover:shadow-md hover:border-brand-primary/30'}`}
     >
       {/* Header */}

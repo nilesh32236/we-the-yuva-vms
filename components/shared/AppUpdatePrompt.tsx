@@ -88,7 +88,7 @@ export function AppUpdatePrompt() {
           <button
             type="button"
             onClick={handleUpdate}
-            className="mt-2.5 flex items-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] px-3.5 py-2 rounded-lg cursor-pointer transition-all duration-100"
+            className="mt-2.5 flex items-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] px-3.5 py-2 rounded-lg cursor-pointer transition-colors duration-100"
           >
             <RefreshCw className="w-3 h-3 animate-spin-slow" />
             Reload & Update

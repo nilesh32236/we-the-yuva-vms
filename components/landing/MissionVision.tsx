@@ -50,7 +50,7 @@ export function MissionVision() {
               className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 sm:p-8"
             >
               <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
-                <card.icon className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
+                <card.icon className="w-5 h-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-4">
                 {card.title}
