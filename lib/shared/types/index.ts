@@ -6,6 +6,7 @@ import type {
   SendOtpSchema,
   VerifyOtpSchema,
 } from '../schemas/auth.schemas';
+import type { CreateBlogPostSchema, UpdateBlogPostSchema } from '../schemas/blog.schemas';
 import type {
   ApplicationStatusSchema,
   AttendanceSchema,
@@ -36,6 +37,8 @@ export type AttendanceInput = z.infer<typeof AttendanceSchema>;
 export type AdminUserUpdateInput = z.infer<typeof AdminUserUpdateSchema>;
 export type OrganizationDocumentInput = z.infer<typeof OrganizationDocumentSchema>;
 export type RegisterOrganizationInput = z.infer<typeof RegisterOrganizationSchema>;
+export type CreateBlogPostInput = z.infer<typeof CreateBlogPostSchema>;
+export type UpdateBlogPostInput = z.infer<typeof UpdateBlogPostSchema>;
 
 export type UserRole = 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'PLATFORM_MANAGER' | 'ADMIN' | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
