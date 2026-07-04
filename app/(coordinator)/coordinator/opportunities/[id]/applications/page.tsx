@@ -7,9 +7,9 @@ import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
-import { haptic } from '@/lib/haptic';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { haptic } from '@/lib/haptic';
 
 const STATUS_BADGES: Record<string, string> = {
   PENDING: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',

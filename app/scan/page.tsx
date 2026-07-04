@@ -5,9 +5,9 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, CheckCircle, Keyboard, QrCode, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { Button } from '@/components/ui/Button';
 
 function ScanInner() {
   const router = useRouter();

@@ -1,7 +1,8 @@
 import { withSerwist } from '@serwist/turbopack';
 import type { NextConfig } from 'next';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
 
 let apiOrigin = 'http://localhost:4000';
 try {

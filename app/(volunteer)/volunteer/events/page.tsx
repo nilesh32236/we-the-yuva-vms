@@ -13,11 +13,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { haptic } from '@/lib/haptic';
+import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
-import { haptic } from '@/lib/haptic';
-import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',

@@ -1,14 +1,14 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, Check, Sparkles, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { GROWTH_AREAS } from '@/lib/shared';
-import { Button } from '@/components/ui/Button';
+import { useEffect, useState } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { GROWTH_AREAS } from '@/lib/shared';
 
 const SKILL_SUGGESTIONS = [
   'Teaching',

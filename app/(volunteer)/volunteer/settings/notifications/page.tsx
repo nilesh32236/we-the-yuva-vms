@@ -5,10 +5,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Bell, Mail, Smartphone } from 'lucide-react';
 import Link from 'next/link';
+import { haptic } from '@/lib/haptic';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
-import { haptic } from '@/lib/haptic';
 
 const TYPE_LABELS: Record<string, string> = {
   APPLICATION_ACCEPTED: 'Application Updates',

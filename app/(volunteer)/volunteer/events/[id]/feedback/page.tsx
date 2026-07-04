@@ -5,10 +5,10 @@ import { ArrowLeft, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { haptic } from '@/lib/haptic';
 import { Button } from '../../../../../../components/ui/Button';
 import { useToast } from '../../../../../../hooks/use-toast';
 import { api } from '../../../../../../lib/api';
-import { haptic } from '@/lib/haptic';
 
 export default function EventFeedbackPage() {
   const { id } = useParams<{ id: string }>();

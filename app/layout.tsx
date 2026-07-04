@@ -1,7 +1,7 @@
-import type { Metadata, Viewport } from 'next';
-import { Open_Sans, Poppins } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import type { Metadata, Viewport } from 'next';
+import { Open_Sans, Poppins } from 'next/font/google';
 import 'nprogress/nprogress.css';
 import './globals.css';
 import { Providers } from './providers';

@@ -2,8 +2,8 @@
 // See /issues/PHASE2_SCOPE.md
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Bell, Download, Sparkles, WifiOff, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { haptic } from '@/lib/haptic';
 

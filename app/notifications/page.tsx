@@ -13,9 +13,9 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { useToast } from '@/hooks/use-toast';
 
 const TYPE_ICON: Record<string, React.ElementType> = {
   info: Info,

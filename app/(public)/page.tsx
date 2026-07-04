@@ -1,11 +1,11 @@
-import { Hero } from '@/components/landing/Hero';
-import { StatsBar } from '@/components/landing/StatsBar';
-import { HowItWorks } from '@/components/landing/HowItWorks';
-import { FeaturedOpportunities } from '@/components/landing/FeaturedOpportunities';
-import { LevelPathway } from '@/components/landing/LevelPathway';
-import { Gallery } from '@/components/landing/Gallery';
-import { Testimonials } from '@/components/landing/Testimonials';
 import { CTA } from '@/components/landing/CTA';
+import { FeaturedOpportunities } from '@/components/landing/FeaturedOpportunities';
+import { Gallery } from '@/components/landing/Gallery';
+import { Hero } from '@/components/landing/Hero';
+import { HowItWorks } from '@/components/landing/HowItWorks';
+import { LevelPathway } from '@/components/landing/LevelPathway';
+import { StatsBar } from '@/components/landing/StatsBar';
+import { Testimonials } from '@/components/landing/Testimonials';
 
 export const metadata = {
   title: "WeTheYuva — Empowering India's Youth Volunteers",

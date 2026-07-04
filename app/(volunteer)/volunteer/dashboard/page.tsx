@@ -3,13 +3,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { Activity, Calendar, Clock, Star } from 'lucide-react';
 import Link from 'next/link';
+import { haptic } from '@/lib/haptic';
 import { StatsCard } from '../../../../components/charts/StatsCard';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { LevelProgressCard } from '../../../../components/levels/LevelProgressCard';
 import { PWAInstallBanner } from '../../../../components/shared/PWAInstallBanner';
+import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
-import { haptic } from '@/lib/haptic';
 
 const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
   STUDENT: 'Student',

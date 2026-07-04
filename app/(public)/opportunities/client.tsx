@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { MapPin, Calendar, Search } from 'lucide-react';
+import { Calendar, MapPin, Search } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 const CATEGORY_LABELS: Record<string, string> = {
   ENVIRONMENT: 'Environment',

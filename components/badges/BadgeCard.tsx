@@ -1,18 +1,18 @@
 'use client';
 
-import Image from 'next/image';
 import {
   Award,
-  Check,
-  Lock,
-  Star,
-  Shield,
-  Zap,
-  Target,
-  Heart,
   BookOpen,
+  Check,
+  Heart,
+  Lock,
+  Shield,
+  Star,
+  Target,
   Users,
+  Zap,
 } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '../../lib/utils';
 
 interface BadgeCardProps {

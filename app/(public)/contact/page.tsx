@@ -1,5 +1,5 @@
+import { Clock, Instagram, Linkedin, Mail, MapPin, Twitter, Youtube } from 'lucide-react';
 import type { Metadata } from 'next';
-import { Mail, MapPin, Clock, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { ContactForm } from './client';
 
 export async function generateMetadata(): Promise<Metadata> {

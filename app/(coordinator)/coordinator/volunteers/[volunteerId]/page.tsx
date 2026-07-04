@@ -5,8 +5,8 @@ import { ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
-import { haptic } from '../../../../../lib/haptic';
 import { api } from '../../../../../lib/api';
+import { haptic } from '../../../../../lib/haptic';
 
 export default function VolunteerDetailPage({
   params,

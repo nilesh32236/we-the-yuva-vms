@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, TrendingUp, Shield } from 'lucide-react';
+import { Heart, Shield, TrendingUp } from 'lucide-react';
 import { useInView } from '@/hooks/useInView';
 
 const cards = [

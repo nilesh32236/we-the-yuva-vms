@@ -2,6 +2,7 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
+import { Button } from '@/components/ui/Button';
 
 export default function GlobalError({
   error,
@@ -39,13 +40,7 @@ export default function GlobalError({
             <p className="text-brand-muted text-sm">
               A critical error occurred. Please reload the page.
             </p>
-            <button
-              type="button"
-              onClick={reset}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary transition-colors"
-            >
-              Reload
-            </button>
+            <Button onClick={reset}>Reload</Button>
           </div>
         </div>
       </body>

@@ -6,11 +6,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, BellRing, Plus, Tag, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { haptic } from '@/lib/haptic';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
-import { haptic } from '@/lib/haptic';
 
 const CATEGORIES = [
   'EDUCATION',

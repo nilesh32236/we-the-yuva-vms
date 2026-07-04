@@ -2,8 +2,8 @@
 // See /issues/PHASE2_SCOPE.md
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { Wifi, WifiOff } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { haptic } from '@/lib/haptic';
 
 export function NetworkStatusIndicator() {

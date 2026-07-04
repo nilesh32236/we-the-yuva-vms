@@ -1,5 +1,5 @@
+import { Instagram, Linkedin, Mail, MapPin, Twitter, Youtube } from 'lucide-react';
 import Link from 'next/link';
-import { Twitter, Instagram, Linkedin, Youtube, Mail, MapPin } from 'lucide-react';
 
 const footerLinks = {
   Platform: [

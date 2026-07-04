@@ -12,8 +12,8 @@ import {
   Star,
   Sun,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../lib/api';

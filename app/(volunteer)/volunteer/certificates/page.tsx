@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Award, ExternalLink, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 

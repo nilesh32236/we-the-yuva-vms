@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, Building2, Calendar, ArrowRight, Users } from 'lucide-react';
+import { ArrowRight, Briefcase, Building2, Calendar, Users } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';

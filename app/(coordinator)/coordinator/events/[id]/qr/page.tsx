@@ -5,8 +5,8 @@ import { ArrowLeft, QrCode, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { QRCodeCanvas } from 'qrcode.react';
 import { use } from 'react';
-import { haptic } from '@/lib/haptic';
 import { api } from '@/lib/api';
+import { haptic } from '@/lib/haptic';
 
 export default function EventQrPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

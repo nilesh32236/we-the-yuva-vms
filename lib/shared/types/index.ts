@@ -12,7 +12,6 @@ import type {
 } from '../schemas/auth.schemas';
 import type { CreateBlogPostSchema, UpdateBlogPostSchema } from '../schemas/blog.schemas';
 import type { FeedbackSchema, UpdateFeedbackSchema } from '../schemas/feedback.schemas';
-import type { UpdateLessonSchema } from '../schemas/training.schemas';
 import type {
   NotificationPreferenceSchema,
   PushSubscriptionSchema,
@@ -46,6 +45,7 @@ import type {
   CreateCourseSchema,
   CreateLessonSchema,
   UpdateCourseSchema,
+  UpdateLessonSchema,
 } from '../schemas/training.schemas';
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;

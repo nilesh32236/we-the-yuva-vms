@@ -1,6 +1,6 @@
-import { Target, Eye, Shield, Zap, Users, Lightbulb } from 'lucide-react';
-import Link from 'next/link';
+import { Eye, Lightbulb, Shield, Target, Users, Zap } from 'lucide-react';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'About Us | WeTheYuva',

@@ -16,14 +16,14 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { haptic } from '@/lib/haptic';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
-import { Button } from '../../../../components/ui/Button';
-import { useToast } from '../../../../hooks/use-toast';
 import { LevelBadge } from '../../../../components/levels/LevelBadge';
 import { StreakBadge } from '../../../../components/levels/StreakBadge';
+import { Button } from '../../../../components/ui/Button';
+import { useToast } from '../../../../hooks/use-toast';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
-import { haptic } from '@/lib/haptic';
 
 export default function VolunteerProfilePage() {
   const { user: _authUser } = useAuth();

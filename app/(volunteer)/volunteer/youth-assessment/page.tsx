@@ -3,11 +3,11 @@
 import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { ASPIRATIONS } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import { ASPIRATIONS } from '@/lib/shared';
 
 const ALL_SKILLS = [
   'Teaching',

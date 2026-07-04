@@ -1,10 +1,10 @@
 'use client';
 
+import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { api, setAccessToken } from './api';
-import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
+import { queryClient } from './query-client';
 
 export interface AuthUser {
   id: string;

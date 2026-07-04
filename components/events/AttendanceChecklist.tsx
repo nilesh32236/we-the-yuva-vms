@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { haptic } from '../../lib/haptic';
 import { Button } from '../ui/Button';
 

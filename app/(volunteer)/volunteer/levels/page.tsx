@@ -1,7 +1,6 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import {
   ArrowUp,
   Award,
@@ -15,14 +14,15 @@ import {
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { LevelBadge } from '@/components/levels/LevelBadge';
 import { RequirementChecklist } from '@/components/levels/RequirementChecklist';
 import { StreakBadge } from '@/components/levels/StreakBadge';
 import { TierPathVisualizer } from '@/components/levels/TierPathVisualizer';
-import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
-import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 

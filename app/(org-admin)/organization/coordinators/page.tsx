@@ -1,13 +1,13 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from '../../../../hooks/useAuth';
-import { api } from '../../../../lib/api';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
-import type { AxiosError } from 'axios';
+import { useAuth } from '../../../../hooks/useAuth';
+import { api } from '../../../../lib/api';
 
 interface Coordinator {
   id: string;

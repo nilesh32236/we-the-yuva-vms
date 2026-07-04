@@ -1,4 +1,4 @@
-import { Search, Handshake, BarChart3 } from 'lucide-react';
+import { BarChart3, Handshake, Search } from 'lucide-react';
 
 const steps = [
   {

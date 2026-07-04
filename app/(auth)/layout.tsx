@@ -1,5 +1,5 @@
-import { ThemeToggle } from '../../components/theme/ThemeToggle';
 import Link from 'next/link';
+import { ThemeToggle } from '../../components/theme/ThemeToggle';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (

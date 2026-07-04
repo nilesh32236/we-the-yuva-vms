@@ -2,7 +2,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { queueCheckin, getQueuedCheckins, syncQueuedCheckins } from '@/lib/offline-queue';
+import { getQueuedCheckins, queueCheckin, syncQueuedCheckins } from '@/lib/offline-queue';
 
 interface UseOfflineCheckinOptions {
   eventId: string;

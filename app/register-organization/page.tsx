@@ -9,8 +9,8 @@ import { useForm } from 'react-hook-form';
 import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../hooks/use-toast';
-import { api } from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
+import { api } from '../../lib/api';
 
 interface DocItem {
   file: File;

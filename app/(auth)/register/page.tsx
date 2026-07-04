@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type RegisterInput, RegisterSchema } from '@/lib/shared';
-import { Button } from '../../../components/ui/Button';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
+import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
-import { api, setAccessToken } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
+import { api, setAccessToken } from '../../../lib/api';
 
 const ROLE_ROUTES: Record<string, string> = {
   VOLUNTEER: '/volunteer/dashboard',

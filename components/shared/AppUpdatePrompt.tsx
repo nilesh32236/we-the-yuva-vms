@@ -2,8 +2,8 @@
 // See /issues/PHASE2_SCOPE.md
 'use client';
 
-import { useEffect, useState } from 'react';
 import { RefreshCw, Sparkles, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { haptic } from '@/lib/haptic';
 
 export function AppUpdatePrompt() {

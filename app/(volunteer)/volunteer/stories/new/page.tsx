@@ -4,11 +4,11 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { haptic } from '@/lib/haptic';
 import { FileUpload } from '../../../../../components/shared/FileUpload';
 import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
-import { haptic } from '@/lib/haptic';
 
 export default function NewStoryPage() {
   const router = useRouter();

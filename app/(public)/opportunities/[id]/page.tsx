@@ -1,7 +1,7 @@
+import { ArrowLeft, Briefcase, Calendar, Clock, MapPin, Users, Wifi } from 'lucide-react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Briefcase, Calendar, Clock, MapPin, Users, Wifi } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
