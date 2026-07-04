@@ -1,6 +1,8 @@
+/// <reference lib="esnext" />
 /// <reference lib="webworker" />
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { CacheFirst, NetworkFirst, Serwist, StaleWhileRevalidate } from 'serwist';
+import { Serwist } from 'serwist';
+import { defaultCache } from '@serwist/turbopack/worker';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -15,6 +17,7 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
+  runtimeCaching: defaultCache,
   fallbacks: {
     entries: [
       {
@@ -25,50 +28,6 @@ const serwist = new Serwist({
       },
     ],
   },
-  runtimeCaching: [
-    // Google Fonts — cache first, long TTL
-    {
-      matcher: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-      handler: new CacheFirst({
-        cacheName: 'google-fonts-stylesheets',
-      }),
-    },
-    {
-      matcher: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-      handler: new CacheFirst({
-        cacheName: 'google-fonts-webfonts',
-      }),
-    },
-    // Unsplash images — cache first
-    {
-      matcher: /^https:\/\/images\.unsplash\.com\/.*/i,
-      handler: new CacheFirst({
-        cacheName: 'unsplash-images',
-      }),
-    },
-    // API calls — network first, fall back to cache (stale data is better than nothing)
-    {
-      matcher: /\/api\/v1\/.*/i,
-      handler: new NetworkFirst({
-        cacheName: 'api-responses',
-        networkTimeoutSeconds: 10,
-      }),
-    },
-    // Next.js static assets — stale while revalidate
-    {
-      matcher: /\/_next\/static\/.*/i,
-      handler: new StaleWhileRevalidate({
-        cacheName: 'next-static-assets',
-      }),
-    },
-    // Next.js image optimisation
-    {
-      matcher: /\/_next\/image\?.*/i,
-      handler: new StaleWhileRevalidate({
-        cacheName: 'next-image-optimisation',
-      }),
-    },
-  ],
 });
 
 serwist.addEventListeners();

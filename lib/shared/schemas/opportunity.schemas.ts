@@ -63,6 +63,8 @@ export const EventSchema = z
     path: ['endTime'],
   });
 
+export const ApplySchema = z.object({}).optional();
+
 export const ApplicationStatusSchema = z.object({
   status: z.enum(['ACCEPTED', 'REJECTED']),
 });
@@ -76,4 +78,15 @@ export const AttendanceSchema = z.object({
       })
     )
     .min(1, 'At least one attendance record is required'),
+});
+
+export const CheckInSchema = z.object({
+  lat: z.coerce.number().optional(),
+  lng: z.coerce.number().optional(),
+  qrToken: z.string().optional(),
+});
+
+export const CheckOutSchema = z.object({
+  lat: z.coerce.number().optional(),
+  lng: z.coerce.number().optional(),
 });

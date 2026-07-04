@@ -1,13 +1,12 @@
-import withSerwistInit from '@serwist/next';
+import { withSerwist } from '@serwist/turbopack';
 import type { NextConfig } from 'next';
 
-const withSerwist = withSerwistInit({
-  swSrc: 'app/sw.ts',
-  swDest: 'public/sw.js',
-  disable: process.env.NODE_ENV === 'development',
-});
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
+
+let apiOrigin = 'http://localhost:4000';
+try {
+  apiOrigin = new URL(API_URL).origin;
+} catch {}
 
 const getApiRemotePattern = () => {
   const defaultPattern = {
@@ -30,7 +29,6 @@ const getApiRemotePattern = () => {
 
 const nextConfig: NextConfig = {
   ...(process.env.DOCKER_BUILD ? { output: 'standalone' } : {}),
-  turbopack: {},
   poweredByHeader: false,
   images: {
     remotePatterns: [
@@ -72,7 +70,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self' https://nilesh-kanzariya-we-the-yuva-api.hf.space; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self' ${apiOrigin}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
           },
         ],
       },

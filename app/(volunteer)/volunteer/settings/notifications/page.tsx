@@ -11,21 +11,37 @@ import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 
 const TYPE_LABELS: Record<string, string> = {
-  application_accepted: 'Application Accepted',
-  application_rejected: 'Application Rejected',
-  event_invitation: 'Event Invitation',
-  event_reminder: 'Event Reminder',
-  account_suspended: 'Account Suspended',
-  promotion: 'Promotions & Updates',
+  APPLICATION_ACCEPTED: 'Application Updates',
+  EVENT_REMINDER: 'Event Reminders',
+  PROMOTION: 'Promotions & Updates',
+  WEEKLY_DIGEST: 'Weekly Digest',
+  SYSTEM_ANNOUNCEMENT: 'System Announcements',
+  NEW_APPLICATION: 'New Applications',
+  MENTORSHIP: 'Mentorship Updates',
+  TRAINING: 'Training Updates',
+  LEVEL_UP: 'Level Up',
+  BADGE_EARNED: 'Badges Earned',
+  CERTIFICATE_ISSUED: 'Certificate Issued',
+  ATTENDANCE_CONFIRMED: 'Attendance Confirmed',
+  FEEDBACK_REMINDER: 'Feedback Reminders',
+  STORY_PUBLISHED: 'Story Published',
 };
 
 const TYPE_DESCRIPTIONS: Record<string, string> = {
-  application_accepted: 'When your application to an opportunity is approved',
-  application_rejected: 'When your application to an opportunity is declined',
-  event_invitation: 'When you are invited to an event',
-  event_reminder: 'Reminders before your upcoming events',
-  account_suspended: 'When your account status changes',
-  promotion: 'Announcements and featured opportunities',
+  APPLICATION_ACCEPTED: 'When your application to an opportunity is approved or declined',
+  EVENT_REMINDER: 'Invitations and reminders for upcoming events',
+  PROMOTION: 'New opportunities and featured announcements',
+  WEEKLY_DIGEST: 'A weekly summary of your volunteer activities',
+  SYSTEM_ANNOUNCEMENT: 'Important updates about your account and platform changes',
+  NEW_APPLICATION: 'When a new volunteer applies to your opportunity',
+  MENTORSHIP: 'Updates and reminders about mentorship sessions',
+  TRAINING: 'Training session schedules and related materials',
+  LEVEL_UP: 'When you reach a new volunteer level',
+  BADGE_EARNED: 'When you earn a new badge',
+  CERTIFICATE_ISSUED: 'When a certificate is issued for a completed activity',
+  ATTENDANCE_CONFIRMED: 'When your attendance at an event is confirmed',
+  FEEDBACK_REMINDER: 'Reminders to provide feedback on activities and events',
+  STORY_PUBLISHED: 'When a story or article is published',
 };
 
 function ToggleSwitch({
