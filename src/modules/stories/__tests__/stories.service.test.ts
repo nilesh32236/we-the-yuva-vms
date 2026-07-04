@@ -14,6 +14,7 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }));
+vi.mock('@/lib/queue', () => ({ notificationsQueue: null }));
 
 const { prisma } = await import('@/lib/prisma');
 

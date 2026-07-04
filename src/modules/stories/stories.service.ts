@@ -1,5 +1,6 @@
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
+import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
 function stripHtml(value: string): string {
@@ -109,6 +110,15 @@ export async function moderateStory(
     targetType: 'Story',
     metadata: { published: String(published) },
   });
+  if (published && notificationsQueue) {
+    await notificationsQueue
+      .add('story-published', {
+        userId: story.userId,
+        storyId: story.id,
+        storyTitle: story.title,
+      })
+      .catch(() => {});
+  }
   return updated;
 }
 

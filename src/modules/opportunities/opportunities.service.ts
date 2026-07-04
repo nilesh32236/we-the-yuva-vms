@@ -330,13 +330,18 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
   // Notify the opportunity creator (non-blocking)
   if (oppInfo?.createdById && oppInfo.createdById !== volunteerId) {
     const notify = async () => {
+      const volunteer = await prisma.user
+        .findUnique({ where: { id: volunteerId }, select: { name: true } })
+        .catch(() => null);
+      const volunteerName = volunteer?.name || 'A volunteer';
+
       if (notificationsQueue) {
         try {
-          await notificationsQueue.add('send-push', {
+          await notificationsQueue.add('new-application', {
             userId: oppInfo.createdById,
-            title: 'New Application',
-            body: `A volunteer applied to "${oppInfo.title}"`,
-            data: { opportunityId, type: 'new_application' },
+            volunteerName,
+            opportunityTitle: oppInfo.title,
+            opportunityId,
           });
           return;
         } catch (err) {
@@ -353,9 +358,9 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
       if (creator?.email) {
         await sendEmail(
           creator.email,
-          'New Application',
-          `<h2>New Application</h2><p>A volunteer applied to "${oppInfo.title}".</p>`,
-          `A volunteer applied to "${oppInfo.title}".`
+          'New Application from ' + volunteerName,
+          `<h2>New Application</h2><p>${volunteerName} applied to "${oppInfo.title}".</p>`,
+          `${volunteerName} applied to "${oppInfo.title}".`
         ).catch((err) =>
           logger.warn('Failed to send direct notification email', { error: (err as Error).message })
         );

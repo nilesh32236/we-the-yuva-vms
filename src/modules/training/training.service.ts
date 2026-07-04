@@ -6,6 +6,7 @@ import type {
 } from '@/shared';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
+import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
 export async function createCourse(userId: string, data: CreateCourseInput) {
@@ -171,6 +172,17 @@ export async function completeLesson(lessonId: string, userId: string) {
       create: { userId, courseId: lesson.courseId, completed: true, completedAt: new Date() },
       update: { completed: true, completedAt: new Date() },
     });
+
+    const course = await prisma.course.findUnique({ where: { id: lesson.courseId } });
+    if (course && notificationsQueue) {
+      await notificationsQueue
+        .add('training-completion', {
+          userId,
+          courseTitle: course.title,
+          courseId: course.id,
+        })
+        .catch(() => {});
+    }
   } else {
     await prisma.courseProgress.upsert({
       where: { userId_courseId: { userId, courseId: lesson.courseId } },

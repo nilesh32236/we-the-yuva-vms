@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
+vi.mock('@/lib/queue', () => ({ notificationsQueue: null }));
+
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     course: {

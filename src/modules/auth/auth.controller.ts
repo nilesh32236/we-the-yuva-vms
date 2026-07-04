@@ -35,7 +35,7 @@ const REFRESH_COOKIE_OPTIONS = {
   secure: isProd,
   sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  path: '/', // TODO: scope to /api/v1/auth/* in production
+  path: '/api/v1/auth',
 };
 
 export async function register(req: Request, res: Response, next: NextFunction) {

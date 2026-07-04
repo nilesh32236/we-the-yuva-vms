@@ -419,12 +419,10 @@ export async function markAttendance(
       })
     );
 
-    // Determine hour adjustment (skip if volunteer has self-checked-in/out to avoid double-counting)
-    // TODO: handle hour revocation for self-checked-in volunteers (production)
-    // Currently, if a volunteer self-checked-in, coordinator marking attended=false
-    // does not subtract hours because the actual duration is unknown at this point.
+    // Determine hour adjustment
     const hasSelfCheckIn = existing?.checkedInAt || existing?.checkedOutAt;
     if (!hasSelfCheckIn) {
+      // Volunteers who did NOT self-check-in: normal logic
       if (!existing && attended) {
         hourAdjustments.push({ userId: volunteerId, increment: durationHours });
       } else if (existing?.attended && !attended) {
@@ -432,6 +430,13 @@ export async function markAttendance(
       } else if (existing && !existing.attended && attended) {
         hourAdjustments.push({ userId: volunteerId, increment: durationHours });
       }
+    } else if (existing?.attended && !attended) {
+      // Self-checked-in volunteer being marked absent: revoke hours
+      // Use actual check-in/out duration if available, fall back to event duration
+      const hoursToRevoke = existing.checkedOutAt
+        ? (existing.checkedOutAt.getTime() - existing.checkedInAt!.getTime()) / 3_600_000
+        : durationHours;
+      hourAdjustments.push({ userId: volunteerId, increment: -Math.max(0, hoursToRevoke) });
     }
   }
 
@@ -564,6 +569,17 @@ export async function approveAttendance(
 
     return updated;
   });
+
+  if (notificationsQueue) {
+    const evt = await prisma.event.findUnique({ where: { id: eventId }, select: { title: true } });
+    await notificationsQueue
+      .add('attendance-confirmed', {
+        userId: volunteerId,
+        eventTitle: evt?.title ?? 'Event',
+        eventId,
+      })
+      .catch(() => {});
+  }
 
   return result;
 }
@@ -722,8 +738,14 @@ export async function checkOut(
 
   const now = new Date();
   const rawHours = (now.getTime() - attendance.checkedInAt.getTime()) / 3_600_000;
-  // TODO: remove 16h cap in production — should use event duration instead
-  const hoursWorked = Math.min(Math.max(0, rawHours), 16);
+
+  const event = attendance.event;
+  const [startH, startM] = event.startTime.split(':').map(Number);
+  const [endH, endM] = event.endTime.split(':').map(Number);
+  const scheduledMinutes = endH * 60 + endM - (startH * 60 + startM);
+  const scheduledHours = Math.max(scheduledMinutes / 60, 1);
+
+  const hoursWorked = Math.min(Math.max(0, rawHours), scheduledHours);
 
   const [updated] = await prisma.$transaction([
     prisma.attendance.update({

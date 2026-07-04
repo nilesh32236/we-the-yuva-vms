@@ -30,7 +30,7 @@ describe('preferences.service', () => {
       vi.mocked(prisma.notificationPreference.findMany).mockResolvedValue([]);
       vi.mocked(prisma.notificationPreference.upsert).mockResolvedValue({} as never);
       const result = await getPreferences('user-1');
-      expect(result).toHaveLength(5);
+      expect(result).toHaveLength(14);
     });
   });
 

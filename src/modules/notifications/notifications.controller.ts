@@ -74,3 +74,17 @@ export async function unreadCountHandler(req: Request, res: Response, next: Next
     next(err);
   }
 }
+
+export async function sendTestPushHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    await service.sendPushToUser(
+      req.user!.id,
+      req.body.title || 'WeTheYuva Test',
+      req.body.body || 'This is a test push notification from WeTheYuva.',
+      req.body.link
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+}

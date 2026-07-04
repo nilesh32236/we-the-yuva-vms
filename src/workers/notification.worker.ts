@@ -441,39 +441,230 @@ if (redis && notificationsQueue) {
       }
 
       if (job.name === 'send-push') {
-        const {
-          userId,
-          title,
-          body,
-          data: _data,
-        } = job.data as {
+        const { userId, title, body } = job.data as {
           userId: string;
           title: string;
           body: string;
-          data?: Record<string, unknown>;
         };
 
-        const user = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { email: true },
-        });
-
-        // Send in-app notification
         await createInAppNotification(userId, title, body, undefined, 'INFO');
-        // Send push notification
         await sendPushToUser(userId, title, body, undefined, 'PROMOTION');
 
-        // Send email notification if we have the user's email
-        if (user?.email) {
-          await sendEmail(
-            user.email,
-            title,
-            `<h2>${title}</h2><p>${body}</p>`,
-            `${title}\n\n${body}`
-          );
-        }
-
         logger.info('Push notification sent', { userId, title, jobId: job.id });
+      }
+
+      if (job.name === 'new-application') {
+        const { userId, volunteerName, opportunityTitle, opportunityId } = job.data as {
+          userId: string;
+          volunteerName: string;
+          opportunityTitle: string;
+          opportunityId: string;
+        };
+
+        await createInAppNotification(
+          userId,
+          'New Application',
+          `${volunteerName} applied to "${opportunityTitle}"`,
+          `/coordinator/opportunities/${opportunityId}`,
+          'INFO'
+        );
+        await sendPushToUser(
+          userId,
+          'New Application',
+          `${volunteerName} applied to "${opportunityTitle}"`,
+          undefined,
+          'NEW_APPLICATION'
+        );
+
+        logger.info('New application notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'mentorship-update') {
+        const { userId, title, body, link } = job.data as {
+          userId: string;
+          title: string;
+          body: string;
+          link?: string;
+        };
+
+        await createInAppNotification(userId, title, body, link, 'INFO');
+        await sendPushToUser(userId, title, body, link, 'MENTORSHIP');
+
+        logger.info('Mentorship notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'training-completion') {
+        const { userId, courseTitle, courseId } = job.data as {
+          userId: string;
+          courseTitle: string;
+          courseId: string;
+        };
+
+        await createInAppNotification(
+          userId,
+          'Course Completed',
+          `You completed "${courseTitle}"!`,
+          `/volunteer/training/${courseId}`,
+          'SUCCESS'
+        );
+        await sendPushToUser(
+          userId,
+          'Course Completed',
+          `You completed "${courseTitle}"!`,
+          undefined,
+          'TRAINING'
+        );
+
+        logger.info('Training completion notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'level-up') {
+        const { userId, levelName } = job.data as {
+          userId: string;
+          levelName: string;
+        };
+
+        await createInAppNotification(
+          userId,
+          'Level Up!',
+          `You've reached "${levelName}" level!`,
+          '/volunteer/levels',
+          'SUCCESS'
+        );
+        await sendPushToUser(
+          userId,
+          'Level Up!',
+          `You've reached "${levelName}" level!`,
+          undefined,
+          'LEVEL_UP'
+        );
+
+        logger.info('Level-up notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'badge-earned') {
+        const { userId, badgeName } = job.data as {
+          userId: string;
+          badgeName: string;
+        };
+
+        await createInAppNotification(
+          userId,
+          'Badge Earned!',
+          `You earned the "${badgeName}" badge!`,
+          '/volunteer/dashboard',
+          'SUCCESS'
+        );
+        await sendPushToUser(
+          userId,
+          'Badge Earned!',
+          `You earned the "${badgeName}" badge!`,
+          undefined,
+          'BADGE_EARNED'
+        );
+
+        logger.info('Badge notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'certificate-issued') {
+        const { userId, certificateTitle, certificateId } = job.data as {
+          userId: string;
+          certificateTitle: string;
+          certificateId: string;
+        };
+
+        await createInAppNotification(
+          userId,
+          'Certificate Issued',
+          `Your certificate "${certificateTitle}" is ready!`,
+          `/volunteer/certificates/${certificateId}`,
+          'SUCCESS'
+        );
+        await sendPushToUser(
+          userId,
+          'Certificate Issued',
+          `Your certificate "${certificateTitle}" is ready!`,
+          undefined,
+          'CERTIFICATE_ISSUED'
+        );
+
+        logger.info('Certificate notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'attendance-confirmed') {
+        const { userId, eventTitle, hours } = job.data as {
+          userId: string;
+          eventTitle: string;
+          hours: number;
+        };
+
+        await createInAppNotification(
+          userId,
+          'Attendance Confirmed',
+          `${hours} hour(s) verified for "${eventTitle}"`,
+          undefined,
+          'SUCCESS'
+        );
+        await sendPushToUser(
+          userId,
+          'Attendance Confirmed',
+          `${hours} hour(s) verified for "${eventTitle}"`,
+          undefined,
+          'ATTENDANCE_CONFIRMED'
+        );
+
+        logger.info('Attendance notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'feedback-reminder') {
+        const { userId, eventTitle, eventId } = job.data as {
+          userId: string;
+          eventTitle: string;
+          eventId: string;
+        };
+
+        await createInAppNotification(
+          userId,
+          'We Value Your Feedback',
+          `How was "${eventTitle}"? Share your experience.`,
+          `/volunteer/events/${eventId}/feedback`,
+          'INFO'
+        );
+        await sendPushToUser(
+          userId,
+          'We Value Your Feedback',
+          `How was "${eventTitle}"? Share your experience.`,
+          undefined,
+          'FEEDBACK_REMINDER'
+        );
+
+        logger.info('Feedback reminder notification sent', { userId, jobId: job.id });
+      }
+
+      if (job.name === 'story-published') {
+        const { userId, storyTitle, authorName, storyId } = job.data as {
+          userId: string;
+          storyTitle: string;
+          authorName: string;
+          storyId: string;
+        };
+
+        await createInAppNotification(
+          userId,
+          'New Story Published',
+          `${authorName} shared "${storyTitle}"`,
+          `/volunteer/stories/${storyId}`,
+          'INFO'
+        );
+        await sendPushToUser(
+          userId,
+          'New Story Published',
+          `${authorName} shared "${storyTitle}"`,
+          undefined,
+          'STORY_PUBLISHED'
+        );
+
+        logger.info('Story published notification sent', { userId, jobId: job.id });
       }
 
       if (job.name === 'event-invitation') {

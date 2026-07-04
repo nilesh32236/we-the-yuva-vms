@@ -1,6 +1,7 @@
 import { checkAndAwardBadges } from '../badges/badge-engine.service';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
+import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
 export async function requestMentorship(mentorId: string, menteeId: string, _message?: string) {
@@ -28,13 +29,26 @@ export async function requestMentorship(mentorId: string, menteeId: string, _mes
     throw new AppError('A mentorship request already exists between these users', 409);
   }
 
-  return prisma.mentorship.create({
+  const mentorship = await prisma.mentorship.create({
     data: { mentorId, menteeId, status: 'PENDING' },
     include: {
       mentor: { select: { id: true, name: true } },
       mentee: { select: { id: true, name: true } },
     },
   });
+
+  if (notificationsQueue) {
+    await notificationsQueue
+      .add('mentorship-update', {
+        userId: mentorId,
+        title: 'New Mentorship Request',
+        body: `${mentorship.mentee.name} wants you as their mentor`,
+        link: '/coordinator/mentorship',
+      })
+      .catch(() => {});
+  }
+
+  return mentorship;
 }
 
 export async function listPendingRequests(userId: string) {
@@ -85,6 +99,17 @@ export async function reviewMentorshipRequest(
     logger.warn('Failed to award badge on mentorship update', { err, mentorshipId: requestId });
   }
 
+  if (status === 'ACTIVE' && notificationsQueue) {
+    await notificationsQueue
+      .add('mentorship-update', {
+        userId: result.menteeId,
+        title: 'Mentorship Approved',
+        body: `${result.mentor.name} has accepted your mentorship request!`,
+        link: '/volunteer/mentorship',
+      })
+      .catch(() => {});
+  }
+
   return result;
 }
 
@@ -128,6 +153,25 @@ export async function completeMentorship(requestId: string, userId: string) {
     await checkAndAwardBadges(mentorship.mentorId);
   } catch (err) {
     logger.warn('Failed to award badge on mentorship update', { err, mentorshipId: requestId });
+  }
+
+  if (notificationsQueue) {
+    await notificationsQueue
+      .add('mentorship-update', {
+        userId: result.menteeId,
+        title: 'Mentorship Completed',
+        body: `Your mentorship with ${result.mentor.name} has been completed!`,
+        link: '/volunteer/mentorship',
+      })
+      .catch(() => {});
+    await notificationsQueue
+      .add('mentorship-update', {
+        userId: result.mentorId,
+        title: 'Mentorship Completed',
+        body: `Your mentorship with ${result.mentee.name} has been completed. Great job mentoring!`,
+        link: '/coordinator/mentorship',
+      })
+      .catch(() => {});
   }
 
   return result;

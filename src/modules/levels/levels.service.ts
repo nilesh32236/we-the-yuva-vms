@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
+import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 import { generateCertificate } from '../certificates/certificates.service';
 import { checkAndAwardBadges } from '../badges/badge-engine.service';
@@ -142,7 +143,16 @@ export async function createLevelRequest(
       });
     });
     try {
-      await generateCertificate(userId, level.id);
+      const cert = await generateCertificate(userId, level.id);
+      if (cert && notificationsQueue) {
+        await notificationsQueue
+          .add('certificate-issued', {
+            userId,
+            certificateTitle: `${level.name} Certificate`,
+            certificateId: cert.id,
+          })
+          .catch(() => {});
+      }
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', {
         err,
@@ -154,6 +164,11 @@ export async function createLevelRequest(
       await checkAndAwardBadges(userId);
     } catch (err) {
       logger.warn('Failed to check and award badges on auto-promotion', { err, userId });
+    }
+    if (notificationsQueue) {
+      await notificationsQueue
+        .add('level-up', { userId, levelName: level.name })
+        .catch(() => {});
     }
   }
 
@@ -263,7 +278,16 @@ export async function reviewLevelRequest(
 
   if (data.status === 'APPROVED') {
     try {
-      await generateCertificate(request.userId, request.levelId);
+      const cert = await generateCertificate(request.userId, request.levelId);
+      if (cert && notificationsQueue) {
+        await notificationsQueue
+          .add('certificate-issued', {
+            userId: request.userId,
+            certificateTitle: `${request.level.name} Certificate`,
+            certificateId: cert.id,
+          })
+          .catch(() => {});
+      }
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', {
         err,
@@ -278,6 +302,11 @@ export async function reviewLevelRequest(
         err,
         userId: request.userId,
       });
+    }
+    if (notificationsQueue) {
+      await notificationsQueue
+        .add('level-up', { userId: request.userId, levelName: request.level.name })
+        .catch(() => {});
     }
   }
 

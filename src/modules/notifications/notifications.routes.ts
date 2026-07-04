@@ -12,6 +12,7 @@ import {
   listNotificationsHandler,
   markAllReadHandler,
   markReadHandler,
+  sendTestPushHandler,
   subscribeHandler,
   unreadCountHandler,
   unsubscribeHandler,
@@ -120,6 +121,19 @@ notificationsRouter.put(
   validate(NotificationPreferenceSchema),
   updatePreferenceHandler
 );
+
+/**
+ * @openapi
+ * /notifications/test-push:
+ *   post:
+ *     tags: [Notifications]
+ *     summary: Send a test push notification to yourself
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Test push sent
+ */
+notificationsRouter.post('/test-push', requireAuth, sendTestPushHandler);
 
 // IMPORTANT: /read-all must be registered BEFORE /:id routes to avoid Express capturing "read-all" as an :id
 /**

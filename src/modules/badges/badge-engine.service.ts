@@ -1,4 +1,5 @@
 import { prisma } from '../../lib/prisma';
+import { notificationsQueue } from '../../lib/queue';
 
 type BadgeCriteria =
   | { type: 'ONBOARDING_COMPLETE' }
@@ -53,6 +54,11 @@ export async function checkAndAwardBadges(userId: string) {
         data: { userId, badgeId: badge.id },
       });
       await awardPoints(userId, 50, `BADGE_${badge.name}`, badge.id);
+      if (notificationsQueue) {
+        await notificationsQueue
+          .add('badge-earned', { userId, badgeName: badge.name })
+          .catch(() => {});
+      }
       results.push({ badge, newlyEarned: true });
     } else {
       results.push({ badge, newlyEarned: false });
