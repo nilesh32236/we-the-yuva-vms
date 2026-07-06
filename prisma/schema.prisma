@@ -176,6 +176,7 @@ model Role {
 model Organization {
   id          String            @id @default(cuid())
   name        String
+  slug        String?           @unique
   description String?
   address     String?
   phone       String?
@@ -277,6 +278,7 @@ model VolunteerProfile {
   skills       String[]
   interests    String[]
   availability Json
+  education    String?
   bio          String?
   avatarUrl    String?
   totalHours   Float    @default(0)

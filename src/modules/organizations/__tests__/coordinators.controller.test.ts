@@ -1,21 +1,21 @@
 import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../coordinators.service', () => ({
-  addCoordinator: vi.fn(),
+vi.mock('../organizations.service', () => ({
+  addCoordinatorToOrg: vi.fn(),
   listCoordinators: vi.fn(),
-  removeCoordinator: vi.fn(),
+  removeCoordinatorFromOrg: vi.fn(),
 }));
 
-const ctrl = await import('../coordinators.service');
+const ctrl = await import('../organizations.service');
 
 import {
   addCoordinatorHandler,
   listCoordinatorsHandler,
   removeCoordinatorHandler,
-} from '../coordinators.controller';
+} from '../organizations.controller';
 
-describe('coordinators.controller', () => {
+describe('coordinators.controller (via organizations.controller)', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
   let next: NextFunction;
@@ -48,7 +48,7 @@ describe('coordinators.controller', () => {
   });
 
   it('addCoordinatorHandler should return 201', async () => {
-    vi.mocked(ctrl.addCoordinator).mockResolvedValue({ id: 'coord-1' });
+    vi.mocked(ctrl.addCoordinatorToOrg).mockResolvedValue({ id: 'coord-1' });
     req.params = { id: 'org-1' };
     req.body = { name: 'Coord', email: 'coord@test.com' };
     await addCoordinatorHandler(req as Request, res as Response, next);
@@ -63,7 +63,7 @@ describe('coordinators.controller', () => {
   });
 
   it('removeCoordinatorHandler should return 204', async () => {
-    vi.mocked(ctrl.removeCoordinator).mockResolvedValue({} as never);
+    vi.mocked(ctrl.removeCoordinatorFromOrg).mockResolvedValue({} as never);
     req.params = { id: 'org-1', userId: 'coord-id' };
     await removeCoordinatorHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(204);

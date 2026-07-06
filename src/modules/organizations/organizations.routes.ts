@@ -6,18 +6,19 @@ import { validate } from '../../middleware/validate.middleware';
 import { Permissions } from '../../shared/permissions';
 import {
   addCoordinatorHandler,
-  listCoordinatorsHandler,
-  removeCoordinatorHandler,
-} from './coordinators.controller';
-import {
   getDocumentsHandler,
   getOrgHandler,
+  getPublicOrgHandler,
+  listCoordinatorsHandler,
   registerOrgHandler,
+  removeCoordinatorHandler,
   updateOrgHandler,
   uploadDocumentHandler,
 } from './organizations.controller';
 
 export const organizationsRouter: IRouter = Router();
+
+organizationsRouter.get('/public/:slug', getPublicOrgHandler);
 
 organizationsRouter.post(
   '/register',

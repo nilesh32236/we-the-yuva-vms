@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const RegisterOrganizationSchema = z.object({
   name: z.string().min(2, 'Organization name must be at least 2 characters'),
+  slug: z.string().max(100).optional(),
   description: z.string().optional(),
   address: z.string().optional(),
   phone: z.string().optional(),

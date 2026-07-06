@@ -1,9 +1,11 @@
+import slugify from 'slugify';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
 export interface RegisterOrgInput {
   name: string;
+  slug?: string;
   description?: string;
   address?: string;
   phone?: string;
@@ -13,11 +15,24 @@ export interface RegisterOrgInput {
 
 export interface UpdateOrgInput {
   name?: string;
+  slug?: string;
   description?: string;
   address?: string;
   phone?: string;
   email?: string;
   website?: string;
+  logo?: string;
+}
+
+async function generateUniqueSlug(name: string): Promise<string> {
+  const base = slugify(name, { lower: true, strict: true });
+  let slug = base;
+  let counter = 1;
+  while (await prisma.organization.findUnique({ where: { slug } })) {
+    slug = `${base}-${counter}`;
+    counter++;
+  }
+  return slug;
 }
 
 export async function registerOrganization(adminUserId: string, data: RegisterOrgInput) {
@@ -46,9 +61,12 @@ export async function registerOrganization(adminUserId: string, data: RegisterOr
     throw new AppError('Organization with this name already exists', 409);
   }
 
+  const slug = data.slug ?? await generateUniqueSlug(data.name);
+
   const org = await prisma.organization.create({
     data: {
       name: data.name,
+      slug,
       description: data.description,
       address: data.address,
       phone: data.phone,
@@ -257,6 +275,25 @@ export async function listCoordinators(orgId: string) {
       createdAt: true,
     },
   });
+}
+
+export async function getPublicOrganizationBySlug(slug: string) {
+  const org = await prisma.organization.findUnique({
+    where: { slug },
+    select: {
+      name: true,
+      slug: true,
+      description: true,
+      logo: true,
+      website: true,
+      socialMedia: true,
+      email: true,
+      phone: true,
+      _count: { select: { opportunities: true } },
+    },
+  });
+
+  return org;
 }
 
 export async function removeCoordinatorFromOrg(

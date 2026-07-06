@@ -6,6 +6,7 @@ import {
   addOrganizationDocument,
   getOrganization,
   getOrganizationDocuments,
+  getPublicOrganizationBySlug,
   listCoordinators,
   registerOrganization,
   removeCoordinatorFromOrg,
@@ -89,6 +90,18 @@ export async function listOrgsHandler(req: Request, res: Response, next: NextFun
     const total = await prisma.organization.count();
 
     res.status(200).json({ orgs: result, total, page, limit });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getPublicOrgHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const org = await getPublicOrganizationBySlug(req.params.slug);
+    if (!org) {
+      throw new AppError('Organization not found', 404);
+    }
+    res.status(200).json(org);
   } catch (err) {
     next(err);
   }

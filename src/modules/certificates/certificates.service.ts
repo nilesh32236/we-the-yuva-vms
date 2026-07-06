@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
 import { prisma } from '../../lib/prisma';
+import { logger } from '../../lib/logger';
+import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
 export async function generateCertificate(userId: string, levelId: string) {
@@ -25,6 +27,21 @@ export async function generateCertificate(userId: string, levelId: string) {
       include: { level: true },
     });
   });
+
+  if (certificate && notificationsQueue) {
+    try {
+      await notificationsQueue.add('certificate-issued', {
+        userId: certificate.userId,
+        certificateTitle: certificate.level?.name ?? 'Certificate',
+        certificateId: certificate.id,
+      });
+    } catch (err) {
+      logger.warn('Failed to enqueue certificate-issued notification', {
+        error: (err as Error).message,
+        certificateId: certificate.id,
+      });
+    }
+  }
 
   return certificate;
 }

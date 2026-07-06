@@ -144,15 +144,6 @@ export async function createLevelRequest(
     });
     try {
       const cert = await generateCertificate(userId, level.id);
-      if (cert && notificationsQueue) {
-        await notificationsQueue
-          .add('certificate-issued', {
-            userId,
-            certificateTitle: `${level.name} Certificate`,
-            certificateId: cert.id,
-          })
-          .catch(() => {});
-      }
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', {
         err,
@@ -279,15 +270,6 @@ export async function reviewLevelRequest(
   if (data.status === 'APPROVED') {
     try {
       const cert = await generateCertificate(request.userId, request.levelId);
-      if (cert && notificationsQueue) {
-        await notificationsQueue
-          .add('certificate-issued', {
-            userId: request.userId,
-            certificateTitle: `${request.level.name} Certificate`,
-            certificateId: cert.id,
-          })
-          .catch(() => {});
-      }
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', {
         err,
