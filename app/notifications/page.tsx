@@ -145,56 +145,56 @@ export default function NotificationsPage() {
         ) : (
           <>
             {notifications.map((n) => {
-            const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
-            return (
-              <button
-                key={n.id}
-                type="button"
-                className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
-                onClick={() => {
-                  haptic.light();
-                  if (!n.read) markReadMut.mutate(n.id);
-                  if (n.link) router.push(n.link);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+              const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
+              return (
+                <button
+                  key={n.id}
+                  type="button"
+                  className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
+                  onClick={() => {
+                    haptic.light();
                     if (!n.read) markReadMut.mutate(n.id);
                     if (n.link) router.push(n.link);
-                  }
-                }}
-              >
-                <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      if (!n.read) markReadMut.mutate(n.id);
+                      if (n.link) router.push(n.link);
+                    }
+                  }}
                 >
-                  <Icon className={`w-4 h-4 ${!n.read ? 'text-white' : 'text-brand-muted'}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className={`text-sm font-medium leading-snug ${!n.read ? 'text-brand-text' : 'text-brand-muted/80'}`}
+                  <div
+                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}
                   >
-                    {n.title}
-                  </p>
-                  <p className="text-xs text-brand-muted mt-0.5 line-clamp-2">{n.body}</p>
-                  <p className="text-[10px] text-brand-muted mt-1">{timeAgo(n.createdAt)}</p>
-                </div>
-                <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-                  {!n.read && <span className="w-2 h-2 rounded-full bg-brand-primary" />}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      haptic.light();
-                      deleteMut.mutate(n.id);
-                    }}
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
-                    aria-label="Dismiss notification"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </button>
-            );
-          })}
+                    <Icon className={`w-4 h-4 ${!n.read ? 'text-white' : 'text-brand-muted'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className={`text-sm font-medium leading-snug ${!n.read ? 'text-brand-text' : 'text-brand-muted/80'}`}
+                    >
+                      {n.title}
+                    </p>
+                    <p className="text-xs text-brand-muted mt-0.5 line-clamp-2">{n.body}</p>
+                    <p className="text-[10px] text-brand-muted mt-1">{timeAgo(n.createdAt)}</p>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                    {!n.read && <span className="w-2 h-2 rounded-full bg-brand-primary" />}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        haptic.light();
+                        deleteMut.mutate(n.id);
+                      }}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+                      aria-label="Dismiss notification"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </button>
+              );
+            })}
             <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
           </>
         )}

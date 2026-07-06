@@ -39,7 +39,8 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = 'Organization name is required';
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Invalid email format';
-    if (website && !/^https?:\/\/.+/.test(website)) errs.website = 'Must be a valid URL (http/https)';
+    if (website && !/^https?:\/\/.+/.test(website))
+      errs.website = 'Must be a valid URL (http/https)';
     if (logo && !/^https?:\/\/.+/.test(logo)) errs.logo = 'Must be a valid URL (http/https)';
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -86,7 +87,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
     <div className="space-y-5" data-profile-editor>
       <div className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="org-name" className="text-sm font-medium text-brand-text">Organization Name</label>
+          <label htmlFor="org-name" className="text-sm font-medium text-brand-text">
+            Organization Name
+          </label>
           <input
             id="org-name"
             value={name}
@@ -98,7 +101,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="org-description" className="text-sm font-medium text-brand-text">Description</label>
+          <label htmlFor="org-description" className="text-sm font-medium text-brand-text">
+            Description
+          </label>
           <textarea
             id="org-description"
             value={description}
@@ -110,7 +115,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="org-logo" className="text-sm font-medium text-brand-text">Logo URL</label>
+          <label htmlFor="org-logo" className="text-sm font-medium text-brand-text">
+            Logo URL
+          </label>
           <input
             id="org-logo"
             value={logo}
@@ -122,7 +129,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="org-phone" className="text-sm font-medium text-brand-text">Phone</label>
+          <label htmlFor="org-phone" className="text-sm font-medium text-brand-text">
+            Phone
+          </label>
           <input
             id="org-phone"
             value={phone}
@@ -133,7 +142,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="org-email" className="text-sm font-medium text-brand-text">Email</label>
+          <label htmlFor="org-email" className="text-sm font-medium text-brand-text">
+            Email
+          </label>
           <input
             id="org-email"
             value={email}
@@ -145,7 +156,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="org-website" className="text-sm font-medium text-brand-text">Website</label>
+          <label htmlFor="org-website" className="text-sm font-medium text-brand-text">
+            Website
+          </label>
           <input
             id="org-website"
             value={website}
@@ -157,7 +170,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="org-address" className="text-sm font-medium text-brand-text">Address</label>
+          <label htmlFor="org-address" className="text-sm font-medium text-brand-text">
+            Address
+          </label>
           <input
             id="org-address"
             value={address}

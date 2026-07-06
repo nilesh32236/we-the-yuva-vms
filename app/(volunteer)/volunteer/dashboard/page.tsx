@@ -86,15 +86,15 @@ export default function VolunteerDashboardPage() {
 
       {/* Stats */}
       {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <PointsCard />
-            <StatsCard
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <PointsCard />
+          <StatsCard
             label="Total Hours"
             value={`${stats?.totalHours ?? 0}h`}
             icon={Clock}
@@ -140,7 +140,10 @@ export default function VolunteerDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
           >
             <p className="text-sm font-semibold">Browse Opportunities</p>
-            <ArrowRight className="w-4 h-4 text-white/80 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 text-white/80 group-hover:translate-x-0.5 transition-transform"
+              aria-hidden="true"
+            />
           </Link>
           <Link
             href="/volunteer/events"
@@ -148,7 +151,10 @@ export default function VolunteerDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
           >
             <p className="text-sm font-medium text-brand-text">My Events</p>
-            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors"
+              aria-hidden="true"
+            />
           </Link>
         </div>
       </div>

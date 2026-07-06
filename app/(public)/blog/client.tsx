@@ -43,66 +43,66 @@ export function BlogPageClient() {
           <>
             <div className="grid md:grid-cols-2 gap-6">
               {data?.data?.map(
-              (post: {
-                id: string;
-                title: string;
-                slug: string;
-                excerpt?: string;
-                featuredImage?: string;
-                tags: string[];
-                author: { name: string };
-                publishedAt: string;
-              }) => (
-                <Link
-                  key={post.id}
-                  href={`/blog/${post.slug}`}
-                  className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-lg transition-all group card-hover"
-                >
-                  {post.featuredImage && (
-                    <div className="relative h-48 overflow-hidden">
-                      <Image
-                        src={post.featuredImage}
-                        alt={post.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  )}
-                  <div className="p-5 space-y-2">
-                    <h2 className="font-heading font-semibold text-brand-text group-hover:text-brand-primary transition-colors">
-                      {post.title}
-                    </h2>
-                    {post.excerpt && (
-                      <p className="text-sm text-brand-muted line-clamp-2">{post.excerpt}</p>
-                    )}
-                    <div className="flex items-center gap-3 text-xs text-brand-muted pt-2">
-                      <span className="flex items-center gap-1">
-                        <User className="w-3 h-3" aria-hidden="true" /> {post.author.name}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" aria-hidden="true" />
-                        {new Date(post.publishedAt).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </span>
-                    </div>
-                    {post.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {post.tags.map((tag: string) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] bg-brand-bg text-brand-muted px-2 py-0.5 rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                (post: {
+                  id: string;
+                  title: string;
+                  slug: string;
+                  excerpt?: string;
+                  featuredImage?: string;
+                  tags: string[];
+                  author: { name: string };
+                  publishedAt: string;
+                }) => (
+                  <Link
+                    key={post.id}
+                    href={`/blog/${post.slug}`}
+                    className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-lg transition-all group card-hover"
+                  >
+                    {post.featuredImage && (
+                      <div className="relative h-48 overflow-hidden">
+                        <Image
+                          src={post.featuredImage}
+                          alt={post.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       </div>
                     )}
-                  </div>
-                </Link>
-              )
+                    <div className="p-5 space-y-2">
+                      <h2 className="font-heading font-semibold text-brand-text group-hover:text-brand-primary transition-colors">
+                        {post.title}
+                      </h2>
+                      {post.excerpt && (
+                        <p className="text-sm text-brand-muted line-clamp-2">{post.excerpt}</p>
+                      )}
+                      <div className="flex items-center gap-3 text-xs text-brand-muted pt-2">
+                        <span className="flex items-center gap-1">
+                          <User className="w-3 h-3" aria-hidden="true" /> {post.author.name}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" aria-hidden="true" />
+                          {new Date(post.publishedAt).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      </div>
+                      {post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {post.tags.map((tag: string) => (
+                            <span
+                              key={tag}
+                              className="text-[10px] bg-brand-bg text-brand-muted px-2 py-0.5 rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                )
               )}
             </div>
             <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />

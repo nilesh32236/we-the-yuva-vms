@@ -2,6 +2,7 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { useEffect } from 'react';
+import { Button } from '@/components/ui/Button';
 
 export default function ErrorPage({
   error,
@@ -36,13 +37,9 @@ export default function ErrorPage({
         </div>
         <h1 className="font-heading font-bold text-xl text-brand-text">Something went wrong</h1>
         <p className="text-brand-muted text-sm">An unexpected error occurred. Please try again.</p>
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary transition-colors"
-        >
+        <Button onClick={reset} className="px-5 py-2.5">
           Try again
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { memo } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
 import { haptic } from '@/lib/haptic';
+import { Button } from '@/components/ui/Button';
 
 const CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -241,7 +242,10 @@ const OpportunityCard = memo(function OpportunityCard({
         <div className="flex items-center justify-between text-xs text-brand-muted">
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" aria-hidden="true" />
-            <span className="tabular-nums">{filled} / {opp.totalSlots}</span> slots
+            <span className="tabular-nums">
+              {filled} / {opp.totalSlots}
+            </span>{' '}
+            slots
           </span>
           {isFull && <span className="text-brand-error font-medium">Full</span>}
         </div>
@@ -255,21 +259,23 @@ const OpportunityCard = memo(function OpportunityCard({
 
       {/* Apply button */}
       {showApply && (
-        <button
-          type="button"
-          onClick={handleApply}
-          disabled={applying || applied || isFull}
-          className={`mt-1 w-full py-2 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer active-bounce
-            ${
+        <div className="mt-1">
+          <Button
+            onClick={handleApply}
+            disabled={applied || isFull}
+            loading={applying}
+            fullWidth
+            className={
               applied
-                ? 'bg-brand-primary/10 text-brand-primary cursor-default'
+                ? 'bg-brand-primary/10 text-brand-primary opacity-100 hover:bg-brand-primary/10 cursor-default shadow-none active:transform-none'
                 : isFull
-                  ? 'bg-brand-border text-brand-muted cursor-not-allowed'
-                  : 'bg-brand-primary text-white hover:bg-brand-secondary'
-            }`}
-        >
-          {applying ? 'Applying…' : applied ? 'Applied ✓' : 'Apply Now'}
-        </button>
+                  ? 'bg-brand-border text-brand-muted opacity-100 cursor-not-allowed shadow-none active:transform-none hover:bg-brand-border'
+                  : ''
+            }
+          >
+            {applied ? 'Applied ✓' : isFull ? 'Full' : 'Apply Now'}
+          </Button>
+        </div>
       )}
     </div>
   );

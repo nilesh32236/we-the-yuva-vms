@@ -41,7 +41,10 @@ export function MissionVision() {
 
         <div className={`stagger-group grid md:grid-cols-3 gap-8 mt-14 ${inView ? 'in-view' : ''}`}>
           {cards.map((card) => (
-            <div key={card.title} className="card-hover bg-brand-bg dark:bg-brand-surface rounded-2xl p-6 sm:p-8">
+            <div
+              key={card.title}
+              className="card-hover bg-brand-bg dark:bg-brand-surface rounded-2xl p-6 sm:p-8"
+            >
               <div className="w-10 h-10 rounded-lg bg-brand-bg dark:bg-brand-primary/20 flex items-center justify-center">
                 <card.icon
                   className="w-5 h-5 text-brand-primary dark:text-brand-primary"

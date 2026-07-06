@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 const SUBJECTS = ['General Inquiry', 'Partnership', 'Volunteer Support', 'Media', 'Other'] as const;
 
@@ -109,18 +110,10 @@ export function ContactForm() {
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary text-white px-6 py-3 font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
-      >
-        {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-        ) : (
-          <Send className="h-4 w-4" aria-hidden="true" />
-        )}
+      <Button type="submit" loading={loading} className="px-6 py-3">
+        {!loading && <Send className="h-4 w-4" aria-hidden="true" />}
         {loading ? 'Sending...' : 'Send message'}
-      </button>
+      </Button>
     </form>
   );
 }

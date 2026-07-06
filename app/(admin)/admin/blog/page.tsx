@@ -27,7 +27,8 @@ export default function AdminBlogPage() {
       toast({ title: 'Post published!' });
     },
     onError: (err) => {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to publish';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to publish';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     },
   });
@@ -39,7 +40,8 @@ export default function AdminBlogPage() {
       toast({ title: 'Post archived.' });
     },
     onError: (err) => {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to archive';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to archive';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     },
   });
@@ -51,7 +53,8 @@ export default function AdminBlogPage() {
       toast({ title: 'Post deleted.' });
     },
     onError: (err) => {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to delete';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to delete';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     },
   });
@@ -105,10 +108,7 @@ export default function AdminBlogPage() {
                 key={post.id}
                 className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-brand-border card-hover"
               >
-                <Link
-                  href={`/admin/blog/${post.id}/edit`}
-                  className="min-w-0 flex-1"
-                >
+                <Link href={`/admin/blog/${post.id}/edit`} className="min-w-0 flex-1">
                   <h2 className="font-medium text-brand-text truncate">{post.title}</h2>
                   <p className="text-xs text-brand-muted mt-0.5">
                     by {post.author.name} &middot;{' '}

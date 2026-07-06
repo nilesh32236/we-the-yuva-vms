@@ -11,7 +11,8 @@ export default function ObserverStoriesPage() {
   const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
     queryKey: ['published-stories', page],
-    queryFn: () => api.get('/stories/published', { params: { limit: 50, page } }).then((r) => r.data),
+    queryFn: () =>
+      api.get('/stories/published', { params: { limit: 50, page } }).then((r) => r.data),
     staleTime: 60_000,
   });
 

@@ -1,7 +1,17 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Building2, Edit2, Globe, Link as LinkIcon, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react';
+import {
+  ArrowLeft,
+  Building2,
+  Edit2,
+  Globe,
+  Link as LinkIcon,
+  Mail,
+  MapPin,
+  Phone,
+  type LucideIcon,
+} from 'lucide-react';
 import NextLink from 'next/link';
 import { useState } from 'react';
 import OrgProfileForm from '@/components/org/OrgProfileForm';
@@ -59,7 +69,15 @@ export default function OrgAdminOrgProfilePage() {
 
   if (!org) return null;
 
-  const InfoRow = ({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value?: string | null }) => (
+  const InfoRow = ({
+    icon: Icon,
+    label,
+    value,
+  }: {
+    icon: LucideIcon;
+    label: string;
+    value?: string | null;
+  }) => (
     <div className="flex items-start gap-3 text-sm">
       <Icon className="w-4 h-4 text-brand-muted mt-0.5 shrink-0" aria-hidden="true" />
       <div>
@@ -113,7 +131,9 @@ export default function OrgAdminOrgProfilePage() {
         </div>
 
         {org.description && (
-          <p className="text-sm text-brand-muted border-t border-brand-border pt-4">{org.description}</p>
+          <p className="text-sm text-brand-muted border-t border-brand-border pt-4">
+            {org.description}
+          </p>
         )}
       </div>
 

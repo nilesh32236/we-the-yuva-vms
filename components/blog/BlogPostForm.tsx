@@ -69,7 +69,9 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
             trigger('content');
           }}
         />
-        {errors.content && <p className="text-xs text-brand-error mt-1">{errors.content.message}</p>}
+        {errors.content && (
+          <p className="text-xs text-brand-error mt-1">{errors.content.message}</p>
+        )}
       </div>
 
       <div className="space-y-1.5">
