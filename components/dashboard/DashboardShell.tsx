@@ -155,7 +155,7 @@ function QuickActionsPanel({
           <Link
             href={ctaHref}
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white
-              hover:bg-brand-secondary transition-colors duration-200 cursor-pointer group"
+              hover:bg-brand-secondary transition-colors duration-200 cursor-pointer group active-bounce"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
@@ -258,8 +258,7 @@ export function DashboardShell({
           return (
             <div
               key={stat.label}
-              className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4
-                hover:shadow-md hover:border-brand-primary/30 transition-shadow duration-200 cursor-default"
+              className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 card-hover cursor-default"
             >
               <div
                 className={`w-12 h-12 rounded-xl ${accentBg} flex items-center justify-center flex-shrink-0`}

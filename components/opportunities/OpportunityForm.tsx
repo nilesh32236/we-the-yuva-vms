@@ -228,6 +228,7 @@ export function OpportunityForm({
                   )
                 }
                 className="cursor-pointer"
+                aria-label="Remove skill"
               >
                 <X className="w-3 h-3" />
               </button>

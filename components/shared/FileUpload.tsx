@@ -95,7 +95,7 @@ export function FileUpload({
             type="button"
             onClick={remove}
             aria-label="Remove file"
-            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-brand-error text-white flex items-center justify-center hover:bg-brand-error/80 transition-colors"
+            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-brand-error text-white flex items-center justify-center hover:bg-brand-error/80 transition-colors active-bounce"
           >
             <X className="w-3 h-3" />
           </button>
@@ -103,6 +103,7 @@ export function FileUpload({
       ) : (
         <button
           type="button"
+          aria-label="Upload file"
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
@@ -113,7 +114,7 @@ export function FileUpload({
               inputRef.current?.click();
             }
           }}
-          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
+          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors active-bounce ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
         >
           {uploading ? (
             <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />

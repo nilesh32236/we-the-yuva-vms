@@ -28,34 +28,30 @@ export function MissionVision() {
     <section
       id="about"
       ref={ref}
-      className="bg-white dark:bg-slate-900 py-20 sm:py-28"
-      style={{
-        opacity: inView ? 1 : 0,
-        transition: 'opacity 0.6s ease',
-      }}
+      className={`bg-brand-surface dark:bg-brand-bg py-20 sm:py-28 motion-safe:transition-all motion-safe:duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-brand-text dark:text-white text-center">
           What WeTheYuva does
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-4 text-center max-w-2xl mx-auto">
+        <p className="text-brand-muted dark:text-brand-muted mt-4 text-center max-w-2xl mx-auto">
           We connect volunteers with organisations that need them, and track every hour, every
           skill, and every community you reach.
         </p>
 
-        <div className="grid md:grid-cols-3 gap-8 mt-14">
+        <div className={`stagger-group grid md:grid-cols-3 gap-8 mt-14 ${inView ? 'in-view' : ''}`}>
           {cards.map((card) => (
-            <div key={card.title} className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 sm:p-8">
-              <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+            <div key={card.title} className="card-hover bg-brand-bg dark:bg-brand-surface rounded-2xl p-6 sm:p-8">
+              <div className="w-10 h-10 rounded-lg bg-brand-bg dark:bg-brand-primary/20 flex items-center justify-center">
                 <card.icon
-                  className="w-5 h-5 text-emerald-700 dark:text-emerald-400"
+                  className="w-5 h-5 text-brand-primary dark:text-brand-primary"
                   aria-hidden="true"
                 />
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mt-4">
+              <h3 className="text-lg font-semibold text-brand-text dark:text-white mt-4">
                 {card.title}
               </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+              <p className="text-sm text-brand-muted dark:text-brand-muted mt-2 leading-relaxed">
                 {card.desc}
               </p>
             </div>

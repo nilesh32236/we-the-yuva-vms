@@ -9,6 +9,8 @@
   --color-brand-primary: var(--clr-brand-primary);
   --color-brand-secondary: var(--clr-brand-secondary);
   --color-brand-cta: var(--clr-brand-cta);
+  --color-brand-accent: var(--clr-brand-accent);
+  --color-brand-accent-foreground: var(--clr-brand-accent-foreground);
   --color-brand-bg: var(--clr-brand-bg);
   --color-brand-text: var(--clr-brand-text);
   --color-brand-muted: var(--clr-brand-muted);
@@ -35,10 +37,10 @@
   --color-input: var(--clr-input);
   --color-ring: var(--clr-ring);
 
-  /* Fonts */
+  /* Fonts — Inter for body, Poppins for headings */
   --font-heading: "Poppins", sans-serif;
-  --font-body: "Open Sans", sans-serif;
-  --font-sans: "Open Sans", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-sans: "Inter", sans-serif;
 
   /* Border radius */
   --radius: 0.75rem;
@@ -49,6 +51,10 @@
   /* Animations */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out;
+  --animate-scale-in: scale-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-subtle-pulse: subtle-pulse 2s ease-in-out infinite;
 }
 
 /* ─── Light Theme (default) ───────────────────────────────────── */
@@ -56,25 +62,27 @@
   --clr-brand-primary: #047857;
   --clr-brand-secondary: #059669;
   --clr-brand-cta: #0891b2;
+  --clr-brand-accent: #d97706;
+  --clr-brand-accent-foreground: #ffffff;
   --clr-brand-bg: #ecfdf5;
-  --clr-brand-text: #064e3b;
+  --clr-brand-text: #065f46;
   --clr-brand-muted: #6b7280;
   --clr-brand-error: #dc2626;
   --clr-brand-surface: #ffffff;
   --clr-brand-border: #d1fae5;
 
   --clr-background: #ffffff;
-  --clr-foreground: #064e3b;
+  --clr-foreground: #065f46;
   --clr-card: #ffffff;
-  --clr-card-foreground: #064e3b;
+  --clr-card-foreground: #065f46;
   --clr-primary: #047857;
   --clr-primary-foreground: #ffffff;
   --clr-secondary: #059669;
   --clr-secondary-foreground: #ffffff;
-  --clr-muted: #f1f5f9;
+  --clr-muted: #f8fafc;
   --clr-muted-foreground: #6b7280;
-  --clr-accent: #f1f5f9;
-  --clr-accent-foreground: #064e3b;
+  --clr-accent: #f8fafc;
+  --clr-accent-foreground: #065f46;
   --clr-destructive: #dc2626;
   --clr-destructive-foreground: #ffffff;
   --clr-border: #d1fae5;
@@ -87,29 +95,31 @@
   --clr-brand-primary: #34d399;
   --clr-brand-secondary: #6ee7b7;
   --clr-brand-cta: #22d3ee;
-  --clr-brand-bg: #0f172a;
-  --clr-brand-text: #f1f5f9;
+  --clr-brand-accent: #fbbf24;
+  --clr-brand-accent-foreground: #0f172a;
+  --clr-brand-bg: #0c1222;
+  --clr-brand-text: #e2e8f0;
   --clr-brand-muted: #94a3b8;
   --clr-brand-error: #f87171;
-  --clr-brand-surface: #1e293b;
-  --clr-brand-border: #334155;
+  --clr-brand-surface: #1a2332;
+  --clr-brand-border: #1e293b;
 
-  --clr-background: #0f172a;
-  --clr-foreground: #f1f5f9;
-  --clr-card: #1e293b;
-  --clr-card-foreground: #f1f5f9;
+  --clr-background: #0c1222;
+  --clr-foreground: #e2e8f0;
+  --clr-card: #1a2332;
+  --clr-card-foreground: #e2e8f0;
   --clr-primary: #34d399;
-  --clr-primary-foreground: #0f172a;
+  --clr-primary-foreground: #0c1222;
   --clr-secondary: #6ee7b7;
-  --clr-secondary-foreground: #0f172a;
-  --clr-muted: #1e293b;
+  --clr-secondary-foreground: #0c1222;
+  --clr-muted: #1a2332;
   --clr-muted-foreground: #94a3b8;
-  --clr-accent: #1e293b;
-  --clr-accent-foreground: #f1f5f9;
+  --clr-accent: #1a2332;
+  --clr-accent-foreground: #e2e8f0;
   --clr-destructive: #f87171;
-  --clr-destructive-foreground: #0f172a;
-  --clr-border: #334155;
-  --clr-input: #334155;
+  --clr-destructive-foreground: #0c1222;
+  --clr-border: #1e293b;
+  --clr-input: #1e293b;
   --clr-ring: #34d399;
 }
 
@@ -127,21 +137,51 @@
 
 /* ─── Keyframes ───────────────────────────────────────────────── */
 @keyframes accordion-down {
-  from {
-    height: 0;
-  }
-  to {
-    height: var(--radix-accordion-content-height);
-  }
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
 }
 
 @keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+@keyframes fade-in-up {
   from {
-    height: var(--radix-accordion-content-height);
+    opacity: 0;
+    transform: translateY(16px);
   }
   to {
-    height: 0;
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* ─── Base Styles ─────────────────────────────────────────────── */
@@ -149,17 +189,18 @@
   * {
     border-color: var(--color-border);
     box-sizing: border-box;
-    /* Remove tap highlight on mobile */
     -webkit-tap-highlight-color: transparent;
-    /* Prevent 300ms double-tap delay on mobile */
     touch-action: manipulation;
   }
 
   html {
-    /* Prevent elastic bounce scroll on iOS outside scroll containers */
     overscroll-behavior: none;
-    /* Smooth scrolling */
     scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
   }
 
   body {
@@ -168,12 +209,9 @@
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Prevent text size adjustment on orientation change (iOS) */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Prevent callout on long-press (iOS) */
     -webkit-touch-callout: none;
-    /* Fill the full viewport including notch areas */
     min-height: 100dvh;
   }
 
@@ -185,15 +223,18 @@
   h6 {
     font-family: var(--font-heading);
     scroll-margin-top: 5rem;
+    text-wrap: balance;
   }
 
-  /* Allow scrolling inside scroll containers without bouncing the page */
+  p {
+    text-wrap: pretty;
+  }
+
   [data-scroll] {
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Inputs: prevent iOS zoom on focus (font-size must be >= 16px) */
   input,
   select,
   textarea {
@@ -211,8 +252,30 @@
   background: #34d399 !important;
 }
 
+/* ─── Staggered Reveal Utility ───────────────────────────────── */
+.stagger-group > * {
+  opacity: 0;
+}
+
+.stagger-group.in-view > * {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.stagger-group.in-view > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-group.in-view > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-group.in-view > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-group.in-view > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-group.in-view > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-group.in-view > *:nth-child(6) { animation-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-group > * {
+    opacity: 1;
+    animation: none;
+  }
+}
+
 /* ─── Safe Area Utilities ─────────────────────────────────────── */
-/* Used for iPhone notch / Dynamic Island / home indicator */
 @layer utilities {
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -229,28 +292,35 @@
   .mb-safe {
     margin-bottom: env(safe-area-inset-bottom, 0px);
   }
-  /* Bottom nav height + safe area — used for main content padding */
   .pb-nav-safe {
     padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   }
-  /* Full-height that accounts for dynamic viewport (address bar on mobile) */
   .h-dvh {
     height: 100dvh;
   }
   .min-h-dvh {
     min-height: 100dvh;
   }
-  /* Prevent text highlighting on interactive touch components */
   .touch-select-none {
     -webkit-user-select: none;
     user-select: none;
   }
-  /* Spring-like native tactile active states */
   .active-bounce {
     transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   .active-bounce:active {
     transform: scale(0.96);
+  }
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--color-brand-primary);
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -269,4 +339,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brand-primary);
 }
-

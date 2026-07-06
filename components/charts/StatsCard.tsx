@@ -21,14 +21,14 @@ export function StatsCard({
   trend,
 }: StatsCardProps) {
   return (
-    <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 hover:shadow-md hover:border-brand-primary/30 transition-shadow duration-200">
+    <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 card-hover">
       <div
         className={`w-12 h-12 rounded-xl ${accentBg} flex items-center justify-center flex-shrink-0`}
       >
-        <Icon className={`w-6 h-6 ${accent}`} />
+        <Icon className={`w-6 h-6 ${accent}`} aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-heading font-bold text-2xl text-brand-text leading-none">{value}</p>
+        <p className="font-heading font-bold text-2xl text-brand-text leading-none tabular-nums">{value}</p>
         <p className="text-brand-muted text-xs mt-1 truncate">{label}</p>
         {trend && (
           <div

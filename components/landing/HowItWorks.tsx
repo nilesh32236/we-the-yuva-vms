@@ -1,4 +1,7 @@
+'use client';
+
 import { Search, Handshake, BarChart3 } from 'lucide-react';
+import { useInView } from '@/hooks/useInView';
 
 const steps = [
   {
@@ -22,31 +25,36 @@ const steps = [
 ];
 
 export function HowItWorks() {
+  const { ref, inView } = useInView(0.1);
+
   return (
-    <section className="bg-white py-20 sm:py-28">
+    <section className="bg-brand-surface py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <div className="text-center max-w-2xl mx-auto">
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-emerald-600">
+          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-brand-primary">
             How it works
           </span>
-          <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 sm:text-4xl">
+          <h2 className="mt-3 font-heading text-3xl font-bold text-brand-text sm:text-4xl">
             From first click to community leader
           </h2>
-          <p className="mt-3 text-slate-500">Three steps. One platform. A lifetime of impact.</p>
+          <p className="mt-3 text-brand-muted">Three steps. One platform. A lifetime of impact.</p>
         </div>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
+        <div
+          ref={ref}
+          className={`stagger-group mt-16 grid gap-8 md:grid-cols-3 ${inView ? 'in-view' : ''}`}
+        >
           {steps.map((step) => (
             <div key={step.step} className="group relative">
-              <div className="rounded-2xl border border-slate-100 bg-white p-8 transition-shadow duration-200 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5">
-                <span className="font-heading text-5xl font-bold text-emerald-100 transition-colors duration-200 group-hover:text-emerald-200">
+              <div className="card-hover rounded-2xl border border-brand-border bg-brand-surface p-8">
+                <span className="font-heading text-5xl font-bold text-brand-border transition-colors duration-200 group-hover:text-brand-primary/20">
                   {step.step}
                 </span>
-                <div className="mt-4 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
-                  <step.icon className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+                <div className="mt-4 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-bg">
+                  <step.icon className="h-5 w-5 text-brand-primary" aria-hidden="true" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-slate-900">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500">{step.desc}</p>
+                <h3 className="mt-4 text-lg font-semibold text-brand-text">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-brand-muted">{step.desc}</p>
               </div>
             </div>
           ))}

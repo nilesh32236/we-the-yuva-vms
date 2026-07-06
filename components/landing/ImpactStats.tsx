@@ -3,10 +3,10 @@
 import { useInView } from '@/hooks/useInView';
 
 const stats = [
-  { number: '7,000+', label: 'Volunteers' },
-  { number: '50,000+', label: 'Hours contributed' },
-  { number: '200+', label: 'Communities reached' },
-  { number: '15+', label: 'States' },
+  { number: '500+', label: 'NGO Partners' },
+  { number: '12,000+', label: 'Certificates Issued' },
+  { number: '1,500+', label: 'Events Organized' },
+  { number: '85+', label: 'Cities Active' },
 ];
 
 export function ImpactStats() {
@@ -16,27 +16,23 @@ export function ImpactStats() {
     <section
       id="impact"
       ref={ref}
-      className="bg-white dark:bg-slate-900 py-20 sm:py-28"
-      style={{
-        opacity: inView ? 1 : 0,
-        transition: 'opacity 0.6s ease',
-      }}
+      className={`bg-brand-surface dark:bg-brand-bg py-20 sm:py-28 motion-safe:transition-all motion-safe:duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-brand-text dark:text-white text-center">
           Where we stand today
         </h2>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12">
+        <div className={`stagger-group grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12 ${inView ? 'in-view' : ''}`}>
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 sm:p-8 text-center"
+              className="card-hover bg-brand-bg dark:bg-brand-surface rounded-2xl p-6 sm:p-8 text-center"
             >
-              <p className="text-4xl sm:text-5xl font-bold text-emerald-700 dark:text-emerald-400">
+              <p className="tabular-nums text-4xl sm:text-5xl font-bold text-brand-primary dark:text-brand-primary">
                 {stat.number}
               </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{stat.label}</p>
+              <p className="text-sm text-brand-muted dark:text-brand-muted mt-2">{stat.label}</p>
             </div>
           ))}
         </div>

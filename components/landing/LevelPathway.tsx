@@ -44,17 +44,13 @@ export function LevelPathway() {
     <section
       id="pathway"
       ref={ref}
-      className="bg-slate-50 dark:bg-slate-800/50 py-20 sm:py-28"
-      style={{
-        opacity: inView ? 1 : 0,
-        transition: 'opacity 0.6s ease',
-      }}
+      className={`bg-muted dark:bg-brand-surface/50 py-20 sm:py-28 motion-safe:transition-all motion-safe:duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-brand-text dark:text-white text-center">
           Four levels, one goal
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 text-center mt-3">
+        <p className="text-brand-muted dark:text-brand-muted text-center mt-3">
           You pick the pace. The platform tracks your progress.
         </p>
 
@@ -70,15 +66,15 @@ export function LevelPathway() {
                   >
                     {level.step}
                   </div>
-                  {!isLast && <div className="w-px flex-1 bg-slate-200 dark:bg-slate-700" />}
+                  {!isLast && <div className="w-px flex-1 bg-brand-border dark:bg-brand-border" />}
                 </div>
 
                 <div className={isLast ? '' : 'pb-10'}>
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-semibold text-brand-text dark:text-white">
                     {level.title}
                   </h3>
-                  <p className="text-sm text-slate-500 mt-1">{level.desc}</p>
-                  <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
+                  <p className="text-sm text-brand-muted mt-1">{level.desc}</p>
+                  <p className="text-xs text-brand-muted mt-2 flex items-center gap-1.5">
                     <span className={`inline-block w-1.5 h-1.5 rounded-full ${level.dotColor}`} />
                     {level.target}
                   </p>

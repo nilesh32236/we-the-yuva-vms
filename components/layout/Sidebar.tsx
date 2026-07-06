@@ -73,11 +73,11 @@ export function Sidebar({ navItems }: SidebarProps) {
             return (
               <div
                 key={item.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-40 cursor-not-allowed select-none"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-40 cursor-not-allowed select-none card-hover"
                 aria-disabled="true"
               >
                 <div className="w-8 h-8 rounded-lg bg-brand-bg flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-4 h-4 text-brand-muted" />
+                  <Icon className="w-4 h-4 text-brand-muted" aria-hidden="true" />
                 </div>
                 <span className="text-sm text-brand-muted flex-1 truncate">{item.label}</span>
                 <span className="text-[9px] font-bold text-brand-muted bg-brand-bg px-1.5 py-0.5 rounded-full border border-brand-border uppercase tracking-wide">
@@ -91,7 +91,7 @@ export function Sidebar({ navItems }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 cursor-pointer group relative
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 cursor-pointer group relative active-bounce
                 ${
                   isActive
                     ? 'bg-brand-primary text-white shadow-sm'
@@ -107,7 +107,7 @@ export function Sidebar({ navItems }: SidebarProps) {
                 className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
                 ${isActive ? 'bg-white/20' : 'bg-brand-bg group-hover:bg-brand-surface'}`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-brand-primary'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-brand-primary'}`} aria-hidden="true" />
               </div>
               <span
                 className={`text-sm font-medium truncate flex-1 ${isActive ? 'text-white' : ''}`}

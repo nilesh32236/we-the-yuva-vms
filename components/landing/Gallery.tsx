@@ -40,28 +40,28 @@ export function Gallery() {
   const { ref, inView } = useInView(0.1);
 
   return (
-    <section id="gallery" className="bg-slate-50 py-20 sm:py-28 dark:bg-slate-800/50">
+    <section id="gallery" className="bg-brand-bg py-20 sm:py-28 dark:bg-brand-surface/50">
       <div
         ref={ref}
         className={`mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 motion-safe:transition-opacity motion-safe:duration-700 ${
           inView ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <h2 className="text-center text-3xl font-bold text-slate-900 sm:text-4xl dark:text-white">
+        <h2 className="text-center text-3xl font-bold text-brand-text sm:text-4xl dark:text-white">
           From the field
         </h2>
-        <p className="mt-3 text-center text-slate-500 dark:text-slate-400">
+        <p className="mt-3 text-center text-brand-muted dark:text-brand-muted">
           What volunteering with WeTheYuva looks like.
         </p>
 
-        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+        <div className={`stagger-group mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 ${inView ? 'in-view' : ''}`}>
           {images.map((img) => (
             <div key={img.alt} className="group relative aspect-square overflow-hidden rounded-xl">
               <Image
                 src={img.src}
                 alt={img.alt}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 33vw"
               />
               <div

@@ -31,21 +31,21 @@ export function Testimonials() {
   const { ref, inView } = useInView(0.1);
 
   return (
-    <section id="testimonials" className="bg-white py-20 sm:py-28 dark:bg-slate-900">
+    <section id="testimonials" className="bg-brand-surface py-20 sm:py-28 dark:bg-brand-bg">
       <div
         ref={ref}
         className={`mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 motion-safe:transition-opacity motion-safe:duration-700 ${
           inView ? 'opacity-100' : 'opacity-0'
         }`}
       >
-        <h2 className="text-center text-3xl font-bold text-slate-900 sm:text-4xl dark:text-white">
+        <h2 className="text-center text-3xl font-bold text-brand-text sm:text-4xl dark:text-white">
           What volunteers say
         </h2>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className={`stagger-group mt-12 grid gap-6 md:grid-cols-3 ${inView ? 'in-view' : ''}`}>
           {testimonials.map((t) => (
-            <div key={t.name} className="rounded-2xl bg-slate-50 p-6 sm:p-8 dark:bg-slate-800">
-              <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            <div key={t.name} className="card-hover rounded-2xl bg-brand-bg p-6 sm:p-8 dark:bg-brand-surface">
+              <p className="text-sm leading-relaxed text-brand-muted dark:text-brand-muted">
                 &quot;{t.quote}&quot;
               </p>
               <div className="mt-6 flex items-center gap-3">
@@ -57,10 +57,10 @@ export function Testimonials() {
                   className="h-10 w-10 rounded-full object-cover"
                 />
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <div className="text-sm font-semibold text-brand-text dark:text-white">
                     {t.name}
                   </div>
-                  <div className="text-xs text-slate-400 dark:text-slate-500">{t.role}</div>
+                  <div className="text-xs text-brand-muted dark:text-brand-muted">{t.role}</div>
                 </div>
               </div>
             </div>

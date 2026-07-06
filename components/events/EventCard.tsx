@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Clock, MapPin, Users, Video } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, MapPin, Users, Video } from 'lucide-react';
 import { memo } from 'react';
 import { ApplicationStatusBadge } from '../opportunities/ApplicationStatusBadge';
 
@@ -35,8 +35,8 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
 
   return (
     <div
-      className={`bg-brand-surface rounded-2xl border p-5 flex flex-col gap-3 transition-shadow duration-200
-      ${isPast ? 'border-brand-border opacity-80' : 'border-brand-border hover:shadow-md hover:border-brand-primary/30'}`}
+      className={`bg-brand-surface rounded-2xl border p-5 flex flex-col gap-3
+      ${isPast ? 'border-brand-border opacity-80' : 'border-brand-border card-hover'}`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
@@ -61,7 +61,7 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
 
       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-brand-muted">
         <span className="flex items-center gap-1">
-          <Calendar className="w-3 h-3" />
+          <Calendar className="w-3 h-3" aria-hidden="true" />
           {date.toLocaleDateString('en-IN', {
             weekday: 'short',
             day: 'numeric',
@@ -70,23 +70,23 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
           })}
         </span>
         <span className="flex items-center gap-1">
-          <Clock className="w-3 h-3" />
+          <Clock className="w-3 h-3" aria-hidden="true" />
           {event.startTime} – {event.endTime}
         </span>
         {event.isVirtual ? (
           <span className="flex items-center gap-1 text-brand-primary">
-            <Video className="w-3 h-3" />
+            <Video className="w-3 h-3" aria-hidden="true" />
             Virtual
           </span>
         ) : event.venue ? (
           <span className="flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
+            <MapPin className="w-3 h-3" aria-hidden="true" />
             {event.venue}
           </span>
         ) : null}
         {event._count !== undefined && (
           <span className="flex items-center gap-1">
-            <Users className="w-3 h-3" />
+            <Users className="w-3 h-3" aria-hidden="true" />
             {event._count.attendances} / {event.capacity}
           </span>
         )}
@@ -99,7 +99,7 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
           rel="noopener noreferrer"
           className="text-xs text-brand-primary hover:underline cursor-pointer"
         >
-          Join meeting →
+          Join meeting <ArrowRight className="w-3 h-3 inline" aria-hidden="true" />
         </a>
       )}
     </div>

@@ -7,15 +7,15 @@ export function StatsBar() {
   ];
 
   return (
-    <section className="bg-emerald-800 py-12 sm:py-16">
+    <section className="bg-brand-primary py-12 sm:py-16">
       <div className="mx-auto max-w-6xl px-6">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center">
-              <p className="font-heading text-3xl font-bold text-white sm:text-4xl">
+              <p className="tabular-nums font-heading text-3xl font-bold text-white sm:text-4xl">
                 {stat.number}
               </p>
-              <p className="mt-1.5 text-sm text-emerald-200/80">{stat.label}</p>
+              <p className="mt-1.5 text-sm text-white/70">{stat.label}</p>
             </div>
           ))}
         </div>

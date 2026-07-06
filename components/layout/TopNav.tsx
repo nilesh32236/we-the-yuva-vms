@@ -157,7 +157,7 @@ export function TopNav() {
         className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer"
         aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
       >
-        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        {isDark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
       </button>
     );
   }
@@ -204,7 +204,7 @@ export function TopNav() {
             aria-haspopup="true"
             aria-expanded={open}
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-4 h-4" aria-hidden="true" />
             {unreadCount > 0 && (
               <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 border-2 border-brand-surface flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold leading-none">{unreadCount}</span>
@@ -256,6 +256,7 @@ export function TopNav() {
                         >
                           <Icon
                             className={`w-4 h-4 ${!n.read ? 'text-white' : 'text-brand-muted'}`}
+                            aria-hidden="true"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -326,7 +327,7 @@ export function TopNav() {
           aria-label="Log out"
           title="Log out"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
     </header>

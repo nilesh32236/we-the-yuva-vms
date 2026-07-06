@@ -168,7 +168,7 @@ const OpportunityCard = memo(function OpportunityCard({
 
   const card = (
     <div
-      className={`bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-shadow duration-200 ${detailHref ? 'cursor-pointer' : 'cursor-default'}`}
+      className={`bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col gap-3 card-hover ${detailHref ? 'cursor-pointer' : 'cursor-default'}`}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
@@ -193,18 +193,18 @@ const OpportunityCard = memo(function OpportunityCard({
       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-brand-muted">
         {opp.location && (
           <span className="flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
+            <MapPin className="w-3 h-3" aria-hidden="true" />
             {opp.location.name}
           </span>
         )}
         {opp.isRemote && (
           <span className="flex items-center gap-1 text-brand-primary">
-            <Wifi className="w-3 h-3" />
+            <Wifi className="w-3 h-3" aria-hidden="true" />
             Remote
           </span>
         )}
         <span className="flex items-center gap-1">
-          <Calendar className="w-3 h-3" />
+          <Calendar className="w-3 h-3" aria-hidden="true" />
           {new Date(opp.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
           {' – '}
           {new Date(opp.endDate).toLocaleDateString('en-IN', {
@@ -214,7 +214,7 @@ const OpportunityCard = memo(function OpportunityCard({
           })}
         </span>
         <span className="flex items-center gap-1">
-          <Briefcase className="w-3 h-3" />
+          <Briefcase className="w-3 h-3" aria-hidden="true" />
           {opp.hoursPerSession}h/session
         </span>
       </div>
@@ -240,8 +240,8 @@ const OpportunityCard = memo(function OpportunityCard({
       <div className="space-y-1">
         <div className="flex items-center justify-between text-xs text-brand-muted">
           <span className="flex items-center gap-1">
-            <Users className="w-3 h-3" />
-            {filled} / {opp.totalSlots} slots
+            <Users className="w-3 h-3" aria-hidden="true" />
+            <span className="tabular-nums">{filled} / {opp.totalSlots}</span> slots
           </span>
           {isFull && <span className="text-brand-error font-medium">Full</span>}
         </div>
@@ -259,7 +259,7 @@ const OpportunityCard = memo(function OpportunityCard({
           type="button"
           onClick={handleApply}
           disabled={applying || applied || isFull}
-          className={`mt-1 w-full py-2 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer
+          className={`mt-1 w-full py-2 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer active-bounce
             ${
               applied
                 ? 'bg-brand-primary/10 text-brand-primary cursor-default'

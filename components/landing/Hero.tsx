@@ -19,7 +19,7 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur-sm mb-6">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="flex h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-subtle-pulse" />
           India&apos;s fastest-growing volunteer network
         </div>
 
@@ -36,7 +36,7 @@ export function Hero() {
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-emerald-700/30 transition-colors duration-200 hover:bg-emerald-400 hover:shadow-emerald-600/40 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+            className="active-bounce inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-brand-primary/30 transition-colors duration-200 hover:bg-emerald-400 hover:shadow-brand-secondary/40 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             Join as volunteer
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -44,7 +44,7 @@ export function Hero() {
 
           <Link
             href="/opportunities"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-7 py-3.5 font-semibold text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
+            className="active-bounce inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-7 py-3.5 font-semibold text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             <Play className="h-4 w-4" aria-hidden="true" />
             Browse opportunities

@@ -34,7 +34,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-slate-950 text-slate-400">
+    <footer className="bg-slate-950 text-brand-muted">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main grid */}
         <div className="grid grid-cols-2 gap-8 py-16 md:grid-cols-5 lg:gap-12">
@@ -42,12 +42,12 @@ export function Footer() {
           <div className="col-span-2">
             <Link
               href="/"
-              className="mb-5 inline-block rounded-lg font-heading text-lg font-bold text-white tracking-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="mb-5 inline-block rounded-lg font-heading text-lg font-bold text-white tracking-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             >
-              WeThe<span className="text-emerald-400">Yuva</span>
+              WeThe<span className="text-brand-primary">Yuva</span>
             </Link>
 
-            <p className="mb-6 max-w-xs text-sm leading-relaxed text-slate-400">
+            <p className="mb-6 max-w-xs text-sm leading-relaxed text-brand-muted">
               Building India&apos;s largest youth volunteer network — empowering young citizens to
               lead, serve, and transform their communities from the ground up.
             </p>
@@ -56,14 +56,14 @@ export function Footer() {
             <div className="mb-6 space-y-2.5">
               <a
                 href="mailto:hello@wetheyuva.org"
-                className="group flex items-center gap-2.5 text-xs text-slate-500 transition-colors duration-200 hover:text-emerald-400 focus:outline-none focus-visible:text-emerald-400"
+                className="group flex items-center gap-2.5 text-xs text-brand-muted transition-colors duration-200 hover:text-brand-primary focus:outline-none focus-visible:text-brand-primary"
               >
-                <Mail className="h-3.5 w-3.5 shrink-0 transition-colors group-hover:text-emerald-400" />
+                <Mail className="h-3.5 w-3.5 shrink-0 transition-colors group-hover:text-brand-primary" />
                 hello@wetheyuva.org
               </a>
-              <div className="flex items-center gap-2.5 text-xs text-slate-500">
+              <div className="flex items-center gap-2.5 text-xs text-brand-muted">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
-                Pan-India · Est. 2023
+                Pan-India &middot; Est. 2023
               </div>
             </div>
 
@@ -76,7 +76,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-400 transition-colors duration-200 hover:bg-emerald-700 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-surface text-brand-muted transition-colors duration-200 hover:bg-brand-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </a>
@@ -93,7 +93,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-slate-500 transition-colors duration-200 hover:text-emerald-400 focus:outline-none focus-visible:text-emerald-400"
+                      className="text-sm text-brand-muted transition-colors duration-200 hover:text-brand-primary focus:outline-none focus-visible:text-brand-primary"
                     >
                       {link.label}
                     </Link>
@@ -105,26 +105,26 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-800 py-8 sm:flex-row">
-          <p className="text-xs text-slate-600">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-brand-border py-8 sm:flex-row">
+          <p className="text-xs text-brand-muted">
             &copy; {new Date().getFullYear()} WeTheYuva. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 text-xs text-slate-600">
+          <div className="flex items-center gap-4 text-xs text-brand-muted">
             <Link
               href="/privacy"
-              className="transition-colors hover:text-slate-400 focus:outline-none focus-visible:text-slate-400"
+              className="transition-colors hover:text-brand-muted focus:outline-none focus-visible:text-brand-muted"
             >
               Privacy Policy
             </Link>
-            <span>·</span>
+            <span>&middot;</span>
             <Link
               href="/terms"
-              className="transition-colors hover:text-slate-400 focus:outline-none focus-visible:text-slate-400"
+              className="transition-colors hover:text-brand-muted focus:outline-none focus-visible:text-brand-muted"
             >
               Terms of Service
             </Link>
-            <span>·</span>
-            <span className="text-slate-700">Made in India</span>
+            <span>&middot;</span>
+            <span className="text-brand-muted">Made in India</span>
           </div>
         </div>
       </div>
