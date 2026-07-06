@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import 'nprogress/nprogress.css';
 import './globals.css';
 import { Providers } from './providers';
+import { AppUpdatePrompt } from '@/components/shared/AppUpdatePrompt';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>{children}</Providers>
         <Analytics />
         <SpeedInsights />
+        <AppUpdatePrompt />
       </body>
     </html>
   );

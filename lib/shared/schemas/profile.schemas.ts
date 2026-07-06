@@ -30,6 +30,7 @@ export const VolunteerProfileSchema = z.object({
     timeSlots: z.array(z.enum(TIME_SLOTS)).min(1, 'Please select at least one time slot'),
   }),
   bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
+  education: z.string().max(200).optional(),
 });
 
 export const StaffProfileSchema = z.object({

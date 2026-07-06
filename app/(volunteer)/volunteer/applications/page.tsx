@@ -3,6 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import Pagination from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 
@@ -30,11 +32,12 @@ interface Application {
 }
 
 export default function MyApplicationsPage() {
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['my-applications'],
+    queryKey: ['my-applications', page],
     queryFn: () =>
       api
-        .get('/opportunities/my-applications')
+        .get('/opportunities/my-applications', { params: { page, limit: 20 } })
         .then((r) => r.data)
         .catch(() => []),
   });
@@ -102,6 +105,7 @@ export default function MyApplicationsPage() {
           </div>
         </Link>
       ))}
+      <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
     </div>
   );
 }

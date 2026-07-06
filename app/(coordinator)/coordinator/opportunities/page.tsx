@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
@@ -19,10 +20,11 @@ export default function CoordinatorOpportunitiesPage() {
   const qc = useQueryClient();
   const [closing, setClosing] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['coordinator-opportunities'],
-    queryFn: () => api.get('/opportunities', { params: { limit: 50 } }).then((r) => r.data),
+    queryKey: ['coordinator-opportunities', page],
+    queryFn: () => api.get('/opportunities', { params: { limit: 50, page } }).then((r) => r.data),
     staleTime: 30_000,
   });
 
@@ -174,6 +176,8 @@ export default function CoordinatorOpportunitiesPage() {
           </div>
         </div>
       )}
+
+      <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
 
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

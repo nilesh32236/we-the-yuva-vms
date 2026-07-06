@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CheckCircle, XCircle } from 'lucide-react';
 import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
 import { useState } from 'react';
+import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
@@ -12,10 +13,11 @@ export default function AdminStoriesPage() {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-stories'],
-    queryFn: () => api.get('/stories/all', { params: { limit: 100 } }).then((r) => r.data),
+    queryKey: ['admin-stories', page],
+    queryFn: () => api.get('/stories/all', { params: { limit: 100, page } }).then((r) => r.data),
     staleTime: 15_000,
   });
 
@@ -130,6 +132,7 @@ export default function AdminStoriesPage() {
           )}
         </div>
       )}
+      <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
     </div>
   );
 }

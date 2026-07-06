@@ -3,6 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen, CheckCircle, ChevronRight, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
 
@@ -17,13 +19,15 @@ interface TrainingCourse {
 }
 
 export default function TrainingPage() {
-  const { data: courses, isLoading } = useQuery({
-    queryKey: ['training-courses'],
-    queryFn: () => api.get('/training').then((r) => r.data),
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useQuery({
+    queryKey: ['training-courses', page],
+    queryFn: () => api.get('/training', { params: { page, limit: 20 } }).then((r) => r.data),
     staleTime: 60_000,
   });
 
-  const completedCount = (courses ?? []).filter(
+  const courses: TrainingCourse[] = data?.data ?? [];
+  const completedCount = courses.filter(
     (c: TrainingCourse) => c.progress?.completed
   ).length;
 
@@ -50,32 +54,32 @@ export default function TrainingPage() {
           </div>
         </div>
         <div className="flex items-center gap-2 mt-4">
-          <div className="flex-1 bg-white/20 rounded-full h-2">
-            <div
-              className="bg-white/80 dark:bg-white/20 rounded-full h-2 transition-all"
-              style={{
-                width: courses?.length ? `${(completedCount / courses.length) * 100}%` : '0%',
-              }}
-            />
-          </div>
-          <span className="text-sm font-semibold text-white/90">
-            {completedCount}/{courses?.length ?? 0}
-          </span>
+        <div className="flex-1 bg-white/20 rounded-full h-2">
+          <div
+            className="bg-white/80 dark:bg-white/20 rounded-full h-2 transition-all"
+            style={{
+              width: courses.length ? `${(completedCount / courses.length) * 100}%` : '0%',
+            }}
+          />
+        </div>
+        <span className="text-sm font-semibold text-white/90">
+          {completedCount}/{courses.length}
+        </span>
         </div>
       </div>
 
       {/* Course list */}
       <div className="space-y-3">
-        {!courses?.length ? (
+        {!courses.length ? (
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
             <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" />
             <p className="text-brand-muted text-sm">No training courses available</p>
           </div>
         ) : (
-          (courses ?? []).map((course: TrainingCourse, idx: number) => {
+          courses.map((course: TrainingCourse, idx: number) => {
             const isCompleted = course.progress?.completed;
             // Lock non-required courses until required ones are done
-            const requiredBefore = (courses ?? [])
+            const requiredBefore = courses
               .slice(0, idx)
               .filter((c: TrainingCourse) => c.isRequired);
             const isLocked = requiredBefore.some((c: TrainingCourse) => !c.progress?.completed);
@@ -122,18 +126,14 @@ export default function TrainingPage() {
                     </Link>
                   )}
                 </div>
-                {/* Progress bar */}
-                {!isCompleted && !isLocked && (
-                  <div className="h-1 bg-brand-bg">
-                    <div className="h-1 bg-brand-primary" style={{ width: '0%' }} />
-                  </div>
-                )}
                 {isCompleted && <div className="h-1 bg-brand-primary" />}
               </div>
             );
           })
         )}
       </div>
+
+      <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
     </div>
   );
 }

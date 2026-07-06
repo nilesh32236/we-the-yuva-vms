@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
@@ -281,17 +282,19 @@ function EventRow({ event }: { event: VolunteerEvent }) {
 }
 
 export default function VolunteerEventsPage() {
+  const [page, setPage] = useState(1);
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['my-events'],
-    queryFn: () => api.get('/users/me/events').then((r) => r.data.data),
+    queryKey: ['my-events', page],
+    queryFn: () => api.get('/users/me/events', { params: { page, limit: 20 } }).then((r) => r.data),
     staleTime: 30_000,
   });
 
+  const events: VolunteerEvent[] = data?.data ?? [];
   const now = new Date();
-  const upcoming = (data ?? []).filter(
+  const upcoming = events.filter(
     (e: VolunteerEvent) => new Date(e.eventDate) >= now && e.status !== 'CANCELLED'
   );
-  const past = (data ?? []).filter(
+  const past = events.filter(
     (e: VolunteerEvent) => new Date(e.eventDate) < now || e.status === 'CANCELLED'
   );
 
@@ -340,6 +343,7 @@ export default function VolunteerEventsPage() {
           </div>
         </section>
       )}
+      <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
     </div>
   );
 }

@@ -4,13 +4,16 @@ import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Calendar, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
+import Pagination from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 
 export function BlogPageClient() {
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['blog-posts'],
-    queryFn: () => api.get('/blog?limit=50').then((r) => r.data),
+    queryKey: ['blog-posts', page],
+    queryFn: () => api.get('/blog', { params: { limit: 50, page } }).then((r) => r.data),
     staleTime: 60_000,
   });
 
@@ -37,8 +40,9 @@ export function BlogPageClient() {
             <p className="text-sm text-brand-muted mt-1">Check back soon for new content.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {data?.data?.map(
+          <>
+            <div className="grid md:grid-cols-2 gap-6">
+              {data?.data?.map(
               (post: {
                 id: string;
                 title: string;
@@ -99,8 +103,10 @@ export function BlogPageClient() {
                   </div>
                 </Link>
               )
-            )}
-          </div>
+              )}
+            </div>
+            <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
+          </>
         )}
       </div>
     </div>

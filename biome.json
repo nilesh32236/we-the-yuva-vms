@@ -44,6 +44,9 @@
         "noNonNullAssertion": "off",
         "useImportType": "warn"
       },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
       "performance": {
         "noBarrelFile": "off"
       }

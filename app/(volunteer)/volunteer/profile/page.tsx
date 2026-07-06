@@ -9,6 +9,7 @@ import {
   Check,
   Clock,
   Edit2,
+  GraduationCap,
   Mail,
   Settings,
   Tag,
@@ -35,6 +36,7 @@ export default function VolunteerProfilePage() {
   const [volunteerType, setVolunteerType] = useState('');
   const [skills, setSkills] = useState('');
   const [interests, setInterests] = useState('');
+  const [education, setEducation] = useState('');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -88,6 +90,7 @@ export default function VolunteerProfilePage() {
     setVolunteerType(user?.volunteerType ?? '');
     setSkills((user?.profile?.skills ?? []).join(', '));
     setInterests((user?.profile?.interests ?? []).join(', '));
+    setEducation(user?.profile?.education ?? '');
     const avail = user?.profile?.availability;
     setSelectedDays(avail?.days ?? []);
     setSelectedSlots(avail?.timeSlots ?? []);
@@ -110,12 +113,13 @@ export default function VolunteerProfilePage() {
         volunteerType !== (user?.volunteerType ?? '') ||
         skills !== (user?.profile?.skills ?? []).join(', ') ||
         interests !== (user?.profile?.interests ?? []).join(', ') ||
+        education !== (user?.profile?.education ?? '') ||
         JSON.stringify(selectedDays) !== JSON.stringify(user?.profile?.availability?.days ?? []) ||
         JSON.stringify(selectedSlots) !==
           JSON.stringify(user?.profile?.availability?.timeSlots ?? [])
       );
     },
-    [bio, volunteerType, skills, interests, selectedDays, selectedSlots, user]
+    [bio, volunteerType, skills, interests, education, selectedDays, selectedSlots, user]
   );
 
   function save() {
@@ -138,6 +142,7 @@ export default function VolunteerProfilePage() {
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean),
+      education: education || undefined,
       availability: { days: selectedDays, timeSlots: selectedSlots },
     });
   }
@@ -282,6 +287,22 @@ export default function VolunteerProfilePage() {
         )}
       </div>
 
+      {/* Education */}
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
+        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+          <GraduationCap className="w-4 h-4 text-brand-primary" /> Education
+        </h2>
+        <input
+          value={education}
+          onChange={(e) => setEducation(e.target.value)}
+          placeholder="e.g., B.Com, MBA, 12th Pass"
+          className={inputCls('education')}
+        />
+        {fieldErrors.education && (
+          <p className="text-xs text-brand-error">{fieldErrors.education}</p>
+        )}
+      </div>
+
       {/* Availability */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4">
         <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
@@ -423,8 +444,8 @@ export default function VolunteerProfilePage() {
               <LevelBadge
                 tier={levelData.data.tier}
                 name={
-                  ['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ??
-                  'Sprout'
+                  ['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][levelData.data.tier - 1] ??
+                  'Onboarded'
                 }
                 badgeIcon={
                   ['Sprout', 'Users', 'Wrench', 'Crown'][levelData.data.tier - 1] ?? 'Sprout'
@@ -449,8 +470,8 @@ export default function VolunteerProfilePage() {
               <div>
                 <p className="text-xs text-brand-muted">Current Level</p>
                 <p className="font-heading font-semibold text-brand-text">
-                  {['Sprout', 'Volunteer', 'Contributor', 'Champion'][levelData.data.tier - 1] ??
-                    'Sprout'}
+                  {['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][levelData.data.tier - 1] ??
+                    'Onboarded'}
                 </p>
               </div>
             </div>
@@ -517,6 +538,18 @@ export default function VolunteerProfilePage() {
                 <p className="text-sm text-brand-muted">No interests added yet.</p>
               )}
             </div>
+          </div>
+
+          {/* Education (view mode) */}
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
+            <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+              <GraduationCap className="w-4 h-4 text-brand-primary" /> Education
+            </h2>
+            <p className="text-sm text-brand-muted">
+              {user?.profile?.education || (
+                <span className="text-brand-muted">Not specified</span>
+              )}
+            </p>
           </div>
 
           {/* Availability (view mode) */}

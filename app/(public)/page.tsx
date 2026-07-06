@@ -4,6 +4,7 @@ import { HowItWorks } from '@/components/landing/HowItWorks';
 import { FeaturedOpportunities } from '@/components/landing/FeaturedOpportunities';
 import { LevelPathway } from '@/components/landing/LevelPathway';
 import { Gallery } from '@/components/landing/Gallery';
+import { BlogPreview } from '@/components/landing/BlogPreview';
 import { Testimonials } from '@/components/landing/Testimonials';
 import { CTA } from '@/components/landing/CTA';
 
@@ -36,6 +37,7 @@ export default function HomePage() {
       <FeaturedOpportunities />
       <LevelPathway />
       <Gallery />
+      <BlogPreview />
       <Testimonials />
       <CTA />
     </>

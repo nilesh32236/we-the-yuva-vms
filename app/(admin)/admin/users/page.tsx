@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, X } from 'lucide-react';
 import { useState } from 'react';
+import Pagination from '@/components/shared/Pagination';
 import { UserTable } from '../../../../components/admin/UserTable';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
@@ -264,28 +265,9 @@ export default function AdminUsersPage() {
             users={data?.data ?? []}
             onUpdated={() => qc.invalidateQueries({ queryKey: ['admin-users'] })}
           />
-          {data?.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-brand-muted">
-                Page {page} of {data.totalPages} · {data.total} users
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-                disabled={page === data.totalPages}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
-              >
-                Next
-              </button>
-            </div>
+          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          {data?.total && (
+            <p className="text-sm text-brand-muted text-center mt-2">{data.total} total users</p>
           )}
         </>
       )}

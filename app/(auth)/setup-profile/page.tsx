@@ -99,6 +99,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
   const [volunteerType, setVolunteerType] = useState<string>('');
   const [skills, setSkills] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
+  const [education, setEducation] = useState('');
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -130,6 +131,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
         volunteerType,
         skills,
         interests,
+        education: education || undefined,
         availability: { days: selectedDays, timeSlots: selectedSlots },
       });
       onComplete();
@@ -245,6 +247,19 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
               onRemove={(t) => setInterests(interests.filter((i) => i !== t))}
               placeholder="e.g. Education, Health..."
             />
+            <div className="space-y-1.5">
+              <label htmlFor="education" className="text-sm font-medium text-brand-text">
+                Education / Qualification
+              </label>
+              <input
+                id="education"
+                type="text"
+                value={education}
+                onChange={(e) => setEducation(e.target.value)}
+                placeholder="e.g., B.Com, MBA, 12th Pass"
+                className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              />
+            </div>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
                 <ArrowLeft className="w-4 h-4" /> Back

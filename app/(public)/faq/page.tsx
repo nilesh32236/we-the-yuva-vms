@@ -53,7 +53,7 @@ const faqData = [
       {
         question: 'How does the level system work?',
         answer:
-          'There are four levels: Onboarded → Mobilizer → Problem Solver → Leader. As you complete hours and milestones, you progress through the ranks and unlock new responsibilities.',
+           'There are four levels: Onboarded → Mobilizer → Problem Solver → Leadership. As you complete hours and milestones, you progress through the ranks and unlock new responsibilities.',
       },
       {
         question: 'What do I need to level up?',

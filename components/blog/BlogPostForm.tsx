@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import type { CreateBlogPostInput } from '@/lib/shared';
 import { CreateBlogPostSchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
+import { RichTextEditor } from './RichTextEditor';
 
 interface BlogPostFormProps {
   defaultValues?: Partial<CreateBlogPostInput>;
@@ -18,13 +19,15 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
     handleSubmit,
     setValue,
     watch,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<CreateBlogPostInput>({
     resolver: zodResolver(CreateBlogPostSchema),
-    defaultValues: { tags: [], ...defaultValues },
+    defaultValues: { tags: [], content: '', ...defaultValues },
   });
 
   const tagsString = (watch('tags') ?? []).join(', ');
+  const contentValue = watch('content');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -59,14 +62,14 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
         <label htmlFor="content" className="text-sm font-medium text-brand-text">
           Content *
         </label>
-        <textarea
-          id="content"
-          rows={12}
-          placeholder="Write your post content here... (rich text editor TBD)"
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none font-mono ${errors.content ? 'border-brand-error' : 'border-brand-border'}`}
-          {...register('content')}
+        <RichTextEditor
+          content={contentValue}
+          onChange={(html) => {
+            setValue('content', html, { shouldValidate: true });
+            trigger('content');
+          }}
         />
-        {errors.content && <p className="text-xs text-brand-error">{errors.content.message}</p>}
+        {errors.content && <p className="text-xs text-brand-error mt-1">{errors.content.message}</p>}
       </div>
 
       <div className="space-y-1.5">

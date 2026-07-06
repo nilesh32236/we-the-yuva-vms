@@ -16,14 +16,14 @@
   "screenshots": [
     {
       "src": "/screenshots/dashboard_mobile.png",
-      "sizes": "1024x1024",
+      "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "WeTheYuva Mobile Volunteer Summary"
     },
     {
       "src": "/screenshots/dashboard_desktop.png",
-      "sizes": "1024x1024",
+      "sizes": "1280x800",
       "type": "image/png",
       "form_factor": "wide",
       "label": "WeTheYuva Desktop Volunteer Dashboard"

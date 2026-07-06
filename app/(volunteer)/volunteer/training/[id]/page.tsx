@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, CheckCircle, Circle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Circle, FileText, Video } from 'lucide-react';
 import Link from 'next/link';
 import { use, useState } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
@@ -112,15 +112,54 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
           {currentLesson ? (
             <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-5">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="font-heading font-bold text-xl text-brand-text">
-                  {currentLesson.title}
-                </h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-heading font-bold text-xl text-brand-text">
+                    {currentLesson.title}
+                  </h3>
+                  {currentLesson.type === 'VIDEO' && (
+                    <span className="flex items-center gap-1 text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-0.5 rounded-full flex-shrink-0">
+                      <Video className="w-3 h-3" /> Video
+                    </span>
+                  )}
+                  {currentLesson.type === 'PDF' && (
+                    <span className="flex items-center gap-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2.5 py-0.5 rounded-full flex-shrink-0">
+                      <FileText className="w-3 h-3" /> PDF
+                    </span>
+                  )}
+                </div>
                 {currentLesson.completed && (
                   <span className="flex items-center gap-1 text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full flex-shrink-0">
                     <CheckCircle className="w-3 h-3" /> Done
                   </span>
                 )}
               </div>
+
+              {currentLesson.type === 'VIDEO' && currentLesson.mediaUrl && (
+                <div className="rounded-xl border border-brand-border overflow-hidden bg-brand-bg">
+                  <video
+                    controls
+                    className="w-full aspect-video"
+                    src={currentLesson.mediaUrl}
+                  >
+                    <track kind="captions" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              )}
+
+              {currentLesson.type === 'PDF' && currentLesson.mediaUrl && (
+                <div className="rounded-xl border border-brand-border bg-brand-bg p-4">
+                  <a
+                    href={currentLesson.mediaUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:text-brand-secondary transition-colors"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Open PDF
+                  </a>
+                </div>
+              )}
 
               <div className="prose prose-sm max-w-none text-brand-muted leading-relaxed whitespace-pre-line">
                 {currentLesson.content}

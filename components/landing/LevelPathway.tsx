@@ -31,7 +31,7 @@ const levels = [
     step: 4,
     color: 'bg-amber-600',
     dotColor: 'bg-amber-600',
-    title: 'Leader',
+    title: 'Leadership',
     desc: 'Mentor volunteers and run campaigns. The movement grows through you.',
     target: '1,000 target',
   },

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MapPin, Calendar, Search } from 'lucide-react';
 import Link from 'next/link';
+import Pagination from '@/components/shared/Pagination';
 
 const CATEGORY_LABELS: Record<string, string> = {
   ENVIRONMENT: 'Environment',
@@ -39,15 +40,21 @@ function formatDateRange(start: string, end: string) {
   return `${s.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} – ${e.toLocaleDateString('en-IN', opts)}`;
 }
 
+const PAGE_SIZE = 12;
+
 export function OpportunitiesClient({ opportunities }: { opportunities: Opportunity[] }) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
+  const [page, setPage] = useState(1);
 
   const filtered = opportunities.filter((opp) => {
     const matchesSearch = opp.title.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = category === 'ALL' || opp.category === category;
     return matchesSearch && matchesCategory;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="min-h-dvh bg-brand-bg">
@@ -71,7 +78,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search opportunities…"
             aria-label="Search opportunities"
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-brand-surface text-brand-text placeholder:text-brand-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
@@ -88,7 +95,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
             type="button"
             role="tab"
             aria-selected={category === 'ALL'}
-            onClick={() => setCategory('ALL')}
+            onClick={() => { setCategory('ALL'); setPage(1); }}
             className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
               category === 'ALL'
                 ? 'bg-brand-primary text-white'
@@ -103,7 +110,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               type="button"
               role="tab"
               aria-selected={category === cat}
-              onClick={() => setCategory(cat)}
+              onClick={() => { setCategory(cat); setPage(1); }}
               className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
                 category === cat
                   ? 'bg-brand-primary text-white'
@@ -128,8 +135,9 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
             <p className="text-sm text-brand-muted mt-1">Try adjusting your search or filters</p>
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((opp) => (
+            {paged.map((opp) => (
               <Link
                 key={opp.id}
                 href={`/opportunities/${opp.id}`}
@@ -176,6 +184,8 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               </Link>
             ))}
           </div>
+          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+          </>
         )}
       </div>
     </div>

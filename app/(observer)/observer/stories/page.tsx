@@ -2,13 +2,16 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen } from 'lucide-react';
+import { useState } from 'react';
+import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
 
 export default function ObserverStoriesPage() {
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['published-stories'],
-    queryFn: () => api.get('/stories/published', { params: { limit: 50 } }).then((r) => r.data),
+    queryKey: ['published-stories', page],
+    queryFn: () => api.get('/stories/published', { params: { limit: 50, page } }).then((r) => r.data),
     staleTime: 60_000,
   });
 
@@ -63,6 +66,7 @@ export default function ObserverStoriesPage() {
           )}
         </div>
       )}
+      <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
     </div>
   );
 }

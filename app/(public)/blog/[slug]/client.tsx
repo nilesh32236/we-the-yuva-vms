@@ -103,9 +103,10 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
             </div>
           )}
 
-          <div className="prose prose-sm sm:prose max-w-none text-brand-text leading-relaxed whitespace-pre-wrap">
-            {post.content}
-          </div>
+          <div
+            className="prose prose-sm sm:prose max-w-none blog-content text-brand-text leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
         </article>
       </div>
     </div>

@@ -29,7 +29,7 @@ import { haptic } from '@/lib/haptic';
 const TIER_DATA = [
   {
     tier: 1,
-    name: 'Sprout',
+    name: 'Onboarded',
     badgeIcon: 'Sprout',
     color: 'from-green-400 to-emerald-600',
     gradient: 'from-green-400 to-emerald-600',
@@ -37,7 +37,7 @@ const TIER_DATA = [
   },
   {
     tier: 2,
-    name: 'Volunteer',
+    name: 'Mobilizer',
     badgeIcon: 'Users',
     color: 'from-blue-400 to-indigo-600',
     gradient: 'from-blue-400 to-indigo-600',
@@ -45,7 +45,7 @@ const TIER_DATA = [
   },
   {
     tier: 3,
-    name: 'Contributor',
+    name: 'Problem Solver',
     badgeIcon: 'Wrench',
     color: 'from-purple-400 to-violet-600',
     gradient: 'from-purple-400 to-violet-600',
@@ -53,7 +53,7 @@ const TIER_DATA = [
   },
   {
     tier: 4,
-    name: 'Champion',
+    name: 'Leadership',
     badgeIcon: 'Crown',
     color: 'from-amber-400 to-orange-600',
     gradient: 'from-amber-400 to-orange-600',

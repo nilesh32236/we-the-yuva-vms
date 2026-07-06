@@ -4,6 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import Pagination from '@/components/shared/Pagination';
 import { EventCard } from '../../../../components/events/EventCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
@@ -75,29 +76,7 @@ export default function ObserverEventsPage() {
               <EventCard key={e.id} event={e} />
             ))}
           </div>
-          {data?.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-brand-muted">
-                Page {page} of {data.totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-                disabled={page === data.totalPages}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
         </>
       )}
     </div>

@@ -5,6 +5,8 @@ import { Activity, ArrowRight, Calendar, Clock, Star } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { PointsCard } from '../../../../components/shared/PointsCard';
+import { PointsHistory } from '../../../../components/shared/PointsHistory';
 import { LevelProgressCard } from '../../../../components/levels/LevelProgressCard';
 import { PWAInstallBanner } from '../../../../components/shared/PWAInstallBanner';
 import { useAuth } from '../../../../hooks/useAuth';
@@ -84,14 +86,15 @@ export default function VolunteerDashboardPage() {
 
       {/* Stats */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <PointsCard />
+            <StatsCard
             label="Total Hours"
             value={`${stats?.totalHours ?? 0}h`}
             icon={Clock}
@@ -121,6 +124,9 @@ export default function VolunteerDashboardPage() {
           />
         </div>
       )}
+
+      {/* Points History */}
+      <PointsHistory />
 
       {/* Quick actions */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover">

@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
+import Pagination from '@/components/shared/Pagination';
 import { useState } from 'react';
 import { OrganizationTable } from '../../../../components/admin/OrganizationTable';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -80,29 +81,7 @@ export default function AdminOrganizationsPage() {
         <>
           <OrganizationTable orgs={data.orgs} />
 
-          {data.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-4">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors shadow-sm"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-brand-muted font-medium">
-                Page {page} of {data.totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-                disabled={page === data.totalPages}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors shadow-sm"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
         </>
       )}
     </div>

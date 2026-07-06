@@ -2,6 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
+import { useState } from 'react';
+import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api, downloadCsv } from '../../../../lib/api';
 
@@ -12,9 +14,10 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminEventsPage() {
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-events'],
-    queryFn: () => api.get('/events', { params: { limit: 50 } }).then((r) => r.data),
+    queryKey: ['admin-events', page],
+    queryFn: () => api.get('/events', { params: { limit: 50, page } }).then((r) => r.data),
     staleTime: 30_000,
   });
 
@@ -40,83 +43,86 @@ export default function AdminEventsPage() {
       ) : !data?.data?.length ? (
         <div className="text-center py-12 text-brand-muted text-sm">No events found</div>
       ) : (
-        <div className="overflow-x-auto">
-          <div className="bg-brand-surface rounded-2xl border border-brand-border">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-brand-border bg-brand-bg">
-                  <th
-                    scope="col"
-                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
-                  >
-                    Event
-                  </th>
-                  <th
-                    scope="col"
-                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell"
-                  >
-                    Date
-                  </th>
-                  <th
-                    scope="col"
-                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
-                  >
-                    Status
-                  </th>
-                  <th
-                    scope="col"
-                    className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
-                  >
-                    Capacity
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-brand-border">
-                {data?.data?.map(
-                  (ev: {
-                    id: string;
-                    title: string;
-                    eventDate: string;
-                    status: string;
-                    capacity: number;
-                    _count?: { attendances: number };
-                    opportunity?: { title: string };
-                  }) => (
-                    <tr key={ev.id} className="hover:bg-brand-bg/50 transition-colors">
-                      <td className="px-4 py-3">
-                        <p className="font-medium text-brand-text truncate max-w-[200px]">
-                          {ev.title}
-                        </p>
-                        {ev.opportunity && (
-                          <p className="text-xs text-brand-muted truncate">
-                            {ev.opportunity.title}
+        <>
+          <div className="overflow-x-auto">
+            <div className="bg-brand-surface rounded-2xl border border-brand-border">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-brand-border bg-brand-bg">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                    >
+                      Event
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell"
+                    >
+                      Date
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                    >
+                      Status
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+                    >
+                      Capacity
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-border">
+                  {data?.data?.map(
+                    (ev: {
+                      id: string;
+                      title: string;
+                      eventDate: string;
+                      status: string;
+                      capacity: number;
+                      _count?: { attendances: number };
+                      opportunity?: { title: string };
+                    }) => (
+                      <tr key={ev.id} className="hover:bg-brand-bg/50 transition-colors">
+                        <td className="px-4 py-3">
+                          <p className="font-medium text-brand-text truncate max-w-[200px]">
+                            {ev.title}
                           </p>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
-                        {new Date(ev.eventDate).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[ev.status] ?? ''}`}
-                        >
-                          {ev.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
-                        {ev._count?.attendances ?? 0} / {ev.capacity}
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
+                          {ev.opportunity && (
+                            <p className="text-xs text-brand-muted truncate">
+                              {ev.opportunity.title}
+                            </p>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
+                          {new Date(ev.eventDate).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[ev.status] ?? ''}`}
+                          >
+                            {ev.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
+                          {ev._count?.attendances ?? 0} / {ev.capacity}
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
+        </>
       )}
     </div>
   );

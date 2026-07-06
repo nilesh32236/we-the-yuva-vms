@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClipboardList, Download, Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import { api, downloadCsv } from '../../../../lib/api';
@@ -20,10 +21,11 @@ export default function CoordinatorEventsPage() {
   const qc = useQueryClient();
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['coordinator-events'],
-    queryFn: () => api.get('/events', { params: { limit: 50 } }).then((r) => r.data),
+    queryKey: ['coordinator-events', page],
+    queryFn: () => api.get('/events', { params: { limit: 50, page } }).then((r) => r.data),
     staleTime: 30_000,
   });
 
@@ -198,6 +200,8 @@ export default function CoordinatorEventsPage() {
           </div>
         </div>
       )}
+
+      <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
 
       {confirmAction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">

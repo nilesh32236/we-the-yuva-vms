@@ -12,6 +12,8 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Pagination from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
@@ -59,10 +61,11 @@ export default function NotificationsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useQuery<NotifResponse>({
-    queryKey: ['notifications', 'list'],
-    queryFn: () => api.get('/notifications?limit=50').then((r) => r.data),
+    queryKey: ['notifications', 'list', page],
+    queryFn: () => api.get('/notifications', { params: { limit: 50, page } }).then((r) => r.data),
     staleTime: 30_000,
     refetchInterval: 30_000,
   });
@@ -140,7 +143,8 @@ export default function NotificationsPage() {
             <p className="text-brand-muted text-sm">No notifications yet</p>
           </div>
         ) : (
-          notifications.map((n) => {
+          <>
+            {notifications.map((n) => {
             const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
             return (
               <button
@@ -190,7 +194,9 @@ export default function NotificationsPage() {
                 </div>
               </button>
             );
-          })
+          })}
+            <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
+          </>
         )}
       </div>
     </div>
