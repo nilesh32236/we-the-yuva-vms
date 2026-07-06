@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Activity, Building2, Clock, Users } from 'lucide-react';
+import { Activity, ArrowRight, Building2, Clock, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { StatsCard } from '../../../../components/charts/StatsCard';
@@ -33,7 +33,7 @@ export default function AdminDashboardPage() {
       }
     >
       <div className="space-y-6 max-w-5xl">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 to-violet-500 p-6 md:p-8">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary p-6 md:p-8">
           <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
           <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
           <div className="relative z-10 flex items-start justify-between gap-4">
@@ -74,34 +74,26 @@ export default function AdminDashboardPage() {
               label="Total Users"
               value={stats?.totalUsers ?? 0}
               icon={Users}
-              accent="text-purple-600 dark:text-purple-400"
-              accentBg="bg-purple-100 dark:bg-purple-900/30"
             />
             <StatsCard
               label="Active Volunteers"
               value={stats?.activeVolunteers ?? 0}
               icon={Activity}
-              accent="text-violet-600 dark:text-violet-400"
-              accentBg="bg-violet-100 dark:bg-violet-900/30"
             />
             <StatsCard
               label="Total Hours Served"
               value={`${stats?.totalHours ?? 0}h`}
               icon={Clock}
-              accent="text-indigo-600 dark:text-indigo-400"
-              accentBg="bg-indigo-100 dark:bg-indigo-900/30"
             />
             <StatsCard
               label="Organizations"
               value={`${stats?.activeOrgs ?? 0} active`}
               icon={Building2}
-              accent="text-emerald-600 dark:text-emerald-400"
-              accentBg="bg-emerald-100 dark:bg-emerald-900/30"
             />
           </div>
         )}
 
-        <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+        <div className="bg-brand-surface card-hover rounded-2xl border border-brand-border overflow-hidden">
           <div className="px-5 py-4 border-b border-brand-border">
             <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
           </div>
@@ -111,34 +103,28 @@ export default function AdminDashboardPage() {
               className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group"
             >
               <p className="text-sm font-semibold">Manage Users</p>
-              <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
             <Link
               href="/admin/opportunities"
               className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
             >
               <p className="text-sm font-medium text-brand-text">Opportunities</p>
-              <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-                →
-              </span>
+              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" />
             </Link>
             <Link
               href="/admin/events"
               className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
             >
               <p className="text-sm font-medium text-brand-text">Events</p>
-              <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-                →
-              </span>
+              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" />
             </Link>
             <Link
               href="/admin/organizations"
               className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
             >
               <p className="text-sm font-medium text-brand-text">Organizations</p>
-              <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-                →
-              </span>
+              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" />
             </Link>
           </div>
         </div>

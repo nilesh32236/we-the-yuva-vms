@@ -22,11 +22,11 @@ export default function NewOpportunityPage() {
     <div className="max-w-2xl space-y-5">
       <Link
         href="/coordinator/opportunities"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer active-bounce"
       >
-        <ArrowLeft className="w-4 h-4" /> Back
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
       </Link>
-      <div className="bg-card rounded-2xl border border-brand-border p-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 card-hover">
         <h1 className="font-heading font-bold text-xl text-brand-text mb-5">Create Opportunity</h1>
         <OpportunityForm onSubmit={handleSubmit} submitLabel="Create Opportunity" />
       </div>

@@ -25,9 +25,9 @@ export default function OrgAdminOpportunitiesPage() {
         <h1 className="font-heading font-bold text-xl text-brand-text">Opportunities</h1>
         <Link
           href="/coordinator/opportunities/new"
-          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
+          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary active-bounce transition-colors cursor-pointer"
         >
-          <Plus className="w-4 h-4" /> New Opportunity
+          <Plus className="w-4 h-4" aria-hidden="true" /> New Opportunity
         </Link>
       </div>
 
@@ -38,7 +38,7 @@ export default function OrgAdminOpportunitiesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center card-hover">
           <p className="font-medium text-brand-text">No opportunities yet</p>
           <p className="text-sm text-brand-muted mt-1">
             Create your first opportunity to get started
@@ -46,7 +46,7 @@ export default function OrgAdminOpportunitiesPage() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="bg-brand-surface rounded-2xl border border-brand-border">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border card-hover">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">

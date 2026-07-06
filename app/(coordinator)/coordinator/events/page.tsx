@@ -59,15 +59,15 @@ export default function CoordinatorEventsPage() {
           <button
             type="button"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
-            className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
+            className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer active-bounce"
           >
-            <Download className="w-4 h-4" /> Export CSV
+            <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
           </button>
           <Link
             href="/coordinator/events/new"
-            className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
+            className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer active-bounce"
           >
-            <Plus className="w-4 h-4" /> New Event
+            <Plus className="w-4 h-4" aria-hidden="true" /> New Event
           </Link>
         </div>
       </div>
@@ -79,13 +79,13 @@ export default function CoordinatorEventsPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center card-hover">
           <p className="font-medium text-brand-text">No events yet</p>
           <p className="text-sm text-brand-muted mt-1">Create events from your opportunities</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="bg-brand-surface rounded-2xl border border-brand-border">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border card-hover">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">
@@ -159,32 +159,32 @@ export default function CoordinatorEventsPage() {
                         <div className="flex items-center gap-2">
                           <Link
                             href={`/coordinator/events/${ev.id}/attendance`}
-                            className="flex items-center gap-1 text-xs text-brand-primary hover:underline cursor-pointer"
+                            className="flex items-center gap-1 text-xs text-brand-primary hover:underline cursor-pointer active-bounce"
                           >
-                            <ClipboardList className="w-3.5 h-3.5" /> Attendance
+                            <ClipboardList className="w-3.5 h-3.5" aria-hidden="true" /> Attendance
                           </Link>
                           <Link
                             href={`/coordinator/events/${ev.id}/qr`}
-                            className="flex items-center gap-1 text-xs text-brand-primary hover:underline cursor-pointer"
+                            className="flex items-center gap-1 text-xs text-brand-primary hover:underline cursor-pointer active-bounce"
                           >
-                            <QrCode className="w-3.5 h-3.5" /> QR
+                            <QrCode className="w-3.5 h-3.5" aria-hidden="true" /> QR
                           </Link>
                           <Link
                             href={`/coordinator/events/${ev.id}/edit`}
-                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                             title="Edit event"
                           >
-                            <Pencil className="w-3.5 h-3.5" />
+                            <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
                           </Link>
                           {ev.status === 'SCHEDULED' && (
                             <button
                               type="button"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               disabled={cancelling === ev.id}
-                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
-                              title="Cancel event"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
+                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
+                                title="Cancel event"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                             </button>
                           )}
                           <AddToCalendarButton eventId={ev.id} variant="icon" />
@@ -210,14 +210,14 @@ export default function CoordinatorEventsPage() {
               <button
                 type="button"
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Keep
               </button>
               <button
                 type="button"
                 onClick={executeCancel}
-                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors"
+                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors active-bounce"
               >
                 Cancel Event
               </button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle, Download, FileText, Loader2, Search, X, XCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Download, FileText, Loader2, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
@@ -79,7 +79,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
 
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-brand-muted">{request.currentLevel}</span>
-            <span className="text-brand-muted">&rarr;</span>
+            <ArrowRight className="w-3.5 h-3.5 text-brand-muted" />
             <span className="text-sm font-semibold text-brand-text">{request.requestedLevel}</span>
           </div>
 
@@ -145,7 +145,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             type="button"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 cursor-pointer transition-colors disabled:opacity-60"
+            className="flex-1 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
           >
             {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? (
               <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
@@ -218,7 +218,7 @@ export default function AdminLevelRequestsPage() {
           {requests.map((req) => (
             <div
               key={req.id}
-              className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4 hover:shadow-md transition-shadow"
+              className="bg-brand-surface card-hover rounded-2xl border border-brand-border p-5 space-y-4 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
@@ -240,7 +240,7 @@ export default function AdminLevelRequestsPage() {
 
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-brand-muted">{req.currentLevel}</span>
-                <span className="text-brand-muted">&rarr;</span>
+                <ArrowRight className="w-3.5 h-3.5 text-brand-muted" />
                 <span className="font-semibold text-brand-text">{req.requestedLevel}</span>
               </div>
 

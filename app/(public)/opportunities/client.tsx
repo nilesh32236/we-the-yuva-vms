@@ -133,7 +133,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               <Link
                 key={opp.id}
                 href={`/opportunities/${opp.id}`}
-                className="group rounded-2xl border border-brand-border p-5 bg-brand-surface flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                className="group rounded-2xl border border-brand-border p-5 bg-brand-surface flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none card-hover"
               >
                 {/* Category badge */}
                 <div>

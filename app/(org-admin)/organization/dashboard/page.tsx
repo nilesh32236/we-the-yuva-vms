@@ -22,7 +22,7 @@ export default function OrganizationDashboardPage() {
   if (!user?.organizationId) {
     return (
       <div className="space-y-6 max-w-5xl">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-500 p-6 md:p-8">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary p-6 md:p-8">
           <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
           <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
           <div className="relative z-10">
@@ -36,9 +36,9 @@ export default function OrganizationDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-8 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-8 text-center card-hover">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-brand-primary/10 flex items-center justify-center mb-4">
-            <Building2 className="w-8 h-8 text-brand-primary" />
+            <Building2 className="w-8 h-8 text-brand-primary" aria-hidden="true" />
           </div>
           <h2 className="font-heading font-semibold text-xl text-brand-text mb-2">
             Register Your Organization
@@ -49,10 +49,10 @@ export default function OrganizationDashboardPage() {
           </p>
           <Link
             href="/register-organization"
-            className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-secondary transition-all"
+            className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-secondary active-bounce transition-all"
           >
             Get Started
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function OrganizationDashboardPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-500 p-6 md:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary p-6 md:p-8">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
         <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
         <div className="relative z-10 flex items-start justify-between gap-4">
@@ -102,27 +102,21 @@ export default function OrganizationDashboardPage() {
             label="Active Volunteers"
             value={stats?.activeVolunteers ?? 0}
             icon={Users}
-            accent="text-indigo-600 dark:text-indigo-400"
-            accentBg="bg-indigo-50 dark:bg-indigo-950/30"
           />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}
             icon={Calendar}
-            accent="text-blue-600 dark:text-blue-400"
-            accentBg="bg-blue-50 dark:bg-blue-950/30"
           />
           <StatsCard
             label="Active Opportunities"
             value={stats?.opportunities ?? 0}
             icon={Briefcase}
-            accent="text-sky-600 dark:text-sky-400"
-            accentBg="bg-sky-50 dark:bg-sky-950/30"
           />
         </div>
       )}
 
-      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover">
         <div className="px-5 py-4 border-b border-brand-border">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
         </div>
@@ -132,25 +126,21 @@ export default function OrganizationDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group"
           >
             <p className="text-sm font-semibold">Manage Coordinators</p>
-            <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
           </Link>
           <Link
             href="/organization/opportunities"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">Org Opportunities</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-              →
-            </span>
+            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
           </Link>
           <Link
             href="/organization/events"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">Org Events</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-              →
-            </span>
+            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
           </Link>
         </div>
       </div>

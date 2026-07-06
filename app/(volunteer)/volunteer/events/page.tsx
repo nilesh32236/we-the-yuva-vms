@@ -116,7 +116,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
 
   return (
     <div
-      className={`bg-brand-surface rounded-2xl border p-5 space-y-3 transition-all ${isCancelled ? 'opacity-60' : 'hover:shadow-md hover:border-brand-primary/30 border-brand-border'}`}
+      className={`bg-brand-surface rounded-2xl border p-5 space-y-3 transition-all card-hover ${isCancelled ? 'opacity-60' : 'hover:shadow-md hover:border-brand-primary/30 border-brand-border'}`}
     >
       <div className="flex items-start justify-between gap-2">
         <span

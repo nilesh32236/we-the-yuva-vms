@@ -25,14 +25,14 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
     <div className="max-w-lg mx-auto space-y-6">
       <Link
         href={`/coordinator/events/${id}/attendance`}
-        className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:underline"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:underline active-bounce"
       >
-        <ArrowLeft className="w-4 h-4" /> Back to Attendance
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to Attendance
       </Link>
 
-      <div className="bg-card rounded-2xl border border-brand-border p-8 text-center space-y-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-8 text-center space-y-6 card-hover">
         <div className="flex items-center justify-center gap-2">
-          <QrCode className="w-5 h-5 text-brand-primary" />
+          <QrCode className="w-5 h-5 text-brand-primary" aria-hidden="true" />
           <h1 className="font-heading font-bold text-xl text-brand-text">Event QR Code</h1>
         </div>
 
@@ -42,7 +42,7 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
           </div>
         ) : data ? (
           <>
-            <div className="bg-card p-4 rounded-xl inline-block shadow-sm border border-brand-border">
+            <div className="bg-brand-surface p-4 rounded-xl inline-block shadow-sm border border-brand-border">
               <QRCodeCanvas value={checkInUrl} size={220} level="M" />
             </div>
 
@@ -74,9 +74,9 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
                 haptic.medium();
                 refetch();
               }}
-              className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:underline cursor-pointer active-bounce"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Regenerate QR
+              <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" /> Regenerate QR
             </button>
 
             <div className="bg-brand-bg rounded-xl p-4 text-left space-y-2">

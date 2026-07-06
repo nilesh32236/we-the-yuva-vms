@@ -169,7 +169,7 @@ export default function AboutPage() {
             {values.map((val) => (
               <div
                 key={val.title}
-                className="rounded-2xl border border-emerald-100 dark:border-slate-700 p-8 transition-shadow hover:shadow-lg"
+                className="rounded-2xl border border-emerald-100 dark:border-slate-700 p-8 transition-shadow hover:shadow-lg card-hover"
               >
                 <div className="w-11 h-11 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mb-4">
                   <val.icon

@@ -27,13 +27,13 @@ export default function AdminProfilePage() {
   return (
     <div className="max-w-2xl space-y-5">
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-purple-500 to-violet-400" />
+        <div className="h-24 bg-gradient-to-r from-brand-primary to-brand-secondary" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-purple-600 border-4 border-brand-surface flex items-center justify-center shadow-md">
+            <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-brand-surface flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2.5 py-1 rounded-full">
+            <div className="flex items-center gap-1.5 text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full">
               <Shield className="w-3 h-3" /> Admin
             </div>
           </div>
@@ -62,7 +62,7 @@ export default function AdminProfilePage() {
             key={label}
             className="bg-brand-surface rounded-xl border border-brand-border p-4 text-center"
           >
-            <Icon className="w-4 h-4 text-purple-600 dark:text-purple-400 mx-auto mb-1.5" />
+            <Icon className="w-4 h-4 text-brand-primary mx-auto mb-1.5" />
             <p className="font-heading font-bold text-base text-brand-text truncate">{value}</p>
             <p className="text-xs text-brand-muted">{label}</p>
           </div>

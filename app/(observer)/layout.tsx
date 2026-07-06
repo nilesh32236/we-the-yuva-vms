@@ -8,7 +8,7 @@ import { TopNav } from '../../components/layout/TopNav';
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/observer/dashboard', icon: 'LayoutDashboard' },
   { label: 'My Profile', href: '/observer/profile', icon: 'User' },
-  { label: 'Opportunities', href: '/observer/opportunities', icon: 'Search' },
+  { label: 'Opportunities', href: '/observer/opportunities', icon: 'Briefcase' },
   { label: 'Events', href: '/observer/events', icon: 'Calendar' },
   { label: 'Reports', href: '/observer/reports', icon: 'BarChart' },
   { label: 'Stories', href: '/observer/stories', icon: 'BookOpen' },

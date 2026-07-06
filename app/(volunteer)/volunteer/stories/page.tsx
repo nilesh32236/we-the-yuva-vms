@@ -60,7 +60,7 @@ export default function MyStoriesPage() {
             }) => (
               <div
                 key={story.id}
-                className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2"
+                className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2 card-hover"
               >
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="font-heading font-semibold text-brand-text">{story.title}</h2>

@@ -44,22 +44,16 @@ export default function ObserverReportsPage() {
             label="Total Volunteers"
             value={stats?.totalVolunteers ?? 0}
             icon={Users}
-            accent="text-slate-600 dark:text-slate-400"
-            accentBg="bg-slate-50 dark:bg-slate-900/50"
           />
           <StatsCard
             label="Hours Served"
             value={`${stats?.hoursServed ?? 0}h`}
             icon={Clock}
-            accent="text-gray-600 dark:text-gray-400"
-            accentBg="bg-gray-50 dark:bg-gray-900/50"
           />
           <StatsCard
             label="Active Events"
             value={stats?.activeEvents ?? 0}
             icon={Activity}
-            accent="text-zinc-600 dark:text-zinc-400"
-            accentBg="bg-zinc-50 dark:bg-zinc-900/50"
           />
         </div>
       )}
@@ -67,13 +61,13 @@ export default function ObserverReportsPage() {
       {/* Charts — only render when API provides data */}
       {stats?.byCategory && stats.byCategory.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="bg-card rounded-2xl border border-brand-border p-5">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 card-hover">
             <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
               Opportunities by Category
             </h2>
             <CategoryPieChart data={stats.byCategory} />
           </div>
-          <div className="bg-card rounded-2xl border border-brand-border p-5">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 card-hover">
             <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
               Hours Served by Month
             </h2>

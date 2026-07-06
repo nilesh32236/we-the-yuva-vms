@@ -6,7 +6,7 @@ import { TopNav } from '../../components/layout/TopNav';
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/volunteer/dashboard', icon: 'LayoutDashboard' },
   { label: 'My Profile', href: '/volunteer/profile', icon: 'User' },
-  { label: 'Opportunities', href: '/volunteer/opportunities', icon: 'Search' },
+  { label: 'Opportunities', href: '/volunteer/opportunities', icon: 'Briefcase' },
   { label: 'My Applications', href: '/volunteer/applications', icon: 'FileText' },
   { label: 'My Events', href: '/volunteer/events', icon: 'Calendar' },
   { label: 'Training', href: '/volunteer/training', icon: 'BookOpen' },
@@ -16,7 +16,7 @@ const navItems: NavItem[] = [
   { label: 'Badges', href: '/volunteer/badges', icon: 'Medal' },
   { label: 'Certificates', href: '/volunteer/certificates', icon: 'Scroll' },
   { label: 'Mentorship', href: '/volunteer/mentorship', icon: 'Handshake' },
-  { label: 'Impact', href: '/volunteer/impact', icon: 'TrendingUp' },
+  { label: 'Impact', href: '/volunteer/impact', icon: 'BarChart' },
 ];
 
 export default function VolunteerLayout({ children }: { children: React.ReactNode }) {

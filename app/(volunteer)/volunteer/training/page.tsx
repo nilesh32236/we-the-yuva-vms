@@ -39,7 +39,7 @@ export default function TrainingPage() {
   return (
     <div className="max-w-2xl space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-br from-brand-primary to-brand-secondary rounded-2xl p-6 text-white">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
             <BookOpen className="w-5 h-5 text-white" />
@@ -83,7 +83,7 @@ export default function TrainingPage() {
             return (
               <div
                 key={course.id}
-                className={`bg-brand-surface rounded-2xl border border-brand-border overflow-hidden ${isLocked ? 'opacity-60' : ''}`}
+                className={`bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover ${isLocked ? 'opacity-60' : ''}`}
               >
                 <div className="p-5 flex items-center gap-4">
                   <div

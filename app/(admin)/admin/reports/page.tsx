@@ -31,27 +31,21 @@ export default function AdminReportsPage() {
             label="Total Users"
             value={stats?.totalUsers ?? 0}
             icon={Users}
-            accent="text-purple-600 dark:text-purple-300"
-            accentBg="bg-purple-50 dark:bg-purple-900/20"
           />
           <StatsCard
             label="Active Volunteers"
             value={stats?.activeVolunteers ?? 0}
             icon={TrendingUp}
-            accent="text-emerald-600 dark:text-emerald-300"
-            accentBg="bg-emerald-50 dark:bg-emerald-900/20"
           />
           <StatsCard
             label="Total Hours"
             value={`${stats?.totalHours ?? 0}h`}
             icon={Clock}
-            accent="text-cyan-600 dark:text-cyan-300"
-            accentBg="bg-cyan-50 dark:bg-cyan-900/20"
           />
         </div>
       )}
 
-      <div className="bg-card rounded-2xl border border-brand-border p-6 text-center">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center">
         <Activity className="w-8 h-8 text-brand-muted mx-auto mb-2" />
         <p className="text-sm text-brand-muted">
           Advanced reports with charts and CSV export coming soon

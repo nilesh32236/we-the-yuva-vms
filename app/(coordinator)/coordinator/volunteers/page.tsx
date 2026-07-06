@@ -33,14 +33,14 @@ export default function CoordinatorVolunteersPage() {
         <button
           type="button"
           onClick={handleExport}
-          className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
+          className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer active-bounce"
         >
-          <Download className="w-4 h-4" /> Export CSV
+          <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
         </button>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
         <input
           value={search}
           onChange={(e) => {
@@ -59,12 +59,12 @@ export default function CoordinatorVolunteersPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center card-hover">
           <p className="font-medium text-brand-text">No volunteers yet</p>
         </div>
       ) : (
         <>
-          <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">
@@ -152,7 +152,7 @@ export default function CoordinatorVolunteersPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Previous
               </button>
@@ -163,7 +163,7 @@ export default function CoordinatorVolunteersPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Next
               </button>

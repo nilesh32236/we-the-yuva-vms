@@ -67,7 +67,7 @@ export default function OrganizationCoordinatorsPage() {
 
   if (!orgId) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 bg-card rounded-2xl border border-brand-border p-6 text-center">
+      <div className="flex flex-col items-center justify-center h-64 bg-brand-surface rounded-2xl border border-brand-border p-6 text-center card-hover">
         <h2 className="font-heading font-bold text-lg text-brand-text mb-2">
           No Organization Found
         </h2>
@@ -86,14 +86,14 @@ export default function OrganizationCoordinatorsPage() {
         <button
           type="button"
           onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary active:scale-95 transition-all shadow-sm cursor-pointer"
+          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary active-bounce transition-all shadow-sm cursor-pointer"
         >
-          <UserPlus className="w-4 h-4" /> Add Coordinator
+          <UserPlus className="w-4 h-4" aria-hidden="true" /> Add Coordinator
         </button>
       </div>
 
       {isAdding && (
-        <div className="bg-card rounded-2xl border border-brand-border p-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 card-hover">
           <h2 className="font-heading font-bold text-lg text-brand-text mb-4">
             Add New Coordinator
           </h2>
@@ -142,7 +142,7 @@ export default function OrganizationCoordinatorsPage() {
               <button
                 type="submit"
                 disabled={addMut.isPending}
-                className="bg-brand-primary text-white text-sm font-semibold px-6 py-2 rounded-xl hover:bg-brand-secondary disabled:opacity-50 active:scale-95 transition-all shadow-sm cursor-pointer"
+                className="bg-brand-primary text-white text-sm font-semibold px-6 py-2 rounded-xl hover:bg-brand-secondary disabled:opacity-50 active-bounce transition-all shadow-sm cursor-pointer"
               >
                 {addMut.isPending ? 'Adding...' : 'Save Coordinator'}
               </button>
@@ -158,9 +158,9 @@ export default function OrganizationCoordinatorsPage() {
           ))}
         </div>
       ) : data?.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center card-hover">
           <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center mx-auto mb-4">
-            <Plus className="w-8 h-8 text-brand-primary" />
+            <Plus className="w-8 h-8 text-brand-primary" aria-hidden="true" />
           </div>
           <p className="font-medium text-brand-text">No coordinators yet</p>
           <p className="text-sm text-brand-muted mt-1">
@@ -172,7 +172,7 @@ export default function OrganizationCoordinatorsPage() {
           {data?.map((c) => (
             <div
               key={c.id}
-              className="bg-card rounded-2xl border border-brand-border p-5 flex flex-col justify-between hover:shadow-md transition-shadow group"
+              className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex flex-col justify-between hover:shadow-md transition-shadow group card-hover"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
@@ -199,7 +199,7 @@ export default function OrganizationCoordinatorsPage() {
                   className="p-2 text-brand-muted hover:text-brand-error hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                   aria-label="Remove coordinator"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             </div>

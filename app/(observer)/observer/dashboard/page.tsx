@@ -3,7 +3,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Activity, Clock, Users } from 'lucide-react';
+import { Activity, ArrowRight, Clock, Users } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -23,7 +23,7 @@ export default function ObserverDashboardPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-600 to-gray-500 p-6 md:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary p-6 md:p-8">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
         <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
         <div className="relative z-10 flex items-start justify-between gap-4">
@@ -64,27 +64,21 @@ export default function ObserverDashboardPage() {
             label="Total Volunteers"
             value={stats?.totalVolunteers ?? 0}
             icon={Users}
-            accent="text-slate-600 dark:text-slate-400"
-            accentBg="bg-slate-50 dark:bg-slate-900/50"
           />
           <StatsCard
             label="Hours Served"
             value={`${stats?.hoursServed ?? 0}h`}
             icon={Clock}
-            accent="text-gray-600 dark:text-gray-400"
-            accentBg="bg-gray-50 dark:bg-gray-900/50"
           />
           <StatsCard
             label="Active Events"
             value={stats?.activeEvents ?? 0}
             icon={Activity}
-            accent="text-zinc-600 dark:text-zinc-400"
-            accentBg="bg-zinc-50 dark:bg-zinc-900/50"
           />
         </div>
       )}
 
-      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover">
         <div className="px-5 py-4 border-b border-brand-border">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Access</h2>
         </div>
@@ -98,12 +92,10 @@ export default function ObserverDashboardPage() {
             <Link
               key={href}
               href={href}
-              className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
+              className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active-bounce"
             >
               <p className="text-sm font-medium text-brand-text">{label}</p>
-              <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-                →
-              </span>
+              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
             </Link>
           ))}
         </div>

@@ -56,9 +56,9 @@ export default function CoordinatorOpportunitiesPage() {
         <h1 className="font-heading font-bold text-xl text-brand-text">Opportunities</h1>
         <Link
           href="/coordinator/opportunities/new"
-          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
+          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer active-bounce"
         >
-          <Plus className="w-4 h-4" /> New Opportunity
+          <Plus className="w-4 h-4" aria-hidden="true" /> New Opportunity
         </Link>
       </div>
 
@@ -69,7 +69,7 @@ export default function CoordinatorOpportunitiesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center card-hover">
           <p className="font-medium text-brand-text">No opportunities yet</p>
           <p className="text-sm text-brand-muted mt-1">
             Create your first opportunity to get started
@@ -77,7 +77,7 @@ export default function CoordinatorOpportunitiesPage() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <div className="bg-brand-surface rounded-2xl border border-brand-border">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border card-hover">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-border bg-brand-bg">
@@ -141,26 +141,26 @@ export default function CoordinatorOpportunitiesPage() {
                             <>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/applications`}
-                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                                 title="View Applications"
                               >
-                                <Users className="w-4 h-4" />
+                                <Users className="w-4 h-4" aria-hidden="true" />
                               </Link>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/edit`}
-                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors"
+                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                                 title="Edit"
                               >
-                                <Pencil className="w-4 h-4" />
+                                <Pencil className="w-4 h-4" aria-hidden="true" />
                               </Link>
                               <button
                                 type="button"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 disabled={closing === opp.id}
-                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
                                 title="Close"
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </button>
                             </>
                           )}
@@ -186,14 +186,14 @@ export default function CoordinatorOpportunitiesPage() {
               <button
                 type="button"
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={executeClose}
-                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors"
+                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors active-bounce"
               >
                 Confirm
               </button>

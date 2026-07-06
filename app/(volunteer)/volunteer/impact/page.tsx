@@ -62,15 +62,11 @@ export default function VolunteerImpactPage() {
             label="Stories Shared"
             value={impact?.storiesCount ?? 0}
             icon={BookOpen}
-            accent="text-violet-600 dark:text-violet-400"
-            accentBg="bg-violet-100 dark:bg-violet-900/30"
           />
           <StatsCard
             label="Feedback Given"
             value={impact?.feedbackCount ?? 0}
             icon={MessageSquareText}
-            accent="text-blue-600 dark:text-blue-400"
-            accentBg="bg-blue-100 dark:bg-blue-900/30"
           />
         </div>
       )}

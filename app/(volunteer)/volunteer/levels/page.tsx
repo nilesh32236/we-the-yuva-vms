@@ -213,7 +213,7 @@ export default function VolunteerLevelsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 p-6 md:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary p-6 md:p-8">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
         <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
         <div className="relative z-10 flex items-start justify-between gap-4">
@@ -424,7 +424,7 @@ export default function VolunteerLevelsPage() {
         <Link
           href="/volunteer/youth-reflection"
           onClick={() => haptic.light()}
-          className="block bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl p-5 text-white hover:from-purple-600 hover:to-violet-600 transition-all"
+          className="block bg-gradient-to-r from-brand-primary to-brand-secondary rounded-2xl p-5 text-white hover:opacity-90 transition-all"
         >
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">

@@ -142,13 +142,13 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
     <div className="max-w-3xl space-y-5">
       <Link
         href="/coordinator/events"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer active-bounce"
       >
-        <ArrowLeft className="w-4 h-4" /> Back to Events
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to Events
       </Link>
 
       {event && (
-        <div className="bg-card rounded-2xl border border-brand-border p-5">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 card-hover">
           <h1 className="font-heading font-bold text-xl text-brand-text">{event.title}</h1>
           <p className="text-sm text-brand-muted mt-1">
             {new Date(event.eventDate).toLocaleDateString('en-IN', {
@@ -182,7 +182,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
 
       {/* Self check-in log */}
       {records.some((a: AttendanceRecord) => a.checkedInAt) && (
-        <div className="bg-card rounded-2xl border border-brand-border overflow-hidden">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover">
           <div className="px-5 py-3 border-b border-brand-border">
             <h2 className="font-heading font-semibold text-sm text-brand-text">
               Self Check-in Log
@@ -216,28 +216,28 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                       </p>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-xs text-brand-muted">
                         <span className="flex items-center gap-1">
-                          <LogIn className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                          <LogIn className="w-3 h-3 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                           {new Date(a.checkedInAt!).toLocaleTimeString('en-IN', {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
                           {a.checkInLat && (
                             <span className="flex items-center gap-0.5 ml-1">
-                              <MapPin className="w-2.5 h-2.5" />
+                              <MapPin className="w-2.5 h-2.5" aria-hidden="true" />
                               {a.checkInLat.toFixed(3)},{a.checkInLng?.toFixed(3)}
                             </span>
                           )}
                         </span>
                         {a.checkedOutAt && (
                           <span className="flex items-center gap-1">
-                            <LogOut className="w-3 h-3 text-red-500 dark:text-red-400" />
+                            <LogOut className="w-3 h-3 text-red-500 dark:text-red-400" aria-hidden="true" />
                             {new Date(a.checkedOutAt!).toLocaleTimeString('en-IN', {
                               hour: '2-digit',
                               minute: '2-digit',
                             })}
                             {a.checkOutLat && (
                               <span className="flex items-center gap-0.5 ml-1">
-                                <MapPin className="w-2.5 h-2.5" />
+                                <MapPin className="w-2.5 h-2.5" aria-hidden="true" />
                                 {a.checkOutLat.toFixed(3)},{a.checkOutLng?.toFixed(3)}
                               </span>
                             )}
@@ -247,7 +247,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                     </div>
                     {duration && (
                       <div className="flex items-center gap-1 text-sm font-semibold text-brand-primary flex-shrink-0">
-                        <Clock className="w-3.5 h-3.5" />
+                        <Clock className="w-3.5 h-3.5" aria-hidden="true" />
                         {duration}h
                       </div>
                     )}
@@ -264,7 +264,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       )}
 
       {/* Attendance & Hours Approval */}
-      <div className="bg-card rounded-2xl border border-brand-border p-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 card-hover">
         <h2 className="font-heading font-semibold text-sm text-brand-text mb-4">
           Attendance & Hours Approval
         </h2>

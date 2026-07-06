@@ -28,20 +28,20 @@ export default function ObserverProfilePage() {
 
   return (
     <div className="max-w-2xl space-y-5">
-      <div className="bg-card rounded-2xl border border-brand-border overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-slate-500 to-slate-400 dark:from-slate-700 dark:to-slate-600" />
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover">
+        <div className="h-24 bg-gradient-to-r from-brand-primary to-brand-secondary" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-slate-600 dark:bg-slate-500 border-4 border-white dark:border-slate-800 flex items-center justify-center shadow-md">
+            <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-white dark:border-slate-800 flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-1 rounded-full">
-              <Eye className="w-3 h-3" /> Observer
+            <div className="flex items-center gap-1.5 text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full">
+              <Eye className="w-3 h-3" aria-hidden="true" /> Observer
             </div>
           </div>
           <h1 className="font-heading font-bold text-xl text-brand-text">{user?.name}</h1>
           <div className="flex items-center gap-1.5 mt-1 text-brand-muted text-sm">
-            <Mail className="w-3.5 h-3.5" />
+            <Mail className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{user?.email}</span>
           </div>
         </div>
@@ -62,16 +62,16 @@ export default function ObserverProfilePage() {
         ].map(({ icon: Icon, label, value }) => (
           <div
             key={label}
-            className="bg-card rounded-xl border border-brand-border p-4 text-center"
+            className="bg-brand-surface rounded-xl border border-brand-border p-4 text-center card-hover"
           >
-            <Icon className="w-4 h-4 text-slate-600 dark:text-slate-400 mx-auto mb-1.5" />
+            <Icon className="w-4 h-4 text-brand-primary mx-auto mb-1.5" aria-hidden="true" />
             <p className="font-heading font-bold text-base text-brand-text truncate">{value}</p>
             <p className="text-xs text-brand-muted">{label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-card rounded-2xl border border-brand-border p-5">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 card-hover">
         <h2 className="font-heading font-semibold text-sm text-brand-text mb-3">Account Details</h2>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between">

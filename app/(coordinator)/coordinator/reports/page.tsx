@@ -31,27 +31,21 @@ export default function CoordinatorReportsPage() {
             label="Active Volunteers"
             value={stats?.activeVolunteers ?? 0}
             icon={Users}
-            accent="text-emerald-600 dark:text-emerald-400"
-            accentBg="bg-emerald-50 dark:bg-emerald-950/30"
           />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}
             icon={CalendarDays}
-            accent="text-cyan-600 dark:text-cyan-400"
-            accentBg="bg-cyan-50 dark:bg-cyan-950/30"
           />
           <StatsCard
             label="Active Opportunities"
             value={stats?.activeOpportunities ?? 0}
             icon={Activity}
-            accent="text-purple-600 dark:text-purple-400"
-            accentBg="bg-purple-50 dark:bg-purple-950/30"
           />
         </div>
       )}
 
-      <div className="bg-card rounded-2xl border border-brand-border p-6 text-center">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center">
         <Clock className="w-8 h-8 text-brand-muted mx-auto mb-2" />
         <p className="text-sm text-brand-muted">Detailed reports with charts coming soon</p>
       </div>

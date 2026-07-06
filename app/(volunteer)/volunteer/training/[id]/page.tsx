@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle, Circle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Circle } from 'lucide-react';
 import Link from 'next/link';
 import { use, useState } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
@@ -136,7 +136,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                   disabled={complete.isPending}
                   className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
                 >
-                  {complete.isPending ? 'Saving…' : 'Mark as Complete →'}
+                  {complete.isPending ? 'Saving…' : (
+                    <span className="inline-flex items-center gap-2">
+                      Mark as Complete
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    </span>
+                  )}
                 </button>
               )}
 
@@ -152,7 +157,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                   }}
                   className="w-full border border-brand-border text-brand-text py-3 rounded-xl font-semibold text-sm hover:bg-brand-bg transition-colors cursor-pointer"
                 >
-                  Next Lesson →
+                  <span className="inline-flex items-center gap-2">
+                    Next Lesson
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </span>
                 </button>
               )}
 

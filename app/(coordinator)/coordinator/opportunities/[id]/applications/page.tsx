@@ -70,10 +70,10 @@ export default function ApplicationsPage() {
     <div className="space-y-5 max-w-5xl">
       <Link
         href="/coordinator/opportunities"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer active-bounce"
         onClick={() => haptic.light()}
       >
-        <ArrowLeft className="w-4 h-4" /> Back to Opportunities
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to Opportunities
       </Link>
 
       <div className="flex items-center justify-between">
@@ -87,7 +87,7 @@ export default function ApplicationsPage() {
           ))}
         </div>
       ) : applications.length === 0 ? (
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center card-hover">
           <p className="font-medium text-brand-text">No applications yet</p>
           <p className="text-sm text-brand-muted mt-1">
             Applications will appear here when volunteers apply
@@ -96,7 +96,7 @@ export default function ApplicationsPage() {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <div className="bg-brand-surface rounded-2xl border border-brand-border">
+            <div className="bg-brand-surface rounded-2xl border border-brand-border card-hover">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-brand-border bg-brand-bg">
@@ -149,7 +149,7 @@ export default function ApplicationsPage() {
                                 updateMut.mutate({ appId: app.id, status: 'ACCEPTED' });
                               }}
                             >
-                              <Check className="w-3.5 h-3.5" /> Accept
+                              <Check className="w-3.5 h-3.5" aria-hidden="true" /> Accept
                             </Button>
                             <Button
                               size="sm"
@@ -160,7 +160,7 @@ export default function ApplicationsPage() {
                                 updateMut.mutate({ appId: app.id, status: 'REJECTED' });
                               }}
                             >
-                              <X className="w-3.5 h-3.5" /> Reject
+                              <X className="w-3.5 h-3.5" aria-hidden="true" /> Reject
                             </Button>
                           </div>
                         )}
@@ -177,7 +177,7 @@ export default function ApplicationsPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Previous
               </button>
@@ -188,7 +188,7 @@ export default function ApplicationsPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Next
               </button>

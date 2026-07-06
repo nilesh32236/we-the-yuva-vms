@@ -27,10 +27,10 @@ export default function CoordinatorProfilePage() {
   return (
     <div className="max-w-2xl space-y-5">
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-cyan-500 to-teal-400" />
+        <div className="h-24 bg-gradient-to-r from-brand-primary to-brand-secondary" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-cyan-600 border-4 border-brand-surface flex items-center justify-center shadow-md">
+            <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-brand-surface flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
           </div>

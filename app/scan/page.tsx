@@ -200,7 +200,7 @@ function ScanInner() {
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'camera'
-                  ? 'bg-card shadow-sm text-brand'
+                  ? 'bg-brand-surface shadow-sm text-brand'
                   : 'text-gray-500 dark:text-gray-400'
               }`}
             >
@@ -214,7 +214,7 @@ function ScanInner() {
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'manual'
-                  ? 'bg-card shadow-sm text-brand'
+                  ? 'bg-brand-surface shadow-sm text-brand'
                   : 'text-gray-500 dark:text-gray-400'
               }`}
             >

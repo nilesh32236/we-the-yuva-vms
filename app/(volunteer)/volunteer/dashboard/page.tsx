@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Activity, Calendar, Clock, Star } from 'lucide-react';
+import { Activity, ArrowRight, Calendar, Clock, Star } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -44,7 +44,7 @@ export default function VolunteerDashboardPage() {
       <LevelProgressCard />
 
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 p-6 md:p-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary p-6 md:p-8">
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
         <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
         <div className="relative z-10 flex items-start justify-between gap-4">
@@ -123,7 +123,7 @@ export default function VolunteerDashboardPage() {
       )}
 
       {/* Quick actions */}
-      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover">
         <div className="px-5 py-4 border-b border-brand-border">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Quick Actions</h2>
         </div>
@@ -134,9 +134,7 @@ export default function VolunteerDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
           >
             <p className="text-sm font-semibold">Browse Opportunities</p>
-            <span className="text-white/80 group-hover:translate-x-0.5 transition-transform">
-              →
-            </span>
+            <ArrowRight className="w-4 h-4 text-white/80 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
           </Link>
           <Link
             href="/volunteer/events"
@@ -144,9 +142,7 @@ export default function VolunteerDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
           >
             <p className="text-sm font-medium text-brand-text">My Events</p>
-            <span className="text-brand-muted group-hover:text-brand-primary transition-colors">
-              →
-            </span>
+            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
           </Link>
         </div>
       </div>

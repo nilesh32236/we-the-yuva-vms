@@ -50,8 +50,8 @@ export default function ObserverEventsPage() {
             type="button"
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer
-              ${tab === t ? 'bg-card text-brand-text shadow-sm' : 'text-brand-muted hover:text-brand-text'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer active-bounce
+              ${tab === t ? 'bg-brand-surface text-brand-text shadow-sm' : 'text-brand-muted hover:text-brand-text'}`}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -81,7 +81,7 @@ export default function ObserverEventsPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Previous
               </button>
@@ -92,7 +92,7 @@ export default function ObserverEventsPage() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
-                className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl border border-brand-border text-sm disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Next
               </button>

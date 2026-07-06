@@ -9,14 +9,14 @@ export default function AdminLoading() {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-card rounded-2xl border border-brand-border p-5 space-y-3">
+          <div key={i} className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
             <Skeleton className="h-5 w-12" />
             <Skeleton className="h-8 w-20" />
             <Skeleton className="h-3 w-24" />
           </div>
         ))}
       </div>
-      <div className="bg-card rounded-2xl border border-brand-border p-5">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
         <Skeleton className="h-5 w-48 mb-4" />
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>

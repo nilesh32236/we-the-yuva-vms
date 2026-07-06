@@ -50,12 +50,12 @@ export default function NewEventPage() {
     <div className="max-w-2xl space-y-5">
       <Link
         href="/coordinator/events"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer active-bounce"
       >
-        <ArrowLeft className="w-4 h-4" /> Back
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
       </Link>
 
-      <div className="bg-card rounded-2xl border border-brand-border p-6 space-y-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-6 card-hover">
         <h1 className="font-heading font-bold text-xl text-brand-text">Create Event</h1>
 
         <div className="space-y-1.5">
@@ -80,13 +80,13 @@ export default function NewEventPage() {
         {opportunityId && <EventForm onSubmit={handleSubmit} submitLabel="Create Event" />}
 
         {createdEventId && (
-          <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center space-y-4">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center space-y-4 card-hover">
             <p className="font-medium text-brand-text text-lg">Event Created Successfully!</p>
             <div className="flex items-center justify-center gap-3">
               <AddToCalendarButton eventId={createdEventId} />
               <Link
                 href="/coordinator/events"
-                className="flex items-center gap-2 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
+                className="flex items-center gap-2 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer active-bounce"
               >
                 Back to Events
               </Link>

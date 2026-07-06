@@ -31,28 +31,22 @@ export default function OrgAdminReportsPage() {
             label="Active Volunteers"
             value={stats?.activeVolunteers ?? 0}
             icon={Users}
-            accent="text-cyan-600 dark:text-cyan-400"
-            accentBg="bg-cyan-50 dark:bg-cyan-950/30"
           />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}
             icon={Calendar}
-            accent="text-sky-600 dark:text-sky-400"
-            accentBg="bg-sky-50 dark:bg-sky-950/30"
           />
           <StatsCard
             label="Active Opportunities"
             value={stats?.opportunities ?? 0}
             icon={Briefcase}
-            accent="text-blue-600 dark:text-blue-400"
-            accentBg="bg-blue-50 dark:bg-blue-950/30"
           />
         </div>
       )}
 
-      <div className="bg-card rounded-2xl border border-brand-border p-6 text-center">
-        <Activity className="w-8 h-8 text-brand-muted mx-auto mb-2" />
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center card-hover">
+        <Activity className="w-8 h-8 text-brand-muted mx-auto mb-2" aria-hidden="true" />
         <p className="text-sm text-brand-muted">
           Detailed reports with charts and CSV export coming soon
         </p>

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CheckCircle, XCircle } from 'lucide-react';
+import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
 import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
@@ -10,7 +11,7 @@ import { api } from '../../../../lib/api';
 export default function AdminStoriesPage() {
   const qc = useQueryClient();
   const { toast } = useToast();
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-stories'],
@@ -37,6 +38,12 @@ export default function AdminStoriesPage() {
     onError: () => toast({ title: 'Error', variant: 'destructive' }),
   });
 
+  const handleDelete = () => {
+    if (!confirmDelete) return;
+    deleteMut.mutate(confirmDelete.id);
+    setConfirmDelete(null);
+  };
+
   return (
     <div className="space-y-5 max-w-5xl">
       <h1 className="font-heading font-bold text-xl text-brand-text">Story Moderation</h1>
@@ -48,7 +55,7 @@ export default function AdminStoriesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
           <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" />
           <p className="font-medium text-brand-text">No stories submitted yet</p>
         </div>
@@ -65,7 +72,7 @@ export default function AdminStoriesPage() {
             }) => (
               <div
                 key={story.id}
-                className="bg-card rounded-2xl border border-brand-border p-5 space-y-3"
+                className="bg-brand-surface card-hover rounded-2xl border border-brand-border p-5 space-y-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
@@ -101,37 +108,21 @@ export default function AdminStoriesPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setConfirmDelete(story.id)}
+                    onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
                     className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
                   >
                     Delete
                   </button>
-                  {confirmDelete === story.id && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                      <div className="bg-card rounded-lg p-6 max-w-sm mx-4 shadow-xl">
-                        <h3 className="font-semibold text-lg mb-2">Confirm</h3>
-                        <p className="text-sm text-gray-600 mb-4">Delete this story?</p>
-                        <div className="flex justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={() => setConfirmDelete(null)}
-                            className="px-4 py-2 text-sm rounded-lg border bg-background text-gray-700 dark:text-gray-200"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              deleteMut.mutate(story.id);
-                              setConfirmDelete(null);
-                            }}
-                            className="px-4 py-2 text-sm rounded-lg bg-red-600 dark:bg-red-700 text-white"
-                          >
-                            Confirm
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                  {confirmDelete && (
+                    <ConfirmDialog
+                      open={confirmDelete !== null}
+                      title="Delete Story"
+                      message={`Delete "${confirmDelete.title}"? This action cannot be undone.`}
+                      confirmLabel="Delete"
+                      variant="danger"
+                      onConfirm={handleDelete}
+                      onCancel={() => setConfirmDelete(null)}
+                    />
                   )}
                 </div>
               </div>

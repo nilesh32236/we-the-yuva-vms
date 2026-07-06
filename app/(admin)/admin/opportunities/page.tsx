@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Search, Trash2 } from 'lucide-react';
+import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
 import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
@@ -192,32 +193,15 @@ export default function AdminOpportunitiesPage() {
         </>
       )}
 
-      {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-card rounded-lg p-6 max-w-sm mx-4 shadow-xl">
-            <h3 className="font-semibold text-lg mb-2">Confirm</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-              Close &ldquo;{confirmAction.title}&rdquo;?
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm rounded-lg border bg-background text-gray-700 dark:text-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={executeClose}
-                className="px-4 py-2 text-sm rounded-lg bg-red-600 dark:bg-red-700 text-white"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title="Close Opportunity"
+        message={`Close "${confirmAction?.title ?? ''}"? This will remove it from the platform.`}
+        confirmLabel="Close"
+        loading={closing !== null}
+        onConfirm={executeClose}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

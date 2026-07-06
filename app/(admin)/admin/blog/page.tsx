@@ -61,7 +61,7 @@ export default function AdminBlogPage() {
               <Link
                 key={post.id}
                 href={`/admin/blog/${post.id}/edit`}
-                className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-brand-border hover:shadow-sm transition-all"
+                className="flex items-center justify-between p-4 bg-brand-surface rounded-xl border border-brand-border hover:shadow-sm transition-all card-hover"
               >
                 <div className="min-w-0 flex-1">
                   <h2 className="font-medium text-brand-text truncate">{post.title}</h2>

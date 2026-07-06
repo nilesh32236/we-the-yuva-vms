@@ -72,7 +72,7 @@ export default function MyApplicationsPage() {
         <Link
           key={app.id}
           href={`/volunteer/opportunities/${app.opportunityId}`}
-          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/40 transition-colors"
+          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 transition-colors card-hover"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">

@@ -33,13 +33,13 @@ export default function VolunteerDetailPage({
     <div className="max-w-2xl space-y-5">
       <Link
         href="/coordinator/volunteers"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer active-bounce"
         onClick={() => haptic.light()}
       >
-        <ArrowLeft className="w-4 h-4" /> Back to Volunteers
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back to Volunteers
       </Link>
 
-      <div className="bg-card rounded-2xl border border-brand-border p-6 space-y-5">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-5 card-hover">
         {/* Header */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-brand-primary flex items-center justify-center flex-shrink-0">
@@ -55,7 +55,7 @@ export default function VolunteerDetailPage({
           <div>
             <h1 className="font-heading font-bold text-xl text-brand-text">{profile?.name}</h1>
             <div className="flex items-center gap-1 text-sm text-brand-muted mt-0.5">
-              <Clock className="w-3.5 h-3.5" />
+              <Clock className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{profile?.profile?.totalHours ?? 0} hours served</span>
             </div>
           </div>

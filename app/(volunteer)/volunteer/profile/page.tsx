@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  ArrowRight,
   Bell,
   BellRing,
   Calendar,
@@ -352,7 +353,7 @@ export default function VolunteerProfilePage() {
     <div className="max-w-2xl space-y-5">
       {/* Header card */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-emerald-500 to-teal-400" />
+        <div className="h-24 bg-gradient-to-r from-brand-primary to-brand-secondary" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
             <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-brand-surface flex items-center justify-center shadow-md">
@@ -415,7 +416,7 @@ export default function VolunteerProfilePage() {
       {levelData?.data && !editing && (
         <Link
           href="/volunteer/levels"
-          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/30 transition-all duration-200 group"
+          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/30 transition-all duration-200 group card-hover"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -459,9 +460,7 @@ export default function VolunteerProfilePage() {
                 <p className="font-heading font-bold text-brand-text">{levelData.data.points}</p>
               </div>
               <StreakBadge streak={levelData.data.streak} size="md" />
-              <span className="text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all">
-                &rarr;
-              </span>
+              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" aria-hidden="true" />
             </div>
           </div>
         </Link>
@@ -561,7 +560,7 @@ export default function VolunteerProfilePage() {
         <div className="space-y-2">
           <Link
             href="/volunteer/settings/notifications"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer card-hover"
           >
             <Bell className="w-4 h-4 text-brand-muted" />
             <div>
@@ -571,7 +570,7 @@ export default function VolunteerProfilePage() {
           </Link>
           <Link
             href="/volunteer/settings/alerts"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer card-hover"
           >
             <BellRing className="w-4 h-4 text-brand-muted" />
             <div>

@@ -52,7 +52,7 @@ export function BlogPageClient() {
                 <Link
                   key={post.id}
                   href={`/blog/${post.slug}`}
-                  className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-lg transition-all group"
+                  className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-lg transition-all group card-hover"
                 >
                   {post.featuredImage && (
                     <div className="relative h-48 overflow-hidden">

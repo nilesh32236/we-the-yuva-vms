@@ -25,8 +25,8 @@ export default function ObserverStoriesPage() {
           ))}
         </div>
       ) : data?.data?.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center space-y-3">
-          <BookOpen className="w-10 h-10 text-brand-muted mx-auto" />
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center space-y-3 card-hover">
+          <BookOpen className="w-10 h-10 text-brand-muted mx-auto" aria-hidden="true" />
           <p className="font-medium text-brand-text">No stories published yet</p>
           <p className="text-sm text-brand-muted">
             Check back soon for impact stories from our volunteers
@@ -44,7 +44,7 @@ export default function ObserverStoriesPage() {
             }) => (
               <div
                 key={story.id}
-                className="bg-card rounded-2xl border border-brand-border p-6 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200"
+                className="bg-brand-surface rounded-2xl border border-brand-border p-6 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 card-hover"
               >
                 <h2 className="font-heading font-semibold text-brand-text text-lg mb-1">
                   {story.title}

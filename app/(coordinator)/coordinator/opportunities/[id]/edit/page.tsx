@@ -39,7 +39,7 @@ export default function EditOpportunityPage() {
   if (isLoading) {
     return (
       <div className="max-w-2xl space-y-5">
-        <div className="bg-card rounded-2xl border border-brand-border p-6">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 card-hover">
           <div className="h-6 w-48 bg-brand-bg rounded animate-pulse mb-5" />
           <div className="space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -56,11 +56,11 @@ export default function EditOpportunityPage() {
       <div className="max-w-2xl space-y-5">
         <Link
           href="/coordinator/opportunities"
-          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer active-bounce"
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
         </Link>
-        <div className="bg-card rounded-2xl border border-brand-border p-12 text-center">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center card-hover">
           <p className="text-brand-muted">Opportunity not found</p>
         </div>
       </div>
@@ -90,11 +90,11 @@ export default function EditOpportunityPage() {
     <div className="max-w-2xl space-y-5">
       <Link
         href="/coordinator/opportunities"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer active-bounce"
       >
-        <ArrowLeft className="w-4 h-4" /> Back
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" /> Back
       </Link>
-      <div className="bg-card rounded-2xl border border-brand-border p-6">
+      <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 card-hover">
         <h1 className="font-heading font-bold text-xl text-brand-text mb-5">Edit Opportunity</h1>
         <OpportunityForm
           defaultValues={defaultValues}

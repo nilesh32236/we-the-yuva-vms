@@ -64,7 +64,7 @@ export default function CertificatesPage() {
           {certificates.map((cert) => (
             <div
               key={cert.id}
-              className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4 hover:shadow-md hover:border-brand-primary/30 transition-all"
+              className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4 hover:shadow-md hover:border-brand-primary/30 transition-all card-hover"
             >
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center flex-shrink-0">
