@@ -1,7 +1,8 @@
 'use client';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Search, Trash2 } from 'lucide-react';
+import { ExternalLink, Search, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 import Pagination from '@/components/shared/Pagination';
 import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
 import { useState } from 'react';
@@ -115,6 +116,7 @@ export default function AdminOpportunitiesPage() {
                       Slots
                     </th>
                     <th scope="col" className="px-4 py-3 w-12" />
+                    <th scope="col" className="px-4 py-3 w-12" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-border">
@@ -160,6 +162,15 @@ export default function AdminOpportunitiesPage() {
                               <Trash2 className="w-4 h-4" />
                             </button>
                           )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/admin/opportunities/${opp.id}`}
+                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
+                            title="Manage"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
                         </td>
                       </tr>
                     )

@@ -1,7 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Download } from 'lucide-react';
+import { Download, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -73,6 +74,7 @@ export default function AdminEventsPage() {
                     >
                       Capacity
                     </th>
+                    <th scope="col" className="px-4 py-3 w-12" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-border">
@@ -113,6 +115,15 @@ export default function AdminEventsPage() {
                         </td>
                         <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
                           {ev._count?.attendances ?? 0} / {ev.capacity}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/admin/events/${ev.id}`}
+                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
+                            title="Manage"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
                         </td>
                       </tr>
                     )

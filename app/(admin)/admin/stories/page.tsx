@@ -1,7 +1,8 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, CheckCircle, XCircle } from 'lucide-react';
+import { BookOpen, CheckCircle, ExternalLink, XCircle } from 'lucide-react';
+import Link from 'next/link';
 import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
 import { useState } from 'react';
 import Pagination from '../../../../components/shared/Pagination';
@@ -94,6 +95,13 @@ export default function AdminStoriesPage() {
                 <p className="text-sm text-brand-muted line-clamp-3">{story.content}</p>
 
                 <div className="flex items-center gap-2 pt-1">
+                  <Link
+                    href={`/admin/stories/${story.id}`}
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View
+                  </Link>
                   <button
                     type="button"
                     onClick={() =>
