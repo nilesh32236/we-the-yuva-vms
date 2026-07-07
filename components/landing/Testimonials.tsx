@@ -44,7 +44,10 @@ export function Testimonials() {
 
         <div className={`stagger-group mt-12 grid gap-6 md:grid-cols-3 ${inView ? 'in-view' : ''}`}>
           {testimonials.map((t) => (
-            <div key={t.name} className="card-hover rounded-2xl bg-brand-bg p-6 sm:p-8 dark:bg-brand-surface">
+            <div
+              key={t.name}
+              className="card-hover rounded-2xl bg-brand-bg p-6 sm:p-8 dark:bg-brand-surface"
+            >
               <p className="text-sm leading-relaxed text-brand-muted dark:text-brand-muted">
                 &quot;{t.quote}&quot;
               </p>

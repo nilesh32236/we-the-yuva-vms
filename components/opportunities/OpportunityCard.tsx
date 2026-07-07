@@ -241,7 +241,10 @@ const OpportunityCard = memo(function OpportunityCard({
         <div className="flex items-center justify-between text-xs text-brand-muted">
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" aria-hidden="true" />
-            <span className="tabular-nums">{filled} / {opp.totalSlots}</span> slots
+            <span className="tabular-nums">
+              {filled} / {opp.totalSlots}
+            </span>{' '}
+            slots
           </span>
           {isFull && <span className="text-brand-error font-medium">Full</span>}
         </div>

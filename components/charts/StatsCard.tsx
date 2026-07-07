@@ -28,7 +28,9 @@ export function StatsCard({
         <Icon className={`w-6 h-6 ${accent}`} aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-heading font-bold text-2xl text-brand-text leading-none tabular-nums">{value}</p>
+        <p className="font-heading font-bold text-2xl text-brand-text leading-none tabular-nums">
+          {value}
+        </p>
         <p className="text-brand-muted text-xs mt-1 truncate">{label}</p>
         {trend && (
           <div

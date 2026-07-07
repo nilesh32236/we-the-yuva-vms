@@ -27,11 +27,7 @@ export default function CoordinatorReportsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard
-            label="Active Volunteers"
-            value={stats?.activeVolunteers ?? 0}
-            icon={Users}
-          />
+          <StatsCard label="Active Volunteers" value={stats?.activeVolunteers ?? 0} icon={Users} />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}

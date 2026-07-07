@@ -107,7 +107,10 @@ export function Sidebar({ navItems }: SidebarProps) {
                 className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
                 ${isActive ? 'bg-white/20' : 'bg-brand-bg group-hover:bg-brand-surface'}`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-brand-primary'}`} aria-hidden="true" />
+                <Icon
+                  className={`w-4 h-4 ${isActive ? 'text-white' : 'text-brand-primary'}`}
+                  aria-hidden="true"
+                />
               </div>
               <span
                 className={`text-sm font-medium truncate flex-1 ${isActive ? 'text-white' : ''}`}

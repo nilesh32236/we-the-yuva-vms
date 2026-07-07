@@ -1,7 +1,18 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Briefcase, Building2, CalendarDays, FileSpreadsheet, MapPin, ShieldAlert, Target, Trash2, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Briefcase,
+  Building2,
+  CalendarDays,
+  FileSpreadsheet,
+  MapPin,
+  ShieldAlert,
+  Target,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -50,7 +61,12 @@ export default function AdminOpportunityDetailPage() {
   const qc = useQueryClient();
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
-  const { data: opp, isLoading, error, refetch } = useQuery({
+  const {
+    data: opp,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['admin-opportunity-detail', id],
     queryFn: () => api.get(`/admin/opportunities/${id}`).then((r) => r.data as OpportunityDetail),
     enabled: !!id,
@@ -102,7 +118,10 @@ export default function AdminOpportunityDetailPage() {
       <div className="text-center py-20">
         <Briefcase className="w-16 h-16 text-brand-muted mx-auto mb-4 opacity-20" />
         <p className="font-medium text-brand-text">Opportunity not found</p>
-        <Link href="/admin/opportunities" className="text-brand-primary text-sm mt-2 inline-block hover:underline">
+        <Link
+          href="/admin/opportunities"
+          className="text-brand-primary text-sm mt-2 inline-block hover:underline"
+        >
           Back to opportunities
         </Link>
       </div>
@@ -151,11 +170,17 @@ export default function AdminOpportunityDetailPage() {
               {opp.isRemote && <span>Remote</span>}
               <span className="flex items-center gap-1">
                 <CalendarDays className="w-3.5 h-3.5" />
-                {new Date(opp.startDate).toLocaleDateString('en-IN')} - {new Date(opp.endDate).toLocaleDateString('en-IN')}
+                {new Date(opp.startDate).toLocaleDateString('en-IN')} -{' '}
+                {new Date(opp.endDate).toLocaleDateString('en-IN')}
               </span>
               {opp.deadline && (
                 <span>
-                  Deadline: {new Date(opp.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  Deadline:{' '}
+                  {new Date(opp.deadline).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
                 </span>
               )}
               <span>By: {opp.createdBy?.name ?? '—'}</span>
@@ -165,20 +190,42 @@ export default function AdminOpportunityDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard label="Total Applications" value={opp._count?.applications ?? 0} icon={FileSpreadsheet} accent="text-pink-500" accentBg="bg-pink-50 dark:bg-pink-950" />
-        <StatsCard label="Slots" value={opp.totalSlots} icon={Users} accent="text-purple-500" accentBg="bg-purple-50 dark:bg-purple-950" />
-        <StatsCard label="Events" value={opp._count?.events ?? 0} icon={Target} accent="text-emerald-500" accentBg="bg-emerald-50 dark:bg-emerald-950" />
+        <StatsCard
+          label="Total Applications"
+          value={opp._count?.applications ?? 0}
+          icon={FileSpreadsheet}
+          accent="text-pink-500"
+          accentBg="bg-pink-50 dark:bg-pink-950"
+        />
+        <StatsCard
+          label="Slots"
+          value={opp.totalSlots}
+          icon={Users}
+          accent="text-purple-500"
+          accentBg="bg-purple-50 dark:bg-purple-950"
+        />
+        <StatsCard
+          label="Events"
+          value={opp._count?.events ?? 0}
+          icon={Target}
+          accent="text-emerald-500"
+          accentBg="bg-emerald-50 dark:bg-emerald-950"
+        />
       </div>
 
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
-        <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Application Breakdown</h2>
+        <h2 className="font-heading font-bold text-lg text-brand-text mb-4">
+          Application Breakdown
+        </h2>
         {!opp.applicationStats?.length ? (
           <p className="text-sm text-brand-muted italic">No applications yet.</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {opp.applicationStats.map((s: { status: string; _count: number }) => (
               <div key={s.status} className="border border-brand-border rounded-xl p-4 text-center">
-                <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${APP_STATUS_COLORS[s.status] ?? ''}`}>
+                <p
+                  className={`text-xs font-semibold uppercase tracking-wide mb-1 ${APP_STATUS_COLORS[s.status] ?? ''}`}
+                >
                   {s.status}
                 </p>
                 <p className="font-heading font-bold text-2xl text-brand-text">{s._count}</p>
@@ -195,7 +242,10 @@ export default function AdminOpportunityDetailPage() {
           {opp.skills?.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {opp.skills.map((skill: string) => (
-                <span key={skill} className="text-xs font-medium px-2.5 py-1 rounded-full bg-brand-bg text-brand-muted border border-brand-border">
+                <span
+                  key={skill}
+                  className="text-xs font-medium px-2.5 py-1 rounded-full bg-brand-bg text-brand-muted border border-brand-border"
+                >
                   {skill}
                 </span>
               ))}

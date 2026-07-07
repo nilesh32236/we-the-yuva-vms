@@ -23,7 +23,9 @@ export function ImpactStats() {
           Where we stand today
         </h2>
 
-        <div className={`stagger-group grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12 ${inView ? 'in-view' : ''}`}>
+        <div
+          className={`stagger-group grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12 ${inView ? 'in-view' : ''}`}
+        >
           {stats.map((stat) => (
             <div
               key={stat.label}

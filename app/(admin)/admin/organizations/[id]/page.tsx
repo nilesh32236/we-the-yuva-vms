@@ -48,15 +48,19 @@ export default function AdminOrgDetailPage() {
   const { toast } = useToast();
   const qc = useQueryClient();
 
-  const { data: org, isLoading, error, refetch } = useQuery({
+  const {
+    data: org,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['admin-org-detail', id],
     queryFn: () => api.get(`/admin/organizations/${id}`).then((r) => r.data),
     enabled: !!id,
   });
 
   const verifyMut = useMutation({
-    mutationFn: (approved: boolean) =>
-      api.patch(`/admin/organizations/${id}/verify`, { approved }),
+    mutationFn: (approved: boolean) => api.patch(`/admin/organizations/${id}/verify`, { approved }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-org-detail', id] });
       qc.invalidateQueries({ queryKey: ['admin-orgs'] });
@@ -92,7 +96,9 @@ export default function AdminOrgDetailPage() {
       <div className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load organization</p>
-        <p className="text-sm text-brand-muted mb-6">{(error as Error)?.message ?? 'An unexpected error occurred.'}</p>
+        <p className="text-sm text-brand-muted mb-6">
+          {(error as Error)?.message ?? 'An unexpected error occurred.'}
+        </p>
         <button
           type="button"
           onClick={() => refetch()}
@@ -109,7 +115,10 @@ export default function AdminOrgDetailPage() {
       <div className="text-center py-20">
         <Building2 className="w-16 h-16 text-brand-muted mx-auto mb-4 opacity-20" />
         <p className="font-medium text-brand-text">Organization not found</p>
-        <Link href="/admin/organizations" className="text-brand-primary text-sm mt-2 inline-block hover:underline">
+        <Link
+          href="/admin/organizations"
+          className="text-brand-primary text-sm mt-2 inline-block hover:underline"
+        >
           Back to organizations
         </Link>
       </div>
@@ -159,7 +168,12 @@ export default function AdminOrgDetailPage() {
             <p className="text-brand-muted text-sm mt-1">{org.email ?? 'No email'}</p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-brand-muted">
               {org.website && (
-                <a href={org.website} target="_blank" rel="noopener noreferrer" className="hover:text-brand-primary transition-colors">
+                <a
+                  href={org.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand-primary transition-colors"
+                >
                   {org.website}
                 </a>
               )}
@@ -167,11 +181,21 @@ export default function AdminOrgDetailPage() {
               {org.phone && <span>{org.phone}</span>}
               {org.verifiedAt && (
                 <span className="font-medium text-green-600 dark:text-green-400">
-                  Verified: {new Date(org.verifiedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  Verified:{' '}
+                  {new Date(org.verifiedAt).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
                 </span>
               )}
               <span>
-                Created: {new Date(org.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                Created:{' '}
+                {new Date(org.createdAt).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
               </span>
             </div>
           </div>
@@ -180,12 +204,48 @@ export default function AdminOrgDetailPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatsCard label="Staff" value={org.stats.staffCount} icon={Users} accent="text-blue-500" accentBg="bg-blue-50 dark:bg-blue-950" />
-        <StatsCard label="Opportunities" value={org.stats.opportunitiesCount} icon={Briefcase} accent="text-purple-500" accentBg="bg-purple-50 dark:bg-purple-950" />
-        <StatsCard label="Active Opps" value={org.stats.activeOpportunitiesCount} icon={Target} accent="text-emerald-500" accentBg="bg-emerald-50 dark:bg-emerald-950" />
-        <StatsCard label="Events" value={org.stats.eventsCount} icon={Calendar} accent="text-orange-500" accentBg="bg-orange-50 dark:bg-orange-950" />
-        <StatsCard label="Applications" value={org.stats.applicationsCount} icon={FileSpreadsheet} accent="text-pink-500" accentBg="bg-pink-50 dark:bg-pink-950" />
-        <StatsCard label="Active Volunteers" value={org.stats.activeVolunteersCount} icon={UserCheck} accent="text-teal-500" accentBg="bg-teal-50 dark:bg-teal-950" />
+        <StatsCard
+          label="Staff"
+          value={org.stats.staffCount}
+          icon={Users}
+          accent="text-blue-500"
+          accentBg="bg-blue-50 dark:bg-blue-950"
+        />
+        <StatsCard
+          label="Opportunities"
+          value={org.stats.opportunitiesCount}
+          icon={Briefcase}
+          accent="text-purple-500"
+          accentBg="bg-purple-50 dark:bg-purple-950"
+        />
+        <StatsCard
+          label="Active Opps"
+          value={org.stats.activeOpportunitiesCount}
+          icon={Target}
+          accent="text-emerald-500"
+          accentBg="bg-emerald-50 dark:bg-emerald-950"
+        />
+        <StatsCard
+          label="Events"
+          value={org.stats.eventsCount}
+          icon={Calendar}
+          accent="text-orange-500"
+          accentBg="bg-orange-50 dark:bg-orange-950"
+        />
+        <StatsCard
+          label="Applications"
+          value={org.stats.applicationsCount}
+          icon={FileSpreadsheet}
+          accent="text-pink-500"
+          accentBg="bg-pink-50 dark:bg-pink-950"
+        />
+        <StatsCard
+          label="Active Volunteers"
+          value={org.stats.activeVolunteersCount}
+          icon={UserCheck}
+          accent="text-teal-500"
+          accentBg="bg-teal-50 dark:bg-teal-950"
+        />
       </div>
 
       {/* Documents */}

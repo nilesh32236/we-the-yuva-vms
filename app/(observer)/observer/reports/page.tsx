@@ -40,21 +40,9 @@ export default function ObserverReportsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard
-            label="Total Volunteers"
-            value={stats?.totalVolunteers ?? 0}
-            icon={Users}
-          />
-          <StatsCard
-            label="Hours Served"
-            value={`${stats?.hoursServed ?? 0}h`}
-            icon={Clock}
-          />
-          <StatsCard
-            label="Active Events"
-            value={stats?.activeEvents ?? 0}
-            icon={Activity}
-          />
+          <StatsCard label="Total Volunteers" value={stats?.totalVolunteers ?? 0} icon={Users} />
+          <StatsCard label="Hours Served" value={`${stats?.hoursServed ?? 0}h`} icon={Clock} />
+          <StatsCard label="Active Events" value={stats?.activeEvents ?? 0} icon={Activity} />
         </div>
       )}
 
