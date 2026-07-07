@@ -14,7 +14,7 @@ interface Opportunity {
 
 async function getFeaturedOpportunities(): Promise<Opportunity[]> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/opportunities?limit=3`, {
+    const res = await fetch(`${API_URL}/api/v1/opportunities/public?limit=3`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return [];

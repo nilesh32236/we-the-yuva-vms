@@ -6,6 +6,7 @@ import { Leaf, Menu, X } from 'lucide-react';
 
 const navLinks = [
   { label: 'Opportunities', href: '/opportunities' },
+  { label: 'Blog', href: '/blog' },
   { label: 'How It Works', href: '/#pathway' },
   { label: 'About', href: '/about' },
   { label: 'FAQ', href: '/faq' },

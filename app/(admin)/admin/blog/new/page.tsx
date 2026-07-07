@@ -3,6 +3,7 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { BlogPostForm } from '@/components/blog/BlogPostForm';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
@@ -11,10 +12,12 @@ import type { CreateBlogPostInput } from '@/lib/shared';
 export default function NewBlogPostPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (data: CreateBlogPostInput) => {
     try {
       await api.post('/blog', data);
+      queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
       toast({ title: 'Post created!', description: 'Your draft has been saved.' });
       router.push('/admin/blog');
     } catch (err) {

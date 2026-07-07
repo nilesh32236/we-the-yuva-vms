@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function getOpportunities() {
   try {
-    const res = await fetch(`${API_URL}/api/v1/opportunities`, {
+    const res = await fetch(`${API_URL}/api/v1/opportunities/public`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return [];

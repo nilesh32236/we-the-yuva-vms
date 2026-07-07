@@ -29,11 +29,19 @@ export default function EditBlogPostPage() {
   });
 
   const publishMutation = useMutation({
-    mutationFn: () => api.patch(`/blog/${id}/publish`),
-    onSuccess: () => {
+    mutationFn: () => api.patch(`/blog/${id}/publish`).then((r) => r.data),
+    onSuccess: (post) => {
       queryClient.invalidateQueries({ queryKey: ['blog-post-admin', id] });
       queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
-      toast({ title: 'Post published!' });
+      const blogUrl = `${window.location.origin}/blog/${post.slug}`;
+      toast({
+        title: 'Post published!',
+        description: (
+          <a href={blogUrl} target="_blank" rel="noopener noreferrer" className="underline font-medium">
+            View post &rarr;
+          </a>
+        ) as unknown as string,
+      });
     },
     onError: (err) => {
       const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to publish';

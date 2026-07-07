@@ -36,7 +36,7 @@ interface Opportunity {
 
 async function getOpportunity(id: string): Promise<Opportunity | null> {
   try {
-    const res = await fetch(`${API_URL}/api/v1/opportunities/${id}`, {
+    const res = await fetch(`${API_URL}/api/v1/opportunities/public/${id}`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;
