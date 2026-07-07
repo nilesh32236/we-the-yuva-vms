@@ -19,7 +19,7 @@ import {
 
 export const blogRouter: IRouter = Router();
 
-// Admin-only routes (must be before public `/:slug` to avoid Express match)
+// Admin-only routes
 blogRouter.get(
   '/all',
   requireAuth,
@@ -27,6 +27,9 @@ blogRouter.get(
   requirePermission(Permissions.BLOG_VIEW_ALL),
   listAllHandler
 );
+
+// Public slug route must be before admin `/:id` to avoid Express matching slugs as IDs
+blogRouter.get('/:slug', getPublishedBySlugHandler);
 blogRouter.get('/:id', requireAuth, requireRole('ADMIN'), getByIdHandler);
 blogRouter.post(
   '/',
@@ -68,4 +71,3 @@ blogRouter.patch(
 
 // Public
 blogRouter.get('/', listPublishedHandler);
-blogRouter.get('/:slug', getPublishedBySlugHandler);
