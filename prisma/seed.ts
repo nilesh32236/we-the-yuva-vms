@@ -170,6 +170,11 @@ async function main() {
         'file:upload',
         'youth:profile:manage',
         'youth:profile:view',
+        'blog:create',
+        'blog:edit',
+        'blog:delete',
+        'blog:publish',
+        'blog:view:all',
       ],
     },
     {
