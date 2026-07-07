@@ -28,6 +28,22 @@ export async function createOpportunityHandler(
   }
 }
 
+export async function listPublicOpportunitiesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
+
+    const result = await listOpportunities({}, { page, limit });
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listOpportunitiesHandler(
   req: Request,
   res: Response,
@@ -70,6 +86,19 @@ export async function recommendedHandler(
   try {
     const opportunities = await getRecommendedOpportunities(req.user!.id);
     res.status(200).json(opportunities);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getPublicOpportunityHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const opportunity = await getOpportunityById(req.params.id);
+    res.status(200).json(opportunity);
   } catch (err) {
     next(err);
   }

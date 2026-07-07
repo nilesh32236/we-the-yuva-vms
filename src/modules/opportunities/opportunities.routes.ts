@@ -9,9 +9,11 @@ import {
   closeOpportunityHandler,
   createOpportunityHandler,
   getOpportunityHandler,
+  getPublicOpportunityHandler,
   listApplicationsHandler,
   listMyApplicationsHandler,
   listOpportunitiesHandler,
+  listPublicOpportunitiesHandler,
   recommendedHandler,
   updateApplicationStatusHandler,
   updateOpportunityHandler,
@@ -54,6 +56,9 @@ opportunitiesRouter.get(
   requirePermission(Permissions.OPPORTUNITY_VIEW),
   recommendedHandler
 );
+
+opportunitiesRouter.get('/public', listPublicOpportunitiesHandler);
+opportunitiesRouter.get('/public/:id', getPublicOpportunityHandler);
 
 opportunitiesRouter.get(
   '/',
