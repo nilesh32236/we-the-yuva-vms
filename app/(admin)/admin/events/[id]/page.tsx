@@ -1,9 +1,10 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Calendar, MapPin, Video, Building2, ShieldAlert, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Video, Building2, ShieldAlert, Clock, CheckCircle2, XCircle, UserCheck, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { StatsCard } from '@/components/charts/StatsCard';
 import { api } from '@/lib/api';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -153,19 +154,10 @@ export default function AdminEventDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
-          <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1">Registrations</p>
-          <p className="font-heading font-bold text-3xl text-brand-text">{event._count?.attendances ?? 0}</p>
-        </div>
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
-          <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1">Capacity</p>
-          <p className="font-heading font-bold text-3xl text-brand-text">{event.capacity}</p>
-        </div>
-        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
-          <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1">Opportunity</p>
-          <p className="font-heading font-bold text-lg text-brand-text truncate">{event.opportunity?.title ?? '—'}</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatsCard label="Registrations" value={event._count?.attendances ?? 0} icon={UserCheck} accent="text-blue-500" accentBg="bg-blue-50 dark:bg-blue-950" />
+        <StatsCard label="Capacity" value={event.capacity} icon={Users} accent="text-purple-500" accentBg="bg-purple-50 dark:bg-purple-950" />
+        <StatsCard label="Opportunity" value={event.opportunity?.title ?? '—'} icon={Calendar} accent="text-orange-500" accentBg="bg-orange-50 dark:bg-orange-950" />
       </div>
 
       {event.description && (
@@ -179,7 +171,7 @@ export default function AdminEventDetailPage() {
         <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Actions</h2>
         <div className="flex flex-wrap gap-3">
           <Link
-            href={`/events/${id}/edit`}
+            href={`/admin/events/${id}/edit`}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary transition-colors shadow-sm"
           >
             Edit Event
