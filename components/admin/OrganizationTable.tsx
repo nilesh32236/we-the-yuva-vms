@@ -1,8 +1,7 @@
 'use client';
 
-import { CheckCircle2, Clock, ShieldAlert } from 'lucide-react';
-import { useState } from 'react';
-import { VerifyOrgModal } from './VerifyOrgModal';
+import { CheckCircle2, Clock, ExternalLink, ShieldAlert } from 'lucide-react';
+import Link from 'next/link';
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
@@ -25,8 +24,6 @@ interface OrganizationTableProps {
 }
 
 export function OrganizationTable({ orgs }: OrganizationTableProps) {
-  const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
-
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
       <div className="overflow-x-auto">
@@ -94,21 +91,19 @@ export function OrganizationTable({ orgs }: OrganizationTableProps) {
                   })}
                 </td>
                 <td className="px-4 py-4 text-right">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedOrg(org)}
-                    className="text-xs font-bold text-brand-primary hover:text-brand-secondary transition-colors cursor-pointer bg-brand-primary/5 px-3 py-1.5 rounded-lg border border-brand-primary/10"
+                  <Link
+                    href={`/admin/organizations/${org.id}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-secondary transition-colors bg-brand-primary/5 px-3 py-1.5 rounded-lg border border-brand-primary/10"
                   >
                     Manage
-                  </button>
+                    <ExternalLink className="w-3 h-3" />
+                  </Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {selectedOrg && <VerifyOrgModal org={selectedOrg} onClose={() => setSelectedOrg(null)} />}
     </div>
   );
 }
