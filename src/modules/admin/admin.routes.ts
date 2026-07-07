@@ -19,6 +19,15 @@ import {
   adminVerifyOrgHandler,
 } from './admin.organizations.controller';
 import { listRolesHandler } from './admin.roles.controller';
+import {
+  adminGetEventHandler,
+  adminListEventsHandler,
+} from './admin.events.controller';
+import {
+  adminGetOpportunityHandler,
+  adminListOpportunitiesHandler,
+} from './admin.opportunities.controller';
+import { getAdminStoryHandler } from '../stories/stories.controller';
 
 export const adminRouter: IRouter = Router();
 
@@ -105,4 +114,40 @@ adminRouter.get(
   requireAuth,
   requirePermission(Permissions.USER_MANAGE),
   listRolesHandler
+);
+
+// ─── Events ──────────────────────────────────────────────────────
+adminRouter.get(
+  '/events',
+  requireAuth,
+  requirePermission(Permissions.EVENT_MANAGE),
+  adminListEventsHandler
+);
+adminRouter.get(
+  '/events/:id',
+  requireAuth,
+  requirePermission(Permissions.EVENT_MANAGE),
+  adminGetEventHandler
+);
+
+// ─── Opportunities ───────────────────────────────────────────────
+adminRouter.get(
+  '/opportunities',
+  requireAuth,
+  requirePermission(Permissions.OPPORTUNITY_MANAGE),
+  adminListOpportunitiesHandler
+);
+adminRouter.get(
+  '/opportunities/:id',
+  requireAuth,
+  requirePermission(Permissions.OPPORTUNITY_MANAGE),
+  adminGetOpportunityHandler
+);
+
+// ─── Stories ──────────────────────────────────────────────────────
+adminRouter.get(
+  '/stories/:id',
+  requireAuth,
+  requirePermission(Permissions.STORY_VIEW_ALL),
+  getAdminStoryHandler
 );

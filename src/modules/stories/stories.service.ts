@@ -122,6 +122,17 @@ export async function moderateStory(
   return updated;
 }
 
+export async function getAdminStoryById(id: string) {
+  const story = await prisma.story.findUnique({
+    where: { id },
+    include: {
+      user: { select: { name: true, email: true } },
+    },
+  });
+  if (!story) throw new AppError('Story not found', 404);
+  return story;
+}
+
 export async function listAllStories(page = 1, limit = 50) {
   const skip = (page - 1) * limit;
   const [data, total] = await Promise.all([

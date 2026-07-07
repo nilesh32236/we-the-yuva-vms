@@ -63,6 +63,15 @@ export async function moderateStoryHandler(req: Request, res: Response, next: Ne
   }
 }
 
+export async function getAdminStoryHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const story = await service.getAdminStoryById(req.params.id);
+    res.status(200).json(story);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listAllStoriesHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
