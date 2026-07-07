@@ -176,15 +176,27 @@ export async function verifyOrganization(orgId: string, approved: boolean) {
     throw new AppError('Organization not found', 404);
   }
 
-  if (org.status !== 'PENDING') {
+  const transitions: Record<string, Record<string, string | 'noop'>> = {
+    PENDING: { true: 'ACTIVE', false: 'SUSPENDED' },
+    ACTIVE: { true: 'noop', false: 'SUSPENDED' },
+    SUSPENDED: { true: 'ACTIVE', false: 'noop' },
+  };
+
+  const next = transitions[org.status]?.[String(approved)];
+
+  if (!next) {
     throw new AppError('Organization is not in PENDING status', 400);
+  }
+
+  if (next === 'noop') {
+    return org;
   }
 
   return prisma.organization.update({
     where: { id: orgId },
     data: {
-      status: approved ? 'ACTIVE' : 'SUSPENDED',
-      verifiedAt: approved ? new Date() : null,
+      status: next as 'ACTIVE' | 'SUSPENDED',
+      verifiedAt: next === 'ACTIVE' ? new Date() : null,
     },
   });
 }

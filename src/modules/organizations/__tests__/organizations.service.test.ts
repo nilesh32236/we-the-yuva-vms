@@ -185,15 +185,16 @@ describe('organizations.service', () => {
       await expect(verifyOrganization('bad-id', true)).rejects.toThrow('Organization not found');
     });
 
-    it('should throw 400 if not PENDING', async () => {
+    it('should throw 400 for PENDING + approved=false', async () => {
       vi.mocked(prisma.organization.findUnique).mockResolvedValue({
         id: 'org-1',
-        status: 'ACTIVE',
+        status: 'PENDING',
       } as never);
-      await expect(verifyOrganization('org-1', true)).rejects.toThrow('not in PENDING status');
+      const result = await verifyOrganization('org-1', false);
+      expect(result.status).toBe('SUSPENDED');
     });
 
-    it('should approve org with verifiedAt date', async () => {
+    it('should approve PENDING org with verifiedAt', async () => {
       vi.mocked(prisma.organization.findUnique).mockResolvedValue({
         id: 'org-1',
         status: 'PENDING',
@@ -207,10 +208,10 @@ describe('organizations.service', () => {
       expect(result.status).toBe('ACTIVE');
     });
 
-    it('should reject org by setting SUSPENDED', async () => {
+    it('should suspend ACTIVE org when approved=false', async () => {
       vi.mocked(prisma.organization.findUnique).mockResolvedValue({
         id: 'org-1',
-        status: 'PENDING',
+        status: 'ACTIVE',
       } as never);
       vi.mocked(prisma.organization.update).mockResolvedValue({
         id: 'org-1',
@@ -218,6 +219,40 @@ describe('organizations.service', () => {
       } as never);
       const result = await verifyOrganization('org-1', false);
       expect(result.status).toBe('SUSPENDED');
+    });
+
+    it('should reactivate SUSPENDED org when approved=true', async () => {
+      vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+        id: 'org-1',
+        status: 'SUSPENDED',
+      } as never);
+      vi.mocked(prisma.organization.update).mockResolvedValue({
+        id: 'org-1',
+        status: 'ACTIVE',
+        verifiedAt: new Date(),
+      } as never);
+      const result = await verifyOrganization('org-1', true);
+      expect(result.status).toBe('ACTIVE');
+    });
+
+    it('should be no-op when ACTIVE + approved=true', async () => {
+      vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+        id: 'org-1',
+        status: 'ACTIVE',
+      } as never);
+      const result = await verifyOrganization('org-1', true);
+      expect(result.status).toBe('ACTIVE');
+      expect(prisma.organization.update).not.toHaveBeenCalled();
+    });
+
+    it('should be no-op when SUSPENDED + approved=false', async () => {
+      vi.mocked(prisma.organization.findUnique).mockResolvedValue({
+        id: 'org-1',
+        status: 'SUSPENDED',
+      } as never);
+      const result = await verifyOrganization('org-1', false);
+      expect(result.status).toBe('SUSPENDED');
+      expect(prisma.organization.update).not.toHaveBeenCalled();
     });
   });
 
