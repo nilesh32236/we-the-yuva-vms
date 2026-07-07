@@ -12,6 +12,7 @@ import {
 } from './admin.controller';
 import {
   adminGetOrgDocumentsHandler,
+  adminGetOrgHandler,
   adminListOrgsHandler,
   adminOrgStatsHandler,
   adminSuspendOrgHandler,
@@ -85,6 +86,12 @@ adminRouter.delete(
   requireAuth,
   requirePermission(Permissions.ORG_MANAGE),
   adminSuspendOrgHandler
+);
+adminRouter.get(
+  '/organizations/:id',
+  requireAuth,
+  requirePermission(Permissions.ORG_VERIFY),
+  adminGetOrgHandler
 );
 adminRouter.get(
   '/organizations/:id/documents',

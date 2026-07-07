@@ -229,6 +229,72 @@ export async function getOrganizationDocuments(orgId: string) {
   });
 }
 
+export async function getAdminOrganizationDetails(orgId: string) {
+  const org = await prisma.organization.findUnique({
+    where: { id: orgId },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      address: true,
+      phone: true,
+      email: true,
+      website: true,
+      logo: true,
+      status: true,
+      verifiedAt: true,
+      createdAt: true,
+      updatedAt: true,
+      socialMedia: true,
+      documents: {
+        select: { id: true, fileName: true, fileUrl: true, type: true, uploadedAt: true },
+        orderBy: { uploadedAt: 'desc' },
+      },
+      _count: { select: { users: true, opportunities: true } },
+    },
+  });
+
+  if (!org) {
+    throw new AppError('Organization not found', 404);
+  }
+
+  const [activeOpps, eventsCount, applicationsResult, activeVolsResult] = await Promise.all([
+    prisma.opportunity.count({
+      where: { organizationId: orgId, status: 'ACTIVE' },
+    }),
+    prisma.event.count({
+      where: { opportunity: { organizationId: orgId } },
+    }),
+    prisma.application.aggregate({
+      where: { opportunity: { organizationId: orgId } },
+      _count: true,
+    }),
+    prisma.application.groupBy({
+      by: ['volunteerId'],
+      where: {
+        opportunity: { organizationId: orgId },
+        status: 'ACCEPTED',
+      },
+    }),
+  ]);
+
+  const { documents, _count, ...orgData } = org;
+
+  return {
+    ...orgData,
+    documents,
+    stats: {
+      staffCount: _count.users,
+      opportunitiesCount: _count.opportunities,
+      activeOpportunitiesCount: activeOpps,
+      eventsCount,
+      applicationsCount: applicationsResult._count,
+      activeVolunteersCount: activeVolsResult.length,
+    },
+  };
+}
+
 export async function addCoordinatorToOrg(
   orgId: string,
   adminUserId: string,

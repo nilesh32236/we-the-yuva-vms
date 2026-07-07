@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../../middleware/error.middleware';
 import {
+  getAdminOrganizationDetails,
   getOrganizationDocuments,
   listOrganizations,
   suspendOrganization,
@@ -59,6 +60,15 @@ export async function adminGetOrgDocumentsHandler(req: Request, res: Response, n
   try {
     const docs = await getOrganizationDocuments(req.params.id);
     res.status(200).json(docs);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function adminGetOrgHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const org = await getAdminOrganizationDetails(req.params.id);
+    res.status(200).json(org);
   } catch (err) {
     next(err);
   }

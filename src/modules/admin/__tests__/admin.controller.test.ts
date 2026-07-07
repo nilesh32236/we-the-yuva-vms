@@ -17,6 +17,7 @@ vi.mock('@/modules/organizations/organizations.service', () => ({
   verifyOrganization: vi.fn(),
   suspendOrganization: vi.fn(),
   getOrganizationDocuments: vi.fn(),
+  getAdminOrganizationDetails: vi.fn(),
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -36,6 +37,7 @@ import {
 } from '../admin.controller';
 import {
   adminGetOrgDocumentsHandler,
+  adminGetOrgHandler,
   adminListOrgsHandler,
   adminOrgStatsHandler,
   adminSuspendOrgHandler,
@@ -151,6 +153,18 @@ describe('admin.controller', () => {
       vi.mocked(orgService.getOrganizationDocuments).mockResolvedValue([]);
       req.params = { id: 'org-1' };
       await adminGetOrgDocumentsHandler(req as Request, res as Response, next);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('adminGetOrgHandler should return 200', async () => {
+      vi.mocked(orgService.getAdminOrganizationDetails).mockResolvedValue({
+        id: 'org-1',
+        name: 'Test Org',
+        stats: { staffCount: 5, opportunitiesCount: 3, activeOpportunitiesCount: 2, eventsCount: 10, applicationsCount: 50, activeVolunteersCount: 20 },
+        documents: [],
+      } as never);
+      req.params = { id: 'org-1' };
+      await adminGetOrgHandler(req as Request, res as Response, next);
       expect(res.status).toHaveBeenCalledWith(200);
     });
   });
