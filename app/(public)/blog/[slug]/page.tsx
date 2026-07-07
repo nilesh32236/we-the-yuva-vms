@@ -8,8 +8,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    const res = await fetch(`${API_URL}/api/v1/blog/${slug}`, { next: { revalidate: 60 } });
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+    const host = process.env.VERCEL_URL
+      ? `${protocol}://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    const res = await fetch(`${host}/api/v1/blog/${slug}`, { next: { revalidate: 60 } });
     if (!res.ok) return { title: 'Post Not Found | WeTheYuva Blog' };
     const json = await res.json();
     const post = json.data || json;
