@@ -7,9 +7,9 @@ interface Opportunity {
   id: string;
   title: string;
   description: string;
-  location: string;
+  location: { name?: string; district?: string } | null;
   category: string;
-  date?: string;
+  startDate: string;
 }
 
 async function getFeaturedOpportunities(): Promise<Opportunity[]> {
@@ -61,16 +61,16 @@ export async function FeaturedOpportunities() {
                 {opp.description}
               </p>
               <div className="mt-4 flex items-center gap-4 text-xs text-brand-muted">
-                {opp.location && (
+                {opp.location?.name && (
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3 w-3" aria-hidden="true" />
-                    {opp.location}
+                    {opp.location.name}
                   </span>
                 )}
-                {opp.date && (
+                {opp.startDate && (
                   <span className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" aria-hidden="true" />
-                    {new Date(opp.date).toLocaleDateString('en-IN', {
+                    {new Date(opp.startDate).toLocaleDateString('en-IN', {
                       day: 'numeric',
                       month: 'short',
                     })}
