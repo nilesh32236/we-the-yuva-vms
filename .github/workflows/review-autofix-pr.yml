@@ -2,7 +2,7 @@ name: Review Autofix PR
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, labeled]
     branches: [main]
 
 permissions:
@@ -38,14 +38,14 @@ jobs:
             gh label create "$label" --force 2>/dev/null || true
           done
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Run OpenCode to review PR
         id: opencode-review
         continue-on-error: true
         uses: anomalyco/opencode/github@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         with:
           model: opencode/deepseek-v4-flash-free
           use_github_token: true
@@ -88,4 +88,4 @@ jobs:
           gh pr edit ${{ github.event.pull_request.number }} --add-label 'autofix:reviewed'
           gh pr edit ${{ github.event.pull_request.number }} --remove-label 'autofix' 2>/dev/null || true
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}

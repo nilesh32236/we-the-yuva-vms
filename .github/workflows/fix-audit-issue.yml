@@ -2,7 +2,7 @@ name: Fix Audit Issue
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled]
   issue_comment:
     types: [created]
 
@@ -45,7 +45,7 @@ jobs:
             gh label create "$label" --force 2>/dev/null || true
           done
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Close old autofix PRs for this issue
         run: |
@@ -54,12 +54,12 @@ jobs:
             gh pr close "$pr" --delete-branch 2>/dev/null || true
           done
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Run OpenCode to fix issue
         uses: anomalyco/opencode/github@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         with:
           model: opencode/deepseek-v4-flash-free
           use_github_token: true
@@ -81,7 +81,22 @@ jobs:
         run: |
           gh issue edit ${{ github.event.issue.number }} --add-label 'autofix'
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Close and label OpenCode PRs
+        run: |
+          OPENCODE_PRS=$(gh pr list --author 'github-actions[bot]' --json headRefName,number --state open --limit 10 \
+            --jq '[.[] | select(.headRefName | startswith("opencode/"))]' 2>/dev/null || echo "[]")
+          echo "$OPENCODE_PRS" | jq -c '.[]' | while read -r pr; do
+            NUM=$(echo "$pr" | jq -r '.number')
+            BRANCH=$(echo "$pr" | jq -r '.headRefName')
+            echo "Labeling OpenCode PR #$NUM ($BRANCH) with autofix"
+            gh pr edit "$NUM" --add-label 'autofix' 2>/dev/null || true
+            echo "Closing OpenCode PR #$NUM"
+            gh pr close "$NUM" --delete-branch 2>/dev/null || true
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Capture OpenCode changes
         id: opencode-changes
@@ -108,10 +123,11 @@ jobs:
           git push origin "$OUR_BRANCH"
           echo "branch=$OUR_BRANCH" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Create PR from changes
         if: steps.opencode-changes.outputs.branch_existed == 'true' || steps.opencode-changes.outputs.branch_created_from_opencode == 'true'
+        id: create-pr
         run: |
           OUR_BRANCH="${{ steps.opencode-changes.outputs.branch }}"
 
@@ -122,12 +138,13 @@ jobs:
             exit 0
           fi
 
-          # Create or update the PR
+          # Create or update the PR (no label — added in next step to trigger [labeled] event)
           PR_EXISTS=$(gh pr list --head "$OUR_BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
           if [ -n "$PR_EXISTS" ] && [ "$PR_EXISTS" != "null" ]; then
             echo "PR #$PR_EXISTS already exists — updating"
+            echo "pr_number=$PR_EXISTS" >> "$GITHUB_OUTPUT"
           else
-            gh pr create \
+            PR_URL=$(gh pr create \
               --base main \
               --head "$OUR_BRANCH" \
               --title "fix: address issue #${{ github.event.issue.number }}" \
@@ -139,14 +156,23 @@ jobs:
           1. Review the changes
           2. If satisfied, merge manually
           3. The review workflow will label this PR \`autofix:reviewed\`" \
-              --label 'autofix'
+              --repo "${{ github.repository }}" 2>/dev/null || echo "")
+            PR_NUM=$(echo "$PR_URL" | grep -oP '/pull/\K[0-9]+' || echo "")
+            echo "pr_number=$PR_NUM" >> "$GITHUB_OUTPUT"
           fi
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Add autofix label to PR
+        if: steps.create-pr.outputs.pr_number != ''
+        run: |
+          gh pr edit ${{ steps.create-pr.outputs.pr_number }} --add-label 'autofix'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Report failure
         if: failure()
         run: |
           gh issue comment ${{ github.event.issue.number }} --body "OpenCode attempted to fix this issue but encountered an error. Check workflow logs for details."
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
