@@ -19,11 +19,10 @@ jobs:
   fix:
     if: |
       (
-        (github.event_name == 'issues' && github.event.issue.user.login == 'github-actions[bot]' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:critical')) ||
-        (github.event_name == 'issues' && github.event.issue.user.login == 'github-actions[bot]' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:important')) ||
+        (github.event_name == 'issues' && github.event.issue.user.login == 'github-actions[bot]' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:critical') && !contains(github.event.issue.labels.*.name, 'autofix')) ||
+        (github.event_name == 'issues' && github.event.issue.user.login == 'github-actions[bot]' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:important') && !contains(github.event.issue.labels.*.name, 'autofix')) ||
         (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix'))
-      ) &&
-      !contains(github.event.issue.labels.*.name, 'autofix')
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
