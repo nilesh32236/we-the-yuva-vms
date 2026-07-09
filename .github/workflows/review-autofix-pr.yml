@@ -58,20 +58,49 @@ jobs:
             2. Read biome.json for linting rules
             3. Read COMPONENTS.md for component patterns if it exists
 
-            Check for:
-            - Bugs, logic errors, type safety
-            - Security: PII exposure, auth/RBAC gaps, XSS vectors (Tiptap)
-            - Conventions: Biome compliance, project conventions from AGENTS.md
-            - Dead code, debug artifacts, console.log
-            - UX: mobile touch targets, dark mode, keyboard nav
-            - API/TanStack Query patterns: error handling, stale time, optimistic updates
+            ## Context Window Management
 
-            Categorize findings: critical (must fix), important (should fix), minor (nice to have).
+            If the PR touches more than 10 files, batch them into groups of at most 3 files.
+            Dispatch a sub-agent for each batch via the `task` tool with `subagent_type: "general"`.
+            Collect all results before proceeding.
 
-            After reviewing:
+            ## What to Check
+
+            - **Bugs & correctness**: Logic errors, type safety, missing null checks, edge cases
+            - **Security**: PII exposure in logs/URLs/client-side code, XSS vectors (Tiptap editor), hardcoded secrets, JWT handling
+            - **Auth/RBAC**: Missing auth checks, role-based access gaps (volunteer vs coordinator vs admin)
+            - **Conventions**: Biome compliance, project conventions from AGENTS.md
+            - **Dead code**: Unused imports, console.log, commented-out code, YAGNI violations
+            - **HTML/DOM**: Duplicate id attributes, htmlFor mismatches, improper nesting
+            - **UX**: cursor-pointer on non-interactive elements, missing aria-label, keyboard handlers, mobile touch targets (< 44px)
+            - **API/TanStack Query patterns**: Error handling, stale time, optimistic updates, loading states
+
+            ## Severity Guide
+
+            - **critical**: Bug, security hole, broken functionality — must fix before merge
+            - **important**: Architecture concern, maintainability debt, missing error handling, accessibility gaps — should fix
+            - **minor**: Style, naming, optimization — nice to have
+
+            ## Calibration
+
+            - Reference specific file paths and line numbers for every issue
+            - Explain WHY each issue matters, not just what is wrong
+            - Acknowledge what was done well before listing issues
+
+            ## Safety Rules
+
+            - ONLY change files that are part of this PR's scope
+            - If you find fixable issues, apply only targeted fixes. Do not restructure, rename, or refactor beyond the issue.
+            - If a change would require significant refactoring outside the PR scope, note it but don't do it
+            - Prefer minimal, focused fixes over comprehensive rewrites
+            - If you are unsure about a change, DO NOT make it — note it in the review
+
+            ## After Reviewing
+
             1. If fixable issues found, apply fixes directly
             2. Run `pnpm typecheck` and `pnpm lint` to verify
             3. Commit and push any changes
+            4. State whether the PR is ready to merge or needs changes
 
       - name: Determine review outcome
         id: review-outcome

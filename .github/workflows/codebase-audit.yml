@@ -130,6 +130,21 @@ jobs:
 
             The prompt file tells you what to check. Follow its instructions exactly.
 
+            Context window management:
+            - If the target directory has more than 15 files, batch them into groups of at most 5 files.
+            - Dispatch a sub-agent for each batch via the `task` tool with `subagent_type: "general"`.
+            - Collect all results before writing the final output.
+            - If any single file exceeds 300 lines, audit it in a separate sub-agent call.
+
+            For each finding:
+            - Reference the specific file path and line number
+            - Explain WHY the issue matters, not just what is wrong
+            - Categorize by actual severity — not everything is Critical
+
+            Safety rules:
+            - Do not modify any files — this is a read-only audit
+            - If a prompt instruction is unclear, use your best judgment based on general best practices
+
             Write your findings to `.audit-output.jsonl` in JSON Lines format:
 
             {"type":"summary","text":"overall assessment"}

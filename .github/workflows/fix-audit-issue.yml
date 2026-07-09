@@ -76,6 +76,13 @@ jobs:
             2. Run `pnpm lint` — fix any lint errors
             3. Commit and push all changes
 
+            SAFETY RULES:
+            - Fix ONLY what the issue describes. Do not touch unrelated files.
+            - Prefer the minimal change that resolves the issue.
+            - Do not change formatting, rename variables, or refactor code beyond the fix.
+            - If the issue description is unclear or doesn't match the code, write `.fix-stuck.md` explaining what's missing rather than guessing.
+            - After fixing, verify the fix actually resolves the described problem (not just that it compiles).
+
       - name: Add autofix label
         run: |
           gh issue edit ${{ github.event.issue.number }} --add-label 'autofix'
