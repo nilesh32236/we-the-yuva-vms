@@ -98,11 +98,7 @@ export default function OrganizationDashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard
-            label="Active Volunteers"
-            value={stats?.activeVolunteers ?? 0}
-            icon={Users}
-          />
+          <StatsCard label="Active Volunteers" value={stats?.activeVolunteers ?? 0} icon={Users} />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}
@@ -126,21 +122,30 @@ export default function OrganizationDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group"
           >
             <p className="text-sm font-semibold">Manage Coordinators</p>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+              aria-hidden="true"
+            />
           </Link>
           <Link
             href="/organization/opportunities"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">Org Opportunities</p>
-            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors"
+              aria-hidden="true"
+            />
           </Link>
           <Link
             href="/organization/events"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group"
           >
             <p className="text-sm font-medium text-brand-text">Org Events</p>
-            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors"
+              aria-hidden="true"
+            />
           </Link>
         </div>
       </div>

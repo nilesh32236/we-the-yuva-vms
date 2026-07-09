@@ -27,21 +27,13 @@ export default function AdminReportsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard
-            label="Total Users"
-            value={stats?.totalUsers ?? 0}
-            icon={Users}
-          />
+          <StatsCard label="Total Users" value={stats?.totalUsers ?? 0} icon={Users} />
           <StatsCard
             label="Active Volunteers"
             value={stats?.activeVolunteers ?? 0}
             icon={TrendingUp}
           />
-          <StatsCard
-            label="Total Hours"
-            value={`${stats?.totalHours ?? 0}h`}
-            icon={Clock}
-          />
+          <StatsCard label="Total Hours" value={`${stats?.totalHours ?? 0}h`} icon={Clock} />
         </div>
       )}
 

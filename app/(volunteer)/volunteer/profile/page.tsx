@@ -444,8 +444,9 @@ export default function VolunteerProfilePage() {
               <LevelBadge
                 tier={levelData.data.tier}
                 name={
-                  ['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][levelData.data.tier - 1] ??
-                  'Onboarded'
+                  ['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][
+                    levelData.data.tier - 1
+                  ] ?? 'Onboarded'
                 }
                 badgeIcon={
                   ['Sprout', 'Users', 'Wrench', 'Crown'][levelData.data.tier - 1] ?? 'Sprout'
@@ -470,8 +471,9 @@ export default function VolunteerProfilePage() {
               <div>
                 <p className="text-xs text-brand-muted">Current Level</p>
                 <p className="font-heading font-semibold text-brand-text">
-                  {['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][levelData.data.tier - 1] ??
-                    'Onboarded'}
+                  {['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][
+                    levelData.data.tier - 1
+                  ] ?? 'Onboarded'}
                 </p>
               </div>
             </div>
@@ -481,7 +483,10 @@ export default function VolunteerProfilePage() {
                 <p className="font-heading font-bold text-brand-text">{levelData.data.points}</p>
               </div>
               <StreakBadge streak={levelData.data.streak} size="md" />
-              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" aria-hidden="true" />
+              <ArrowRight
+                className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all"
+                aria-hidden="true"
+              />
             </div>
           </div>
         </Link>
@@ -546,9 +551,7 @@ export default function VolunteerProfilePage() {
               <GraduationCap className="w-4 h-4 text-brand-primary" /> Education
             </h2>
             <p className="text-sm text-brand-muted">
-              {user?.profile?.education || (
-                <span className="text-brand-muted">Not specified</span>
-              )}
+              {user?.profile?.education || <span className="text-brand-muted">Not specified</span>}
             </p>
           </div>
 

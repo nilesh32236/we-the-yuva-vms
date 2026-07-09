@@ -37,14 +37,20 @@ export default function EditBlogPostPage() {
       toast({
         title: 'Post published!',
         description: (
-          <a href={blogUrl} target="_blank" rel="noopener noreferrer" className="underline font-medium">
+          <a
+            href={blogUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline font-medium"
+          >
             View post &rarr;
           </a>
         ) as unknown as string,
       });
     },
     onError: (err) => {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to publish';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to publish';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     },
   });
@@ -57,7 +63,8 @@ export default function EditBlogPostPage() {
       toast({ title: 'Post archived.' });
     },
     onError: (err) => {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to archive';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to archive';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     },
   });
@@ -68,7 +75,8 @@ export default function EditBlogPostPage() {
       toast({ title: 'Post updated!' });
       router.push('/admin/blog');
     } catch (err) {
-      const message = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to update post';
+      const message =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to update post';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     }
   };
@@ -123,12 +131,18 @@ export default function EditBlogPostPage() {
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
         <div className="flex items-center justify-between mb-5">
           <h1 className="font-heading font-bold text-xl text-brand-text">Edit Post</h1>
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadge[post.status] ?? ''}`}>
+          <span
+            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadge[post.status] ?? ''}`}
+          >
             {post.status}
           </span>
         </div>
 
-        <BlogPostForm defaultValues={defaultValues} onSubmit={handleSubmit} submitLabel="Update Post" />
+        <BlogPostForm
+          defaultValues={defaultValues}
+          onSubmit={handleSubmit}
+          submitLabel="Update Post"
+        />
 
         <hr className="my-6 border-brand-border" />
 
@@ -143,7 +157,11 @@ export default function EditBlogPostPage() {
             </Button>
           )}
           {post.status === 'PUBLISHED' && (
-            <Button variant="outline" loading={archiveMutation.isPending} onClick={() => archiveMutation.mutate()}>
+            <Button
+              variant="outline"
+              loading={archiveMutation.isPending}
+              onClick={() => archiveMutation.mutate()}
+            >
               <Archive className="w-4 h-4" /> Archive
             </Button>
           )}

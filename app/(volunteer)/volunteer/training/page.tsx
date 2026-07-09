@@ -27,9 +27,7 @@ export default function TrainingPage() {
   });
 
   const courses: TrainingCourse[] = data?.data ?? [];
-  const completedCount = courses.filter(
-    (c: TrainingCourse) => c.progress?.completed
-  ).length;
+  const completedCount = courses.filter((c: TrainingCourse) => c.progress?.completed).length;
 
   if (isLoading)
     return (
@@ -54,17 +52,17 @@ export default function TrainingPage() {
           </div>
         </div>
         <div className="flex items-center gap-2 mt-4">
-        <div className="flex-1 bg-white/20 rounded-full h-2">
-          <div
-            className="bg-white/80 dark:bg-white/20 rounded-full h-2 transition-all"
-            style={{
-              width: courses.length ? `${(completedCount / courses.length) * 100}%` : '0%',
-            }}
-          />
-        </div>
-        <span className="text-sm font-semibold text-white/90">
-          {completedCount}/{courses.length}
-        </span>
+          <div className="flex-1 bg-white/20 rounded-full h-2">
+            <div
+              className="bg-white/80 dark:bg-white/20 rounded-full h-2 transition-all"
+              style={{
+                width: courses.length ? `${(completedCount / courses.length) * 100}%` : '0%',
+              }}
+            />
+          </div>
+          <span className="text-sm font-semibold text-white/90">
+            {completedCount}/{courses.length}
+          </span>
         </div>
       </div>
 

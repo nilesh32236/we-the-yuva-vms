@@ -136,11 +136,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
               {currentLesson.type === 'VIDEO' && currentLesson.mediaUrl && (
                 <div className="rounded-xl border border-brand-border overflow-hidden bg-brand-bg">
-                  <video
-                    controls
-                    className="w-full aspect-video"
-                    src={currentLesson.mediaUrl}
-                  >
+                  <video controls className="w-full aspect-video" src={currentLesson.mediaUrl}>
                     <track kind="captions" />
                     Your browser does not support the video tag.
                   </video>
@@ -175,7 +171,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                   disabled={complete.isPending}
                   className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
                 >
-                  {complete.isPending ? 'Saving…' : (
+                  {complete.isPending ? (
+                    'Saving…'
+                  ) : (
                     <span className="inline-flex items-center gap-2">
                       Mark as Complete
                       <ArrowRight className="w-4 h-4" aria-hidden="true" />

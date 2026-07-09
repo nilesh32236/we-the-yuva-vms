@@ -42,7 +42,9 @@ export async function BlogPreview() {
           <h2 className="mt-3 font-heading text-3xl font-bold text-brand-text sm:text-4xl">
             Latest from Our Blog
           </h2>
-          <p className="mt-3 text-brand-muted">Stories, insights, and updates from the community.</p>
+          <p className="mt-3 text-brand-muted">
+            Stories, insights, and updates from the community.
+          </p>
         </div>
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">

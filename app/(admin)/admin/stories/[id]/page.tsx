@@ -27,7 +27,12 @@ export default function AdminStoryDetailPage() {
   const qc = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const { data: story, isLoading, error, refetch } = useQuery({
+  const {
+    data: story,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['admin-story-detail', id],
     queryFn: () => api.get(`/admin/stories/${id}`).then((r) => r.data as StoryDetail),
     enabled: !!id,
@@ -83,7 +88,10 @@ export default function AdminStoryDetailPage() {
       <div className="text-center py-20">
         <BookOpen className="w-16 h-16 text-brand-muted mx-auto mb-4 opacity-20" />
         <p className="font-medium text-brand-text">Story not found</p>
-        <Link href="/admin/stories" className="text-brand-primary text-sm mt-2 inline-block hover:underline">
+        <Link
+          href="/admin/stories"
+          className="text-brand-primary text-sm mt-2 inline-block hover:underline"
+        >
           Back to stories
         </Link>
       </div>
@@ -123,8 +131,11 @@ export default function AdminStoryDetailPage() {
         </div>
 
         <p className="text-xs text-brand-muted mb-4">
-          Submitted {new Date(story.createdAt).toLocaleDateString('en-IN', {
-            day: 'numeric', month: 'long', year: 'numeric',
+          Submitted{' '}
+          {new Date(story.createdAt).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
           })}
         </p>
 
@@ -165,7 +176,11 @@ export default function AdminStoryDetailPage() {
             ) : (
               <CheckCircle className="w-4 h-4" />
             )}
-            {moderateMut.isPending ? 'Processing...' : story.published ? 'Unpublish' : 'Approve & Publish'}
+            {moderateMut.isPending
+              ? 'Processing...'
+              : story.published
+                ? 'Unpublish'
+                : 'Approve & Publish'}
           </button>
           <button
             type="button"

@@ -58,11 +58,7 @@ export default function CoordinatorDashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard
-            label="Active Volunteers"
-            value={stats?.activeVolunteers ?? 0}
-            icon={Users}
-          />
+          <StatsCard label="Active Volunteers" value={stats?.activeVolunteers ?? 0} icon={Users} />
           <StatsCard
             label="Events This Month"
             value={stats?.eventsThisMonth ?? 0}
@@ -86,28 +82,40 @@ export default function CoordinatorDashboardPage() {
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active-bounce"
           >
             <p className="text-sm font-medium text-brand-text">View Opportunities</p>
-            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors"
+              aria-hidden="true"
+            />
           </Link>
           <Link
             href="/coordinator/opportunities/new"
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group active-bounce"
           >
             <p className="text-sm font-semibold">New Opportunity</p>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+              aria-hidden="true"
+            />
           </Link>
           <Link
             href="/coordinator/events"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active-bounce"
           >
             <p className="text-sm font-medium text-brand-text">Manage Events</p>
-            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors"
+              aria-hidden="true"
+            />
           </Link>
           <Link
             href="/coordinator/volunteers"
             className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active-bounce"
           >
             <p className="text-sm font-medium text-brand-text">View Volunteers</p>
-            <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
+            <ArrowRight
+              className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors"
+              aria-hidden="true"
+            />
           </Link>
         </div>
       </div>

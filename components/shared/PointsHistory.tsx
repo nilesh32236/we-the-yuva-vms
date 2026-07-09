@@ -23,9 +23,19 @@ const REASON_LABELS: Record<string, string> = {
 
 function formatReason(reason: string): string {
   if (reason.startsWith('BADGE_')) {
-    return `Badge: ${reason.replace('BADGE_', '').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}`;
+    return `Badge: ${reason
+      .replace('BADGE_', '')
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())}`;
   }
-  return REASON_LABELS[reason] ?? reason.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  return (
+    REASON_LABELS[reason] ??
+    reason
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+  );
 }
 
 export function PointsHistory() {
@@ -74,10 +84,7 @@ export function PointsHistory() {
       </div>
       <div className="divide-y divide-brand-border">
         {data.slice(0, 10).map((tx) => (
-          <div
-            key={tx.id}
-            className="px-5 py-3.5 flex items-center justify-between gap-4"
-          >
+          <div key={tx.id} className="px-5 py-3.5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center">
                 <Clock className="w-4 h-4 text-brand-primary" />

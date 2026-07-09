@@ -60,21 +60,9 @@ export default function ObserverDashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard
-            label="Total Volunteers"
-            value={stats?.totalVolunteers ?? 0}
-            icon={Users}
-          />
-          <StatsCard
-            label="Hours Served"
-            value={`${stats?.hoursServed ?? 0}h`}
-            icon={Clock}
-          />
-          <StatsCard
-            label="Active Events"
-            value={stats?.activeEvents ?? 0}
-            icon={Activity}
-          />
+          <StatsCard label="Total Volunteers" value={stats?.totalVolunteers ?? 0} icon={Users} />
+          <StatsCard label="Hours Served" value={`${stats?.hoursServed ?? 0}h`} icon={Clock} />
+          <StatsCard label="Active Events" value={stats?.activeEvents ?? 0} icon={Activity} />
         </div>
       )}
 
@@ -95,7 +83,10 @@ export default function ObserverDashboardPage() {
               className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active-bounce"
             >
               <p className="text-sm font-medium text-brand-text">{label}</p>
-              <ArrowRight className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors" aria-hidden="true" />
+              <ArrowRight
+                className="w-4 h-4 text-brand-muted group-hover:text-brand-primary transition-colors"
+                aria-hidden="true"
+              />
             </Link>
           ))}
         </div>

@@ -216,7 +216,10 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                       </p>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-xs text-brand-muted">
                         <span className="flex items-center gap-1">
-                          <LogIn className="w-3 h-3 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                          <LogIn
+                            className="w-3 h-3 text-emerald-600 dark:text-emerald-400"
+                            aria-hidden="true"
+                          />
                           {new Date(a.checkedInAt!).toLocaleTimeString('en-IN', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -230,7 +233,10 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                         </span>
                         {a.checkedOutAt && (
                           <span className="flex items-center gap-1">
-                            <LogOut className="w-3 h-3 text-red-500 dark:text-red-400" aria-hidden="true" />
+                            <LogOut
+                              className="w-3 h-3 text-red-500 dark:text-red-400"
+                              aria-hidden="true"
+                            />
                             {new Date(a.checkedOutAt!).toLocaleTimeString('en-IN', {
                               hour: '2-digit',
                               minute: '2-digit',

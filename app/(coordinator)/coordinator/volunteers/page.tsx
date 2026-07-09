@@ -41,7 +41,10 @@ export default function CoordinatorVolunteersPage() {
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+          aria-hidden="true"
+        />
         <input
           value={search}
           onChange={(e) => {

@@ -54,7 +54,9 @@ export function Gallery() {
           What volunteering with WeTheYuva looks like.
         </p>
 
-        <div className={`stagger-group mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 ${inView ? 'in-view' : ''}`}>
+        <div
+          className={`stagger-group mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 ${inView ? 'in-view' : ''}`}
+        >
           {images.map((img) => (
             <div key={img.alt} className="group relative aspect-square overflow-hidden rounded-xl">
               <Image

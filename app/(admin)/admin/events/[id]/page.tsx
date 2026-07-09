@@ -1,7 +1,19 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Calendar, MapPin, Video, Building2, ShieldAlert, Clock, CheckCircle2, XCircle, UserCheck, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  Video,
+  Building2,
+  ShieldAlert,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { StatsCard } from '@/components/charts/StatsCard';
@@ -42,7 +54,12 @@ interface EventDetail {
 export default function AdminEventDetailPage() {
   const { id } = useParams<{ id: string }>();
 
-  const { data: event, isLoading, error, refetch } = useQuery({
+  const {
+    data: event,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['admin-event-detail', id],
     queryFn: () => api.get(`/admin/events/${id}`).then((r) => r.data as EventDetail),
     enabled: !!id,
@@ -84,7 +101,10 @@ export default function AdminEventDetailPage() {
       <div className="text-center py-20">
         <Calendar className="w-16 h-16 text-brand-muted mx-auto mb-4 opacity-20" />
         <p className="font-medium text-brand-text">Event not found</p>
-        <Link href="/admin/events" className="text-brand-primary text-sm mt-2 inline-block hover:underline">
+        <Link
+          href="/admin/events"
+          className="text-brand-primary text-sm mt-2 inline-block hover:underline"
+        >
           Back to events
         </Link>
       </div>
@@ -128,7 +148,10 @@ export default function AdminEventDetailPage() {
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
                 {new Date(event.eventDate).toLocaleDateString('en-IN', {
-                  weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
                 })}
                 {event.startTime && ` ${event.startTime}`}
                 {event.endTime && ` - ${event.endTime}`}
@@ -136,7 +159,12 @@ export default function AdminEventDetailPage() {
               {event.isVirtual && event.meetingLink ? (
                 <span className="flex items-center gap-1">
                   <Video className="w-3.5 h-3.5" />
-                  <a href={event.meetingLink} target="_blank" rel="noopener noreferrer" className="hover:text-brand-primary transition-colors">
+                  <a
+                    href={event.meetingLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-brand-primary transition-colors"
+                  >
                     Online
                   </a>
                 </span>
@@ -146,18 +174,34 @@ export default function AdminEventDetailPage() {
                   {event.venue}
                 </span>
               ) : null}
-              <span>
-                Created by: {event.opportunity?.createdBy?.name ?? '—'}
-              </span>
+              <span>Created by: {event.opportunity?.createdBy?.name ?? '—'}</span>
             </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatsCard label="Registrations" value={event._count?.attendances ?? 0} icon={UserCheck} accent="text-blue-500" accentBg="bg-blue-50 dark:bg-blue-950" />
-        <StatsCard label="Capacity" value={event.capacity} icon={Users} accent="text-purple-500" accentBg="bg-purple-50 dark:bg-purple-950" />
-        <StatsCard label="Opportunity" value={event.opportunity?.title ?? '—'} icon={Calendar} accent="text-orange-500" accentBg="bg-orange-50 dark:bg-orange-950" />
+        <StatsCard
+          label="Registrations"
+          value={event._count?.attendances ?? 0}
+          icon={UserCheck}
+          accent="text-blue-500"
+          accentBg="bg-blue-50 dark:bg-blue-950"
+        />
+        <StatsCard
+          label="Capacity"
+          value={event.capacity}
+          icon={Users}
+          accent="text-purple-500"
+          accentBg="bg-purple-50 dark:bg-purple-950"
+        />
+        <StatsCard
+          label="Opportunity"
+          value={event.opportunity?.title ?? '—'}
+          icon={Calendar}
+          accent="text-orange-500"
+          accentBg="bg-orange-50 dark:bg-orange-950"
+        />
       </div>
 
       {event.description && (
