@@ -1,6 +1,8 @@
 name: opencode-pr-review
 
 on:
+  pull_request:
+    types: [opened, synchronize]
   issue_comment:
     types: [created]
 
@@ -10,18 +12,21 @@ permissions:
   issues: write
 
 concurrency:
-  group: opencode-review-${{ github.event.issue.number }}
+  group: opencode-review-${{ github.event.pull_request.number || github.event.issue.number }}
   cancel-in-progress: true
 
 jobs:
   review:
-    if: contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref || github.event.issue.pull_request.head.ref }}
 
       - name: Configure git auth for OpenCode
         run: git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
