@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { api, setAccessToken } from './api';
+import { clearQueue } from './offline-queue';
 import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
 
@@ -117,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setAccessToken(null);
       queryClient.clear();
+      clearQueue();
       if (typeof document !== 'undefined') {
         const secure = window.location.protocol === 'https:' ? '; Secure' : '';
         // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access

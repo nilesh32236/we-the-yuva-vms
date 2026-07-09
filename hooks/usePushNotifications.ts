@@ -7,6 +7,7 @@ import { api } from '@/lib/api';
 export function usePushNotifications() {
   const { user } = useAuth();
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -29,12 +30,14 @@ export function usePushNotifications() {
     }
 
     try {
-      let notifPermission = Notification.permission;
-      if (notifPermission === 'default') {
-        notifPermission = await Notification.requestPermission();
+      setError(null);
+      if (Notification.permission === 'granted') {
+        // Permission already granted, proceed to subscribe
+      } else {
+        const notifPermission = await Notification.requestPermission();
         setPermission(notifPermission);
+        if (notifPermission !== 'granted') return;
       }
-      if (notifPermission !== 'granted') return;
 
       const { publicKey } = await api.get('/vapid-public-key').then((r) => r.data);
 
@@ -52,6 +55,7 @@ export function usePushNotifications() {
       await api.post('/notifications/subscribe', subscription.toJSON());
     } catch (err) {
       console.error('Failed to subscribe to push notifications:', err);
+      setError('Failed to set up push notifications. Please try again.');
     }
   };
 
@@ -68,5 +72,5 @@ export function usePushNotifications() {
     }
   };
 
-  return { permission, subscribe, unsubscribe };
+  return { permission, subscribe, unsubscribe, error };
 }
