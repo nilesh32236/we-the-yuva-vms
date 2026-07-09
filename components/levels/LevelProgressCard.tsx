@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Clock, Star, Trophy } from 'lucide-react';
 import Link from 'next/link';
-import { api } from '../../lib/api';
+import { api } from '@/lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { StreakBadge } from './StreakBadge';
 import { TierPathVisualizer } from './TierPathVisualizer';

@@ -313,6 +313,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   const [newDistrict, setNewDistrict] = useState('');
   const [newState, setNewState] = useState('');
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   if (isError) {
     return (
@@ -335,6 +336,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   const handleCreate = async () => {
     if (!newName.trim()) return;
     setCreating(true);
+    setCreateError(null);
     try {
       const res = await api.post('/locations', {
         name: newName.trim(),
@@ -348,8 +350,12 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
       setNewState('');
       setShowNewForm(false);
       queryClient.invalidateQueries({ queryKey: ['opportunities', 'locations'] });
-    } catch {
-      // silently fail — save button will show server error
+    } catch (err: unknown) {
+      const msg =
+        (err as { normalizedMessage?: string })?.normalizedMessage ??
+        (err as Error)?.message ??
+        'Failed to create location';
+      setCreateError(msg);
     } finally {
       setCreating(false);
     }
@@ -358,6 +364,11 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   if (showNewForm) {
     return (
       <div className="space-y-2">
+        {createError && (
+          <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 px-3 py-2 text-xs text-red-700 dark:text-red-300">
+            {createError}
+          </div>
+        )}
         <label htmlFor="new-location-name" className="text-sm font-medium text-brand-text">
           New Location
         </label>
