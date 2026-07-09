@@ -35,8 +35,8 @@ jobs:
 
       - name: Configure git for OpenCode
         run: |
-          git config --global user.name "qrolic-bot"
-          git config --global user.email "bot@qrolic.com"
+          git config --global user.name "nilesh32236"
+          git config --global user.email "nilesh32236@gmail.com"
           git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Ensure audit labels exist
