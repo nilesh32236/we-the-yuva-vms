@@ -91,7 +91,7 @@ jobs:
           [ -f "$FILE" ] || exit 0
 
           PR_NUMBER="${{ steps.pr.outputs.number }}"
-          COMMIT_SHA="${{ steps.pr.outputs.head_sha }}"
+          COMMIT_SHA=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.sha')
 
           SUMMARY=$(jq -r 'select(.type=="summary")|.text' "$FILE" 2>/dev/null | head -1)
           [ -z "$SUMMARY" ] && SUMMARY="Fixes applied based on the Fix Ticket."
