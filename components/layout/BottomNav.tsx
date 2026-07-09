@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { haptic } from '@/lib/haptic';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ICONS, type NavItem } from './Sidebar';
 
 interface BottomNavProps {
@@ -14,6 +15,7 @@ interface BottomNavProps {
 export function BottomNav({ navItems }: BottomNavProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const drawerRef = useFocusTrap(menuOpen);
 
   const activeItems = navItems.filter((item) => !item.disabled);
   const visibleItems = activeItems.slice(0, 4);
@@ -89,6 +91,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
           />
           {/* Drawer */}
           <div
+            ref={drawerRef}
             className="absolute bottom-0 left-0 right-0 bg-brand-surface rounded-t-2xl border-t border-brand-border shadow-xl animate-in slide-in-from-bottom-8 duration-200 overscroll-contain"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
             role="dialog"

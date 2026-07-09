@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 
@@ -31,6 +32,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
   const qc = useQueryClient();
   const { toast } = useToast();
   const [reviewNote, setReviewNote] = useState('');
+  const dialogRef = useFocusTrap(true);
 
   const reviewMutation = useMutation({
     mutationFn: ({ status }: { status: string }) =>
@@ -56,6 +58,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"

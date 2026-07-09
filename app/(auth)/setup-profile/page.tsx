@@ -59,6 +59,7 @@ function TagInput({
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
+          aria-describedby="tag-hint"
           className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background
             focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
         />
@@ -77,7 +78,7 @@ function TagInput({
           <Plus className="w-4 h-4" />
         </Button>
       </div>
-      <p className="text-xs text-brand-muted">Press Enter or comma to add. Max 20.</p>
+      <p id="tag-hint" className="text-xs text-brand-muted">Press Enter or comma to add. Max 20.</p>
     </div>
   );
 }

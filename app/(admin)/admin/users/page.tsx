@@ -6,6 +6,7 @@ import { useState } from 'react';
 import Pagination from '@/components/shared/Pagination';
 import { UserTable } from '../../../../components/admin/UserTable';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 
@@ -17,6 +18,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [form, setForm] = useState({ name: '', email: '', role: 'VOLUNTEER', locationName: '' });
+  const dialogRef = useFocusTrap(true);
 
   const create = useMutation({
     mutationFn: () =>
@@ -44,6 +46,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
