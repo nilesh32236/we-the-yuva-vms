@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { CreateLevelRequestSchema } from '@/lib/shared';
 import { haptic } from '@/lib/haptic';
 
 const TIER_DATA = [
@@ -100,10 +101,13 @@ export default function LevelRequestPage() {
   function handleSubmit() {
     if (!selectedLevel) return;
     haptic.medium();
-    submitMutation.mutate({
-      levelId: selectedLevel,
+    const parsed = CreateLevelRequestSchema.parse({
       notes: notes || undefined,
       proofUrls: proofUrls.length > 0 ? proofUrls : undefined,
+    });
+    submitMutation.mutate({
+      levelId: selectedLevel,
+      ...parsed,
     });
   }
 
@@ -216,6 +220,7 @@ export default function LevelRequestPage() {
                         onChange={(e) => setNotes(e.target.value)}
                         rows={3}
                         placeholder="Add any additional information for the reviewer..."
+                        maxLength={1000}
                         className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                       />
                     </div>

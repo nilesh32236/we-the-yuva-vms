@@ -2,18 +2,21 @@ import { Building2, ExternalLink, Globe, Mail, Phone, Sparkles } from 'lucide-re
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { z } from 'zod';
 
-interface OrgProfile {
-  name: string;
-  slug: string;
-  description: string | null;
-  logo: string | null;
-  website: string | null;
-  socialMedia: Record<string, string> | null;
-  email: string | null;
-  phone: string | null;
-  _count: { opportunities: number };
-}
+const OrgProfileSchema = z.object({
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+  logo: z.string().nullable(),
+  website: z.string().nullable(),
+  socialMedia: z.record(z.string()).nullable(),
+  email: z.string().nullable(),
+  phone: z.string().nullable(),
+  _count: z.object({ opportunities: z.number() }),
+});
+
+type OrgProfile = z.infer<typeof OrgProfileSchema>;
 
 async function getOrgBySlug(slug: string): Promise<OrgProfile | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
@@ -22,7 +25,9 @@ async function getOrgBySlug(slug: string): Promise<OrgProfile | null> {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;
-    return res.json();
+    const json = await res.json();
+    const parsed = OrgProfileSchema.safeParse(json);
+    return parsed.success ? parsed.data : null;
   } catch {
     return null;
   }
@@ -63,7 +68,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
   if (!org) notFound();
 
   const socialLinks = org.socialMedia
-    ? (Object.entries(org.socialMedia) as [string, string][])
+    ? Object.entries(org.socialMedia)
     : [];
 
   return (

@@ -18,7 +18,6 @@ import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
-
 const CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
   HEALTH: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
@@ -38,17 +37,15 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
 
   const { data: opp, isLoading } = useQuery({
     queryKey: ['opportunity', id],
-    queryFn: () => api.get(`/opportunities/${id}`).then((r) => r.data),
+    queryFn: () =>
+      api.get(`/opportunities/${id}`).then((r) => r.data),
     staleTime: 60_000,
   });
 
   const { data: myApplications } = useQuery({
     queryKey: ['my-applications'],
     queryFn: () =>
-      api
-        .get('/opportunities/my-applications')
-        .then((r) => r.data)
-        .catch(() => []),
+      api.get('/opportunities/my-applications').then((r) => r.data?.data ?? r.data ?? []),
     staleTime: 60_000,
   });
 

@@ -3,7 +3,7 @@
 import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { ASPIRATIONS } from '@/lib/shared';
+import { ASPIRATIONS, InitialAssessmentSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -209,12 +209,13 @@ export default function YouthAssessmentPage() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await api.post('/youth-profiles/me/initial', {
+      const payload = InitialAssessmentSchema.parse({
         aspirations,
         learningGoals: learningGoals || undefined,
         skills,
         interests,
       });
+      await api.post('/youth-profiles/me/initial', payload);
       await refetch();
       toast({ title: 'Assessment saved!' });
       const roleRoutes: Record<string, string> = {

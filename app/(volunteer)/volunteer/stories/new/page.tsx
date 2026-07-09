@@ -8,6 +8,7 @@ import { FileUpload } from '../../../../../components/shared/FileUpload';
 import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
+import { CreateStorySchema } from '@/lib/shared';
 import { haptic } from '@/lib/haptic';
 
 export default function NewStoryPage() {
@@ -24,11 +25,12 @@ export default function NewStoryPage() {
     haptic.medium();
     setSubmitting(true);
     try {
-      await api.post('/stories', {
+      const parsed = CreateStorySchema.parse({
         title: title.trim(),
         content: content.trim(),
         mediaUrl: mediaUrl || undefined,
       });
+      await api.post('/stories', parsed);
       toast({ title: 'Story submitted!', description: 'It will be published after review.' });
       router.push('/volunteer/stories');
     } catch (err) {

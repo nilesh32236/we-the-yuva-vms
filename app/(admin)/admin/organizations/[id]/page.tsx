@@ -22,14 +22,10 @@ import { useParams } from 'next/navigation';
 import { StatsCard } from '@/components/charts/StatsCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { z } from 'zod';
+import type { OrganizationDocumentSchema } from '@/lib/shared';
 
-interface Document {
-  id: string;
-  fileName: string;
-  fileUrl: string;
-  type: string;
-  uploadedAt: string;
-}
+type Document = z.infer<typeof OrganizationDocumentSchema> & { id: string; uploadedAt: string };
 
 const STATUS_STYLES: Record<string, string> = {
   ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
@@ -60,7 +56,10 @@ export default function AdminOrgDetailPage() {
   });
 
   const verifyMut = useMutation({
-    mutationFn: (approved: boolean) => api.patch(`/admin/organizations/${id}/verify`, { approved }),
+    mutationFn: (approved: boolean) => {
+      const parsed = z.object({ approved: z.boolean() }).parse({ approved });
+      return api.patch(`/admin/organizations/${id}/verify`, parsed);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-org-detail', id] });
       qc.invalidateQueries({ queryKey: ['admin-orgs'] });

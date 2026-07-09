@@ -1,7 +1,23 @@
 import type { Metadata } from 'next';
+import { z } from 'zod';
 import { OpportunitiesClient } from './client';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+const PublicOpportunitySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  category: z.string(),
+  isRemote: z.boolean(),
+  startDate: z.string(),
+  endDate: z.string(),
+  hoursPerSession: z.number(),
+  skills: z.array(z.string()),
+  totalSlots: z.number(),
+  location: z.object({ name: z.string(), district: z.string() }).nullable().optional(),
+  _count: z.object({ applications: z.number() }).optional(),
+  matchScore: z.number().optional(),
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -31,7 +47,9 @@ async function getOpportunities() {
     });
     if (!res.ok) return [];
     const body = await res.json();
-    return body.data ?? [];
+    const raw = body.data ?? [];
+    const parsed = z.array(PublicOpportunitySchema).safeParse(raw);
+    return parsed.success ? parsed.data : [];
   } catch {
     return [];
   }

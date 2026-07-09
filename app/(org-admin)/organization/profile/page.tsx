@@ -18,6 +18,15 @@ import OrgProfileForm from '@/components/org/OrgProfileForm';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import { z } from 'zod';
+import { RegisterOrganizationSchema } from '@/lib/shared';
+
+const OrganizationResponseSchema = RegisterOrganizationSchema.extend({
+  id: z.string(),
+  logo: z.string().nullable().optional(),
+  status: z.string().optional(),
+  slug: z.string().nullable().optional(),
+}).passthrough();
 
 export default function OrgAdminOrgProfilePage() {
   const { user } = useAuth();
@@ -27,7 +36,7 @@ export default function OrgAdminOrgProfilePage() {
 
   const { data: org, isLoading } = useQuery({
     queryKey: ['organization', orgId],
-    queryFn: () => api.get(`/organizations/${orgId}`).then((r) => r.data),
+    queryFn: () => api.get(`/organizations/${orgId}`).then((r) => OrganizationResponseSchema.parse(r.data)),
     enabled: !!orgId,
     staleTime: 30_000,
   });

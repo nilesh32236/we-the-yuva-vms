@@ -11,6 +11,7 @@ import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
+import { AlertSubscriptionSchema } from '@/lib/shared/schemas/alerts.schemas';
 
 const CATEGORIES = [
   'EDUCATION',
@@ -216,7 +217,12 @@ export default function AlertSubscriptionsPage() {
                   size="sm"
                   onClick={() => {
                     haptic.medium();
-                    createMut.mutate({ categories: selectedCats, skills });
+                    const parsed = AlertSubscriptionSchema.safeParse({ categories: selectedCats.length > 0 ? selectedCats : undefined, skills: skills.length > 0 ? skills : undefined });
+                    if (!parsed.success) {
+                      toast({ title: 'Validation error', description: parsed.error.issues[0]?.message, variant: 'destructive' });
+                      return;
+                    }
+                    createMut.mutate(parsed.data as { categories: string[]; skills: string[] });
                   }}
                   loading={createMut.isPending}
                 >

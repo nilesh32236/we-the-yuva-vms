@@ -3,18 +3,26 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useState } from 'react';
+import { z } from 'zod';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
 import type { AxiosError } from 'axios';
 
-interface Coordinator {
-  id: string;
-  name: string;
-  email: string;
-  status: string;
-}
+const CreateCoordinatorSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
+  email: z.string().email('Please enter a valid email address'),
+});
+
+const CoordinatorSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  status: z.string(),
+});
+
+type Coordinator = z.infer<typeof CoordinatorSchema>;
 
 export default function OrganizationCoordinatorsPage() {
   const { user } = useAuth();
@@ -33,8 +41,10 @@ export default function OrganizationCoordinatorsPage() {
   });
 
   const addMut = useMutation({
-    mutationFn: (data: { name: string; email: string }) =>
-      api.post(`/organizations/${orgId}/coordinators`, data),
+    mutationFn: (data: { name: string; email: string }) => {
+      const parsed = CreateCoordinatorSchema.parse(data);
+      return api.post(`/organizations/${orgId}/coordinators`, parsed);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['org-coordinators', orgId] });
       setIsAdding(false);

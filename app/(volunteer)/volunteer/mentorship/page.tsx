@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { useAuth } from '@/hooks/useAuth';
+import { CreateMentorshipSchema } from '@/lib/shared';
 
 interface MentorshipRelation {
   id: string;
@@ -182,11 +183,10 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
   const [message, setMessage] = useState('');
 
   const requestMutation = useMutation({
-    mutationFn: () =>
-      api.post('/mentorship', {
-        menteeId,
-        ...(message.trim() ? { message: message.trim() } : {}),
-      }),
+    mutationFn: () => {
+      const parsed = CreateMentorshipSchema.parse({ menteeId, message: message.trim() || undefined });
+      return api.post('/mentorship', parsed);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['mentorship'] });
       toast({ title: 'Request sent!' });

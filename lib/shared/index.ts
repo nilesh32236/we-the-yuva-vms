@@ -11,6 +11,7 @@ export * from './schemas/organization.schemas';
 export * from './schemas/profile.schemas';
 export * from './schemas/stories.schemas';
 export * from './schemas/training.schemas';
+export * from './schemas/contact.schemas';
 export * from './schemas/youth.schemas';
 export * from './helpers';
 export * from './types/index';

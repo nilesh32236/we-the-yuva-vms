@@ -4,26 +4,29 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { z } from 'zod';
 import Pagination from '@/components/shared/Pagination';
 import { EventCard } from '../../../../components/events/EventCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
 
-interface ObserverEvent {
-  id: string;
-  title: string;
-  eventDate: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  isVirtual: boolean;
-  venue?: string | null;
-  meetingLink?: string | null;
-  capacity: number;
-  opportunity: { title: string };
-  _count: { attendances: number };
-  attendance?: { attended: boolean } | null;
-}
+const ObserverEventSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  eventDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  status: z.string(),
+  isVirtual: z.boolean(),
+  venue: z.string().nullable().optional(),
+  meetingLink: z.string().nullable().optional(),
+  capacity: z.number(),
+  opportunity: z.object({ title: z.string() }),
+  _count: z.object({ attendances: z.number() }),
+  attendance: z.object({ attended: z.boolean() }).nullable().optional(),
+});
+
+type ObserverEvent = z.infer<typeof ObserverEventSchema>;
 
 export default function ObserverEventsPage() {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
@@ -31,12 +34,16 @@ export default function ObserverEventsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['events', 'observer', page],
-    queryFn: () => api.get('/events', { params: { page, limit: 20 } }).then((r) => r.data),
+    queryFn: () => api.get('/events', { params: { page, limit: 20 } }).then((r) => ({
+      events: z.array(ObserverEventSchema).parse(r.data?.data ?? []),
+      totalPages: r.data?.totalPages ?? 0,
+    })),
     staleTime: 60_000,
   });
 
   const now = new Date();
-  const all = (data?.data ?? []) as ObserverEvent[];
+  const all = data?.events ?? [];
+  const totalPages = data?.totalPages ?? 0;
   const upcoming = all.filter((e) => new Date(e.eventDate) >= now);
   const past = all.filter((e) => new Date(e.eventDate) < now);
   const shown = tab === 'upcoming' ? upcoming : past;
@@ -76,7 +83,7 @@ export default function ObserverEventsPage() {
               <EventCard key={e.id} event={e} />
             ))}
           </div>
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </>
       )}
     </div>

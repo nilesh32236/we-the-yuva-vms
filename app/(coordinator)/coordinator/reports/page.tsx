@@ -4,14 +4,21 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Activity, CalendarDays, Clock, Users } from 'lucide-react';
+import { z } from 'zod';
 import { StatsCard } from '../../../../components/charts/StatsCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { api } from '../../../../lib/api';
 
+const CoordinatorStatsSchema = z.object({
+  activeVolunteers: z.number().optional(),
+  eventsThisMonth: z.number().optional(),
+  activeOpportunities: z.number().optional(),
+});
+
 export default function CoordinatorReportsPage() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['stats', 'coordinator'],
-    queryFn: () => api.get('/stats/coordinator').then((r) => r.data),
+    queryFn: () => api.get('/stats/coordinator').then((r) => CoordinatorStatsSchema.parse(r.data)),
     staleTime: 60_000,
   });
 

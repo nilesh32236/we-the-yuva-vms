@@ -19,6 +19,7 @@ import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
+import { CheckInSchema, CheckOutSchema } from '@/lib/shared';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -102,7 +103,8 @@ function EventRow({ event }: { event: VolunteerEvent }) {
     setLocating(true);
     const location = await getLocation();
     setLocating(false);
-    checkIn.mutate(location ?? {});
+    const checkInData = CheckInSchema.parse(location ?? {});
+    checkIn.mutate(checkInData);
   }
 
   async function handleCheckOut() {
@@ -110,7 +112,8 @@ function EventRow({ event }: { event: VolunteerEvent }) {
     setLocating(true);
     const location = await getLocation();
     setLocating(false);
-    checkOut.mutate(location ?? {});
+    const checkOutData = CheckOutSchema.parse(location ?? {});
+    checkOut.mutate(checkOutData);
   }
 
   const busy = locating || checkIn.isPending || checkOut.isPending;

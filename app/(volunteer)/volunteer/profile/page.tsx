@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DAYS, TIME_SLOTS } from '@/lib/shared';
+import { DAYS, TIME_SLOTS, VolunteerProfileSchema } from '@/lib/shared';
 import { Button } from '../../../../components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
 import { LevelBadge } from '../../../../components/levels/LevelBadge';
@@ -124,16 +124,9 @@ export default function VolunteerProfilePage() {
 
   function save() {
     haptic.medium();
-    const errs: Record<string, string> = {};
-    if (!volunteerType) errs.volunteerType = 'Please select a volunteer type';
-    if (selectedDays.length === 0) errs.days = 'Please select at least one day';
-    if (selectedSlots.length === 0) errs.timeSlots = 'Please select at least one time slot';
-    setFieldErrors(errs);
-    if (Object.keys(errs).length > 0) return;
-
-    mutation.mutate({
+    const parsed = VolunteerProfileSchema.safeParse({
       volunteerType,
-      bio,
+      bio: bio || undefined,
       skills: skills
         .split(',')
         .map((s: string) => s.trim())
@@ -145,6 +138,15 @@ export default function VolunteerProfilePage() {
       education: education || undefined,
       availability: { days: selectedDays, timeSlots: selectedSlots },
     });
+    if (!parsed.success) {
+      const flat: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        flat[issue.path[0] as string] = issue.message;
+      }
+      setFieldErrors(flat);
+      return;
+    }
+    mutation.mutate(parsed.data);
   }
 
   // Unsaved changes warning

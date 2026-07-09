@@ -9,6 +9,7 @@ import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
+import { NotificationPreferenceSchema } from '@/lib/shared/schemas/notifications.schemas';
 
 const TYPE_LABELS: Record<string, string> = {
   APPLICATION_ACCEPTED: 'Application Updates',
@@ -84,8 +85,11 @@ export default function NotificationPrefsPage() {
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ type, email, push }: { type: string; email?: boolean; push?: boolean }) =>
-      api.put(`/notifications/preferences/${type}`, { email, push }),
+    mutationFn: ({ type, email, push }: { type: string; email?: boolean; push?: boolean }) => {
+      const parsed = NotificationPreferenceSchema.safeParse({ email, push });
+      if (!parsed.success) throw new Error(parsed.error.issues[0]?.message);
+      return api.put(`/notifications/preferences/${type}`, parsed.data);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['notification-prefs'] });
       toast({ title: 'Preference updated' });

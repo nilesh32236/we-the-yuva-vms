@@ -5,6 +5,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+import { z } from 'zod';
 import Pagination from '@/components/shared/Pagination';
 import { OpportunityCard } from '../../../../components/opportunities/OpportunityCard';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -23,21 +24,23 @@ const CATEGORIES = [
   'OTHER',
 ];
 
-interface ObserverOpportunity {
-  id: string;
-  title: string;
-  category: string;
-  isRemote: boolean;
-  startDate: string;
-  endDate: string;
-  hoursPerSession: number;
-  skills: string[];
-  totalSlots: number;
-  location?: { name: string; district: string } | null;
-  _count?: { applications: number };
-  matchScore?: number;
-  userApplication?: { status: string } | null;
-}
+const ObserverOpportunitySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  category: z.string(),
+  isRemote: z.boolean(),
+  startDate: z.string(),
+  endDate: z.string(),
+  hoursPerSession: z.number(),
+  skills: z.array(z.string()),
+  totalSlots: z.number(),
+  location: z.object({ name: z.string(), district: z.string() }).nullable().optional(),
+  _count: z.object({ applications: z.number() }).optional(),
+  matchScore: z.number().optional(),
+  userApplication: z.object({ status: z.string() }).nullable().optional(),
+});
+
+type ObserverOpportunity = z.infer<typeof ObserverOpportunitySchema>;
 
 export default function ObserverOpportunitiesPage() {
   const [search, setSearch] = useState('');
@@ -56,7 +59,10 @@ export default function ObserverOpportunitiesPage() {
             limit: 12,
           },
         })
-        .then((r) => r.data),
+        .then((r) => ({
+          data: z.array(ObserverOpportunitySchema).parse(r.data?.data ?? []),
+          totalPages: r.data?.totalPages ?? 0,
+        })),
     staleTime: 60_000,
   });
 
@@ -113,7 +119,7 @@ export default function ObserverOpportunitiesPage() {
               <OpportunityCard key={opp.id} opportunity={opp} showApply={false} />
             ))}
           </div>
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
         </>
       )}
     </div>

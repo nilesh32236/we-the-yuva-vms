@@ -25,6 +25,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { CreateLevelRequestSchema } from '@/lib/shared';
 
 const TIER_DATA = [
   {
@@ -152,7 +153,7 @@ export default function VolunteerLevelsPage() {
   });
 
   const requestMutation = useMutation({
-    mutationFn: ({ levelId, notes }: { levelId: string; notes: string }) =>
+    mutationFn: ({ levelId, notes }: { levelId: string; notes?: string }) =>
       api.post(`/levels/${levelId}/request`, { notes }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-level-requests'] });
@@ -404,11 +405,16 @@ export default function VolunteerLevelsPage() {
               </Button>
               <Button
                 onClick={() => {
-                  if (level?.nextLevel)
-                    requestMutation.mutate({
-                      levelId: level.nextLevel.levelId,
-                      notes: requestNotes,
-                    });
+                  if (!level?.nextLevel) return;
+                  const parsed = CreateLevelRequestSchema.safeParse({ notes: requestNotes || undefined });
+                  if (!parsed.success) {
+                    toast({ title: 'Validation error', description: parsed.error.issues[0]?.message, variant: 'destructive' });
+                    return;
+                  }
+                  requestMutation.mutate({
+                    levelId: level.nextLevel.levelId,
+                    notes: parsed.data.notes,
+                  });
                 }}
                 loading={requestMutation.isPending}
               >

@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../lib/api';
+import { ConsentSchema } from '../../../lib/shared/schemas/auth.schemas';
 
 const PRIVACY_POLICY_TEXT = `
 WeTheYuva Volunteer Management System — Privacy Policy
@@ -51,10 +52,8 @@ export default function ConsentPage() {
 
     setIsLoading(true);
     try {
-      await api.post('/auth/consent', {
-        privacyPolicyAccepted: true,
-        mediaConsentAccepted: mediaAccepted,
-      });
+      const payload = ConsentSchema.parse({ privacyPolicyAccepted: true, mediaConsentAccepted: mediaAccepted });
+      await api.post('/auth/consent', payload);
       router.push('/setup-profile');
     } catch (error) {
       const axiosError = error as {

@@ -4,12 +4,26 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Calendar, Tag, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { z } from 'zod';
 import { api } from '@/lib/api';
+
+const BlogPostResponseSchema = z.object({
+  id: z.string().optional(),
+  title: z.string(),
+  excerpt: z.string().optional(),
+  content: z.string(),
+  featuredImage: z.string().optional().nullable(),
+  tags: z.array(z.string()).optional().default([]),
+  category: z.string().optional().nullable(),
+  author: z.object({ name: z.string() }).optional().nullable(),
+  publishedAt: z.string().optional().nullable(),
+});
 
 export function BlogPostPageClient({ slug }: { slug: string }) {
   const { data: post, isLoading } = useQuery({
     queryKey: ['blog-post', slug],
-    queryFn: () => api.get(`/blog/${slug}`).then((r) => r.data),
+    queryFn: () =>
+      api.get(`/blog/${slug}`).then((r) => BlogPostResponseSchema.parse(r.data)),
     enabled: !!slug,
   });
 
@@ -65,11 +79,13 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
               </span>
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" aria-hidden="true" />
-                {new Date(post.publishedAt).toLocaleDateString('en-IN', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
+                {post.publishedAt
+                  ? new Date(post.publishedAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })
+                  : ''}
               </span>
               {post.category && (
                 <span className="flex items-center gap-1.5">
@@ -77,7 +93,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
                 </span>
               )}
             </div>
-            {post.tags?.length > 0 && (
+            {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {post.tags.map((tag: string) => (
                   <span

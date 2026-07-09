@@ -3,7 +3,7 @@
 import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { DAYS, TIME_SLOTS } from '@/lib/shared';
+import { DAYS, TIME_SLOTS, VolunteerProfileSchema, StaffProfileSchema } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
@@ -128,13 +128,14 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
     }
     setIsLoading(true);
     try {
-      await api.post('/users/me/profile', {
+      const payload = VolunteerProfileSchema.parse({
         volunteerType,
         skills,
         interests,
         education: education || undefined,
         availability: { days: selectedDays, timeSlots: selectedSlots },
       });
+      await api.post('/users/me/profile', payload);
       onComplete();
     } catch (error) {
       const message =
@@ -346,11 +347,12 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
     if (!locationName.trim()) return;
     setIsLoading(true);
     try {
-      await api.post('/users/me/staff-profile', {
+      const payload = StaffProfileSchema.parse({
         locationName,
         district: district || undefined,
         state: state || undefined,
       });
+      await api.post('/users/me/staff-profile', payload);
       onComplete();
     } catch (err) {
       const message =

@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, Check, Sparkles, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { GROWTH_AREAS } from '@/lib/shared';
+import { GROWTH_AREAS, YouthReflectionSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
@@ -217,12 +217,14 @@ export default function YouthReflectionPage() {
 
       <Button
         onClick={() =>
-          mutation.mutate({
-            skillsDeveloped,
-            growthAreas,
-            confidenceLevel,
-            impactDescription: impactDescription || undefined,
-          })
+          mutation.mutate(
+            YouthReflectionSchema.parse({
+              skillsDeveloped,
+              growthAreas,
+              confidenceLevel,
+              impactDescription: impactDescription || undefined,
+            })
+          )
         }
         loading={mutation.isPending}
         disabled={!canSubmit}

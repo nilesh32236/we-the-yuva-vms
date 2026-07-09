@@ -16,6 +16,7 @@ import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
+import { ReviewLevelRequestSchema } from '@/lib/shared';
 
 interface LevelRequest {
   id: string;
@@ -35,11 +36,10 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
   const dialogRef = useFocusTrap(true);
 
   const reviewMutation = useMutation({
-    mutationFn: ({ status }: { status: string }) =>
-      api.patch(`/levels/admin/level-requests/${request.id}`, {
-        status,
-        reviewNote: reviewNote || undefined,
-      }),
+    mutationFn: ({ status }: { status: string }) => {
+      const parsed = ReviewLevelRequestSchema.parse({ status: status as 'APPROVED' | 'REJECTED', reviewNote: reviewNote || undefined });
+      return api.patch(`/levels/admin/level-requests/${request.id}`, parsed);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-level-requests'] });
       toast({

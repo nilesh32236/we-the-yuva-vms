@@ -4,23 +4,30 @@ import { useState, type FormEvent } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
-
-const SUBJECTS = ['General Inquiry', 'Partnership', 'Volunteer Support', 'Media', 'Other'] as const;
+import { SUBJECTS, ContactFormSchema } from '@/lib/shared';
 
 export function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [subject, setSubject] = useState('');
+  const [subject, setSubject] = useState<string>('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name || !email || !subject || !message) return;
+    const parsed = ContactFormSchema.safeParse({ name, email, subject, message });
+    if (!parsed.success) {
+      toast({
+        title: 'Validation Error',
+        description: parsed.error.issues[0]?.message,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setLoading(true);
     try {
-      await api.post('/contact', { name, email, subject, message });
+      await api.post('/contact', parsed.data);
       toast({
         title: 'Message sent!',
         description: "We'll get back to you within 48 hours.",
