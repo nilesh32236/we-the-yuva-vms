@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   review:
-    if: contains(github.event.comment.body || '', '/oc')
+    if: contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -24,13 +24,13 @@ jobs:
           fetch-depth: 0
 
       - name: Configure git auth for OpenCode
-        run: git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"
+        run: git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Run OpenCode review
         continue-on-error: true
         uses: anomalyco/opencode/github@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         with:
           model: opencode/deepseek-v4-flash-free
           use_github_token: true
@@ -254,4 +254,4 @@ jobs:
 
           echo "Review posted to PR #${PR_NUMBER}"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
