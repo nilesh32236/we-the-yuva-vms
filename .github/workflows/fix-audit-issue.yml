@@ -1,0 +1,145 @@
+name: Fix Audit Issue
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: fix-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  fix:
+    if: |
+      contains(github.event.comment.body || '', '/fix')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Configure git
+        run: |
+          git config user.name 'qrolic-bot'
+          git config user.email 'bot@qrolic.com'
+
+      - name: Ensure labels exist
+        run: |
+          for label in autofix autofix:reviewed autofix:needs-manual-review autofix:merged; do
+            gh label create "$label" --force 2>/dev/null || true
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Close old autofix PRs for this issue
+        run: |
+          OLD=$(gh pr list --head "autofix/issue-${{ github.event.issue.number }}" --json number --jq '.[].number' 2>/dev/null || echo "")
+          for pr in $OLD; do
+            gh pr close "$pr" --delete-branch 2>/dev/null || true
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Run OpenCode to fix issue
+        uses: anomalyco/opencode/github@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        with:
+          model: opencode/deepseek-v4-flash-free
+          use_github_token: true
+          share: true
+          prompt: |
+            You are fixing a GitHub issue. Read the issue body and comments at ${{ github.event.issue.html_url }}.
+
+            Context: This is a Next.js 16 App Router project (we-the-yuva-vms). Before making changes:
+            1. Read AGENTS.md in the project root for conventions
+            2. Read biome.json in the project root for linting rules
+            3. Read any relevant source files to understand existing patterns
+
+            After making changes:
+            1. Run `pnpm typecheck` — fix any type errors
+            2. Run `pnpm lint` — fix any lint errors
+            3. Commit and push all changes
+
+      - name: Add autofix label
+        run: |
+          gh issue edit ${{ github.event.issue.number }} --add-label 'autofix'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Capture OpenCode changes
+        id: opencode-changes
+        run: |
+          OUR_BRANCH="autofix/issue-${{ github.event.issue.number }}"
+          git fetch origin
+          if git checkout -b "$OUR_BRANCH" "origin/$OUR_BRANCH" 2>/dev/null; then
+            echo "branch_existed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch_existed=false" >> "$GITHUB_OUTPUT"
+            # Find OpenCode's branch and capture its changes
+            OC_BRANCH=$(gh pr list --author 'github-actions[bot]' --json headRefName,createdAt --state open --limit 10 --jq '[.[] | select(.headRefName | startswith("opencode/"))] | sort_by(.createdAt) | last | .headRefName' 2>/dev/null || echo "")
+            if [ -n "$OC_BRANCH" ] && [ "$OC_BRANCH" != "null" ]; then
+              echo "Found OpenCode branch: $OC_BRANCH"
+              git fetch origin "$OC_BRANCH"
+              git checkout -b "$OUR_BRANCH" "origin/$OC_BRANCH"
+              echo "branch_created_from_opencode=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "No OpenCode changes found — attempting fix inline"
+              echo "branch_created_from_opencode=false" >> "$GITHUB_OUTPUT"
+              git checkout -b "$OUR_BRANCH"
+            fi
+          fi
+          git push origin "$OUR_BRANCH"
+          echo "branch=$OUR_BRANCH" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Create PR from changes
+        if: steps.opencode-changes.outputs.branch_existed == 'true' || steps.opencode-changes.outputs.branch_created_from_opencode == 'true'
+        run: |
+          OUR_BRANCH="${{ steps.opencode-changes.outputs.branch }}"
+
+          # Ensure the branch has commits beyond main
+          COMMITS=$(git rev-list --count "origin/main..origin/$OUR_BRANCH" 2>/dev/null || echo 0)
+          if [ "$COMMITS" -eq 0 ]; then
+            echo "No new commits on branch — skipping PR creation"
+            exit 0
+          fi
+
+          # Create or update the PR
+          PR_EXISTS=$(gh pr list --head "$OUR_BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$PR_EXISTS" ] && [ "$PR_EXISTS" != "null" ]; then
+            echo "PR #$PR_EXISTS already exists — updating"
+          else
+            gh pr create \
+              --base main \
+              --head "$OUR_BRANCH" \
+              --title "fix: address issue #${{ github.event.issue.number }}" \
+              --body "Closes #${{ github.event.issue.number }}
+
+          Automated fix generated by OpenCode.
+
+          **Review & merge:**
+          1. Review the changes
+          2. If satisfied, merge manually
+          3. The review workflow will label this PR \`autofix:reviewed\`" \
+              --label 'autofix'
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Report failure
+        if: failure()
+        run: |
+          gh issue comment ${{ github.event.issue.number }} --body "OpenCode attempted to fix this issue but encountered an error. Check workflow logs for details."
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
