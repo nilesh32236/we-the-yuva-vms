@@ -23,6 +23,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       setIsSyncing(true);
       const result = await syncQueuedCheckins();
       if (result.synced > 0 && onSuccess) onSuccess();
+      if (result.failed > 0 && onError) onError(`${result.failed} check-in(s) failed to sync`);
       setIsSyncing(false);
     };
     const handleOffline = () => setIsOnline(false);
@@ -32,7 +33,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [onSuccess]);
+  }, [onSuccess, onError]);
 
   const refreshQueue = useCallback(async () => {
     const items = await getQueuedCheckins();
@@ -46,12 +47,17 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
       if (!isOnline) {
-        await queueCheckin({
-          eventId,
-          qrToken: body.qrToken,
-          location: body.lat != null ? { lat: body.lat, lng: body.lng ?? 0 } : undefined,
-        });
+        try {
+          await queueCheckin({
+            eventId,
+            qrToken: body.qrToken,
+            location: body.lat != null ? { lat: body.lat, lng: body.lng ?? 0 } : undefined,
+          });
+        } catch {
+          throw new Error('Failed to queue check-in offline');
+        }
         await refreshQueue();
+        if (onSuccess) onSuccess();
         return { queued: true };
       }
       return api.post(`/events/${eventId}/checkin`, body).then((r) => r.data);
@@ -60,8 +66,15 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       if (data.queued) return;
       if (onSuccess) onSuccess();
     },
-    onError: (err: { response?: { data?: { error?: string } } }) => {
-      if (onError) onError(err.response?.data?.error ?? 'Check-in failed');
+    onError: (err: unknown) => {
+      if (onError) {
+        const message =
+          err instanceof Error
+            ? err.message
+            : (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+              'Check-in failed';
+        onError(message);
+      }
     },
   });
 
