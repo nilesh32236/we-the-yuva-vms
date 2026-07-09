@@ -6,7 +6,8 @@
 |---|---|---|---|
 | `codebase-audit.yml` | `workflow_dispatch`, schedule | Scans codebase for issues per category prompt, creates 1 consolidated issue | `GH_PAT \|\| GITHUB_TOKEN` |
 | `fix-audit-issue.yml` | `issues: [opened, labeled]`, issue `/fix` | Auto-fixes audit issues. OpenCode reads issue → applies fix → creates PR | `GH_PAT \|\| GITHUB_TOKEN` |
-| `opencode-review.yml` | `pull_request: [opened, synchronize]`, PR `/oc`, `/review`, `/fix` | Comprehensive review + auto-fix on PRs. Posts inline review, pushes fixes | `GH_PAT \|\| GITHUB_TOKEN` |
+| `opencode-review.yml` | `pull_request: [opened, synchronize]`, PR `/oc`, `/review` | Comprehensive review. Posts inline review + Fix Ticket comment (checklist of issues) | `GH_PAT \|\| GITHUB_TOKEN` |
+| `opencode-fix.yml` | PR `/fix` | Reads Fix Ticket comment, fixes each issue, updates ticket with ✅/❌, pushes to PR branch | `GH_PAT \|\| GITHUB_TOKEN` |
 | `review-autofix-pr.yml` | `pull_request: [opened, synchronize, labeled]` | Lightweight review of autofix PRs. Labels `autofix:reviewed` or `autofix:needs-manual-review` | `GH_PAT \|\| GITHUB_TOKEN` |
 
 ## Event Chain
@@ -20,10 +21,18 @@ codebase-audit.yml
                  └─ pull_request: [opened]   → opencode-review.yml (comprehensive)
 
 User creates PR manually
-  └─ pull_request: [opened] → opencode-review.yml
+  └─ pull_request: [opened] → opencode-review.yml (review)
+       └─ Posts Fix Ticket comment with issue checklist
 
-User comments /review or /fix on PR
-  └─ issue_comment → opencode-review.yml
+User comments /review or /oc on PR
+  └─ issue_comment → opencode-review.yml (review)
+       └─ Posts Fix Ticket comment with issue checklist
+
+User comments /fix on PR
+  └─ issue_comment → opencode-fix.yml
+       └─ Reads Fix Ticket → fixes each issue → updates ticket with ✅/❌
+       └─ Pushes fixes to PR branch
+       └─ Posts fix review
 
 User comments /fix on issue
   └─ issue_comment → fix-audit-issue.yml
@@ -35,20 +44,14 @@ User comments /fix on issue
 - `GITHUB_TOKEN` (fallback) → does NOT trigger downstream workflows. Works for manual `/fix`, `/oc`, `/review` commands.
 - All `env.GH_TOKEN` and `env.GITHUB_TOKEN` refs use `${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}`.
 
-## opencode-review.yml Modes
+## Fix Ticket Flow
 
-The workflow has two modes controlled by `OPENCODE_MODE` env variable:
+The "Fix Ticket" bridges review and fix workflows:
 
-| Trigger | Mode | Behavior |
-|---|---|---|
-| `pull_request: [opened, synchronize]` | review | Review + post comments only |
-| PR `/oc` | review | Review + post comments only |
-| PR `/review` | review | Review + post comments only |
-| PR `/fix` | fix | Review + post comments + apply fixes + push to branch |
+1. **Review** (`opencode-review.yml`): After posting the PR review, also posts a **Fix Ticket** comment — a checklist of all issues found
+2. **Fix** (`opencode-fix.yml`): When `/fix` is triggered, reads the Fix Ticket, parses each issue, applies fixes, updates the ticket with ✅ (fixed) or ❌ (could not fix)
 
-Mode logic: `${{ (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix')) && 'fix' || 'review' }}`
-
-The agent reads `${{ env.OPENCODE_MODE }}` in the prompt and acts accordingly.
+The ticket comment is a regular PR comment (not a review), so it can be **edited** by the fix workflow to update checkbox states. This gives clear visibility into what was fixed.
 
 ## Prompt Quality Tiers
 
