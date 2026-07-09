@@ -37,7 +37,7 @@ jobs:
         run: |
           git config --global user.name "qrolic-bot"
           git config --global user.email "bot@qrolic.com"
-          git config --global url."https://x-access-token:${{ secrets.GH_PAT }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Ensure audit labels exist
         run: |
@@ -45,7 +45,7 @@ jobs:
             gh label create "$label" --force 2>/dev/null || true
           done
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Close old OpenCode PRs
         run: |
@@ -55,7 +55,7 @@ jobs:
             gh pr close "$pr" --delete-branch 2>/dev/null || true
           done
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Select audit prompt
         id: select-prompt
@@ -99,7 +99,7 @@ jobs:
           echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Select target directory
         id: select-dir
@@ -118,7 +118,7 @@ jobs:
         continue-on-error: true
         uses: anomalyco/opencode/github@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         with:
           model: opencode/deepseek-v4-flash-free
           use_github_token: true
@@ -144,7 +144,7 @@ jobs:
               gh pr close "$num" --comment "Auto-closed — audit results filed as issues" --delete-branch
             done
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Create issues from findings
         if: steps.select-prompt.outputs.skip != 'true'
@@ -231,4 +231,4 @@ jobs:
 
           echo "::endgroup::"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
