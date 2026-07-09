@@ -31,9 +31,7 @@ export function usePushNotifications() {
 
     try {
       setError(null);
-      if (Notification.permission === 'granted') {
-        // Permission already granted, proceed to subscribe
-      } else {
+      if (Notification.permission !== 'granted') {
         const notifPermission = await Notification.requestPermission();
         setPermission(notifPermission);
         if (notifPermission !== 'granted') return;
