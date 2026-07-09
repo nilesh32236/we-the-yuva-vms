@@ -1,0 +1,91 @@
+name: Review Autofix PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: review-autofix-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: contains(github.event.pull_request.labels.*.name || '', 'autofix')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name 'qrolic-bot'
+          git config user.email 'bot@qrolic.com'
+
+      - name: Ensure labels exist
+        run: |
+          for label in autofix:reviewed autofix:needs-manual-review autofix:merged; do
+            gh label create "$label" --force 2>/dev/null || true
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Run OpenCode to review PR
+        id: opencode-review
+        continue-on-error: true
+        uses: anomalyco/opencode/github@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+        with:
+          model: opencode/deepseek-v4-flash-free
+          use_github_token: true
+          share: true
+          prompt: |
+            Review this pull request in we-the-yuva-vms (Volunteer Management System).
+
+            Before reviewing:
+            1. Read AGENTS.md for project conventions
+            2. Read biome.json for linting rules
+            3. Read COMPONENTS.md for component patterns if it exists
+
+            Check for:
+            - Bugs, logic errors, type safety
+            - Security: PII exposure, auth/RBAC gaps, XSS vectors (Tiptap)
+            - Conventions: Biome compliance, project conventions from AGENTS.md
+            - Dead code, debug artifacts, console.log
+            - UX: mobile touch targets, dark mode, keyboard nav
+            - API/TanStack Query patterns: error handling, stale time, optimistic updates
+
+            Categorize findings: critical (must fix), important (should fix), minor (nice to have).
+
+            After reviewing:
+            1. If fixable issues found, apply fixes directly
+            2. Run `pnpm typecheck` and `pnpm lint` to verify
+            3. Commit and push any changes
+
+      - name: Determine review outcome
+        id: review-outcome
+        run: |
+          # Check if OpenCode made any changes
+          if git diff --quiet HEAD~1 2>/dev/null; then
+            echo "no_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "no_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Label as reviewed
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --add-label 'autofix:reviewed'
+          gh pr edit ${{ github.event.pull_request.number }} --remove-label 'autofix' 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
