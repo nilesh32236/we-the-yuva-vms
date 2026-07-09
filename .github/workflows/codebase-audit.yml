@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       prompt_name:
-        description: "Specific prompt to run (omit for all available)"
+        description: "Specific prompt to run (omit for random)"
         required: false
         type: string
       target_dir:
@@ -26,7 +26,8 @@ concurrency:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,30 +35,13 @@ jobs:
 
       - name: Configure git for OpenCode
         run: |
-          git config --global user.name "wetheyuva-bot"
-          git config --global user.email "bot@wetheyuva.com"
+          git config --global user.name "qrolic-bot"
+          git config --global user.email "bot@qrolic.com"
           git config --global url."https://x-access-token:${{ secrets.GH_PAT }}@github.com/".insteadOf "https://github.com/"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install OpenCode CLI
-        run: pnpm add -g @anomalyco/opencode
 
       - name: Ensure audit labels exist
         run: |
-          for label in audit:critical audit:important audit:minor audit:autofix:reviewed audit:autofix:needs-manual-review audit:autofix:merged; do
+          for label in audit:critical audit:important audit:minor autofix:reviewed autofix:needs-manual-review autofix:merged; do
             gh label create "$label" --force 2>/dev/null || true
           done
         env:
@@ -73,15 +57,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
 
-      - name: Get existing issues to avoid duplicates
-        id: existing-issues
-        run: |
-          EXISTING=$(gh issue list --label 'audit:critical,audit:important' --state open --json title --jq '[.[].title]' 2>/dev/null || echo "[]")
-          echo "existing=$EXISTING" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-
-      - name: Select audit prompt(s)
+      - name: Select audit prompt
         id: select-prompt
         run: |
           fail() { echo "::warning::audit: $*"; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; }
@@ -92,30 +68,35 @@ jobs:
 
           if [ -n "${{ github.event.inputs.prompt_name }}" ]; then
             SPECIFIC=".audit-prompts/${{ github.event.inputs.prompt_name }}.md"
-            [ ! -f "$SPECIFIC" ] && fail "Requested prompt '${{ github.event.inputs.prompt_name }}' not found"
-            echo "$SPECIFIC" > /tmp/audit-prompts.txt
-            echo "${{ github.event.inputs.prompt_name }}" > /tmp/audit-categories.txt
+            if [ ! -f "$SPECIFIC" ]; then
+              fail "Requested prompt '${{ github.event.inputs.prompt_name }}' not found"
+            fi
+            CATEGORY="${{ github.event.inputs.prompt_name }}"
+            echo "prompt_file=$SPECIFIC" >> "$GITHUB_OUTPUT"
+            echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
             echo "skip=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          AVAILABLE_PROMPTS=()
-          AVAILABLE_CATEGORIES=()
+          AVAILABLE=()
           for f in "${PROMPTS[@]}"; do
             NAME=$(basename "$f" .md)
             COUNT=$(gh issue list --label "audit:$NAME" --state open --json number --jq 'length' 2>/dev/null || echo "0")
             if [ "$COUNT" -eq 0 ] 2>/dev/null; then
-              AVAILABLE_PROMPTS+=("$f")
-              AVAILABLE_CATEGORIES+=("$NAME")
+              AVAILABLE+=("$f")
             else
-              echo "Skipping '$NAME' - $COUNT open issue(s) already exist"
+              echo "Skipping '$NAME' — $COUNT open issue(s) already exist"
             fi
           done
 
-          [ ${#AVAILABLE_PROMPTS[@]} -eq 0 ] && fail "All audit categories have open issues - nothing to do"
+          [ ${#AVAILABLE[@]} -eq 0 ] && fail "All audit categories have open issues — nothing to do"
 
-          printf '%s\n' "${AVAILABLE_PROMPTS[@]}" > /tmp/audit-prompts.txt
-          printf '%s\n' "${AVAILABLE_CATEGORIES[@]}" > /tmp/audit-categories.txt
+          RAND=$(( RANDOM % ${#AVAILABLE[@]} ))
+          SELECTED="${AVAILABLE[$RAND]}"
+          CATEGORY=$(basename "$SELECTED" .md)
+          echo "Selected prompt: $SELECTED (category: $CATEGORY)"
+          echo "prompt_file=$SELECTED" >> "$GITHUB_OUTPUT"
+          echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
@@ -132,120 +113,27 @@ jobs:
           RAND=$(( RANDOM % ${#DIRS[@]} ))
           echo "dir=${DIRS[$RAND]}" >> "$GITHUB_OUTPUT"
 
-      - name: Run OpenCode audit for all categories
+      - name: Run OpenCode audit
         if: steps.select-prompt.outputs.skip != 'true'
         continue-on-error: true
+        uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          mapfile -t PROMPT_FILES < /tmp/audit-prompts.txt
-          mapfile -t CATEGORIES < /tmp/audit-categories.txt
-          TARGET_DIR="${{ steps.select-dir.outputs.dir }}"
+        with:
+          model: opencode/deepseek-v4-flash-free
+          use_github_token: true
+          share: false
+          prompt: |
+            Read the prompt file at `${{ steps.select-prompt.outputs.prompt_file }}`.
 
-          mkdir -p .opencode
+            Audit the directory: `${{ steps.select-dir.outputs.dir }}`
 
-          for i in "${!PROMPT_FILES[@]}"; do
-            prompt="${PROMPT_FILES[$i]}"
-            category="${CATEGORIES[$i]}"
-            echo "::group::Auditing category: $category"
+            The prompt file tells you what to check. Follow its instructions exactly.
 
-            npx -y @anomalyco/opencode \
-              --model opencode/deepseek-v4-flash-free \
-              --prompt-file "$prompt" \
-              --target-dir "$TARGET_DIR" \
-              --output ".opencode/audit-output-${category}.jsonl" \
-              --use-github-token \
-              --no-share \
-              || echo "::warning::OpenCode audit for $category exited with code $?"
+            Write your findings to `.audit-output.jsonl` in JSON Lines format:
 
-            echo "::endgroup::"
-          done
-
-      - name: Create issues from findings
-        if: steps.select-prompt.outputs.skip != 'true'
-        run: |
-          fail() { echo "::warning::audit: $*"; exit 0; }
-
-          mapfile -t CATEGORIES < /tmp/audit-categories.txt
-          TARGET_DIR="${{ steps.select-dir.outputs.dir }}"
-
-          for category in "${CATEGORIES[@]}"; do
-            FILE=".opencode/audit-output-${category}.jsonl"
-            [ -f "$FILE" ] || { echo "No audit output for $category"; continue; }
-
-            echo "::group::Creating issues for category: $category"
-
-            jq -c . "$FILE" 2>/dev/null > /tmp/clean.jsonl
-            TOTAL=$(wc -l < "$FILE")
-            VALID=$(wc -l < /tmp/clean.jsonl)
-            FAILED=$(( TOTAL - VALID ))
-            echo "Stats - Lines: $TOTAL | Valid: $VALID | Failed: $FAILED"
-            [ "$FAILED" -gt 0 ] && echo "::warning::$FAILED line(s) had invalid JSON"
-
-            for label in "audit" "audit:${category}" "audit:critical" "audit:important" "audit:minor"; do
-              gh label create "$label" --force 2>/dev/null || true
-            done
-
-            jq -c 'select(.type=="issue" and (.severity=="critical" or .severity=="important"))' /tmp/clean.jsonl \
-              | while read -r issue; do
-                  SEVERITY=$(echo "$issue" | jq -r '.severity')
-                  FILEPATH=$(echo "$issue" | jq -r '.file')
-                  LINE=$(echo "$issue" | jq -r '.line')
-                  MESSAGE=$(echo "$issue" | jq -r '.message')
-                  SUGGESTION=$(echo "$issue" | jq -r '.suggestion // ""')
-                  TITLE="[Audit:${category}] $(echo "$MESSAGE" | sed 's/\(.\{80\}\).*/\1/')"
-
-                  EXISTING=$(gh issue list \
-                    --label "audit:${category}" \
-                    --state open \
-                    --json title \
-                    --jq '[.[] | select(.title == $t)] | length' \
-                    --arg t "$TITLE" 2>/dev/null || echo "0")
-                  [ "$EXISTING" -gt 0 ] && echo "  Skipping duplicate: $TITLE" && continue
-
-                  BODY="## Audit Finding\n\n**Category:** ${category}\n**Severity:** \`${SEVERITY}\`\n**File:** \`${FILEPATH}\`\n**Line:** ${LINE}\n\n**Issue:** ${MESSAGE}\n"
-                  [ -n "$SUGGESTION" ] && BODY="${BODY}\n**Suggestion:** ${SUGGESTION}"
-                  BODY="${BODY}\n\n---\n*Generated by Codebase Audit workflow*"
-
-                  gh issue create \
-                    --title "$TITLE" \
-                    --label "audit,audit:${category},audit:${SEVERITY}" \
-                    --body "$(echo -e "$BODY")" \
-                    --repo "${{ github.repository }}" || echo "::warning::Failed to create issue: $TITLE"
-                done
-
-            MINOR_COUNT=$(jq -c 'select(.type=="issue" and .severity=="minor")' /tmp/clean.jsonl | wc -l)
-            if [ "$MINOR_COUNT" -gt 0 ]; then
-              > /tmp/minor_items.txt
-              jq -c 'select(.type=="issue" and .severity=="minor")' /tmp/clean.jsonl | while read -r line; do
-                FP=$(echo "$line" | jq -r '.file')
-                LN=$(echo "$line" | jq -r '.line')
-                MSG=$(echo "$line" | jq -r '.message')
-                echo "- [ ] \`${FP}:${LN}\` - ${MSG}" >> /tmp/minor_items.txt
-              done
-              MINOR_BODY="## Minor Audit Findings\n\n**Category:** ${category}\n**Directory:** \`${TARGET_DIR}\`\n\n### Checklist\n\n$(cat /tmp/minor_items.txt)\n\n---\n*Generated by Codebase Audit workflow*"
-
-              EXISTING_MINOR=$(gh issue list \
-                --label "audit:${category}" \
-                --label "audit:minor" \
-                --state open \
-                --json number --jq 'length' 2>/dev/null || echo "0")
-
-              if [ "$EXISTING_MINOR" -eq 0 ]; then
-                gh issue create \
-                  --title "[Audit:${category}] Minor findings" \
-                  --label "audit,audit:${category},audit:minor" \
-                  --body "$(echo -e "$MINOR_BODY")" \
-                  --repo "${{ github.repository }}" || echo "::warning::Failed to create minor findings issue"
-              else
-                echo "Minor findings issue for $category already exists - skipping"
-              fi
-            fi
-
-            echo "::endgroup::"
-          done
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+            {"type":"summary","text":"overall assessment"}
+            {"type":"issue","severity":"critical|important|minor","file":"path","line":N,"message":"what's wrong","suggestion":"how to fix","inline":false}
 
       - name: Close auto-created OpenCode PR
         if: always()
@@ -253,7 +141,89 @@ jobs:
           gh pr list --state open --json headRefName,number \
             --jq '.[] | select(.headRefName | startswith("opencode/")) | .number' \
             | while read -r num; do
-              gh pr close "$num" --comment "Auto-closed - audit results filed as issues" --delete-branch
+              gh pr close "$num" --comment "Auto-closed — audit results filed as issues" --delete-branch
             done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+
+      - name: Create issues from findings
+        if: steps.select-prompt.outputs.skip != 'true'
+        run: |
+          fail() { echo "::warning::audit: $*"; exit 0; }
+          FILE=".audit-output.jsonl"
+          CATEGORY="${{ steps.select-prompt.outputs.category }}"
+          TARGET_DIR="${{ steps.select-dir.outputs.dir }}"
+
+          [ -f "$FILE" ] || fail "No audit output found — audit may have failed"
+
+          jq -c . "$FILE" 2>/dev/null > /tmp/clean.jsonl
+          TOTAL=$(wc -l < "$FILE")
+          VALID=$(wc -l < /tmp/clean.jsonl)
+          FAILED=$(( TOTAL - VALID ))
+          echo "::group::Audit stats"
+          echo "Lines: $TOTAL | Valid: $VALID | Failed: $FAILED"
+          [ "$FAILED" -gt 0 ] && echo "::warning::$FAILED line(s) had invalid JSON"
+
+          for label in "audit" "audit:${CATEGORY}" "audit:critical" "audit:important" "audit:minor"; do
+            gh label create "$label" --force 2>/dev/null || true
+          done
+
+          jq -c 'select(.type=="issue" and (.severity=="critical" or .severity=="important"))' /tmp/clean.jsonl \
+            | while read -r issue; do
+                SEVERITY=$(echo "$issue" | jq -r '.severity')
+                FILEPATH=$(echo "$issue" | jq -r '.file')
+                LINE=$(echo "$issue" | jq -r '.line')
+                MESSAGE=$(echo "$issue" | jq -r '.message')
+                SUGGESTION=$(echo "$issue" | jq -r '.suggestion // ""')
+                TITLE="[Audit:${CATEGORY}] $(echo "$MESSAGE" | sed 's/\(.\{80\}\).*/\1/')"
+
+                EXISTING=$(gh issue list \
+                  --label "audit:${CATEGORY}" \
+                  --state open \
+                  --json title \
+                  --jq '[.[] | select(.title == $t)] | length' \
+                  --arg t "$TITLE" 2>/dev/null || echo "0")
+                [ "$EXISTING" -gt 0 ] && echo "Skipping duplicate: $TITLE" && continue
+
+                BODY="## Audit Finding\n\n**Category:** ${CATEGORY}\n**Severity:** \`${SEVERITY}\`\n**File:** \`${FILEPATH}\`\n**Line:** ${LINE}\n\n**Issue:** ${MESSAGE}\n"
+                [ -n "$SUGGESTION" ] && BODY="${BODY}\n**Suggestion:** ${SUGGESTION}"
+                BODY="${BODY}\n\n---\n*Generated by Codebase Audit workflow*"
+
+                gh issue create \
+                  --title "$TITLE" \
+                  --label "audit,audit:${CATEGORY},audit:${SEVERITY}" \
+                  --body "$(echo -e "$BODY")" \
+                  --repo "${{ github.repository }}" || echo "::warning::Failed to create issue: $TITLE"
+              done
+
+          MINOR_COUNT=$(jq -c 'select(.type=="issue" and .severity=="minor")' /tmp/clean.jsonl | wc -l)
+          if [ "$MINOR_COUNT" -gt 0 ]; then
+            > /tmp/minor_items.txt
+            jq -c 'select(.type=="issue" and .severity=="minor")' /tmp/clean.jsonl | while read -r issue; do
+              FILEPATH=$(echo "$issue" | jq -r '.file')
+              LINE=$(echo "$issue" | jq -r '.line')
+              MSG=$(echo "$issue" | jq -r '.message')
+              echo "- [ ] \`${FILEPATH}:${LINE}\` — ${MSG}" >> /tmp/minor_items.txt
+            done
+            MINOR_BODY="## Minor Audit Findings\n\n**Category:** ${CATEGORY}\n**Directory:** \`${TARGET_DIR}\`\n\n### Checklist\n\n$(cat /tmp/minor_items.txt)\n\n---\n*Generated by Codebase Audit workflow*"
+
+            EXISTING_MINOR=$(gh issue list \
+              --label "audit:${CATEGORY}" \
+              --label "audit:minor" \
+              --state open \
+              --json number --jq 'length' 2>/dev/null || echo "0")
+
+            if [ "$EXISTING_MINOR" -eq 0 ]; then
+              gh issue create \
+                --title "[Audit:${CATEGORY}] Minor findings" \
+                --label "audit,audit:${CATEGORY},audit:minor" \
+                --body "$(echo -e "$MINOR_BODY")" \
+                --repo "${{ github.repository }}" || echo "::warning::Failed to create minor findings issue"
+            else
+              echo "Minor findings issue already exists — skipping"
+            fi
+          fi
+
+          echo "::endgroup::"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
