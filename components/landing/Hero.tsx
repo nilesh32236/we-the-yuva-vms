@@ -13,22 +13,22 @@ export function Hero() {
         priority
       />
 
-      <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/70 via-emerald-800/60 to-emerald-900/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
 
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.08)_0%,_transparent_70%)]" />
 
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium text-white/80 backdrop-blur-sm mb-6">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-subtle-pulse" />
+          <span className="flex h-2 w-2 rounded-full bg-brand-primary motion-safe:animate-subtle-pulse" />
           India&apos;s fastest-growing volunteer network
         </div>
 
         <h1 className="font-heading text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
           7,000 young Indians are building the communities{' '}
-          <span className="text-emerald-300">they want to live in</span>.
+           <span className="text-brand-primary">they want to live in</span>.
         </h1>
 
-        <p className="mx-auto mt-6 max-w-xl text-lg text-emerald-50/80 leading-relaxed">
+        <p className="mx-auto mt-6 max-w-xl text-lg text-white/80 leading-relaxed">
           WeTheYuva is a volunteer network that gives you real work, real skills, and real
           recognition. Free to join.
         </p>
@@ -36,7 +36,7 @@ export function Hero() {
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/register"
-            className="active-bounce inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-brand-primary/30 transition-colors duration-200 hover:bg-emerald-400 hover:shadow-brand-secondary/40 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+            className="active-bounce inline-flex items-center gap-2 rounded-xl bg-brand-primary px-7 py-3.5 font-semibold text-white shadow-lg shadow-brand-primary/30 transition-colors duration-200 hover:bg-brand-secondary hover:shadow-brand-secondary/40 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             Join as volunteer
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -53,15 +53,15 @@ export function Hero() {
 
         <div className="mt-12 flex items-center justify-center gap-8 text-white/60 text-xs">
           <span className="flex items-center gap-2">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="flex h-1.5 w-1.5 rounded-full bg-brand-primary" />
             200+ NGOs
           </span>
           <span className="flex items-center gap-2">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="flex h-1.5 w-1.5 rounded-full bg-brand-primary" />
             50k+ hours logged
           </span>
           <span className="flex items-center gap-2">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            <span className="flex h-1.5 w-1.5 rounded-full bg-brand-primary" />
             15 states
           </span>
         </div>

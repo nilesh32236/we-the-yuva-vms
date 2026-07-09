@@ -5,8 +5,8 @@ import { useInView } from '@/hooks/useInView';
 const levels = [
   {
     step: 1,
-    color: 'bg-emerald-600',
-    dotColor: 'bg-emerald-600',
+    color: 'bg-brand-primary',
+    dotColor: 'bg-brand-primary',
     title: 'Onboarded',
     desc: "Sign up and attend orientation. You're part of the network.",
     target: '7,000 target',

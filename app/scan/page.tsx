@@ -200,7 +200,7 @@ function ScanInner() {
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'camera'
-                  ? 'bg-brand-surface shadow-sm text-brand'
+                  ? 'bg-brand-surface shadow-sm text-brand-primary'
                   : 'text-gray-500 dark:text-gray-400'
               }`}
             >
@@ -214,7 +214,7 @@ function ScanInner() {
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'manual'
-                  ? 'bg-brand-surface shadow-sm text-brand'
+                  ? 'bg-brand-surface shadow-sm text-brand-primary'
                   : 'text-gray-500 dark:text-gray-400'
               }`}
             >
@@ -252,7 +252,7 @@ function ScanInner() {
                     if (e.key === 'Enter') handleManualSubmit();
                   }}
                   placeholder="Paste or type the check-in code"
-                  className="w-full px-4 py-3 rounded-xl bg-background border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand/40"
+                  className="w-full px-4 py-3 rounded-xl bg-background border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
                 />
               </div>
               <Button

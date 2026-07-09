@@ -45,7 +45,11 @@ export function NetworkStatusIndicator() {
   if (isOnline === null) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-xs px-4">
+    <div
+      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-xs px-4"
+      aria-live="polite"
+      role="status"
+    >
       {/* Offline Alert */}
       {!isOnline && (
         <div className="flex items-center gap-2.5 bg-brand-surface/95 backdrop-blur-md text-brand-error px-4 py-3 rounded-2xl shadow-xl border border-brand-error/20 animate-in slide-in-from-top-4 duration-300 pointer-events-auto">

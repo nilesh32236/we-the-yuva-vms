@@ -139,7 +139,7 @@ export function TopNav() {
       return (
         <button
           type="button"
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted cursor-pointer"
+          className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted cursor-pointer"
           disabled
           aria-label="Toggle theme"
         >
@@ -154,7 +154,7 @@ export function TopNav() {
       <button
         type="button"
         onClick={() => setTheme(isDark ? 'light' : 'dark')}
-        className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer"
+        className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer"
         aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
       >
         {isDark ? (
@@ -203,7 +203,7 @@ export function TopNav() {
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer relative"
+            className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer relative"
             aria-label="Notifications"
             aria-haspopup="true"
             aria-expanded={open}
@@ -327,7 +327,7 @@ export function TopNav() {
         <button
           type="button"
           onClick={logout}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-error/10 hover:text-brand-error transition-colors duration-200 cursor-pointer"
+          className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-error/10 hover:text-brand-error transition-colors duration-200 cursor-pointer"
           aria-label="Log out"
           title="Log out"
         >
