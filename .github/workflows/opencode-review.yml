@@ -7,7 +7,7 @@ on:
     types: [created]
 
 permissions:
-  contents: write
+  contents: read
   pull-requests: write
   issues: write
 
@@ -19,7 +19,7 @@ jobs:
   review:
     if: |
       github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review') || contains(github.event.comment.body || '', '/fix')))
+      (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -31,17 +31,11 @@ jobs:
       - name: Configure git auth for OpenCode
         run: git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
-      - name: Configure git user for commits
-        run: |
-          git config user.name "opencode-review[bot]"
-          git config user.email "opencode-review[bot]@users.noreply.github.com"
-
       - name: Run OpenCode review
         continue-on-error: true
         uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-          OPENCODE_MODE: ${{ (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix')) && 'fix' || 'review' }}
         with:
           model: opencode/deepseek-v4-flash-free
           use_github_token: true
@@ -181,29 +175,6 @@ jobs:
             - Skip sub-agent batching — context overflow WILL happen on large PRs
             - Try to review every file in a single pass
 
-            ## Mode
-
-            Current mode: ${{ env.OPENCODE_MODE }}
-
-            If mode is "review": Only review and report findings. Do NOT apply fixes.
-            If mode is "fix": Review AND apply fixes for all critical and important issues found.
-
-            Fix Instructions (fix mode only):
-            1. Read existing review comments on this PR via `github_pull_request_read` with method `get_reviews`. Parse the issues reported.
-            2. Fix each issue directly in the checked-out branch
-            3. After fixing, run `pnpm typecheck` to verify types
-            4. Run `pnpm lint` to verify formatting
-            5. Commit and push all changes to the branch
-            6. Post a PR comment summarizing what was fixed and what could not be fixed. Include a checklist showing which issues are resolved.
-            7. Write review findings to `.opencode/review-output.jsonl` so the review is posted
-
-            Fix Rules:
-            - Fix only the issues from the existing review
-            - Prefer minimal, targeted fixes over rewrites
-            - Do not add features or change unrelated code
-            - If a fix would require significant refactoring beyond scope, skip and note it
-            - Verify every change compiles before committing
-
       - name: Parse review and post via GitHub Reviews API
         run: |
           # Best-effort — never block CI
@@ -287,5 +258,47 @@ jobs:
           echo "::endgroup::"
 
           echo "Review posted to PR #${PR_NUMBER}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Post fix ticket
+        continue-on-error: true
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number || github.event.issue.number }}"
+          FILE=".opencode/review-output.jsonl"
+          [ -f "$FILE" ] || exit 0
+
+          # Write fix ticket body to temp file
+          cat > /tmp/fix-ticket-body.md << 'ENDOF'
+## 🤖 Fix Ticket
+
+The following issues were found. Comment `/fix` on this PR to auto-fix them:
+
+ENDOF
+          jq -r 'select(.type=="issue") | "- [ ] **\(.severity|ascii_upcase):** \(.file):\(.line) — \(.message)"' "$FILE" >> /tmp/fix-ticket-body.md 2>/dev/null
+          issues_count=$(jq -r 'select(.type=="issue") | .message' "$FILE" 2>/dev/null | wc -l)
+          if [ "$issues_count" -eq 0 ]; then
+            echo "No issues to ticket — skipping"
+            rm -f /tmp/fix-ticket-body.md
+            exit 0
+          fi
+          echo "" >> /tmp/fix-ticket-body.md
+          echo "---" >> /tmp/fix-ticket-body.md
+          echo "_Fix Ticket — updated by \`opencode-fix\` workflow after fixes are applied._" >> /tmp/fix-ticket-body.md
+
+          EXISTING=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+            --jq '.[] | select(.body | startswith("## 🤖 Fix Ticket")) | .id' | head -1)
+
+          if [ -n "$EXISTING" ]; then
+            jq -n --rawfile body /tmp/fix-ticket-body.md '{body: $body}' | \
+              gh api "repos/${{ github.repository }}/issues/comments/${EXISTING}" -X PATCH --input - --silent
+            echo "Fix ticket updated (comment #${EXISTING})"
+          else
+            jq -n --rawfile body /tmp/fix-ticket-body.md '{body: $body}' | \
+              gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" --input - --silent
+            echo "Fix ticket posted"
+          fi
+
+          rm -f /tmp/fix-ticket-body.md
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}

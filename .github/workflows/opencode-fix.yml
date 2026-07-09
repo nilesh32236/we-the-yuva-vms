@@ -1,0 +1,118 @@
+name: opencode-pr-fix
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: opencode-fix-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  fix:
+    if: |
+      github.event_name == 'issue_comment' &&
+      contains(github.event.comment.body || '', '/fix') &&
+      github.event.issue.pull_request != null
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Get PR details
+        id: pr
+        run: |
+          PR_NUMBER="${{ github.event.issue.number }}"
+          HEAD_REF=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.ref')
+          HEAD_SHA=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.sha')
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "head_ref=$HEAD_REF" >> $GITHUB_OUTPUT
+          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.pr.outputs.head_ref }}
+
+      - name: Configure git
+        run: |
+          git config user.name "opencode-fix[bot]"
+          git config user.email "opencode-fix[bot]@users.noreply.github.com"
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Add fix label
+        run: |
+          gh issue edit ${{ steps.pr.outputs.number }} --add-label "autofix" --repo "${{ github.repository }}" 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Run OpenCode fix
+        continue-on-error: true
+        uses: anomalyco/opencode/github@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        with:
+          model: opencode/deepseek-v4-flash-free
+          use_github_token: true
+          prompt: |
+            You are a Senior Code Fixer. Fix issues listed in the "Fix Ticket" comment on PR #${{ steps.pr.outputs.number }}.
+
+            ## Steps
+
+            1. Find the Fix Ticket comment by running: \`gh api "repos/${{ github.repository }}/issues/${{ steps.pr.outputs.number }}/comments"\` and look for the comment whose body starts with "## 🤖 Fix Ticket"
+            2. Parse each issue from the ticket's checklist (lines starting with "- [ ] ")
+            3. For each issue:
+               - Read the referenced file at the reported line
+               - Understand the problem
+               - Apply a minimal fix
+            4. After fixing all issues, run \`pnpm typecheck\` to verify types
+            5. Run \`pnpm lint\` to verify formatting
+            6. Commit all changes with message "fix: apply fixes from PR review" and push to the branch
+            7. Update the Fix Ticket comment: for fixed items change "- [ ] " to "- [x] ", for unfixable items change to "- [ ] ❌ "
+            8. Write findings to \`.opencode/review-output.jsonl\` — one issue line per fixed item so the fix review is posted
+
+            ## Fix Rules
+
+            - Fix only the issues from the Fix Ticket
+            - Prefer minimal, targeted fixes over rewrites
+            - Do not add features or change unrelated code
+            - If fixing requires significant refactoring beyond scope, skip it and mark with ❌
+            - Verify every change compiles before committing
+
+      - name: Post fix review
+        continue-on-error: true
+        run: |
+          FILE=".opencode/review-output.jsonl"
+          [ -f "$FILE" ] || exit 0
+
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+          COMMIT_SHA="${{ steps.pr.outputs.head_sha }}"
+
+          SUMMARY=$(jq -r 'select(.type=="summary")|.text' "$FILE" 2>/dev/null | head -1)
+          [ -z "$SUMMARY" ] && SUMMARY="Fixes applied based on the Fix Ticket."
+
+          jq -c 'select(.type=="issue" and .inline==true and .line>0)|{path:.file|ltrimstr("/"), line:.line, side:"RIGHT", body:("**FIXED**: "+.message+(if .suggestion then "\n\n> "+.suggestion else "" end))}' "$FILE" \
+            | jq -s '{comments:.}' > /tmp/comments.json 2>/dev/null
+
+          {
+            echo "## PR Fix Summary"
+            echo ""
+            echo "${SUMMARY}"
+            echo ""
+            echo "Issues were fixed based on the Fix Ticket. See the ticket comment for the status of each issue."
+          } > /tmp/body.md
+
+          REQUEST=$(jq -n \
+            --arg cid "$COMMIT_SHA" \
+            --rawfile body /tmp/body.md \
+            --slurpfile comments /tmp/comments.json \
+            '{commit_id:$cid, event:"COMMENT", body:$body, comments:($comments[0].comments//[])}')
+
+          echo "$REQUEST" | gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" --input - --silent 2>/dev/null || echo "Fix review post skipped (no review)"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
