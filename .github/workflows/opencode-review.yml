@@ -7,7 +7,7 @@ on:
     types: [created]
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   issues: write
 
@@ -19,7 +19,7 @@ jobs:
   review:
     if: |
       github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')))
+      (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review') || contains(github.event.comment.body || '', '/fix')))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -31,11 +31,17 @@ jobs:
       - name: Configure git auth for OpenCode
         run: git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
+      - name: Configure git user for commits
+        run: |
+          git config user.name "opencode-review[bot]"
+          git config user.email "opencode-review[bot]@users.noreply.github.com"
+
       - name: Run OpenCode review
         continue-on-error: true
         uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          OPENCODE_MODE: ${{ (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix')) && 'fix' || 'review' }}
         with:
           model: opencode/deepseek-v4-flash-free
           use_github_token: true
@@ -174,6 +180,27 @@ jobs:
             - Avoid giving a clear verdict
             - Skip sub-agent batching — context overflow WILL happen on large PRs
             - Try to review every file in a single pass
+
+            ## Mode
+
+            Current mode: ${{ env.OPENCODE_MODE }}
+
+            If mode is "review": Only review and report findings. Do NOT apply fixes.
+            If mode is "fix": Review AND apply fixes for all critical and important issues found.
+
+            Fix Instructions (fix mode only):
+            1. Apply fixes for all critical and important issues you identified
+            2. Fix them directly in the checked-out branch
+            3. After fixing, run `pnpm typecheck` to verify types
+            4. Run `pnpm lint` to verify formatting
+            5. Commit and push all changes to the branch
+
+            Fix Rules:
+            - Fix only the issues from your review
+            - Prefer minimal, targeted fixes over rewrites
+            - Do not add features or change unrelated code
+            - If a fix would require significant refactoring beyond scope, skip and note it
+            - Verify every change compiles before committing
 
       - name: Parse review and post via GitHub Reviews API
         run: |

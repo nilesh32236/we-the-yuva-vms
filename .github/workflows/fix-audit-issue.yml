@@ -21,7 +21,7 @@ jobs:
       (
         (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:critical') && !contains(github.event.issue.labels.*.name, 'autofix')) ||
         (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:important') && !contains(github.event.issue.labels.*.name, 'autofix')) ||
-        (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix'))
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix') && github.event.issue.pull_request == null)
       )
     runs-on: ubuntu-latest
     timeout-minutes: 30
