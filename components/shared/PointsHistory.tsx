@@ -39,7 +39,7 @@ function formatReason(reason: string): string {
 }
 
 export function PointsHistory() {
-  const { data, isLoading, isError } = useQuery<PointTransaction[]>({
+  const { data, isLoading, isError, refetch } = useQuery<PointTransaction[]>({
     queryKey: ['my-points-history'],
     queryFn: () => api.get('/levels/users/me/points/history').then((r) => r.data),
     staleTime: 60_000,
@@ -60,7 +60,29 @@ export function PointsHistory() {
     );
   }
 
-  if (isError) return null;
+  if (isError) {
+    return (
+      <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+        <div className="px-5 py-4 border-b border-brand-border">
+          <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+            <Award className="w-4 h-4 text-brand-primary" /> Points History
+          </h2>
+        </div>
+        <div className="p-4">
+          <div className="flex flex-col items-center gap-3 py-4">
+            <p className="text-sm text-red-600 dark:text-red-400">Failed to load points history</p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="text-sm font-medium text-brand-primary hover:underline cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!data || data.length === 0) {
     return (

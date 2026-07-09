@@ -14,32 +14,33 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { api } from '../../lib/api';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
   COORDINATOR: { label: 'Coordinator', color: 'text-brand-cta', bg: 'bg-brand-cta/10' },
   ORGANIZATION_ADMIN: {
     label: 'Org Admin',
-    color: 'text-indigo-700 dark:text-indigo-400',
-    bg: 'bg-indigo-100 dark:bg-indigo-900/30',
+    color: 'text-brand-accent',
+    bg: 'bg-brand-accent/10',
   },
   PLATFORM_MANAGER: {
     label: 'Manager',
-    color: 'text-teal-700 dark:text-teal-400',
-    bg: 'bg-teal-100 dark:bg-teal-900/30',
+    color: 'text-brand-secondary',
+    bg: 'bg-brand-secondary/10',
   },
   ADMIN: {
     label: 'Admin',
-    color: 'text-purple-700 dark:text-purple-400',
-    bg: 'bg-purple-100 dark:bg-purple-900/30',
+    color: 'text-brand-error',
+    bg: 'bg-brand-error/10',
   },
   OBSERVER: {
     label: 'Observer',
-    color: 'text-slate-700 dark:text-slate-400',
-    bg: 'bg-slate-100 dark:bg-slate-800/50',
+    color: 'text-brand-muted',
+    bg: 'bg-brand-muted/10',
   },
 };
 
@@ -84,6 +85,7 @@ interface BackendNotification {
 
 export function TopNav() {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -91,6 +93,7 @@ export function TopNav() {
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
     refetchInterval: 30000,
+    staleTime: 0,
   });
 
   const { data: notifData } = useQuery({
@@ -98,19 +101,22 @@ export function TopNav() {
     queryFn: () =>
       api.get<{ data: BackendNotification[] }>('/notifications?limit=5').then((r) => r.data),
     enabled: open,
+    staleTime: 0,
   });
 
   const markReadMut = useMutation({
     mutationFn: (id: string) => api.post(`/notifications/${id}/read`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
     },
   });
 
   const markAllReadMut = useMutation({
     mutationFn: () => api.post('/notifications/read-all'),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
     },
   });
 
@@ -251,7 +257,10 @@ export function TopNav() {
                       <button
                         type="button"
                         key={n.id}
-                        onClick={() => markReadMut.mutate(n.id)}
+                        onClick={() => {
+                          markReadMut.mutate(n.id);
+                          if (n.link) router.push(n.link);
+                        }}
                         className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-brand-primary/5' : ''}`}
                         role="menuitem"
                       >

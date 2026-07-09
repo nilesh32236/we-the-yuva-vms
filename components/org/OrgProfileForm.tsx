@@ -54,10 +54,11 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
       toast({ title: 'Organization profile updated successfully' });
       onCancel();
     },
-    onError: (err: { response?: { data?: { error?: string } } }) => {
+    onError: (err: unknown) => {
+      const axiosErr = err as { normalizedMessage?: string };
       toast({
         title: 'Error',
-        description: err?.response?.data?.error || 'Failed to update organization',
+        description: axiosErr?.normalizedMessage ?? 'Failed to update organization',
         variant: 'destructive',
       });
     },
