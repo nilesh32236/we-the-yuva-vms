@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
@@ -301,8 +301,9 @@ interface Location {
 }
 
 function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['locations'],
+  const queryClient = useQueryClient();
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ['opportunities', 'locations'],
     queryFn: () => api.get('/locations').then((r) => r.data.data as Location[]),
     staleTime: 300_000,
   });
@@ -312,6 +313,24 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   const [newDistrict, setNewDistrict] = useState('');
   const [newState, setNewState] = useState('');
   const [creating, setCreating] = useState(false);
+
+  if (isError) {
+    return (
+      <div className="space-y-1.5">
+        <p className="text-sm font-medium text-brand-text">Location</p>
+        <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 px-4 py-3 text-sm text-red-700 dark:text-red-300 flex items-center justify-between">
+          <span>Failed to load locations</span>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="text-sm font-medium underline cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
@@ -328,7 +347,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
       setNewDistrict('');
       setNewState('');
       setShowNewForm(false);
-      refetch();
+      queryClient.invalidateQueries({ queryKey: ['opportunities', 'locations'] });
     } catch {
       // silently fail — save button will show server error
     } finally {

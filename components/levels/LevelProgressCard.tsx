@@ -53,12 +53,30 @@ interface LevelData {
 }
 
 export function LevelProgressCard() {
-  const { data, isLoading } = useQuery<{ data: LevelData }>({
+  const { data, isLoading, isError, refetch } = useQuery<{ data: LevelData }>({
     queryKey: ['my-level'],
     queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
+    staleTime: 60000,
   });
 
   if (isLoading) return <SkeletonCard />;
+
+  if (isError) {
+    return (
+      <div className="bg-brand-surface rounded-2xl border border-red-200 dark:border-red-900/50 p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-red-700 dark:text-red-300">Failed to load level data</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const level = data?.data;
   if (!level) return null;

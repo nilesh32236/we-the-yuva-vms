@@ -91,6 +91,7 @@ export function TopNav() {
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
     refetchInterval: 30000,
+    staleTime: 0,
   });
 
   const { data: notifData } = useQuery({
@@ -98,19 +99,22 @@ export function TopNav() {
     queryFn: () =>
       api.get<{ data: BackendNotification[] }>('/notifications?limit=5').then((r) => r.data),
     enabled: open,
+    staleTime: 0,
   });
 
   const markReadMut = useMutation({
     mutationFn: (id: string) => api.post(`/notifications/${id}/read`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
     },
   });
 
   const markAllReadMut = useMutation({
     mutationFn: () => api.post('/notifications/read-all'),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
     },
   });
 
