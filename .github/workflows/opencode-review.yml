@@ -270,11 +270,11 @@ jobs:
 
           # Write fix ticket body to temp file
           cat > /tmp/fix-ticket-body.md << 'ENDOF'
-## 🤖 Fix Ticket
+          ## 🤖 Fix Ticket
 
-The following issues were found. Comment `/fix` on this PR to auto-fix them:
+          The following issues were found. Comment `/fix` on this PR to auto-fix them:
 
-ENDOF
+          ENDOF
           jq -r 'select(.type=="issue") | "- [ ] **\(.severity|ascii_upcase):** \(.file):\(.line) — \(.message)"' "$FILE" >> /tmp/fix-ticket-body.md 2>/dev/null
           issues_count=$(jq -r 'select(.type=="issue") | .message' "$FILE" 2>/dev/null | wc -l)
           if [ "$issues_count" -eq 0 ]; then
