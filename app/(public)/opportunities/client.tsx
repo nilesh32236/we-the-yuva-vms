@@ -138,14 +138,14 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
 
         {/* Card grid */}
         {filtered.length === 0 ? (
-          <div className="text-center py-16">
+          <div className="text-center py-16" role="status" aria-live="polite" aria-atomic="true">
             <Search className="w-10 h-10 mx-auto mb-3 text-brand-muted/40" aria-hidden="true" />
             <p className="font-medium text-brand-text">No opportunities found</p>
             <p className="text-sm text-brand-muted mt-1">Try adjusting your search or filters</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" role="status" aria-live="polite" aria-atomic="true">
               {paged.map((opp) => (
                 <Link
                   key={opp.id}

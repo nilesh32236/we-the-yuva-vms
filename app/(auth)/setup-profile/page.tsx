@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ArrowRight, Plus, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
@@ -17,11 +17,13 @@ function TagInput({
   onAdd,
   onRemove,
   placeholder,
+  ariaLabel,
 }: {
   tags: string[];
   onAdd: (tag: string) => void;
   onRemove: (tag: string) => void;
   placeholder: string;
+  ariaLabel?: string;
 }) {
   const [input, setInput] = useState('');
 
@@ -60,6 +62,7 @@ function TagInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           aria-describedby="tag-hint"
+          aria-label={ariaLabel}
           className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background
             focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
         />
@@ -104,6 +107,11 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    stepHeadingRef.current?.focus();
+  }, [step]);
 
   const toggleDay = (day: string) =>
     setSelectedDays((prev) =>
@@ -171,7 +179,13 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
                   : 'Availability'}
           </span>
         </div>
-        <div className="h-2 bg-brand-border rounded-full overflow-hidden">
+        <div
+          className="h-2 bg-brand-border rounded-full overflow-hidden"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="h-full bg-brand-primary rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -182,14 +196,17 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
       <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
         {step === 1 && (
           <>
-            <h2 className="font-heading font-semibold text-xl text-brand-text">
+            <h2 ref={stepHeadingRef} tabIndex={-1} className="font-heading font-semibold text-xl text-brand-text focus:outline-none">
               What kind of volunteer are you?
             </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Volunteer type">
               {VOLUNTEER_TYPE_OPTIONS.map((opt) => (
+                // biome-ignore lint/a11y/useSemanticElements: button with role radio is required for custom radio group
                 <button
                   key={opt.id}
                   type="button"
+                  role="radio"
+                  aria-checked={volunteerType === opt.id}
                   onClick={() => setVolunteerType(opt.id)}
                   className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all cursor-pointer
                     ${volunteerType === opt.id ? 'bg-brand-primary/5 border-brand-primary ring-1 ring-brand-primary' : 'border-brand-border hover:border-brand-primary/50'}`}
@@ -212,7 +229,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
 
         {step === 2 && (
           <>
-            <h2 className="font-heading font-semibold text-xl text-brand-text">
+            <h2 ref={stepHeadingRef} tabIndex={-1} className="font-heading font-semibold text-xl text-brand-text focus:outline-none">
               What skills do you have?
             </h2>
             <TagInput
@@ -220,6 +237,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
               onAdd={(t) => setSkills([...skills, t])}
               onRemove={(t) => setSkills(skills.filter((s) => s !== t))}
               placeholder="e.g. Teaching, First Aid..."
+              ariaLabel="Add skills"
             />
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
@@ -239,7 +257,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
 
         {step === 3 && (
           <>
-            <h2 className="font-heading font-semibold text-xl text-brand-text">
+            <h2 ref={stepHeadingRef} tabIndex={-1} className="font-heading font-semibold text-xl text-brand-text focus:outline-none">
               What are your interests?
             </h2>
             <TagInput
@@ -247,6 +265,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
               onAdd={(t) => setInterests([...interests, t])}
               onRemove={(t) => setInterests(interests.filter((i) => i !== t))}
               placeholder="e.g. Education, Health..."
+              ariaLabel="Add interests"
             />
             <div className="space-y-1.5">
               <label htmlFor="education" className="text-sm font-medium text-brand-text">
@@ -290,6 +309,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
                     key={day}
                     type="button"
                     onClick={() => toggleDay(day)}
+                    aria-pressed={selectedDays.includes(day)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer
                       ${selectedDays.includes(day) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
                   >
@@ -304,6 +324,7 @@ function VolunteerProfileForm({ onComplete }: { onComplete: () => void }) {
                     key={slot}
                     type="button"
                     onClick={() => toggleSlot(slot)}
+                    aria-pressed={selectedSlots.includes(slot)}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer
                       ${selectedSlots.includes(slot) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
                   >

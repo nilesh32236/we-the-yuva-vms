@@ -119,7 +119,7 @@ export default function TrainingPage() {
                     </p>
                   </div>
                   {!isLocked && (
-                    <Link href={`/volunteer/training/${course.id}`} className="flex-shrink-0">
+                    <Link href={`/volunteer/training/${course.id}`} className="flex-shrink-0" aria-label={`Go to ${course.title}`}>
                       <ChevronRight className="w-5 h-5 text-brand-muted hover:text-brand-primary transition-colors cursor-pointer" />
                     </Link>
                   )}

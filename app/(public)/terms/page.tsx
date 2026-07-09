@@ -11,12 +11,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function TermsPage() {
   return (
     <>
-      <section className="bg-emerald-800 py-16 sm:py-20">
+      <section className="bg-brand-primary py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h1 className="font-heading text-3xl font-bold text-white sm:text-4xl">
             Terms of Service
           </h1>
-          <p className="mt-3 text-emerald-100/80 text-sm">Last updated: July 2026</p>
+          <p className="mt-3 text-white/80 text-sm">Last updated: July 2026</p>
         </div>
       </section>
 

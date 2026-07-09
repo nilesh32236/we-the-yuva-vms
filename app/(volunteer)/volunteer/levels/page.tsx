@@ -202,7 +202,7 @@ export default function VolunteerLevelsPage() {
 
   if (levelLoading || progressLoading) {
     return (
-      <div className="space-y-6 max-w-5xl">
+      <div className="space-y-6 max-w-5xl" role="status" aria-busy="true">
         <SkeletonCard />
         <SkeletonCard />
         <SkeletonCard />
@@ -288,7 +288,13 @@ export default function VolunteerLevelsPage() {
               {Math.round(progressPct)}%
             </span>
           </div>
-          <div className="h-2.5 bg-brand-border rounded-full overflow-hidden">
+          <div
+            className="h-2.5 bg-brand-border rounded-full overflow-hidden"
+            role="progressbar"
+            aria-valuenow={Math.round(progressPct)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
             <div
               className="h-full rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary transition-all duration-700"
               style={{ width: `${progressPct}%` }}
@@ -379,9 +385,10 @@ export default function VolunteerLevelsPage() {
           <div
             role="dialog"
             aria-modal="true"
+            aria-labelledby="dialog-title"
             className="relative bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4"
           >
-            <h3 className="font-heading font-semibold text-lg text-brand-text">Request Level-Up</h3>
+            <h3 id="dialog-title" className="font-heading font-semibold text-lg text-brand-text">Request Level-Up</h3>
             <p className="text-sm text-brand-muted">
               Provide any notes or proof to support your level-up request.
             </p>

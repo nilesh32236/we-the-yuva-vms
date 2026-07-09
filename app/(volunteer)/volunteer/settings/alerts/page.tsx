@@ -129,6 +129,7 @@ export default function AlertSubscriptionsPage() {
                     setSkills([]);
                   }}
                   className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-surface cursor-pointer transition-colors"
+                  aria-label="Close form"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -180,6 +181,7 @@ export default function AlertSubscriptionsPage() {
                         type="button"
                         onClick={() => setSkills((prev) => prev.filter((x) => x !== s))}
                         className="cursor-pointer text-brand-muted hover:text-brand-text"
+                        aria-label={`Remove ${s}`}
                       >
                         <X className="w-3 h-3" />
                       </button>

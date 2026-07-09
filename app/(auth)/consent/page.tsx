@@ -99,7 +99,7 @@ export default function ConsentPage() {
         {/* Checkboxes */}
         <div className="space-y-3">
           {/* Privacy policy — required */}
-          <label className="flex items-start gap-3 cursor-pointer group focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg">
+          <label className="flex items-start gap-3 cursor-pointer group rounded-lg has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand-primary">
             <div className="relative mt-0.5">
               <input
                 type="checkbox"
@@ -145,7 +145,7 @@ export default function ConsentPage() {
           </label>
 
           {/* Media consent — optional */}
-          <label className="flex items-start gap-3 cursor-pointer group focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg">
+          <label className="flex items-start gap-3 cursor-pointer group rounded-lg has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand-primary">
             <div className="relative mt-0.5">
               <input
                 type="checkbox"

@@ -398,7 +398,7 @@ export default function MentorshipPage() {
             }}
             className={`flex-1 text-sm font-medium py-2 rounded-lg transition-colors cursor-pointer ${
               activeTab === tab.key
-                ? 'bg-brand-primary text-white shadow-sm'
+                ? 'bg-brand-primary text-white dark:text-gray-950 shadow-sm'
                 : 'text-brand-muted hover:text-brand-text'
             }`}
           >

@@ -384,9 +384,10 @@ export default function VolunteerProfilePage() {
               <button
                 type="button"
                 onClick={startEdit}
+                aria-label="Edit profile"
                 className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:bg-brand-bg px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
               >
-                <Edit2 className="w-3.5 h-3.5" /> Edit
+                <Edit2 className="w-3.5 h-3.5" aria-hidden="true" /> Edit
               </button>
             )}
           </div>

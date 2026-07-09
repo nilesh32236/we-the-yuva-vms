@@ -13,28 +13,30 @@ import {
   Wifi,
 } from 'lucide-react';
 import Link from 'next/link';
-import { use } from 'react';
+import { use, useState } from 'react';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 
+
 const CATEGORY_COLORS: Record<string, string> = {
-  EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
-  HEALTH: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-  ENVIRONMENT: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
-  COMMUNITY: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
-  ARTS: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-  SPORTS: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
-  TECHNOLOGY: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300',
-  ACTIVE_CITIZENSHIP: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
-  OTHER: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300',
+  EDUCATION: 'bg-brand-primary/10 text-brand-primary',
+  HEALTH: 'bg-brand-primary/10 text-brand-primary',
+  ENVIRONMENT: 'bg-brand-primary/10 text-brand-primary',
+  COMMUNITY: 'bg-brand-primary/10 text-brand-primary',
+  ARTS: 'bg-brand-primary/10 text-brand-primary',
+  SPORTS: 'bg-brand-primary/10 text-brand-primary',
+  TECHNOLOGY: 'bg-brand-primary/10 text-brand-primary',
+  ACTIVE_CITIZENSHIP: 'bg-brand-primary/10 text-brand-primary',
+  OTHER: 'bg-brand-border/50 text-brand-muted',
 };
 
 export default function OpportunityDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
   const qc = useQueryClient();
+  const [showWithdrawConfirm, setShowWithdrawConfirm] = useState(false);
 
   const { data: opp, isLoading } = useQuery({
     queryKey: ['opportunity', id],
@@ -185,7 +187,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       <Link
         href="/volunteer/opportunities"
         onClick={() => haptic.light()}
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Opportunities
       </Link>
@@ -264,19 +266,28 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                     : '⏳ Application Pending'}
               </div>
               {myApp.status === 'PENDING' && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.confirm('Withdraw your application?')) {
-                      haptic.error();
-                      withdraw.mutate(undefined);
-                    }
-                  }}
-                  disabled={withdraw.isPending}
-                  className="block text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  {withdraw.isPending ? 'Withdrawing…' : 'Withdraw Application'}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setShowWithdrawConfirm(true)}
+                    disabled={withdraw.isPending}
+                    className="block text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {withdraw.isPending ? 'Withdrawing…' : 'Withdraw Application'}
+                  </button>
+                  {showWithdrawConfirm && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="withdraw-title">
+                      <div className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
+                        <h3 id="withdraw-title" className="font-heading font-bold text-lg text-brand-text mb-2">Withdraw Application</h3>
+                        <p className="text-sm text-brand-muted mb-4">Are you sure you want to withdraw your application?</p>
+                        <div className="flex justify-end gap-2">
+                          <button type="button" onClick={() => setShowWithdrawConfirm(false)} className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors">Cancel</button>
+                          <button type="button" onClick={() => { setShowWithdrawConfirm(false); haptic.error(); withdraw.mutate(undefined); }} className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors">Withdraw</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ) : isClosed ? (

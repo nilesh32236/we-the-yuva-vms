@@ -90,8 +90,8 @@ export default function YouthReflectionPage() {
     <div className="max-w-xl mx-auto py-8 px-4 space-y-8">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/30 mb-2">
-          <Sparkles className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-primary/10 mb-2">
+          <Sparkles className="w-6 h-6 text-brand-primary" />
         </div>
         <h1 className="font-heading font-bold text-2xl text-brand-text">
           {alreadyReflected ? 'Update your reflection' : 'Reflect on your journey'}
@@ -105,7 +105,7 @@ export default function YouthReflectionPage() {
         {/* Skills Developed */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-brand-muted">
-            Skills you developed <span className="text-red-500 dark:text-red-400">*</span>
+            Skills you developed <span className="text-brand-error">*</span>
           </p>
           <div className="flex flex-wrap gap-2">
             {SKILL_SUGGESTIONS.map((s) => {
@@ -137,7 +137,7 @@ export default function YouthReflectionPage() {
         {/* Growth Areas */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-brand-muted">
-            Areas where you grew <span className="text-red-500 dark:text-red-400">*</span>
+            Areas where you grew <span className="text-brand-error">*</span>
           </p>
           <div className="flex flex-wrap gap-2">
             {GROWTH_AREAS.map((g) => {
@@ -152,7 +152,7 @@ export default function YouthReflectionPage() {
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
                     ${
                       isSelected
-                        ? 'bg-purple-50 border-2 border-purple-500 text-purple-700 shadow-sm'
+                        ? 'bg-brand-primary/10 border-2 border-brand-primary text-brand-primary shadow-sm'
                         : atLimit
                           ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
                           : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
@@ -169,7 +169,7 @@ export default function YouthReflectionPage() {
         {/* Confidence Level */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-brand-muted">
-            Confidence level <span className="text-red-500 dark:text-red-400">*</span>
+            Confidence level <span className="text-brand-error">*</span>
           </p>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
@@ -178,6 +178,7 @@ export default function YouthReflectionPage() {
                 type="button"
                 onClick={() => setConfidenceLevel(star)}
                 className="cursor-pointer p-1"
+                aria-label={`Rate ${star} out of 5`}
               >
                 <Star
                   className={`w-8 h-8 transition-all ${

@@ -45,7 +45,7 @@ export default function EditBlogPostPage() {
           >
             View post &rarr;
           </a>
-        ) as unknown as string,
+        ),
       });
     },
     onError: (err) => {

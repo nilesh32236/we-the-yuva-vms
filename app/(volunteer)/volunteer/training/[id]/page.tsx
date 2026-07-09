@@ -136,8 +136,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
               {currentLesson.type === 'VIDEO' && currentLesson.mediaUrl && (
                 <div className="rounded-xl border border-brand-border overflow-hidden bg-brand-bg">
+                  {/* biome-ignore lint/a11y/useMediaCaption: no captions available for volunteer training videos */}
                   <video controls className="w-full aspect-video" src={currentLesson.mediaUrl}>
-                    <track kind="captions" />
                     Your browser does not support the video tag.
                   </video>
                 </div>

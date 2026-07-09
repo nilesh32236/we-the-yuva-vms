@@ -165,6 +165,7 @@ export default function YouthAssessmentPage() {
               placeholder="What do you hope to gain from your volunteering journey?"
               rows={3}
               maxLength={500}
+              aria-label="Learning goals"
               className="w-full rounded-xl border border-brand-border bg-background px-4 py-3 text-sm
                 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
             />

@@ -15,7 +15,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-brand-bg py-12">
+      <div className="min-h-screen bg-brand-bg py-12" role="status" aria-busy="true">
         <div className="mx-auto max-w-3xl px-4 space-y-4">
           <div className="h-8 w-32 bg-brand-border rounded animate-pulse" />
           <div className="h-10 w-3/4 bg-brand-border rounded animate-pulse" />
@@ -104,7 +104,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
           )}
 
           <div
-            className="prose prose-sm sm:prose max-w-none blog-content text-brand-text leading-relaxed"
+            className="prose prose-sm sm:prose dark:prose-invert max-w-none blog-content text-brand-text leading-relaxed"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </article>

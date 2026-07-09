@@ -8,7 +8,7 @@ const TOAST_REMOVE_DELAY = 5000;
 type ToastProps = {
   id: string;
   title?: string;
-  description?: string;
+  description?: string | React.ReactNode;
   variant?: 'default' | 'destructive';
   open?: boolean;
   onOpenChange?: (open: boolean) => void;

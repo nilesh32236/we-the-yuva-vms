@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Award, ExternalLink, Share2 } from 'lucide-react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
@@ -17,6 +17,7 @@ interface Certificate {
 }
 
 export default function CertificatesPage() {
+  const router = useRouter();
   const { data, isLoading } = useQuery<{ data: Certificate[] }>({
     queryKey: ['certificates'],
     queryFn: () => api.get('/certificates').then((r) => r.data),
@@ -95,17 +96,18 @@ export default function CertificatesPage() {
               </div>
 
               <div className="flex gap-2">
-                <Link href={`/volunteer/certificates/${cert.id}`} className="flex-1">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => haptic.light()}
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" /> View
-                  </Button>
-                </Link>
-                <Button variant="outline" size="sm" onClick={() => handleShare(cert)}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => {
+                    haptic.light();
+                    router.push(`/volunteer/certificates/${cert.id}`);
+                  }}
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> View
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleShare(cert)} aria-label="Share certificate">
                   <Share2 className="w-3.5 h-3.5" />
                 </Button>
               </div>

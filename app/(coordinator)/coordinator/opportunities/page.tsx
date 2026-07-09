@@ -144,14 +144,14 @@ export default function CoordinatorOpportunitiesPage() {
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/applications`}
                                 className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
-                                title="View Applications"
+                                aria-label={`View applications for ${opp.title}`}
                               >
                                 <Users className="w-4 h-4" aria-hidden="true" />
                               </Link>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/edit`}
                                 className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
-                                title="Edit"
+                                aria-label={`Edit ${opp.title}`}
                               >
                                 <Pencil className="w-4 h-4" aria-hidden="true" />
                               </Link>
@@ -160,7 +160,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 disabled={closing === opp.id}
                                 className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
-                                title="Close"
+                                aria-label={`Close ${opp.title}`}
                               >
                                 <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </button>
@@ -180,9 +180,9 @@ export default function CoordinatorOpportunitiesPage() {
       <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
 
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="confirm-opp-title">
           <div className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
-            <h3 className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
+            <h3 id="confirm-opp-title" className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
             <p className="text-sm text-brand-muted mb-4">
               Close &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>

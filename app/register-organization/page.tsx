@@ -351,21 +351,14 @@ export default function RegisterOrganizationPage() {
                     );
                   }
                   return (
-                    // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
                     <div
-                      role="button"
-                      tabIndex={d.error ? 0 : undefined}
-                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
-                      onClick={d.error ? () => retryUpload(d) : undefined}
-                      onKeyDown={
-                        d.error
-                          ? (e) => {
-                              if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
-                            }
-                          : undefined
-                      }
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error' : 'border-brand-border'}`}
                     >
-                      <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={d.error ? () => retryUpload(d) : undefined}
+                        className="flex items-center gap-2 flex-1 text-left cursor-pointer"
+                      >
                         <FileText className="w-4 h-4 text-brand-primary" />
                         <div>
                           <span className="text-sm text-brand-text">{d.fileName}</span>
@@ -374,14 +367,11 @@ export default function RegisterOrganizationPage() {
                         {d.uploading && (
                           <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
                         )}
-                      </div>
+                      </button>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'));
-                        }}
-                        className="text-xs text-brand-error hover:underline"
+                        onClick={() => removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'))}
+                        className="text-xs text-brand-error hover:underline cursor-pointer"
                       >
                         Remove
                       </button>
@@ -407,21 +397,14 @@ export default function RegisterOrganizationPage() {
                     );
                   }
                   return (
-                    // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
                     <div
-                      role="button"
-                      tabIndex={d.error ? 0 : undefined}
-                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
-                      onClick={d.error ? () => retryUpload(d) : undefined}
-                      onKeyDown={
-                        d.error
-                          ? (e) => {
-                              if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
-                            }
-                          : undefined
-                      }
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error' : 'border-brand-border'}`}
                     >
-                      <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={d.error ? () => retryUpload(d) : undefined}
+                        className="flex items-center gap-2 flex-1 text-left cursor-pointer"
+                      >
                         <FileText className="w-4 h-4 text-brand-primary" />
                         <div>
                           <span className="text-sm text-brand-text">{d.fileName}</span>
@@ -430,14 +413,11 @@ export default function RegisterOrganizationPage() {
                         {d.uploading && (
                           <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
                         )}
-                      </div>
+                      </button>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'));
-                        }}
-                        className="text-xs text-brand-error hover:underline"
+                        onClick={() => removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'))}
+                        className="text-xs text-brand-error hover:underline cursor-pointer"
                       >
                         Remove
                       </button>
@@ -464,21 +444,14 @@ export default function RegisterOrganizationPage() {
                     );
                   }
                   return (
-                    // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
                     <div
-                      role="button"
-                      tabIndex={d.error ? 0 : undefined}
-                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
-                      onClick={d.error ? () => retryUpload(d) : undefined}
-                      onKeyDown={
-                        d.error
-                          ? (e) => {
-                              if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
-                            }
-                          : undefined
-                      }
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error' : 'border-brand-border'}`}
                     >
-                      <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={d.error ? () => retryUpload(d) : undefined}
+                        className="flex items-center gap-2 flex-1 text-left cursor-pointer"
+                      >
                         <FileText className="w-4 h-4 text-brand-primary" />
                         <div>
                           <span className="text-sm text-brand-text">{d.fileName}</span>
@@ -487,14 +460,11 @@ export default function RegisterOrganizationPage() {
                         {d.uploading && (
                           <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />
                         )}
-                      </div>
+                      </button>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeDoc(docs.findIndex((x) => x.type === 'OTHER'));
-                        }}
-                        className="text-xs text-brand-error hover:underline"
+                        onClick={() => removeDoc(docs.findIndex((x) => x.type === 'OTHER'))}
+                        className="text-xs text-brand-error hover:underline cursor-pointer"
                       >
                         Remove
                       </button>

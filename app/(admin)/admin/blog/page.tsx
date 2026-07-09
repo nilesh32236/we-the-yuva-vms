@@ -36,7 +36,7 @@ export default function AdminBlogPage() {
           >
             View post &rarr;
           </a>
-        ) as unknown as string,
+        ),
       });
     },
     onError: (err) => {

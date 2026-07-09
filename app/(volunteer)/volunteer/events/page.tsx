@@ -21,9 +21,9 @@ import { haptic } from '@/lib/haptic';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  SCHEDULED: 'bg-brand-primary/10 text-brand-primary',
   COMPLETED: 'bg-brand-primary/10 text-brand-primary',
-  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+  CANCELLED: 'bg-brand-error/10 text-brand-error',
 };
 
 function getLocation(): Promise<{ lat: number; lng: number } | null> {
@@ -130,8 +130,8 @@ function EventRow({ event }: { event: VolunteerEvent }) {
             Completed
           </span>
         ) : isCheckedIn ? (
-          <span className="text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-full flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> Checked In
+          <span className="text-xs font-semibold bg-brand-accent/10 text-brand-accent px-2.5 py-1 rounded-full flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" /> Checked In
           </span>
         ) : null}
       </div>

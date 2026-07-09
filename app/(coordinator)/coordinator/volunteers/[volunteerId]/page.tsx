@@ -43,7 +43,7 @@ export default function VolunteerDetailPage({
         {/* Header */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-brand-primary flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-heading font-bold text-xl">
+            <span className="text-white dark:text-gray-950 font-heading font-bold text-xl">
               {profile?.name
                 ?.split(' ')
                 .map((n: string) => n[0])

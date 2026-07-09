@@ -186,7 +186,7 @@ export default function RegisterPage() {
             <span className="text-sm font-medium text-brand-text">I want to join as</span>
             <div className="grid grid-cols-2 gap-3">
               <label
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand-primary has-[input:focus-visible]:ring-offset-2
                   ${
                     selectedRole === 'VOLUNTEER'
                       ? 'border-brand-primary bg-brand-primary/5'
@@ -201,7 +201,7 @@ export default function RegisterPage() {
                 </span>
               </label>
               <label
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all has-[input:focus-visible]:ring-2 has-[input:focus-visible]:ring-brand-primary has-[input:focus-visible]:ring-offset-2
                   ${
                     selectedRole === 'ORGANIZATION_ADMIN'
                       ? 'border-brand-primary bg-brand-primary/5'

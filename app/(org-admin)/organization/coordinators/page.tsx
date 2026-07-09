@@ -22,6 +22,7 @@ export default function OrganizationCoordinatorsPage() {
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '' });
+  const [removeConfirm, setRemoveConfirm] = useState<Coordinator | null>(null);
 
   const orgId = user?.organizationId;
 
@@ -191,11 +192,7 @@ export default function OrganizationCoordinatorsPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (confirm(`Are you sure you want to remove ${c.name}?`)) {
-                      removeMut.mutate(c.id);
-                    }
-                  }}
+                  onClick={() => setRemoveConfirm(c)}
                   className="p-2 text-brand-muted hover:text-brand-error hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                   aria-label="Remove coordinator"
                 >
@@ -204,6 +201,19 @@ export default function OrganizationCoordinatorsPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {removeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="remove-title">
+          <div className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
+            <h3 id="remove-title" className="font-heading font-bold text-lg text-brand-text mb-2">Remove Coordinator</h3>
+            <p className="text-sm text-brand-muted mb-4">Are you sure you want to remove {removeConfirm.name}?</p>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setRemoveConfirm(null)} className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors">Cancel</button>
+              <button type="button" onClick={() => { removeMut.mutate(removeConfirm.id); setRemoveConfirm(null); }} className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors">Remove</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

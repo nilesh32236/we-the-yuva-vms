@@ -98,7 +98,7 @@ export default function LoginPage() {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-text/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-4 left-4 right-4">
           <p className="text-white font-heading font-semibold text-lg leading-tight">
             Connecting volunteers with purpose
