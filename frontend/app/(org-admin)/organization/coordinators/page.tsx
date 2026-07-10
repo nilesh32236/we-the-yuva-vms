@@ -7,7 +7,6 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
-import { Button } from '../../../../components/ui/Button';
 import type { AxiosError } from 'axios';
 
 interface Coordinator {
@@ -84,12 +83,13 @@ export default function OrganizationCoordinatorsPage() {
     <div className="space-y-6 max-w-5xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-2xl text-brand-text">Coordinators</h1>
-        <Button
+        <button
+          type="button"
           onClick={() => setIsAdding(true)}
-          className="rounded-xl shadow-sm"
+          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary active-bounce transition-all shadow-sm cursor-pointer"
         >
           <UserPlus className="w-4 h-4" aria-hidden="true" /> Add Coordinator
-        </Button>
+        </button>
       </div>
 
       {isAdding && (
@@ -132,19 +132,20 @@ export default function OrganizationCoordinatorsPage() {
               />
             </div>
             <div className="sm:col-span-2 flex justify-end gap-3 mt-2">
-              <Button
-                variant="ghost"
+              <button
+                type="button"
                 onClick={() => setIsAdding(false)}
+                className="px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
-                loading={addMut.isPending}
-                className="rounded-xl shadow-sm"
+                disabled={addMut.isPending}
+                className="bg-brand-primary text-white text-sm font-semibold px-6 py-2 rounded-xl hover:bg-brand-secondary disabled:opacity-50 active-bounce transition-all shadow-sm cursor-pointer"
               >
-                Save Coordinator
-              </Button>
+                {addMut.isPending ? 'Adding...' : 'Save Coordinator'}
+              </button>
             </div>
           </form>
         </div>
@@ -188,18 +189,18 @@ export default function OrganizationCoordinatorsPage() {
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                   {c.status}
                 </span>
-                <Button
-                  variant="icon"
+                <button
+                  type="button"
                   onClick={() => {
                     if (confirm(`Are you sure you want to remove ${c.name}?`)) {
                       removeMut.mutate(c.id);
                     }
                   }}
-                  className="hover:text-brand-error hover:bg-red-50 dark:hover:bg-red-950/30"
+                  className="p-2 text-brand-muted hover:text-brand-error hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                   aria-label="Remove coordinator"
                 >
                   <Trash2 className="w-4 h-4" aria-hidden="true" />
-                </Button>
+                </button>
               </div>
             </div>
           ))}

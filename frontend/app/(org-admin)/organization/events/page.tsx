@@ -6,7 +6,6 @@ import { useState } from 'react';
 import Pagination from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api, downloadCsv } from '@/lib/api';
-import { Button } from '@/components/ui/Button';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
@@ -26,14 +25,14 @@ export default function OrgAdminEventsPage() {
     <div className="space-y-5 max-w-6xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Events</h1>
-        <Button
-          variant="outline"
+        <button
+          type="button"
           onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
-          className="gap-1.5 rounded-xl border-brand-border text-brand-muted hover:text-brand-text"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg transition-colors active-bounce"
         >
           <Download className="w-4 h-4" aria-hidden="true" />
           Export CSV
-        </Button>
+        </button>
       </div>
 
       {isLoading ? (
