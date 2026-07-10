@@ -287,6 +287,15 @@ export async function upsertStaffProfile(userId: string, data: StaffProfileInput
 export async function submitOnboarding(userId: string, data: OnboardingInput) {
   const { step1, step2, step3, step4, step5, step6, step7 } = data;
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { roleRef: { select: { name: true } } },
+  });
+
+  if (!user || user.roleRef.name !== 'VOLUNTEER') {
+    throw new AppError('Only volunteers can submit onboarding', 403);
+  }
+
   return prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: userId },
@@ -303,15 +312,8 @@ export async function submitOnboarding(userId: string, data: OnboardingInput) {
         days: step4.daysAvailable,
         timeSlots: step4.preferredTime,
       },
-      bio: step5.motivations.join(', '),
       details: {
-        ...step1,
-        ...step2,
-        ...step3,
-        ...step4,
-        ...step5,
-        ...step6,
-        ...step7,
+        steps: { step1, step2, step3, step4, step5, step6, step7 },
         onboardingCompletedAt: new Date().toISOString(),
       },
     };

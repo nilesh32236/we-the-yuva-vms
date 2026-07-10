@@ -77,7 +77,7 @@ export const OnboardingSchema = z.object({
   step1: z.object({
     fullName: z.string().min(2, 'Name must be at least 2 characters').max(100),
     gender: z.enum(GENDERS, { errorMap: () => ({ message: 'Please select gender' }) }),
-    dateOfBirth: z.string().min(1, 'Date of birth is required'),
+    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use YYYY-MM-DD format'),
     mobile: z.string().min(10, 'Valid mobile number required').max(15),
     profilePhoto: z.string().optional(),
     address: z.string().min(5, 'Address is required').max(500),

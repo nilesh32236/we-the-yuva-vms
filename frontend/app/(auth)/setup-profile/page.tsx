@@ -214,7 +214,7 @@ export default function SetupProfilePage() {
           educationDetail: ['STUDENT'].includes(s2.currentStatus)
             ? { institutionName: s2.institutionName, course: s2.course, year: s2.year, address: s2.collegeAddress }
             : undefined,
-          professionalDetail: ['WORKING_PROFESSIONAL', 'CORPORATE_CSR'].includes(s2.currentStatus)
+          professionalDetail: ['WORKING_PROFESSIONAL'].includes(s2.currentStatus)
             ? { companyName: s2.companyName, designation: s2.designation, industry: s2.industry, officeAddress: s2.officeAddress }
             : undefined,
           selfEmployedDetail: s2.currentStatus === 'SELF_EMPLOYED'
@@ -261,8 +261,8 @@ export default function SetupProfilePage() {
           comfortableOnline: s6.comfortableOnline,
         },
         step7: {
-          privacyPolicyAccepted: true,
-          codeOfConductAccepted: true,
+          privacyPolicyAccepted: s7.privacyPolicyAccepted,
+          codeOfConductAccepted: s7.codeOfConductAccepted,
           mediaConsentAccepted: s7.mediaConsentAccepted,
           whatsappConsentAccepted: s7.whatsappConsentAccepted,
           linkedinUrl: s7.linkedinUrl || undefined,
@@ -403,6 +403,8 @@ export default function SetupProfilePage() {
                   ? 'bg-brand-primary/10 text-brand-primary cursor-pointer'
                   : 'bg-brand-border/30 text-brand-muted'
             }`}
+            aria-current={i === step ? 'step' : undefined}
+            aria-label={i < step ? `Go to ${s.label}` : undefined}
           >
             <s.icon className="w-3 h-3" />
             {s.label}
@@ -456,7 +458,7 @@ export default function SetupProfilePage() {
                 </div>
               )}
 
-              {['WORKING_PROFESSIONAL', 'CORPORATE_CSR'].includes(s2.currentStatus) && (
+              {s2.currentStatus === 'WORKING_PROFESSIONAL' && (
                 <div className="border border-brand-border rounded-xl p-4 space-y-4">
                   <p className="text-sm font-semibold text-brand-text">Professional Details</p>
                   {commonInput('Company Name', s2.companyName, (v) => setS2({ ...s2, companyName: v }), 'Company name')}
