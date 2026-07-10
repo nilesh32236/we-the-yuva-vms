@@ -1,6 +1,7 @@
 export * from './schemas/admin.schemas';
 export * from './schemas/alerts.schemas';
 export * from './schemas/auth.schemas';
+export * from './schemas/onboarding.schemas';
 export * from './schemas/blog.schemas';
 export * from './schemas/feedback.schemas';
 export * from './schemas/levels.schemas';

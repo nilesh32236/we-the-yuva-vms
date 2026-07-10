@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, ArrowRight, Building2, Mail, User, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Mail, User, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -181,47 +181,7 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Role selector */}
-          <div className="space-y-1.5">
-            <span className="text-sm font-medium text-brand-text">I want to join as</span>
-            <div className="grid grid-cols-2 gap-3">
-              <label
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${
-                    selectedRole === 'VOLUNTEER'
-                      ? 'border-brand-primary bg-brand-primary/5'
-                      : 'border-brand-border hover:border-brand-muted'
-                  }`}
-              >
-                <input type="radio" value="VOLUNTEER" className="sr-only" {...register('role')} />
-                <Users className="w-5 h-5 text-brand-primary" />
-                <span className="text-sm font-medium text-brand-text">Volunteer</span>
-                <span className="text-xs text-brand-muted text-center">
-                  Find opportunities and track impact
-                </span>
-              </label>
-              <label
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                  ${
-                    selectedRole === 'ORGANIZATION_ADMIN'
-                      ? 'border-brand-primary bg-brand-primary/5'
-                      : 'border-brand-border hover:border-brand-muted'
-                  }`}
-              >
-                <input
-                  type="radio"
-                  value="ORGANIZATION_ADMIN"
-                  className="sr-only"
-                  {...register('role')}
-                />
-                <Building2 className="w-5 h-5 text-brand-primary" />
-                <span className="text-sm font-medium text-brand-text">Organization</span>
-                <span className="text-xs text-brand-muted text-center">
-                  Register and manage your organization
-                </span>
-              </label>
-            </div>
-          </div>
+          <input type="hidden" {...register('role')} />
 
           <Button type="submit" variant="cta" fullWidth loading={isLoading}>
             Create Account

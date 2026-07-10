@@ -1,6 +1,7 @@
 import { type IRouter, Router } from 'express';
 import { z } from 'zod';
 import {
+  OnboardingSchema,
   StaffProfileSchema,
   UpdateMeSchema,
   VOLUNTEER_TYPES,
@@ -18,6 +19,7 @@ import {
   getCoordinatorVolunteersHandler,
   getMeHandler,
   getUserProfileHandler,
+  submitOnboardingHandler,
   updateMeHandler,
   updateStaffProfile,
   updateVolunteerProfile,
@@ -91,6 +93,13 @@ usersRouter.put(
   requirePermission(Permissions.USER_PROFILE_MANAGE),
   validate(VolunteerProfileSchema),
   updateVolunteerProfile
+);
+
+usersRouter.post(
+  '/me/onboarding',
+  requirePermission(Permissions.USER_PROFILE_MANAGE),
+  validate(OnboardingSchema),
+  submitOnboardingHandler
 );
 
 usersRouter.post(
