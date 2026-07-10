@@ -4,8 +4,12 @@ export const GetCourseSchema = z.object({}).optional();
 
 export const CompleteLessonSchema = z
   .object({
-    timeSpent: z.number().positive().optional(),
-    quizScore: z.number().min(0).max(100).optional(),
+    timeSpent: z.number().positive('Time spent must be a positive number').optional(),
+    quizScore: z
+      .number()
+      .min(0, 'Score cannot be negative')
+      .max(100, 'Score cannot exceed 100')
+      .optional(),
   })
   .optional();
 
@@ -24,7 +28,7 @@ export const UpdateCourseSchema = z.object({
     .enum(['GENERAL', 'ORIENTATION', 'SAFETY', 'LEADERSHIP', 'SKILLS', 'OTHER'])
     .optional(),
   isRequired: z.boolean().optional(),
-  order: z.number().int().optional(),
+  order: z.number().int('Order must be a whole number').optional(),
 });
 
 export const CreateLessonSchema = z.object({
@@ -32,7 +36,7 @@ export const CreateLessonSchema = z.object({
   content: z.string().min(1, 'Content is required'),
   type: z.enum(['TEXT', 'VIDEO', 'PDF']).optional(),
   mediaUrl: z.string().url('Must be a valid URL').optional(),
-  order: z.number().int().optional(),
+  order: z.number().int('Order must be a whole number').optional(),
 });
 
 export const UpdateLessonSchema = z.object({
@@ -40,5 +44,5 @@ export const UpdateLessonSchema = z.object({
   content: z.string().min(1, 'Content is required').optional(),
   type: z.enum(['TEXT', 'VIDEO', 'PDF']).optional(),
   mediaUrl: z.string().url('Must be a valid URL').optional(),
-  order: z.number().int().optional(),
+  order: z.number().int('Order must be a whole number').optional(),
 });

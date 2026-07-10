@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type { AdminCreateUserSchema, AdminUserUpdateSchema } from '../schemas/admin.schemas';
+import type { USER_ROLES, USER_STATUSES } from '../schemas/admin.schemas';
 import type {
   AlertSubscriptionSchema,
   AlertSubscriptionUpdateSchema,
@@ -27,15 +28,18 @@ import type {
   EventSchema,
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
+import type { ORGANIZATION_STATUSES } from '../schemas/organization.schemas';
 import type {
   OrganizationDocumentSchema,
   RegisterOrganizationSchema,
 } from '../schemas/organization.schemas';
+import type { VOLUNTEER_TYPES } from '../schemas/profile.schemas';
 import type {
   StaffProfileSchema,
   UpdateMeSchema,
   VolunteerProfileSchema,
 } from '../schemas/profile.schemas';
+import type { YouthProfileSchema } from '../schemas/youth.schemas';
 import type {
   CreateStorySchema,
   ModerateStorySchema,
@@ -75,6 +79,7 @@ export type PushUnsubscribeInput = z.infer<typeof PushUnsubscribeSchema>;
 export type NotificationPreferenceInput = z.infer<typeof NotificationPreferenceSchema>;
 export type AlertSubscriptionInput = z.infer<typeof AlertSubscriptionSchema>;
 export type AlertSubscriptionUpdateInput = z.infer<typeof AlertSubscriptionUpdateSchema>;
+export type YouthProfileInput = z.infer<typeof YouthProfileSchema>;
 export type CheckInInput = z.infer<typeof CheckInSchema>;
 export type CheckOutInput = z.infer<typeof CheckOutSchema>;
 export type ApplyInput = z.infer<typeof ApplySchema>;
@@ -84,19 +89,7 @@ export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
 export type CreateLessonInput = z.infer<typeof CreateLessonSchema>;
 export type UpdateLessonInput = z.infer<typeof UpdateLessonSchema>;
 
-export type UserRole =
-  | 'VOLUNTEER'
-  | 'COORDINATOR'
-  | 'ORGANIZATION_ADMIN'
-  | 'PLATFORM_MANAGER'
-  | 'ADMIN'
-  | 'OBSERVER';
-export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
-export type VolunteerType =
-  | 'STUDENT'
-  | 'PROFESSIONAL'
-  | 'EVENT'
-  | 'RECURRING'
-  | 'REMOTE'
-  | 'EMERGENCY';
-export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED';
+export type UserRole = (typeof USER_ROLES)[number];
+export type UserStatus = (typeof USER_STATUSES)[number];
+export type VolunteerType = (typeof VOLUNTEER_TYPES)[number];
+export type OrganizationStatus = (typeof ORGANIZATION_STATUSES)[number];

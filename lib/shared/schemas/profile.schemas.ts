@@ -30,7 +30,7 @@ export const VolunteerProfileSchema = z.object({
     timeSlots: z.array(z.enum(TIME_SLOTS)).min(1, 'Please select at least one time slot'),
   }),
   bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
-  education: z.string().max(200).optional(),
+  education: z.string().max(200, 'Education must be 200 characters or less').optional(),
 });
 
 export const StaffProfileSchema = z.object({
@@ -44,5 +44,9 @@ export const StaffProfileSchema = z.object({
 export const UpdateMeSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   email: z.string().email('Invalid email').optional(),
-  volunteerType: z.enum(VOLUNTEER_TYPES).optional(),
+  volunteerType: z
+    .enum(VOLUNTEER_TYPES, {
+      errorMap: () => ({ message: 'Please select a valid volunteer type' }),
+    })
+    .optional(),
 });

@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const RegisterSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
   email: z.string().email('Please enter a valid email address'),
-  role: z.enum(['VOLUNTEER', 'ORGANIZATION_ADMIN']).optional(),
+  role: z.enum(['VOLUNTEER', 'ORGANIZATION_ADMIN']).optional().default('VOLUNTEER'),
 });
 
 export const SendOtpSchema = z.object({
@@ -22,5 +22,5 @@ export const ConsentSchema = z.object({
   privacyPolicyAccepted: z.literal(true, {
     errorMap: () => ({ message: 'You must accept the privacy policy to continue' }),
   }),
-  mediaConsentAccepted: z.boolean(),
+  mediaConsentAccepted: z.boolean().default(false),
 });

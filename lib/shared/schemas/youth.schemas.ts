@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export const ASPIRATIONS = [
   'Leadership',
   'Communication',
@@ -23,3 +25,14 @@ export const GROWTH_AREAS = [
   'Networking',
   'Resilience',
 ] as const;
+
+export const YouthProfileSchema = z.object({
+  aspirations: z
+    .array(z.enum(ASPIRATIONS))
+    .min(1, 'Please select at least one aspiration')
+    .max(5, 'Maximum 5 aspirations'),
+  growthAreas: z
+    .array(z.enum(GROWTH_AREAS))
+    .min(1, 'Please select at least one growth area')
+    .max(5, 'Maximum 5 growth areas'),
+});

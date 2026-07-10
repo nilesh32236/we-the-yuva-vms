@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { api } from './api';
 
 interface QueuedCheckin {
@@ -78,7 +79,15 @@ export async function syncQueuedCheckins(): Promise<{ synced: number; failed: nu
       });
       await removeQueuedCheckin(item.id!);
       synced++;
-    } catch {
+    } catch (error) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response?.status &&
+        error.response.status >= 400 &&
+        error.response.status < 500
+      ) {
+        await removeQueuedCheckin(item.id!);
+      }
       failed++;
     }
   }

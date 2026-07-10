@@ -114,6 +114,11 @@ api.interceptors.response.use(
       } else {
         error.normalizedMessage =
           data?.error ?? data?.message ?? 'Something went wrong. Please try again.';
+        const fieldErrors =
+          data?.errors && typeof data.errors === 'object' ? data.errors : undefined;
+        if (fieldErrors) {
+          error.fieldErrors = fieldErrors;
+        }
       }
     }
     return Promise.reject(error);

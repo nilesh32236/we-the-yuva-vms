@@ -24,7 +24,10 @@ export const OpportunitySchema = z
       .min(1, 'Please add at least one skill')
       .max(10, 'Maximum 10 skills allowed'),
     category: z.enum(OPPORTUNITY_CATEGORIES),
-    locationId: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+    locationId: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string({ invalid_type_error: 'Location must be a string' }).optional()
+    ),
     startDate: z
       .string()
       .datetime()
@@ -32,7 +35,7 @@ export const OpportunitySchema = z
     endDate: z.string().datetime(),
     hoursPerSession: z.number().positive('Hours per session must be positive'),
     totalSlots: z.number().int().positive('Total slots must be a positive integer'),
-    isRemote: z.boolean(),
+    isRemote: z.boolean().default(false),
   })
   .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
     message: 'End date must be after start date',
@@ -51,7 +54,7 @@ export const EventSchema = z
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
     venue: z.string().max(200, 'Venue name too long').optional(),
     capacity: z.number().int().positive('Capacity must be a positive integer'),
-    isVirtual: z.boolean(),
+    isVirtual: z.boolean().default(false),
     meetingLink: z.string().url('Must be a valid URL').optional(),
   })
   .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
@@ -73,7 +76,7 @@ export const AttendanceSchema = z.object({
   attendances: z
     .array(
       z.object({
-        volunteerId: z.string(),
+        volunteerId: z.string().min(1, 'Volunteer ID is required'),
         attended: z.boolean(),
       })
     )
@@ -81,12 +84,28 @@ export const AttendanceSchema = z.object({
 });
 
 export const CheckInSchema = z.object({
-  lat: z.coerce.number().optional(),
-  lng: z.coerce.number().optional(),
-  qrToken: z.string().optional(),
+  lat: z.coerce
+    .number()
+    .min(-90, 'Latitude must be >= -90')
+    .max(90, 'Latitude must be <= 90')
+    .optional(),
+  lng: z.coerce
+    .number()
+    .min(-180, 'Longitude must be >= -180')
+    .max(180, 'Longitude must be <= 180')
+    .optional(),
+  qrToken: z.string().min(1, 'QR token cannot be empty').optional(),
 });
 
 export const CheckOutSchema = z.object({
-  lat: z.coerce.number().optional(),
-  lng: z.coerce.number().optional(),
+  lat: z.coerce
+    .number()
+    .min(-90, 'Latitude must be >= -90')
+    .max(90, 'Latitude must be <= 90')
+    .optional(),
+  lng: z.coerce
+    .number()
+    .min(-180, 'Longitude must be >= -180')
+    .max(180, 'Longitude must be <= 180')
+    .optional(),
 });

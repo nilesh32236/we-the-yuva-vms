@@ -13,6 +13,6 @@ export const PushUnsubscribeSchema = z.object({
 });
 
 export const NotificationPreferenceSchema = z.object({
-  email: z.boolean().optional(),
-  push: z.boolean().optional(),
+  email: z.boolean().optional().default(false),
+  push: z.boolean().optional().default(false),
 });
