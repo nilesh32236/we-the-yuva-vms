@@ -4,6 +4,7 @@ import {
   getCoordinatorVolunteers,
   getMe,
   getUserProfile,
+  submitOnboarding,
   updateUser,
   upsertStaffProfile,
   upsertVolunteerProfile,
@@ -40,6 +41,15 @@ export async function updateVolunteerProfile(req: Request, res: Response, next: 
   try {
     const profile = await upsertVolunteerProfile(req.user!.id, req.body);
     res.status(200).json(profile);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function submitOnboardingHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await submitOnboarding(req.user!.id, req.body);
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

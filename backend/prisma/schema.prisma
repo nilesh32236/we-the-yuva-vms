@@ -280,6 +280,7 @@ model VolunteerProfile {
   availability Json
   education    String?
   bio          String?
+  details      Json?
   avatarUrl    String?
   totalHours   Float    @default(0)
   currentStreak Int     @default(0)

@@ -16,6 +16,7 @@ concurrency:
 jobs:
   fix:
     if: |
+      github.actor != 'github-actions[bot]' &&
       github.event_name == 'issue_comment' &&
       contains(github.event.comment.body || '', '/fix') &&
       github.event.issue.pull_request != null
@@ -34,15 +35,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ steps.pr.outputs.head_ref }}
 
       - name: Configure git
         run: |
-          git config user.name "nilesh32236"
-          git config user.email "nilesh32236@gmail.com"
+          git config --global user.name "nilesh32236"
+          git config --global user.email "nilesh32236@gmail.com"
           git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Add fix label

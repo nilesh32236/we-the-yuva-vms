@@ -1,4 +1,4 @@
-import type { StaffProfileInput, VolunteerProfileInput } from '@/shared';
+import type { OnboardingInput, StaffProfileInput, VolunteerProfileInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
@@ -281,5 +281,47 @@ export async function upsertStaffProfile(userId: string, data: StaffProfileInput
   return prisma.user.findUnique({
     where: { id: userId },
     include: { location: true, staffProfile: true },
+  });
+}
+
+export async function submitOnboarding(userId: string, data: OnboardingInput) {
+  const { step1, step2, step3, step4, step5, step6, step7 } = data;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { roleRef: { select: { name: true } } },
+  });
+
+  if (!user || user.roleRef.name !== 'VOLUNTEER') {
+    throw new AppError('Only volunteers can submit onboarding', 403);
+  }
+
+  return prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        name: step1.fullName,
+        volunteerType: step3.volunteerType,
+      },
+    });
+
+    const profileData = {
+      skills: step3.skills,
+      interests: step3.areasOfInterest,
+      availability: {
+        days: step4.daysAvailable,
+        timeSlots: step4.preferredTime,
+      },
+      details: {
+        steps: { step1, step2, step3, step4, step5, step6, step7 },
+        onboardingCompletedAt: new Date().toISOString(),
+      },
+    };
+
+    return tx.volunteerProfile.upsert({
+      where: { userId },
+      create: { userId, ...profileData },
+      update: profileData,
+    });
   });
 }

@@ -18,15 +18,27 @@ concurrency:
 jobs:
   review:
     if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')))
+      github.actor != 'github-actions[bot]' &&
+      (
+        (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'autofix')) ||
+        (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')))
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - name: Get PR details
+        id: pr
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number || github.event.issue.number }}"
+          HEAD_REF=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.ref')
+          echo "head_ref=$HEAD_REF" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ github.head_ref || github.event.issue.pull_request.head.ref }}
+          ref: ${{ steps.pr.outputs.head_ref }}
 
       - name: Configure git auth for OpenCode
         run: git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
@@ -43,10 +55,13 @@ jobs:
             You are a Senior Code Reviewer with deep expertise in software architecture, design patterns, and best practices. Review this pull request thoroughly.
 
             ## Context
-
             This is a monorepo with two independent projects:
             - **`frontend/`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, zod, Serwist PWA)
             - **`backend/`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest, TypeScript)
+
+            ## Linked Issue Context (If any)
+            - Parse the PR description (and commit messages) for any linked issue number(s) (e.g. "Closes #123", "Fixes #123", or just "#123").
+            - If a linked issue exists, use the GitHub API or `gh` CLI to read that linked issue's body and all comments to gain the full context of what was requested and any discussions/feedback.
 
             ## Context Window Management
 

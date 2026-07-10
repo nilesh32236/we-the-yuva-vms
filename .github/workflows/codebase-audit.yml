@@ -29,7 +29,11 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Record start time
+        id: start-time
+        run: echo "time=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -163,8 +167,9 @@ jobs:
       - name: Close auto-created OpenCode PR
         if: always()
         run: |
-          gh pr list --state open --json headRefName,number \
-            --jq '.[] | select(.headRefName | startswith("opencode/")) | .number' \
+          START_TIME="${{ steps.start-time.outputs.time }}"
+          gh pr list --state open --json headRefName,number,createdAt \
+            --jq ".[] | select(.headRefName | startswith(\"opencode/\")) | select(.createdAt >= \"$START_TIME\") | .number" \
             | while read -r num; do
               gh pr close "$num" --comment "Auto-closed — audit results filed as issues" --delete-branch
             done
