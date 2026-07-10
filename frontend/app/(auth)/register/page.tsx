@@ -12,15 +12,7 @@ import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { api, setAccessToken } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
-
-const ROLE_ROUTES: Record<string, string> = {
-  VOLUNTEER: '/volunteer/dashboard',
-  COORDINATOR: '/coordinator/dashboard',
-  ADMIN: '/admin/dashboard',
-  OBSERVER: '/observer/dashboard',
-  ORGANIZATION_ADMIN: '/organization/dashboard',
-  PLATFORM_MANAGER: '/admin/dashboard',
-};
+import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 export default function RegisterPage() {
   const router = useRouter();

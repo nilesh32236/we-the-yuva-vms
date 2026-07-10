@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { decodeJwt } from 'jose';
 import { isPublicRoute } from './public-routes';
 
 export const api = axios.create({
@@ -38,15 +39,35 @@ function getAccessToken(): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-// Request interceptor — attach Bearer token
-api.interceptors.request.use((config) => {
-  const token = getAccessToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
 // biome-ignore lint/suspicious/noExplicitAny: error type unknown
 let refreshPromise: Promise<any> | null = null;
+
+// Request interceptor — attach Bearer token, preemptively refresh if expired
+api.interceptors.request.use(async (config) => {
+  const token = getAccessToken();
+  if (token) {
+    try {
+      const payload = decodeJwt(token);
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        if (!refreshPromise) {
+          refreshPromise = axios
+            .post('/api/v1/auth/refresh', {}, { withCredentials: true, timeout: 10000 })
+            .then((r) => r.data)
+            .finally(() => { refreshPromise = null; });
+        }
+        const data = await refreshPromise;
+        if (data.accessToken) {
+          setAccessToken(data.accessToken);
+          config.headers.Authorization = `Bearer ${data.accessToken}`;
+        }
+      }
+    } catch {
+      // Invalid JWT — continue with original token
+    }
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 // Response interceptor — auto-refresh on 401
 api.interceptors.response.use(
@@ -56,14 +77,6 @@ api.interceptors.response.use(
 
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
-      // Don't auto-refresh if user just logged out
-      if (
-        typeof sessionStorage !== 'undefined' &&
-        sessionStorage.getItem('logged_out') === 'true'
-      ) {
-        sessionStorage.removeItem('logged_out');
-        return Promise.reject(error);
-      }
       originalRequest._retry = true;
 
       try {
@@ -81,7 +94,7 @@ api.interceptors.response.use(
           if (typeof document !== 'undefined') {
             const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
             // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=604800; SameSite=Strict${secureFlag}`;
+            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
           }
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         }

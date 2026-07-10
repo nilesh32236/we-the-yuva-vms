@@ -11,6 +11,7 @@ import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api, setAccessToken } from '../../../lib/api';
 import { VerifyOtpSchema } from '../../../lib/shared';
+import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 function VerifyOtpContent() {
   const router = useRouter();
@@ -22,6 +23,7 @@ function VerifyOtpContent() {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [isVerifying, setIsVerifying] = useState(false);
   const [devOtp, setDevOtp] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(300);
   const submitted = useRef(false);
 
   // TEMPORARY: read dev OTP from sessionStorage
@@ -32,6 +34,13 @@ function VerifyOtpContent() {
       sessionStorage.removeItem('devOtp');
     }
   }, []);
+
+  // Countdown timer for OTP expiry
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const id = setInterval(() => setCountdown((c) => c - 1), 1000);
+    return () => clearInterval(id);
+  }, [countdown]);
 
   // Redirect to login if no email provided (useEffect to avoid render-phase redirect with Suspense)
   const [redirected, setRedirected] = useState(false);
@@ -63,15 +72,7 @@ function VerifyOtpContent() {
       ) {
         router.replace('/setup-profile');
       } else {
-        const roleRoutes: Record<string, string> = {
-          VOLUNTEER: '/volunteer/dashboard',
-          COORDINATOR: '/coordinator/dashboard',
-          ADMIN: '/admin/dashboard',
-          OBSERVER: '/observer/dashboard',
-          ORGANIZATION_ADMIN: '/organization/dashboard',
-          PLATFORM_MANAGER: '/admin/dashboard',
-        };
-        router.replace(roleRoutes[authUser.role] ?? '/login');
+        router.replace(ROLE_ROUTES[authUser.role] ?? '/login');
       }
     }
   }, [authUser, isAuthLoading, navHandled, router]);
@@ -107,13 +108,6 @@ function VerifyOtpContent() {
         // Store in memory for immediate API calls (cross-domain Bearer)
         if (accessToken) setAccessToken(accessToken);
 
-        // Set cookie client-side so Next.js Edge middleware can read it for routing
-        if (accessToken && typeof document !== 'undefined') {
-          const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-          // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-          document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=604800; SameSite=Strict${secure}`;
-        }
-
         // Populate auth context via refetch — the navigation effect above
         // will route based on the FULL user from /users/me
         await refetch();
@@ -145,6 +139,7 @@ function VerifyOtpContent() {
         sessionStorage.setItem('devOtp', res.data.devOtp);
         setDevOtp(res.data.devOtp);
       }
+      setCountdown(300);
       toast({ title: 'Code sent', description: `A new code has been sent to ${email}` });
     } catch {
       toast({
@@ -177,7 +172,6 @@ function VerifyOtpContent() {
           <p className="font-medium text-brand-text text-sm">{email}</p>
         </div>
 
-        {/* TEMPORARY: dev OTP display for testing */}
         {devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
@@ -202,6 +196,17 @@ function VerifyOtpContent() {
             </div>
           )}
         </div>
+
+        {countdown > 0 && (
+          <div className="text-center">
+            <p className="text-brand-muted text-xs">
+              Code expires in{' '}
+              <span className={countdown < 60 ? 'text-brand-error font-medium' : 'font-medium text-brand-text'}>
+                {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
+              </span>
+            </p>
+          </div>
+        )}
 
         <div className="text-center space-y-1">
           <p className="text-brand-muted text-sm">Didn&apos;t receive it?</p>
