@@ -1,0 +1,120 @@
+name: Review Autofix PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: review-autofix-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: contains(github.event.pull_request.labels.*.name || '', 'autofix')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name 'nilesh32236'
+          git config user.email 'nilesh32236@gmail.com'
+
+      - name: Ensure labels exist
+        run: |
+          for label in autofix:reviewed autofix:needs-manual-review autofix:merged; do
+            gh label create "$label" --force 2>/dev/null || true
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Run OpenCode to review PR
+        id: opencode-review
+        continue-on-error: true
+        uses: anomalyco/opencode/github@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        with:
+          model: opencode/deepseek-v4-flash-free
+          use_github_token: true
+          share: true
+          prompt: |
+            Review this pull request in we-the-yuva-vms (Volunteer Management System).
+
+            Before reviewing:
+            1. Read AGENTS.md for project conventions
+            2. Read biome.json for linting rules
+            3. Read COMPONENTS.md for component patterns if it exists
+
+            ## Context Window Management
+
+            If the PR touches more than 10 files, batch them into groups of at most 3 files.
+            Dispatch a sub-agent for each batch via the `task` tool with `subagent_type: "general"`.
+            Collect all results before proceeding.
+
+            ## What to Check
+
+            - **Bugs & correctness**: Logic errors, type safety, missing null checks, edge cases
+            - **Security**: PII exposure in logs/URLs/client-side code, XSS vectors (Tiptap editor), hardcoded secrets, JWT handling
+            - **Auth/RBAC**: Missing auth checks, role-based access gaps (volunteer vs coordinator vs admin)
+            - **Conventions**: Biome compliance, project conventions from AGENTS.md
+            - **Dead code**: Unused imports, console.log, commented-out code, YAGNI violations
+            - **HTML/DOM**: Duplicate id attributes, htmlFor mismatches, improper nesting
+            - **UX**: cursor-pointer on non-interactive elements, missing aria-label, keyboard handlers, mobile touch targets (< 44px)
+            - **API/TanStack Query patterns**: Error handling, stale time, optimistic updates, loading states
+
+            ## Severity Guide
+
+            - **critical**: Bug, security hole, broken functionality — must fix before merge
+            - **important**: Architecture concern, maintainability debt, missing error handling, accessibility gaps — should fix
+            - **minor**: Style, naming, optimization — nice to have
+
+            ## Calibration
+
+            - Reference specific file paths and line numbers for every issue
+            - Explain WHY each issue matters, not just what is wrong
+            - Acknowledge what was done well before listing issues
+
+            ## Safety Rules
+
+            - ONLY change files that are part of this PR's scope
+            - If you find fixable issues, apply only targeted fixes. Do not restructure, rename, or refactor beyond the issue.
+            - If a change would require significant refactoring outside the PR scope, note it but don't do it
+            - Prefer minimal, focused fixes over comprehensive rewrites
+            - If you are unsure about a change, DO NOT make it — note it in the review
+
+            ## After Reviewing
+
+            1. If fixable issues found, apply fixes directly
+            2. Run `pnpm typecheck` and `pnpm lint` to verify
+            3. Commit and push any changes
+            4. State whether the PR is ready to merge or needs changes
+
+      - name: Determine review outcome
+        id: review-outcome
+        run: |
+          # Check if OpenCode made any changes
+          if git diff --quiet HEAD~1 2>/dev/null; then
+            echo "no_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "no_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Label as reviewed
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --add-label 'autofix:reviewed'
+          gh pr edit ${{ github.event.pull_request.number }} --remove-label 'autofix' 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}

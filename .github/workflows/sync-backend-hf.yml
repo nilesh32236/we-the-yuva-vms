@@ -1,0 +1,26 @@
+name: Sync Backend to Hugging Face Hub
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/sync-backend-hf.yml'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Sync backend directory to HF Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          HF_REPO="https://user:$HF_TOKEN@huggingface.co/spaces/nilesh-kanzariya/we-the-yuva-api"
+          git clone --depth=1 "$HF_REPO" hf-repo
+          rsync -av --delete --exclude='.git' backend/ hf-repo/
+          cd hf-repo
+          git add -A
+          git diff --quiet --cached || (git commit -m "Sync backend from monorepo [$(date -u +'%Y-%m-%dT%H:%M:%SZ')]" && git push)
