@@ -145,6 +145,9 @@ export default function SetupProfilePage() {
     preferredEngagement: '' as string,
   });
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [formError, setFormError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!isLoading && !user) router.push('/login');
   }, [user, isLoading, router]);
@@ -155,52 +158,59 @@ export default function SetupProfilePage() {
   };
 
   const validateStep = (): boolean => {
+    const errors: Record<string, string> = {};
     if (step === 0) {
-      if (!s1.fullName || !s1.gender || !s1.dateOfBirth || !s1.mobile || !s1.address || !s1.city || !s1.district || !s1.state || !s1.pincode) {
-        toast({ title: 'Please fill all personal information fields', variant: 'destructive' });
-        return false;
-      }
+      if (!s1.fullName) errors.fullName = 'Full name is required';
+      if (!s1.gender) errors.gender = 'Please select gender';
+      if (!s1.dateOfBirth) errors.dateOfBirth = 'Date of birth is required';
+      if (!s1.mobile) errors.mobile = 'Mobile number is required';
+      if (!s1.address) errors.address = 'Address is required';
+      if (!s1.city) errors.city = 'City is required';
+      if (!s1.district) errors.district = 'District is required';
+      if (!s1.state) errors.state = 'State is required';
+      if (!s1.pincode) errors.pincode = 'PIN code is required';
     }
     if (step === 1) {
-      if (!s2.highestQualification || !s2.fieldOfStudy || !s2.currentStatus) {
-        toast({ title: 'Please fill education and current status', variant: 'destructive' });
-        return false;
-      }
+      if (!s2.highestQualification) errors.highestQualification = 'Qualification is required';
+      if (!s2.fieldOfStudy) errors.fieldOfStudy = 'Field of study is required';
+      if (!s2.currentStatus) errors.currentStatus = 'Current status is required';
     }
     if (step === 2) {
-      if (!s3.volunteerType || s3.areasOfInterest.length === 0 || s3.skills.length === 0 || s3.languages.length === 0) {
-        toast({ title: 'Please complete all volunteer profile fields', variant: 'destructive' });
-        return false;
-      }
+      if (!s3.volunteerType) errors.volunteerType = 'Select volunteer type';
+      if (s3.areasOfInterest.length === 0) errors.areasOfInterest = 'Select at least one area';
+      if (s3.skills.length === 0) errors.skills = 'Select at least one skill';
+      if (s3.languages.length === 0) errors.languages = 'Add at least one language';
     }
     if (step === 3) {
-      if (s4.daysAvailable.length === 0 || s4.preferredTime.length === 0 || !s4.frequency || !s4.maxHours || !s4.preferredCity || !s4.maxTravelDistance) {
-        toast({ title: 'Please complete availability details', variant: 'destructive' });
-        return false;
-      }
+      if (s4.daysAvailable.length === 0) errors.daysAvailable = 'Select at least one day';
+      if (s4.preferredTime.length === 0) errors.preferredTime = 'Select at least one time slot';
+      if (!s4.frequency) errors.frequency = 'Select frequency';
+      if (!s4.maxHours) errors.maxHours = 'Select preferred hours';
+      if (!s4.preferredCity) errors.preferredCity = 'Preferred city is required';
+      if (!s4.maxTravelDistance) errors.maxTravelDistance = 'Select travel distance';
     }
     if (step === 4) {
-      if (s5.motivations.length === 0) {
-        toast({ title: 'Please select at least one motivation', variant: 'destructive' });
-        return false;
-      }
+      if (s5.motivations.length === 0) errors.motivations = 'Select at least one motivation';
     }
     if (step === 5) {
-      if (!s6.emergencyName || !s6.emergencyRelationship || !s6.emergencyPhone) {
-        toast({ title: 'Please fill emergency contact details', variant: 'destructive' });
-        return false;
-      }
+      if (!s6.emergencyName) errors.emergencyName = 'Contact name required';
+      if (!s6.emergencyRelationship) errors.emergencyRelationship = 'Relationship required';
+      if (!s6.emergencyPhone) errors.emergencyPhone = 'Phone number required';
     }
     if (step === 6) {
-      if (!s7.privacyPolicyAccepted || !s7.codeOfConductAccepted || !s7.referralSource) {
-        toast({ title: 'Please accept policies and select referral source', variant: 'destructive' });
-        return false;
-      }
+      if (!s7.privacyPolicyAccepted) errors.privacyPolicyAccepted = 'You must accept privacy policy';
+      if (!s7.codeOfConductAccepted) errors.codeOfConductAccepted = 'You must accept code of conduct';
+      if (!s7.referralSource) errors.referralSource = 'Select referral source';
     }
-    return true;
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      toast({ title: 'Please fix the highlighted fields', variant: 'destructive' });
+    }
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async () => {
+    setFormError(null);
     if (!validateStep()) return;
     setIsSubmitting(true);
     try {
@@ -295,6 +305,7 @@ export default function SetupProfilePage() {
         (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
         'Could not save profile. Please try again.';
+      setFormError(message);
       toast({ title: 'Error', description: message, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
@@ -310,6 +321,7 @@ export default function SetupProfilePage() {
     set: (v: string) => void,
     placeholder = '',
     type = 'text',
+    error?: string,
   ) => {
     const id = `input-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
@@ -321,8 +333,15 @@ export default function SetupProfilePage() {
           value={value}
           onChange={(e) => set(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+          className={`w-full px-4 py-2.5 rounded-lg border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+            error ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+          }`}
         />
+        {error && (
+          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     );
   };
@@ -333,6 +352,7 @@ export default function SetupProfilePage() {
     set: (v: string) => void,
     options: readonly string[],
     labelMap?: Partial<Record<string, string>>,
+    error?: string,
   ) => {
     const id = `select-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
@@ -342,13 +362,20 @@ export default function SetupProfilePage() {
           id={id}
           value={value}
           onChange={(e) => set(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+          className={`w-full px-4 py-2.5 rounded-lg border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+            error ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+          }`}
         >
           <option value="">Select {label}</option>
           {options.map((opt) => (
             <option key={opt} value={opt}>{labelMap?.[opt] ?? opt.replace(/_/g, ' ')}</option>
           ))}
         </select>
+        {error && (
+          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     );
   };
@@ -445,18 +472,18 @@ export default function SetupProfilePage() {
                 onUpload={(url) => setS1({ ...s1, profilePhoto: url })}
                 previewUrl={s1.profilePhoto}
               />
-              {commonInput('Full Name *', s1.fullName, (v) => setS1({ ...s1, fullName: v }), 'Your full name')}
-              {selectInput('Gender *', s1.gender, (v) => setS1({ ...s1, gender: v }), GENDERS, { MALE: 'Male', FEMALE: 'Female', OTHER: 'Other', PREFER_NOT_TO_SAY: 'Prefer not to say' })}
-              {commonInput('Date of Birth *', s1.dateOfBirth, (v) => setS1({ ...s1, dateOfBirth: v }), 'YYYY-MM-DD')}
-              {commonInput('Mobile Number *', s1.mobile, (v) => setS1({ ...s1, mobile: v }), '10-digit mobile', 'tel')}
-              {commonInput('Address *', s1.address, (v) => setS1({ ...s1, address: v }), 'Full address')}
+              {commonInput('Full Name *', s1.fullName, (v) => setS1({ ...s1, fullName: v }), 'Your full name', 'text', fieldErrors.fullName)}
+              {selectInput('Gender *', s1.gender, (v) => setS1({ ...s1, gender: v }), GENDERS, { MALE: 'Male', FEMALE: 'Female', OTHER: 'Other', PREFER_NOT_TO_SAY: 'Prefer not to say' }, fieldErrors.gender)}
+              {commonInput('Date of Birth *', s1.dateOfBirth, (v) => setS1({ ...s1, dateOfBirth: v }), '', 'date', fieldErrors.dateOfBirth)}
+              {commonInput('Mobile Number *', s1.mobile, (v) => setS1({ ...s1, mobile: v }), '10-digit mobile', 'tel', fieldErrors.mobile)}
+              {commonInput('Address *', s1.address, (v) => setS1({ ...s1, address: v }), 'Full address', 'text', fieldErrors.address)}
               <div className="grid grid-cols-2 gap-4">
-                {commonInput('City *', s1.city, (v) => setS1({ ...s1, city: v }), 'City')}
-                {commonInput('District *', s1.district, (v) => setS1({ ...s1, district: v }), 'District')}
+                {commonInput('City *', s1.city, (v) => setS1({ ...s1, city: v }), 'City', 'text', fieldErrors.city)}
+                {commonInput('District *', s1.district, (v) => setS1({ ...s1, district: v }), 'District', 'text', fieldErrors.district)}
               </div>
               <div className="grid grid-cols-2 gap-4">
-                {commonInput('State *', s1.state, (v) => setS1({ ...s1, state: v }), 'State')}
-                {commonInput('PIN Code *', s1.pincode, (v) => setS1({ ...s1, pincode: v }), '6-digit PIN', 'tel')}
+                {commonInput('State *', s1.state, (v) => setS1({ ...s1, state: v }), 'State', 'text', fieldErrors.state)}
+                {commonInput('PIN Code *', s1.pincode, (v) => setS1({ ...s1, pincode: v }), '6-digit PIN', 'tel', fieldErrors.pincode)}
               </div>
             </div>
           </>
@@ -467,13 +494,13 @@ export default function SetupProfilePage() {
           <>
             <h2 className="font-heading font-semibold text-xl text-brand-text">Education & Background</h2>
             <div className="space-y-4">
-              {commonInput('Highest Qualification *', s2.highestQualification, (v) => setS2({ ...s2, highestQualification: v }), 'e.g. B.Com, MBA, 12th Pass')}
-              {commonInput('Field of Study *', s2.fieldOfStudy, (v) => setS2({ ...s2, fieldOfStudy: v }), 'e.g. Commerce, Science, Arts')}
+              {commonInput('Highest Qualification *', s2.highestQualification, (v) => setS2({ ...s2, highestQualification: v }), 'e.g. B.Com, MBA, 12th Pass', 'text', fieldErrors.highestQualification)}
+              {commonInput('Field of Study *', s2.fieldOfStudy, (v) => setS2({ ...s2, fieldOfStudy: v }), 'e.g. Commerce, Science, Arts', 'text', fieldErrors.fieldOfStudy)}
               {selectInput('Current Status *', s2.currentStatus, (v) => setS2({ ...s2, currentStatus: v }), CURRENT_STATUS, {
                 STUDENT: 'Student', WORKING_PROFESSIONAL: 'Working Professional',
                 SELF_EMPLOYED: 'Self Employed', HOMEMAKER: 'Homemaker',
                 RETIRED: 'Retired', JOB_SEEKER: 'Job Seeker', OTHER: 'Other',
-              })}
+              }, fieldErrors.currentStatus)}
 
               {s2.currentStatus === 'STUDENT' && (
                 <div className="border border-brand-border rounded-xl p-4 space-y-4">
@@ -516,7 +543,7 @@ export default function SetupProfilePage() {
                 ONE_TIME: 'One Time', REGULAR: 'Regular', WEEKEND: 'Weekend',
                 EVENT: 'Event Based', CORPORATE_CSR: 'Corporate CSR',
                 STUDENT: 'Student', LONG_TERM: 'Long Term', INTERNSHIP: 'Internship',
-              })}
+              }, fieldErrors.volunteerType)}
 
               <div className="space-y-2">
                 <p className="text-sm font-medium text-brand-text">Areas of Interest *</p>
@@ -534,6 +561,9 @@ export default function SetupProfilePage() {
                     COMMUNITY_DEVELOPMENT: 'Community Development', OTHER: 'Other',
                   }}
                 />
+                {fieldErrors.areasOfInterest && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.areasOfInterest}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -555,6 +585,9 @@ export default function SetupProfilePage() {
                     DATA_ENTRY: 'Data Entry', ADMINISTRATION: 'Administration',
                   }}
                 />
+                {fieldErrors.skills && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.skills}</p>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -609,6 +642,9 @@ export default function SetupProfilePage() {
                     Add
                   </Button>
                 </div>
+                {fieldErrors.languages && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.languages}</p>
+                )}
               </div>
             </div>
           </>
@@ -626,6 +662,9 @@ export default function SetupProfilePage() {
                   selected={s4.daysAvailable}
                   toggle={(v) => setS4({ ...s4, daysAvailable: toggleArray(s4.daysAvailable, v) })}
                 />
+                {fieldErrors.daysAvailable && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.daysAvailable}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -635,23 +674,26 @@ export default function SetupProfilePage() {
                   selected={s4.preferredTime}
                   toggle={(v) => setS4({ ...s4, preferredTime: toggleArray(s4.preferredTime, v) })}
                 />
+                {fieldErrors.preferredTime && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.preferredTime}</p>
+                )}
               </div>
 
               {selectInput('Frequency *', s4.frequency, (v) => setS4({ ...s4, frequency: v }), FREQUENCY, {
                 WEEKLY: 'Weekly', TWICE_MONTHLY: 'Twice a Month', MONTHLY: 'Monthly',
                 OCCASIONALLY: 'Occasionally', HOLIDAYS_ONLY: 'Holidays Only',
-              })}
+              }, fieldErrors.frequency)}
 
               {selectInput('Max Hours per Week *', s4.maxHours, (v) => setS4({ ...s4, maxHours: v }), ['1-2', '3-5', '6-10', '10+'] as const, {
                 '1-2': '1-2 hours', '3-5': '3-5 hours', '6-10': '6-10 hours', '10+': '10+ hours',
-              })}
+              }, fieldErrors.maxHours)}
 
-              {commonInput('Preferred City *', s4.preferredCity, (v) => setS4({ ...s4, preferredCity: v }), 'City where you want to volunteer')}
+              {commonInput('Preferred City *', s4.preferredCity, (v) => setS4({ ...s4, preferredCity: v }), 'City where you want to volunteer', 'text', fieldErrors.preferredCity)}
 
               {selectInput('Max Travel Distance *', s4.maxTravelDistance, (v) => setS4({ ...s4, maxTravelDistance: v }), ['SAME_AREA', 'UPTO_5KM', 'UPTO_10KM', 'UPTO_25KM', 'ANY'] as const, {
                 SAME_AREA: 'Same area', UPTO_5KM: 'Up to 5 km', UPTO_10KM: 'Up to 10 km',
                 UPTO_25KM: 'Up to 25 km', ANY: 'Any distance',
-              })}
+              }, fieldErrors.maxTravelDistance)}
 
               {yesNoToggle('Available for online volunteering?', s4.availableForOnline, (v) => setS4({ ...s4, availableForOnline: v }))}
             </div>
@@ -691,6 +733,9 @@ export default function SetupProfilePage() {
                     COMMUNITY_SERVICE: 'Community Service', OTHER: 'Other',
                   }}
                 />
+                {fieldErrors.motivations && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.motivations}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -718,9 +763,9 @@ export default function SetupProfilePage() {
             <div className="space-y-5">
               <div className="border border-brand-border rounded-xl p-4 space-y-4">
                 <p className="text-sm font-semibold text-brand-text">Emergency Contact *</p>
-                {commonInput('Contact Name *', s6.emergencyName, (v) => setS6({ ...s6, emergencyName: v }))}
-                {commonInput('Relationship *', s6.emergencyRelationship, (v) => setS6({ ...s6, emergencyRelationship: v }), 'e.g. Parent, Spouse, Friend')}
-                {commonInput('Phone *', s6.emergencyPhone, (v) => setS6({ ...s6, emergencyPhone: v }), '10-digit phone', 'tel')}
+                {commonInput('Contact Name *', s6.emergencyName, (v) => setS6({ ...s6, emergencyName: v }), '', 'text', fieldErrors.emergencyName)}
+                {commonInput('Relationship *', s6.emergencyRelationship, (v) => setS6({ ...s6, emergencyRelationship: v }), 'e.g. Parent, Spouse, Friend', 'text', fieldErrors.emergencyRelationship)}
+                {commonInput('Phone *', s6.emergencyPhone, (v) => setS6({ ...s6, emergencyPhone: v }), '10-digit phone', 'tel', fieldErrors.emergencyPhone)}
               </div>
 
               <div className="border border-brand-border rounded-xl p-4 space-y-4">
@@ -759,6 +804,9 @@ export default function SetupProfilePage() {
                     I accept the Privacy Policy and agree to my data being stored and used for volunteer matching.
                   </span>
                 </label>
+                {fieldErrors.privacyPolicyAccepted && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.privacyPolicyAccepted}</p>
+                )}
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -770,6 +818,9 @@ export default function SetupProfilePage() {
                     I agree to follow the Code of Conduct and uphold the values of WeTheYuva.
                   </span>
                 </label>
+                {fieldErrors.codeOfConductAccepted && (
+                  <p className="text-brand-error text-xs" role="alert">{fieldErrors.codeOfConductAccepted}</p>
+                )}
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -855,9 +906,23 @@ export default function SetupProfilePage() {
                 WEBSITE: 'Our Website', CSR_PARTNER: 'CSR Partner',
                 VOLUNTEER: 'Existing Volunteer', NEWSPAPER: 'Newspaper',
                 EVENT: 'Event', OTHER: 'Other',
-              })}
+              }, fieldErrors.referralSource)}
             </div>
           </>
+        )}
+
+        {formError && (
+          <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400" role="alert">
+            <p className="flex-1">{formError}</p>
+            <button
+              type="button"
+              onClick={() => setFormError(null)}
+              className="text-red-500 hover:text-red-700 cursor-pointer shrink-0"
+              aria-label="Dismiss error"
+            >
+              ✕
+            </button>
+          </div>
         )}
 
         {/* Navigation Buttons */}
