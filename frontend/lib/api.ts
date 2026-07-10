@@ -60,7 +60,6 @@ api.interceptors.request.use(async (config) => {
           setAccessToken(data.accessToken);
           config.headers.Authorization = `Bearer ${data.accessToken}`;
         }
-        return config;
       }
     } catch {
       // Invalid JWT — continue with original token

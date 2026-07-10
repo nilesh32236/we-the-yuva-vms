@@ -151,18 +151,7 @@ export default function SetupProfilePage() {
 
   const handleComplete = async () => {
     await refetch();
-    if (user?.role === 'VOLUNTEER') {
-      router.push('/volunteer/dashboard');
-      return;
-    }
-    const roleRoutes: Record<string, string> = {
-      COORDINATOR: '/coordinator/dashboard',
-      ADMIN: '/admin/dashboard',
-      PLATFORM_MANAGER: '/admin/dashboard',
-      OBSERVER: '/observer/dashboard',
-      ORGANIZATION_ADMIN: '/organization/dashboard',
-    };
-    router.push(roleRoutes[user?.role ?? ''] ?? '/login');
+    router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
   };
 
   const validateStep = (): boolean => {
