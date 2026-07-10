@@ -63,8 +63,8 @@ jobs:
           fail() { echo "::warning::audit: $*"; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; }
 
           shopt -s nullglob
-          PROMPTS=(.audit-prompts/*.md)
-          [ ${#PROMPTS[@]} -eq 0 ] && fail "No prompt files found in .audit-prompts/"
+          PROMPTS=(frontend/.audit-prompts/*.md)
+          [ ${#PROMPTS[@]} -eq 0 ] && fail "No prompt files found in frontend/.audit-prompts/"
 
           if [ -n "${{ github.event.inputs.prompt_name }}" ]; then
             SPECIFIC=".audit-prompts/${{ github.event.inputs.prompt_name }}.md"
@@ -109,9 +109,13 @@ jobs:
             echo "dir=${{ github.event.inputs.target_dir }}" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          DIRS=("app" "components" "lib" "hooks")
-          RAND=$(( RANDOM % ${#DIRS[@]} ))
-          echo "dir=${DIRS[$RAND]}" >> "$GITHUB_OUTPUT"
+          SELECTION=$(( RANDOM % 5 ))
+          if [ "$SELECTION" -lt 4 ]; then
+            DIRS=("frontend/app" "frontend/components" "frontend/lib" "frontend/hooks")
+            echo "dir=${DIRS[$SELECTION]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=backend/src" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Run OpenCode audit
         if: steps.select-prompt.outputs.skip != 'true'
@@ -128,7 +132,13 @@ jobs:
 
             Audit the directory: `${{ steps.select-dir.outputs.dir }}`
 
+            IMPORTANT: If the target directory starts with `frontend/`, read `frontend/AGENTS.md` for conventions. If it starts with `backend/`, refer to `backend/README.md` for project context.
+
             The prompt file tells you what to check. Follow its instructions exactly.
+
+            This is a monorepo with:
+            - `frontend/` — Next.js 16 App Router (React 19, Tailwind v4)
+            - `backend/` — Express REST API (Node.js, Prisma, Zod)
 
             Context window management:
             - If the target directory has more than 15 files, batch them into groups of at most 5 files.

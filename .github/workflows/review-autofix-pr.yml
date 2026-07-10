@@ -51,12 +51,18 @@ jobs:
           use_github_token: true
           share: true
           prompt: |
-            Review this pull request in we-the-yuva-vms (Volunteer Management System).
+            Review this pull request in the we-the-yuva monorepo.
+
+            ## Context
+
+            This is a monorepo with two projects:
+            - **`frontend/`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, Serwist PWA)
+            - **`backend/`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
 
             Before reviewing:
-            1. Read AGENTS.md for project conventions
-            2. Read biome.json for linting rules
-            3. Read COMPONENTS.md for component patterns if it exists
+            1. Determine which project(s) the PR touches based on file paths
+            2. For frontend files, read `frontend/AGENTS.md` for conventions and `frontend/biome.json` for linting rules
+            3. For backend files, read `backend/README.md` and `backend/biome.json`
 
             ## Context Window Management
 
@@ -66,14 +72,13 @@ jobs:
 
             ## What to Check
 
-            - **Bugs & correctness**: Logic errors, type safety, missing null checks, edge cases
-            - **Security**: PII exposure in logs/URLs/client-side code, XSS vectors (Tiptap editor), hardcoded secrets, JWT handling
-            - **Auth/RBAC**: Missing auth checks, role-based access gaps (volunteer vs coordinator vs admin)
-            - **Conventions**: Biome compliance, project conventions from AGENTS.md
-            - **Dead code**: Unused imports, console.log, commented-out code, YAGNI violations
-            - **HTML/DOM**: Duplicate id attributes, htmlFor mismatches, improper nesting
-            - **UX**: cursor-pointer on non-interactive elements, missing aria-label, keyboard handlers, mobile touch targets (< 44px)
-            - **API/TanStack Query patterns**: Error handling, stale time, optimistic updates, loading states
+            **Bugs & correctness**: Logic errors, type safety, missing null checks, edge cases
+            **Security**: PII exposure, missing auth/RBAC checks, XSS vectors, hardcoded secrets, JWT handling
+            **Auth/RBAC**: Missing auth checks, role-based access gaps (volunteer vs coordinator vs admin)
+            **Conventions**: Biome compliance, project conventions from the correct AGENTS.md
+            **Dead code**: Unused imports, console.log, commented-out code, YAGNI violations
+            **Frontend-specific**: TanStack Query patterns (error handling, stale time, optimistic updates), HTML/DOM correctness, UX, theme tokens
+            **Backend-specific**: API input validation (Zod), middleware chain order, Prisma query efficiency, proper HTTP status codes
 
             ## Severity Guide
 
@@ -98,7 +103,7 @@ jobs:
             ## After Reviewing
 
             1. If fixable issues found, apply fixes directly
-            2. Run `pnpm typecheck` and `pnpm lint` to verify
+            2. Determine the correct subdirectory: run `cd frontend && pnpm typecheck && pnpm lint` for frontend changes, `cd backend && pnpm typecheck && pnpm lint` for backend changes, or both
             3. Commit and push any changes
             4. State whether the PR is ready to merge or needs changes
 

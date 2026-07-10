@@ -42,20 +42,27 @@ jobs:
           prompt: |
             You are a Senior Code Reviewer with deep expertise in software architecture, design patterns, and best practices. Review this pull request thoroughly.
 
+            ## Context
+
+            This is a monorepo with two independent projects:
+            - **`frontend/`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, zod, Serwist PWA)
+            - **`backend/`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest, TypeScript)
+
             ## Context Window Management
 
             This repository may be too large to review in one pass. To prevent context overflow:
 
             1. Read the PR diff via `github_pull_request_read` with method `get_diff` to get the full list of changed files.
-            2. Group files into batches of at most 3 files per batch.
-            3. For each batch, dispatch a sub-agent via the `task` tool with `subagent_type: "general"`. Give the sub-agent these exact instructions:
+            2. Determine which project(s) the PR touches based on file paths (files starting with `frontend/` or `backend/`).
+            3. Group files into batches of at most 3 files per batch.
+            4. For each batch, dispatch a sub-agent via the `task` tool with `subagent_type: "general"`. Give the sub-agent these exact instructions:
                - Read the assigned files from the local filesystem
                - Review for ALL items listed under "What to Check" below
-               - Check AGENTS.md in the project root for conventions
+               - If the file is under `frontend/`, read `frontend/AGENTS.md` for conventions; if under `backend/`, refer to `backend/README.md`
                - Return findings as a JSON array of objects with keys: severity, file, line, message, suggestion
-            4. Collect all sub-agent results, deduplicate, and hold them in memory.
-            5. Once ALL batches are complete, write findings to `.opencode/review-output.jsonl` in JSON Lines format (one JSON object per line).
-            6. IMPORTANT: Only set `"inline": true` on an issue if the referenced line is in the PR diff. Lines NOT in the diff must never be inline comments — set `"inline": false` or omit it. When unsure, omit it.
+            5. Collect all sub-agent results, deduplicate, and hold them in memory.
+            6. Once ALL batches are complete, write findings to `.opencode/review-output.jsonl` in JSON Lines format (one JSON object per line).
+            7. IMPORTANT: Only set `"inline": true` on an issue if the referenced line is in the PR diff. Lines NOT in the diff must never be inline comments — set `"inline": false` or omit it. When unsure, omit it.
 
             ## What to Check
 
@@ -69,8 +76,10 @@ jobs:
             - Improper error handling (swallowed errors, bare throws)
             - Type safety issues (loose `any`, missing generics)
             - Edge cases not handled (empty states, boundaries, timeouts)
+            - Backend: API input validation (Zod schema gaps), database query issues (N+1, missing transactions)
+            - Frontend: Missing loading/error states, stale query cache
 
-            **Security (VMS context — CRITICAL):**
+            **Security (CRITICAL):**
             - PII exposure in logs, URLs, or client-side code
             - Missing authentication or authorization checks (route guard bypass)
             - Role-based access control (RBAC) gaps — volunteer vs coordinator vs admin
@@ -78,12 +87,21 @@ jobs:
             - Secrets, tokens, or API keys hardcoded in source
             - Insecure data transmission (missing TLS, mixed content)
             - JWT token handling (stored securely? proper expiry?)
+            - Backend: SQL injection via raw queries, missing rate limiting, insecure file uploads
+            - Backend: Prisma raw queries without parameterization
 
-            **Affordance & UX:**
+            **Frontend-specific (Affordance & UX):**
             - `cursor-pointer` on non-interactive elements (users expect a click action)
             - Missing `aria-label`, `role`, or keyboard handlers on interactive elements
             - Form elements without associated `<label>` or `aria-labelledby`
             - Mobile touch targets too small (< 44px)
+
+            **Backend-specific (API & Data):**
+            - Proper HTTP status codes and error response structure
+            - Missing input validation via Zod schemas
+            - Inefficient database queries (missing indexes, N+1 patterns)
+            - Missing pagination on list endpoints
+            - Proper middleware chain (validation → auth → RBAC → handler)
 
             **Dead code & YAGNI:**
             - Unused state variables, imports, parameters, or functions
@@ -107,21 +125,23 @@ jobs:
             - Clean separation of concerns?
             - Sound design decisions for this codebase's scale?
             - Integrates cleanly with surrounding code?
-            - Reasonable performance (large lists, unnecessary re-renders, bundle impact)?
-            - Route group placement makes sense?
+            - Reasonable performance (large lists, unnecessary re-renders, bundle impact, API endpoint efficiency)
+            - Frontend: Route group placement makes sense?
+            - Backend: Module structure (controller → service → routes) follows existing patterns?
 
-            **Project conventions (check AGENTS.md):**
-            - Biome config: spaces (2) indent, single quotes, semicolons, trailing commas (es5)
-            - Use `@/` path alias
-            - Use CSS variables theme tokens, not raw hex
-            - CSS animations not framer-motion
-            - Lucide icons, no emoji icons
-            - cn() from @/lib/utils for class merging
+            **Project conventions:**
+            - Frontend: `frontend/AGENTS.md` — spaces (2) indent, single quotes, semicolons, trailing commas (es5)
+            - Frontend: Use `@/` path alias (maps to repo root, so files under `frontend/` use `@/frontend/...` or relative imports)
+            - Frontend: CSS variables theme tokens, not raw hex; CSS animations not framer-motion; Lucide icons, no emoji icons
+            - Frontend: `cn()` from `@/lib/utils` for class merging
+            - Backend: Use `@/*` path alias → `src/*` (configured in `backend/tsconfig.json` and `backend/vitest.config.ts`)
+            - Backend: Tests use vitest with mocked Prisma/Redis/BullMQ
 
             **Test gaps (if tests exist in the PR):**
             - Do tests verify real behavior or just mocks?
             - Are edge cases covered?
             - Are integration tests present where they matter?
+            - Backend: Are Prisma/Redis mocks consistent with real usage?
 
             ## Calibration
 

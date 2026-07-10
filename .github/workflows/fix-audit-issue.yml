@@ -66,15 +66,21 @@ jobs:
           prompt: |
             You are fixing a GitHub issue. Read the issue body and comments at ${{ github.event.issue.html_url }}.
 
-            Context: This is a Next.js 16 App Router project (we-the-yuva-vms). Before making changes:
-            1. Read AGENTS.md in the project root for conventions
-            2. Read biome.json in the project root for linting rules
-            3. Read any relevant source files to understand existing patterns
+            Context: This is a monorepo with two projects:
+            - `frontend/` — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query)
+            - `backend/` — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
+
+            Before making changes:
+            1. Check which project the issue relates to by looking at file paths
+            2. If files are under `frontend/`, read `frontend/AGENTS.md` for conventions; if under `backend/`, refer to `backend/README.md`
+            3. Read `frontend/biome.json` or `backend/biome.json` for linting rules depending on the project
+            4. Read any relevant source files to understand existing patterns
 
             After making changes:
-            1. Run `pnpm typecheck` — fix any type errors
-            2. Run `pnpm lint` — fix any lint errors
-            3. Commit and push all changes
+            1. Determine the correct subdirectory: if changes are in `frontend/`, run commands from `frontend/`; if in `backend/`, run from `backend/`
+            2. Run `pnpm typecheck` — fix any type errors (in the correct subdirectory)
+            3. Run `pnpm lint` — fix any lint errors (in the correct subdirectory)
+            4. Commit and push all changes
 
             SAFETY RULES:
             - Fix ONLY what the issue describes. Do not touch unrelated files.

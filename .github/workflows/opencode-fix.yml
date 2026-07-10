@@ -62,6 +62,12 @@ jobs:
           prompt: |
             You are a Senior Code Fixer. Fix issues listed in the "Fix Ticket" comment on PR #${{ steps.pr.outputs.number }}.
 
+            ## Context
+
+            This is a monorepo:
+            - `frontend/` — Next.js 16 App Router (pnpm from `frontend/`)
+            - `backend/` — Express REST API (pnpm from `backend/`)
+
             ## Steps
 
             1. Find the Fix Ticket comment by running: \`gh api "repos/${{ github.repository }}/issues/${{ steps.pr.outputs.number }}/comments"\` and look for the comment whose body starts with "## 🤖 Fix Ticket"
@@ -70,11 +76,13 @@ jobs:
                - Read the referenced file at the reported line
                - Understand the problem
                - Apply a minimal fix
-            4. After fixing all issues, run \`pnpm typecheck\` to verify types
-            5. Run \`pnpm lint\` to verify formatting
-            6. Commit all changes with message "fix: apply fixes from PR review" and push to the branch
-            7. Update the Fix Ticket comment: for fixed items change "- [ ] " to "- [x] ", for unfixable items change to "- [ ] ❌ "
-            8. Write findings to \`.opencode/review-output.jsonl\` — one issue line per fixed item so the fix review is posted
+            4. After fixing all issues, determine the correct subdirectory based on changed files. Run from the correct directory:
+               - Frontend files: \`cd frontend && pnpm typecheck && pnpm lint\`
+               - Backend files: \`cd backend && pnpm typecheck && pnpm lint\`
+               - Both: run both
+            5. Commit all changes with message "fix: apply fixes from PR review" and push to the branch
+            6. Update the Fix Ticket comment: for fixed items change "- [ ] " to "- [x] ", for unfixable items change to "- [ ] ❌ "
+            7. Write findings to \`.opencode/review-output.jsonl\` — one issue line per fixed item so the fix review is posted
 
             ## Fix Rules
 
