@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, ArrowRight, Mail, User } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ArrowRight, Mail, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -83,12 +83,18 @@ export default function RegisterPage() {
       const status = err?.response?.status;
       if (status === 409) {
         setFormError('This email is already registered. Please log in instead.');
+        toast({
+          title: 'Email already registered',
+          description: 'Please log in instead.',
+          variant: 'destructive',
+        });
       } else {
         const message =
           err?.normalizedMessage ??
           err?.response?.data?.error ??
           'Something went wrong. Please try again.';
         setFormError(message);
+        toast({ title: 'Error', description: message, variant: 'destructive' });
       }
     } finally {
       setIsLoading(false);
@@ -120,7 +126,7 @@ export default function RegisterPage() {
         {/* Inline API error banner */}
         {formError && (
           <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400" role="alert">
-            <span className="mt-0.5 shrink-0">⚠</span>
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{formError}</p>
             <button
               type="button"
@@ -128,7 +134,7 @@ export default function RegisterPage() {
               className="text-red-500 hover:text-red-700 cursor-pointer shrink-0"
               aria-label="Dismiss error"
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
           </div>
         )}

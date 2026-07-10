@@ -10,6 +10,7 @@ import {
   Phone,
   Shield,
   User,
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -151,6 +152,10 @@ export default function SetupProfilePage() {
   useEffect(() => {
     if (!isLoading && !user) router.push('/login');
   }, [user, isLoading, router]);
+
+  useEffect(() => {
+    setFieldErrors({});
+  }, [step]);
 
   const handleComplete = async () => {
     await refetch();
@@ -920,7 +925,7 @@ export default function SetupProfilePage() {
               className="text-red-500 hover:text-red-700 cursor-pointer shrink-0"
               aria-label="Dismiss error"
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
           </div>
         )}
