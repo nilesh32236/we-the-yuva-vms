@@ -18,6 +18,7 @@ import OrgProfileForm from '@/components/org/OrgProfileForm';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 export default function OrgAdminOrgProfilePage() {
   const { user } = useAuth();
@@ -120,13 +121,14 @@ export default function OrgAdminOrgProfilePage() {
             </div>
           </div>
           {!editing && (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:bg-brand-bg px-3 py-1.5 rounded-lg transition-colors cursor-pointer shrink-0"
+              className="gap-1.5 shrink-0"
             >
               <Edit2 className="w-3.5 h-3.5" /> Edit
-            </button>
+            </Button>
           )}
         </div>
 
