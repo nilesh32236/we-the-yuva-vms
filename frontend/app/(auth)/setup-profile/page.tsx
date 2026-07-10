@@ -31,6 +31,7 @@ import {
 import type { OnboardingData } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
+import { FileUpload } from '../../../components/shared/FileUpload';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../lib/api';
@@ -44,6 +45,19 @@ const STEPS = [
   { icon: Shield, label: 'Emergency' },
   { icon: Check, label: 'Consent' },
 ];
+
+const FUTURE_ROLES = [
+  'TEACHING',
+  'MENTORING',
+  'FIELD_WORK',
+  'EVENT_MANAGEMENT',
+  'ADMINISTRATION',
+  'TECHNOLOGY',
+  'FUNDRAISING',
+  'CONTENT_CREATION',
+  'PHOTOGRAPHY',
+  'DOCUMENTATION',
+] as const;
 
 function ChipSelect<T extends string>({
   options,
@@ -85,6 +99,7 @@ export default function SetupProfilePage() {
 
   const [s1, setS1] = useState({
     fullName: '', gender: '' as string, dateOfBirth: '', mobile: '',
+    profilePhoto: '',
     address: '', city: '', district: '', state: '', pincode: '',
   });
   const [s2, setS2] = useState({
@@ -123,6 +138,10 @@ export default function SetupProfilePage() {
     mediaConsentAccepted: false, whatsappConsentAccepted: false,
     linkedinUrl: '', instagramUrl: '', facebookUrl: '', portfolioUrl: '',
     referralSource: '' as string,
+    preferredCauseAreas: [] as string[],
+    preferredRoles: [] as string[],
+    workingStyle: '' as string,
+    preferredEngagement: '' as string,
   });
 
   useEffect(() => {
@@ -201,6 +220,7 @@ export default function SetupProfilePage() {
           gender: s1.gender as OnboardingData['step1']['gender'],
           dateOfBirth: s1.dateOfBirth,
           mobile: s1.mobile,
+          profilePhoto: s1.profilePhoto || undefined,
           address: s1.address,
           city: s1.city,
           district: s1.district,
@@ -261,10 +281,14 @@ export default function SetupProfilePage() {
           comfortableOnline: s6.comfortableOnline,
         },
         step7: {
-          privacyPolicyAccepted: s7.privacyPolicyAccepted,
-          codeOfConductAccepted: s7.codeOfConductAccepted,
+          privacyPolicyAccepted: s7.privacyPolicyAccepted as true,
+          codeOfConductAccepted: s7.codeOfConductAccepted as true,
           mediaConsentAccepted: s7.mediaConsentAccepted,
           whatsappConsentAccepted: s7.whatsappConsentAccepted,
+          preferredCauseAreas: s7.preferredCauseAreas.length > 0 ? s7.preferredCauseAreas : undefined,
+          preferredRoles: s7.preferredRoles.length > 0 ? s7.preferredRoles : undefined,
+          workingStyle: s7.workingStyle ? s7.workingStyle as OnboardingData['step7']['workingStyle'] : undefined,
+          preferredEngagement: s7.preferredEngagement ? s7.preferredEngagement as OnboardingData['step7']['preferredEngagement'] : undefined,
           linkedinUrl: s7.linkedinUrl || undefined,
           instagramUrl: s7.instagramUrl || undefined,
           facebookUrl: s7.facebookUrl || undefined,
@@ -296,18 +320,22 @@ export default function SetupProfilePage() {
     set: (v: string) => void,
     placeholder = '',
     type = 'text',
-  ) => (
-    <div className="space-y-1.5">
-      <label className="text-sm font-medium text-brand-text">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => set(e.target.value)}
-        placeholder={placeholder}
-        className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-      />
-    </div>
-  );
+  ) => {
+    const id = `input-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    return (
+      <div className="space-y-1.5">
+        <label htmlFor={id} className="text-sm font-medium text-brand-text">{label}</label>
+        <input
+          id={id}
+          type={type}
+          value={value}
+          onChange={(e) => set(e.target.value)}
+          placeholder={placeholder}
+          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+        />
+      </div>
+    );
+  };
 
   const selectInput = (
     label: string,
@@ -315,21 +343,25 @@ export default function SetupProfilePage() {
     set: (v: string) => void,
     options: readonly string[],
     labelMap?: Partial<Record<string, string>>,
-  ) => (
-    <div className="space-y-1.5">
-      <label className="text-sm font-medium text-brand-text">{label}</label>
-      <select
-        value={value}
-        onChange={(e) => set(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-      >
-        <option value="">Select {label}</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>{labelMap?.[opt] ?? opt.replace(/_/g, ' ')}</option>
-        ))}
-      </select>
-    </div>
-  );
+  ) => {
+    const id = `select-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+    return (
+      <div className="space-y-1.5">
+        <label htmlFor={id} className="text-sm font-medium text-brand-text">{label}</label>
+        <select
+          id={id}
+          value={value}
+          onChange={(e) => set(e.target.value)}
+          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+        >
+          <option value="">Select {label}</option>
+          {options.map((opt) => (
+            <option key={opt} value={opt}>{labelMap?.[opt] ?? opt.replace(/_/g, ' ')}</option>
+          ))}
+        </select>
+      </div>
+    );
+  };
 
   const yesNoToggle = (label: string, value: boolean, set: (v: boolean) => void) => (
     <div className="flex items-center justify-between py-2">
@@ -418,6 +450,11 @@ export default function SetupProfilePage() {
           <>
             <h2 className="font-heading font-semibold text-xl text-brand-text">Personal Information</h2>
             <div className="space-y-4">
+              <FileUpload
+                label="Profile Photo (Optional)"
+                onUpload={(url) => setS1({ ...s1, profilePhoto: url })}
+                previewUrl={s1.profilePhoto}
+              />
               {commonInput('Full Name *', s1.fullName, (v) => setS1({ ...s1, fullName: v }), 'Your full name')}
               {selectInput('Gender *', s1.gender, (v) => setS1({ ...s1, gender: v }), GENDERS, { MALE: 'Male', FEMALE: 'Female', OTHER: 'Other', PREFER_NOT_TO_SAY: 'Prefer not to say' })}
               {commonInput('Date of Birth *', s1.dateOfBirth, (v) => setS1({ ...s1, dateOfBirth: v }), 'YYYY-MM-DD')}
@@ -533,7 +570,7 @@ export default function SetupProfilePage() {
               <div className="space-y-3">
                 <p className="text-sm font-medium text-brand-text">Languages *</p>
                 {s3.languages.map((l, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
+                  <div key={l.language} className="flex items-center gap-2 text-sm">
                     <span className="bg-brand-primary/10 text-brand-primary px-3 py-1 rounded-full">
                       {l.language} — {l.proficiency}
                     </span>
@@ -765,6 +802,53 @@ export default function SetupProfilePage() {
                     I consent to receiving WhatsApp communications about opportunities and updates.
                   </span>
                 </label>
+              </div>
+
+              <div className="border border-brand-border rounded-xl p-4 space-y-4">
+                <p className="text-sm font-semibold text-brand-text">Future Matching Preferences (Recommended)</p>
+                
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-brand-text">Preferred Cause Areas</p>
+                  <ChipSelect
+                    options={INTEREST_AREAS}
+                    selected={s7.preferredCauseAreas}
+                    toggle={(v) => setS7({ ...s7, preferredCauseAreas: toggleArray(s7.preferredCauseAreas, v) })}
+                    labelMap={{
+                      EDUCATION: 'Education', ENVIRONMENT: 'Environment', HEALTH: 'Health',
+                      ANIMAL_WELFARE: 'Animal Welfare', YOUTH_DEVELOPMENT: 'Youth Development',
+                      WOMENS_EMPOWERMENT: "Women's Empowerment", RURAL_DEVELOPMENT: 'Rural Development',
+                      DISASTER_RELIEF: 'Disaster Relief', ARTS_CULTURE: 'Arts & Culture',
+                      SPORTS: 'Sports', DIGITAL_LITERACY: 'Digital Literacy',
+                      SENIOR_CITIZEN_SUPPORT: 'Senior Citizen Support',
+                      COMMUNITY_DEVELOPMENT: 'Community Development', OTHER: 'Other',
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-brand-text">Preferred Volunteer Roles</p>
+                  <ChipSelect
+                    options={FUTURE_ROLES}
+                    selected={s7.preferredRoles}
+                    toggle={(v) => setS7({ ...s7, preferredRoles: toggleArray(s7.preferredRoles, v) })}
+                    labelMap={{
+                      TEACHING: 'Teaching', MENTORING: 'Mentoring', FIELD_WORK: 'Field Work',
+                      EVENT_MANAGEMENT: 'Event Management', ADMINISTRATION: 'Administration',
+                      TECHNOLOGY: 'Technology', FUNDRAISING: 'Fundraising',
+                      CONTENT_CREATION: 'Content Creation', PHOTOGRAPHY: 'Photography',
+                      DOCUMENTATION: 'Documentation'
+                    }}
+                  />
+                </div>
+
+                {selectInput('Preferred Working Style', s7.workingStyle, (v) => setS7({ ...s7, workingStyle: v }), ['INDIVIDUAL', 'TEAM', 'BOTH'] as const, {
+                  INDIVIDUAL: 'Individual', TEAM: 'Team', BOTH: 'Both (Individual or Team)'
+                })}
+
+                {selectInput('Preferred Engagement', s7.preferredEngagement, (v) => setS7({ ...s7, preferredEngagement: v }), ['ONE_DAY', 'WEEKLY', 'LONG_TERM', 'PROJECT_BASED'] as const, {
+                  ONE_DAY: 'One Day / One-off', WEEKLY: 'Weekly / Regular',
+                  LONG_TERM: 'Long-term', PROJECT_BASED: 'Project Based'
+                })}
               </div>
 
               <div className="space-y-3">
