@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [frontend, backend]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: ${{ matrix.project }}/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        if: matrix.project == 'backend'
+        working-directory: backend
+        run: pnpm db:generate
+
+      - name: Lint
+        working-directory: ${{ matrix.project }}
+        run: pnpm lint
+
+      - name: Type check
+        working-directory: ${{ matrix.project }}
+        run: pnpm typecheck
+
+      - name: Build
+        working-directory: ${{ matrix.project }}
+        run: pnpm build
+
+      - name: Run tests
+        if: matrix.project == 'backend'
+        working-directory: backend
+        run: pnpm test
