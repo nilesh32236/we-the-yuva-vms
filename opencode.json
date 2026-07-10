@@ -1,0 +1,26 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"permission": {
+		"task": "allow",
+		"subagent": {
+			"*": "allow"
+		},
+		"bash": "allow",
+		"edit": "allow",
+		"write": "allow",
+		"read": "allow"
+	},
+	"plugin": [
+		"superpowers@git+https://github.com/obra/superpowers.git",
+		"opencode-notify"
+	],
+	"mcp": {
+		"github": {
+			"type": "local",
+			"command": ["npx", "-y", "@github/github-mcp-server"],
+			"environment": {
+				"GITHUB_TOKEN": ""
+			}
+		}
+	}
+}

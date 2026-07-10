@@ -1,0 +1,197 @@
+'use client';
+
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { ExternalLink, Search, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import Pagination from '@/components/shared/Pagination';
+import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
+import { useState } from 'react';
+import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { useToast } from '../../../../hooks/use-toast';
+import { api } from '../../../../lib/api';
+
+const STATUS_COLORS: Record<string, string> = {
+  ACTIVE: 'bg-brand-primary/10 text-brand-primary',
+  CLOSED: 'bg-muted text-muted-foreground',
+  DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+};
+
+export default function AdminOpportunitiesPage() {
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [closing, setClosing] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-opportunities', search, page],
+    queryFn: () =>
+      api
+        .get('/opportunities', { params: { search: search || undefined, page, limit: 20 } })
+        .then((r) => r.data),
+    staleTime: 30_000,
+  });
+
+  const handleClose = async (id: string, title: string) => {
+    setConfirmAction({ id, title });
+  };
+
+  const executeClose = async () => {
+    if (!confirmAction) return;
+    const { id } = confirmAction;
+    setConfirmAction(null);
+    setClosing(id);
+    try {
+      await api.delete(`/opportunities/${id}`);
+      toast({ title: 'Opportunity closed' });
+      qc.invalidateQueries({ queryKey: ['admin-opportunities'] });
+    } catch {
+      toast({ title: 'Error', variant: 'destructive' });
+    } finally {
+      setClosing(null);
+    }
+  };
+
+  return (
+    <div className="space-y-5 max-w-6xl">
+      <h1 className="font-heading font-bold text-xl text-brand-text">All Opportunities</h1>
+
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+        <input
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search…"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+        />
+      </div>
+
+      {isLoading ? (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : !data?.data?.length ? (
+        <div className="text-center py-12 text-brand-muted text-sm">No opportunities found</div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <div className="bg-brand-surface rounded-2xl border border-brand-border">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-brand-border bg-brand-bg">
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                    >
+                      Title
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell"
+                    >
+                      Category
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+                    >
+                      Created by
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+                    >
+                      Status
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+                    >
+                      Slots
+                    </th>
+                    <th scope="col" className="px-4 py-3 w-12" />
+                    <th scope="col" className="px-4 py-3 w-12" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-border">
+                  {data?.data?.map(
+                    (opp: {
+                      id: string;
+                      title: string;
+                      category: string;
+                      status: string;
+                      totalSlots: number;
+                      createdBy?: { name: string };
+                      _count?: { applications: number };
+                    }) => (
+                      <tr key={opp.id} className="hover:bg-brand-bg/50 transition-colors">
+                        <td className="px-4 py-3 font-medium text-brand-text max-w-[180px] truncate">
+                          {opp.title}
+                        </td>
+                        <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
+                          {opp.category}
+                        </td>
+                        <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
+                          {opp.createdBy?.name ?? '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[opp.status] ?? ''}`}
+                          >
+                            {opp.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
+                          {opp._count?.applications ?? 0} / {opp.totalSlots}
+                        </td>
+                        <td className="px-4 py-3">
+                          {opp.status === 'ACTIVE' && (
+                            <button
+                              type="button"
+                              onClick={() => handleClose(opp.id, opp.title)}
+                              disabled={closing === opp.id}
+                              className="p-1.5 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer"
+                              title="Close"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/admin/opportunities/${opp.id}`}
+                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
+                            title="Manage"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                        </td>
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+        </>
+      )}
+
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title="Close Opportunity"
+        message={`Close "${confirmAction?.title ?? ''}"? This will remove it from the platform.`}
+        confirmLabel="Close"
+        loading={closing !== null}
+        onConfirm={executeClose}
+        onCancel={() => setConfirmAction(null)}
+      />
+    </div>
+  );
+}

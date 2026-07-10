@@ -1,0 +1,81 @@
+import { withSerwist } from '@serwist/turbopack';
+import type { NextConfig } from 'next';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
+
+let apiOrigin = 'http://localhost:4000';
+try {
+  apiOrigin = new URL(API_URL).origin;
+} catch {}
+
+const getApiRemotePattern = () => {
+  const defaultPattern = {
+    protocol: 'http' as const,
+    hostname: 'localhost',
+  };
+
+  try {
+    const parsed = new URL(API_URL);
+    const protocol = parsed.protocol.replace(':', '') as 'http' | 'https';
+    return {
+      protocol,
+      hostname: parsed.hostname,
+      ...(parsed.port ? { port: parsed.port } : {}),
+    };
+  } catch {
+    return defaultPattern;
+  }
+};
+
+const nextConfig: NextConfig = {
+  ...(process.env.DOCKER_BUILD ? { output: 'standalone' } : {}),
+  poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'plus.unsplash.com',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      getApiRemotePattern(),
+    ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${API_URL}/api/v1/:path*`,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self' ${apiOrigin}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default withSerwist(nextConfig);

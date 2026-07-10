@@ -1,0 +1,425 @@
+@import "tailwindcss";
+
+/* ─── Class-based dark mode for next-themes ──────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Brand Design Tokens ─────────────────────────────────────── */
+@theme {
+  /* Colors — values reference CSS variables defined on :root / .dark */
+  --color-brand-primary: var(--clr-brand-primary);
+  --color-brand-secondary: var(--clr-brand-secondary);
+  --color-brand-cta: var(--clr-brand-cta);
+  --color-brand-accent: var(--clr-brand-accent);
+  --color-brand-accent-foreground: var(--clr-brand-accent-foreground);
+  --color-brand-bg: var(--clr-brand-bg);
+  --color-brand-text: var(--clr-brand-text);
+  --color-brand-muted: var(--clr-brand-muted);
+  --color-brand-error: var(--clr-brand-error);
+  --color-brand-surface: var(--clr-brand-surface);
+  --color-brand-border: var(--clr-brand-border);
+
+  /* shadcn/ui CSS variables mapped to Tailwind v4 */
+  --color-background: var(--clr-background);
+  --color-foreground: var(--clr-foreground);
+  --color-card: var(--clr-card);
+  --color-card-foreground: var(--clr-card-foreground);
+  --color-primary: var(--clr-primary);
+  --color-primary-foreground: var(--clr-primary-foreground);
+  --color-secondary: var(--clr-secondary);
+  --color-secondary-foreground: var(--clr-secondary-foreground);
+  --color-muted: var(--clr-muted);
+  --color-muted-foreground: var(--clr-muted-foreground);
+  --color-accent: var(--clr-accent);
+  --color-accent-foreground: var(--clr-accent-foreground);
+  --color-destructive: var(--clr-destructive);
+  --color-destructive-foreground: var(--clr-destructive-foreground);
+  --color-border: var(--clr-border);
+  --color-input: var(--clr-input);
+  --color-ring: var(--clr-ring);
+
+  /* Fonts — Inter for body, Poppins for headings */
+  --font-heading: "Poppins", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* Border radius */
+  --radius: 0.75rem;
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in-up: fade-in-up 0.6s ease-out;
+  --animate-scale-in: scale-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-subtle-pulse: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* ─── Light Theme (default) ───────────────────────────────────── */
+:root {
+  --clr-brand-primary: #047857;
+  --clr-brand-secondary: #059669;
+  --clr-brand-cta: #0891b2;
+  --clr-brand-accent: #d97706;
+  --clr-brand-accent-foreground: #ffffff;
+  --clr-brand-bg: #ecfdf5;
+  --clr-brand-text: #065f46;
+  --clr-brand-muted: #6b7280;
+  --clr-brand-error: #dc2626;
+  --clr-brand-surface: #ffffff;
+  --clr-brand-border: #d1fae5;
+
+  --clr-background: #ffffff;
+  --clr-foreground: #065f46;
+  --clr-card: #ffffff;
+  --clr-card-foreground: #065f46;
+  --clr-primary: #047857;
+  --clr-primary-foreground: #ffffff;
+  --clr-secondary: #059669;
+  --clr-secondary-foreground: #ffffff;
+  --clr-muted: #f8fafc;
+  --clr-muted-foreground: #6b7280;
+  --clr-accent: #f8fafc;
+  --clr-accent-foreground: #065f46;
+  --clr-destructive: #dc2626;
+  --clr-destructive-foreground: #ffffff;
+  --clr-border: #d1fae5;
+  --clr-input: #d1fae5;
+  --clr-ring: #047857;
+}
+
+/* ─── Dark Theme ────────────────────────────────────────────────── */
+.dark {
+  --clr-brand-primary: #34d399;
+  --clr-brand-secondary: #6ee7b7;
+  --clr-brand-cta: #22d3ee;
+  --clr-brand-accent: #fbbf24;
+  --clr-brand-accent-foreground: #0f172a;
+  --clr-brand-bg: #0c1222;
+  --clr-brand-text: #e2e8f0;
+  --clr-brand-muted: #94a3b8;
+  --clr-brand-error: #f87171;
+  --clr-brand-surface: #1a2332;
+  --clr-brand-border: #1e293b;
+
+  --clr-background: #0c1222;
+  --clr-foreground: #e2e8f0;
+  --clr-card: #1a2332;
+  --clr-card-foreground: #e2e8f0;
+  --clr-primary: #34d399;
+  --clr-primary-foreground: #0c1222;
+  --clr-secondary: #6ee7b7;
+  --clr-secondary-foreground: #0c1222;
+  --clr-muted: #1a2332;
+  --clr-muted-foreground: #94a3b8;
+  --clr-accent: #1a2332;
+  --clr-accent-foreground: #e2e8f0;
+  --clr-destructive: #f87171;
+  --clr-destructive-foreground: #0c1222;
+  --clr-border: #1e293b;
+  --clr-input: #1e293b;
+  --clr-ring: #34d399;
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Keyframes ───────────────────────────────────────────────── */
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ─── Base Styles ─────────────────────────────────────────────── */
+@layer base {
+  * {
+    border-color: var(--color-border);
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  html {
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-brand-bg);
+    color: var(--color-brand-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-touch-callout: none;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    scroll-margin-top: 5rem;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  [data-scroll] {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* ─── NProgress Top Loading Bar ──────────────────────────────── */
+#nprogress .bar {
+  background: #059669 !important;
+  height: 3px !important;
+}
+
+.dark #nprogress .bar {
+  background: #34d399 !important;
+}
+
+/* ─── Staggered Reveal Utility ───────────────────────────────── */
+.stagger-group > * {
+  opacity: 0;
+}
+
+.stagger-group.in-view > * {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.stagger-group.in-view > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-group.in-view > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-group.in-view > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-group.in-view > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-group.in-view > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-group.in-view > *:nth-child(6) { animation-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stagger-group > * {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* ─── Safe Area Utilities ─────────────────────────────────────── */
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .pl-safe {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+  .pr-safe {
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pb-nav-safe {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  }
+  .h-dvh {
+    height: 100dvh;
+  }
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+  .touch-select-none {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .active-bounce {
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .active-bounce:active {
+    transform: scale(0.96);
+  }
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--color-brand-primary);
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ─── Blog Content Prose ──────────────────────────────────────── */
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.5em 0 0.5em;
+  color: var(--color-brand-text);
+}
+
+.blog-content h1 { font-size: 1.75rem; }
+.blog-content h2 { font-size: 1.375rem; }
+.blog-content h3 { font-size: 1.125rem; }
+
+.blog-content p {
+  margin: 0.75em 0;
+  line-height: 1.75;
+}
+
+.blog-content ul,
+.blog-content ol {
+  padding-left: 1.5rem;
+  margin: 0.75em 0;
+}
+
+.blog-content ul { list-style-type: disc; }
+.blog-content ol { list-style-type: decimal; }
+
+.blog-content li { margin: 0.3em 0; }
+
+.blog-content blockquote {
+  border-left: 3px solid var(--color-brand-primary);
+  margin: 1em 0;
+  padding: 0.5em 1em;
+  color: var(--color-brand-muted);
+  font-style: italic;
+  background: var(--color-brand-bg);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.blog-content code {
+  background: var(--color-brand-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.85em;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.blog-content pre {
+  background: var(--color-brand-bg);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1em 0;
+  border: 1px solid var(--color-brand-border);
+}
+
+.blog-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.blog-content a {
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-content img {
+  border-radius: 0.75rem;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5em auto;
+}
+
+.blog-content hr {
+  border: none;
+  border-top: 1px solid var(--color-brand-border);
+  margin: 2em 0;
+}
+
+/* ─── Webkit Custom Theme-aware Scrollbars ────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-primary);
+}
