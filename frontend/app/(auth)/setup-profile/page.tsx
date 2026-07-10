@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Check,
@@ -338,6 +339,7 @@ export default function SetupProfilePage() {
           value={value}
           onChange={(e) => set(e.target.value)}
           placeholder={placeholder}
+          aria-describedby={error ? `${id}-error` : undefined}
           className={`w-full px-4 py-2.5 rounded-lg border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
             error ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
           }`}
@@ -367,6 +369,7 @@ export default function SetupProfilePage() {
           id={id}
           value={value}
           onChange={(e) => set(e.target.value)}
+          aria-describedby={error ? `${id}-error` : undefined}
           className={`w-full px-4 py-2.5 rounded-lg border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
             error ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
           }`}
@@ -918,6 +921,7 @@ export default function SetupProfilePage() {
 
         {formError && (
           <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400" role="alert">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{formError}</p>
             <button
               type="button"
