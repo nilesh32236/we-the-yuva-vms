@@ -63,13 +63,13 @@ jobs:
           fail() { echo "::warning::audit: $*"; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; }
 
           shopt -s nullglob
-          PROMPTS=(frontend/.audit-prompts/*.md)
-          [ ${#PROMPTS[@]} -eq 0 ] && fail "No prompt files found in frontend/.audit-prompts/"
+          PROMPTS=(.audit-prompts/*.md)
+          [ ${#PROMPTS[@]} -eq 0 ] && fail "No prompt files found in .audit-prompts/"
 
           if [ -n "${{ github.event.inputs.prompt_name }}" ]; then
             SPECIFIC=".audit-prompts/${{ github.event.inputs.prompt_name }}.md"
             if [ ! -f "$SPECIFIC" ]; then
-              fail "Requested prompt '${{ github.event.inputs.prompt_name }}' not found"
+              fail "Requested prompt '${{ github.event.inputs.prompt_name }}' not found in .audit-prompts/"
             fi
             CATEGORY="${{ github.event.inputs.prompt_name }}"
             echo "prompt_file=$SPECIFIC" >> "$GITHUB_OUTPUT"
