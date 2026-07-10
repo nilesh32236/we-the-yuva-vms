@@ -9,6 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../lib/api';
+import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 // ─── Tag Input ────────────────────────────────────────────────────
 
@@ -439,21 +440,8 @@ export default function SetupProfilePage() {
   }, [user, isLoading, router]);
 
   const handleComplete = async () => {
-    const res = await api.get('/users/me');
     await refetch();
-    const role: string | undefined = res.data?.role;
-    if (role === 'VOLUNTEER') {
-      router.push('/volunteer/dashboard');
-      return;
-    }
-    const roleRoutes: Record<string, string> = {
-      COORDINATOR: '/coordinator/dashboard',
-      ADMIN: '/admin/dashboard',
-      PLATFORM_MANAGER: '/admin/dashboard',
-      OBSERVER: '/observer/dashboard',
-      ORGANIZATION_ADMIN: '/organization/dashboard',
-    };
-    router.push(roleRoutes[role ?? ''] ?? '/login');
+    router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
   };
 
   if (!user)

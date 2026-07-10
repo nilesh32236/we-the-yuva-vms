@@ -6,6 +6,7 @@ import { api, setAccessToken } from './api';
 import { clearQueue } from './offline-queue';
 import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
+import { ROLE_ROUTES, ROLE_ROUTE_PREFIXES, ONBOARDING_ROUTES } from './shared/permissions';
 
 export interface AuthUser {
   id: string;
@@ -65,7 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.get<AuthUser>('/users/me');
       setUser(response.data);
     } catch (err) {
-      console.error('Failed to fetch user session:', err);
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosErr = err as { response?: { status?: number } };
         if (axiosErr.response?.status && axiosErr.response.status >= 500) {
@@ -105,6 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         !user.locationId
       ) {
         router.replace('/setup-profile');
+      } else if (!ONBOARDING_ROUTES.some((r) => pathname.startsWith(r))) {
+        const allowedPrefixes = ROLE_ROUTE_PREFIXES[user.role];
+        if (
+          allowedPrefixes &&
+          !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))
+        ) {
+          router.replace(ROLE_ROUTES[user.role] ?? '/login');
+        }
       }
     }
   }, [user, isLoading, pathname, router]);

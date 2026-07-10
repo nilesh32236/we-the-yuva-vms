@@ -67,3 +67,23 @@ export const Permissions = {
 } as const;
 
 export type Permission = (typeof Permissions)[keyof typeof Permissions];
+
+export const ROLE_ROUTES: Record<string, string> = {
+  VOLUNTEER: '/volunteer/dashboard',
+  COORDINATOR: '/coordinator/dashboard',
+  ADMIN: '/admin/dashboard',
+  OBSERVER: '/observer/dashboard',
+  ORGANIZATION_ADMIN: '/organization/dashboard',
+  PLATFORM_MANAGER: '/admin/dashboard',
+};
+
+export const ROLE_ROUTE_PREFIXES: Record<string, string[]> = {
+  VOLUNTEER: ['/volunteer'],
+  COORDINATOR: ['/coordinator'],
+  ORGANIZATION_ADMIN: ['/organization'],
+  ADMIN: ['/admin'],
+  PLATFORM_MANAGER: ['/admin'],
+  OBSERVER: ['/observer'],
+};
+
+export const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
