@@ -22,5 +22,7 @@ jobs:
           git clone --depth=1 "$HF_REPO" hf-repo
           rsync -av --delete --exclude='.git' backend/ hf-repo/
           cd hf-repo
+          git config user.name "nilesh32236"
+          git config user.email "nilesh32236@gmail.com"
           git add -A
           git diff --quiet --cached || (git commit -m "Sync backend from monorepo [$(date -u +'%Y-%m-%dT%H:%M:%SZ')]" && git push)
