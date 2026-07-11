@@ -165,6 +165,7 @@ export async function getAttendanceListHandler(
     if (req.query.listAll === 'true') {
       const list = await prisma.attendance.findMany({
         where: { eventId: req.params.id },
+        take: 500,
         include: {
           volunteer: { select: { id: true, name: true, email: true } },
         },

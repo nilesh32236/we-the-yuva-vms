@@ -80,6 +80,7 @@ export async function getRecommendedOpportunities(volunteerId: string) {
 
     // 2. Fetch all ACTIVE opportunities with startDate in the future
     const opportunities = await prisma.opportunity.findMany({
+      take: 50,
       where: {
         status: 'ACTIVE',
         startDate: { gt: new Date() },

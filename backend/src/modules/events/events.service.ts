@@ -98,7 +98,9 @@ export async function createEvent(
       }
     };
 
-    send();
+    send().catch((err) =>
+      logger.warn('Event invitation send failed', { error: (err as Error).message })
+    );
   }
 
   return event;
@@ -114,6 +116,7 @@ export async function listEventsByOpportunity(
         opportunityId,
         status: { not: 'CANCELLED' },
       },
+      take: 50,
       orderBy: { eventDate: 'asc' },
     });
   }
@@ -783,6 +786,7 @@ export async function exportEventsCsv(callerOrgId: string | null | undefined) {
   const where = callerOrgId ? { opportunity: { organizationId: callerOrgId } } : {};
   const events = await prisma.event.findMany({
     where,
+    take: 1000,
     orderBy: { eventDate: 'desc' },
     include: {
       opportunity: { select: { title: true } },

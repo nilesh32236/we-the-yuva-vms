@@ -55,26 +55,31 @@ export async function sendPushToUser(
 
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
 
-  await prisma.notification.create({ data: { userId, title, body, link, type } });
+await prisma.notification.create({ data: { userId, title, body, link, type } });
 
-  for (const sub of subs) {
-    try {
-      await webpush.sendNotification(
-        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        JSON.stringify({ title, body, link })
+const results = await Promise.allSettled(
+  subs.map((sub) =>
+    webpush.sendNotification(
+      { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+      JSON.stringify({ title, body, link })
+    )
+  )
+);
+
+for (let i = 0; i < subs.length; i++) {
+  if (results[i].status === 'rejected') {
+    const reason = (results[i] as PromiseRejectedResult).reason;
+    logger.warn('Push send failed, removing subscription', {
+      endpoint: subs[i].endpoint.slice(0, 30),
+      error: (reason as Error).message,
+    });
+    await prisma.pushSubscription
+      .deleteMany({ where: { endpoint: subs[i].endpoint } })
+      .catch((err) =>
+        logger.warn('Failed to clean up push subscription', { error: (err as Error).message })
       );
-    } catch (err) {
-      logger.warn('Push send failed, removing subscription', {
-        endpoint: sub.endpoint.slice(0, 30),
-        error: (err as Error).message,
-      });
-      await prisma.pushSubscription
-        .deleteMany({ where: { endpoint: sub.endpoint } })
-        .catch((err) =>
-          logger.warn('Failed to clean up push subscription', { error: (err as Error).message })
-        );
-    }
   }
+}
 }
 
 export async function sendEmailToUser(
@@ -125,15 +130,20 @@ export async function getNotification(userId: string, notificationId: string) {
 }
 
 export async function deleteNotification(userId: string, notificationId: string) {
-  const n = await prisma.notification.findFirst({ where: { id: notificationId, userId } });
-  if (!n) throw new AppError('Notification not found', 404);
-  return prisma.notification.delete({ where: { id: notificationId } });
+  try {
+    return await prisma.notification.delete({ where: { id: notificationId, userId } });
+  } catch {
+    throw new AppError('Notification not found', 404);
+  }
 }
 
 export async function markRead(userId: string, notificationId: string) {
-  const n = await prisma.notification.findFirst({ where: { id: notificationId, userId } });
-  if (!n) throw new AppError('Notification not found', 404);
-  return prisma.notification.update({ where: { id: notificationId }, data: { read: true } });
+  const { count } = await prisma.notification.updateMany({
+    where: { id: notificationId, userId },
+    data: { read: true },
+  });
+  if (count === 0) throw new AppError('Notification not found', 404);
+  return { id: notificationId, read: true };
 }
 
 export async function markAllRead(userId: string) {
