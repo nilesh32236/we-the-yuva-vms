@@ -194,7 +194,7 @@ export default function AdminStoryDetailPage() {
         title="Delete Story"
         message={`Delete "${story.title}"? This action cannot be undone.`}
         confirmLabel="Delete"
-        variant="danger"
+        variant="destructive"
         loading={deleteMut.isPending}
         onConfirm={() => deleteMut.mutate()}
         onCancel={() => setShowDeleteConfirm(false)}
