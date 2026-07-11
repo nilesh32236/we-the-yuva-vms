@@ -3,18 +3,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
+  Briefcase,
   Building2,
+  Calendar,
   CheckCircle2,
   Clock,
   Download,
+  FileSpreadsheet,
   FileText,
   ShieldAlert,
-  Users,
-  Briefcase,
-  Calendar,
-  UserCheck,
-  FileSpreadsheet,
   Target,
+  UserCheck,
+  Users,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,6 +22,7 @@ import { useParams } from 'next/navigation';
 import { StatsCard } from '@/components/charts/StatsCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 interface Document {
   id: string;
@@ -99,13 +100,13 @@ export default function AdminOrgDetailPage() {
         <p className="text-sm text-brand-muted mb-6">
           {(error as Error)?.message ?? 'An unexpected error occurred.'}
         </p>
-        <button
+        <Button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 mt-4"
         >
           Try Again
-        </button>
+        </Button>
       </div>
     );
   }
@@ -299,43 +300,41 @@ export default function AdminOrgDetailPage() {
         <div className="flex flex-wrap gap-3">
           {org.status === 'PENDING' && (
             <>
-              <button
+              <Button
                 type="button"
                 onClick={() => verifyMut.mutate(true)}
-                disabled={verifyMut.isPending}
-                className="px-6 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-50 shadow-sm"
+                loading={verifyMut.isPending}
               >
-                {verifyMut.isPending ? 'Processing...' : 'Approve & Verify'}
-              </button>
-              <button
+                Approve & Verify
+              </Button>
+              <Button
                 type="button"
+                variant="destructive"
                 onClick={() => verifyMut.mutate(false)}
                 disabled={verifyMut.isPending}
-                className="px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer transition-colors disabled:opacity-50"
               >
                 Reject
-              </button>
+              </Button>
             </>
           )}
           {org.status === 'ACTIVE' && (
-            <button
+            <Button
               type="button"
+              variant="destructive"
               onClick={() => verifyMut.mutate(false)}
-              disabled={verifyMut.isPending}
-              className="px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer transition-colors disabled:opacity-50"
+              loading={verifyMut.isPending}
             >
-              {verifyMut.isPending ? 'Processing...' : 'Suspend'}
-            </button>
+              Suspend
+            </Button>
           )}
           {org.status === 'SUSPENDED' && (
-            <button
+            <Button
               type="button"
               onClick={() => verifyMut.mutate(true)}
-              disabled={verifyMut.isPending}
-              className="px-6 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-50 shadow-sm"
+              loading={verifyMut.isPending}
             >
-              {verifyMut.isPending ? 'Processing...' : 'Reactivate'}
-            </button>
+              Reactivate
+            </Button>
           )}
         </div>
       </div>

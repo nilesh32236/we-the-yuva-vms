@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, BookOpen, CheckCircle, XCircle, Trash2, ShieldAlert, User } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle, ShieldAlert, Trash2, User, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 interface StoryDetail {
   id: string;
@@ -72,13 +73,13 @@ export default function AdminStoryDetailPage() {
       <div className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load story</p>
-        <button
+        <Button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm mt-4"
+          className="inline-flex items-center gap-2 mt-4"
         >
           Try Again
-        </button>
+        </Button>
       </div>
     );
   }
@@ -165,31 +166,29 @@ export default function AdminStoryDetailPage() {
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
         <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Actions</h2>
         <div className="flex flex-wrap gap-3">
-          <button
+          <Button
             type="button"
             onClick={() => moderateMut.mutate(!story.published)}
-            disabled={moderateMut.isPending}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-50 shadow-sm"
+            loading={moderateMut.isPending}
+            className="inline-flex items-center gap-2"
           >
-            {story.published ? (
-              <XCircle className="w-4 h-4" />
-            ) : (
-              <CheckCircle className="w-4 h-4" />
-            )}
-            {moderateMut.isPending
-              ? 'Processing...'
-              : story.published
-                ? 'Unpublish'
-                : 'Approve & Publish'}
-          </button>
-          <button
+            {!moderateMut.isPending &&
+              (story.published ? (
+                <XCircle className="w-4 h-4" />
+              ) : (
+                <CheckCircle className="w-4 h-4" />
+              ))}
+            {story.published ? 'Unpublish' : 'Approve & Publish'}
+          </Button>
+          <Button
             type="button"
+            variant="destructive"
             onClick={() => setShowDeleteConfirm(true)}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
             Delete Story
-          </button>
+          </Button>
         </div>
       </div>
 
