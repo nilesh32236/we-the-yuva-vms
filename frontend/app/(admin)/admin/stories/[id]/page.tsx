@@ -170,21 +170,18 @@ export default function AdminStoryDetailPage() {
             type="button"
             onClick={() => moderateMut.mutate(!story.published)}
             loading={moderateMut.isPending}
-            className="inline-flex items-center gap-2"
           >
-            {!moderateMut.isPending &&
-              (story.published ? (
-                <XCircle className="w-4 h-4" />
-              ) : (
-                <CheckCircle className="w-4 h-4" />
-              ))}
+            {story.published ? (
+              <XCircle className="w-4 h-4" />
+            ) : (
+              <CheckCircle className="w-4 h-4" />
+            )}
             {story.published ? 'Unpublish' : 'Approve & Publish'}
           </Button>
           <Button
             type="button"
             variant="destructive"
             onClick={() => setShowDeleteConfirm(true)}
-            className="inline-flex items-center gap-2"
           >
             <Trash2 className="w-4 h-4" />
             Delete Story

@@ -311,7 +311,7 @@ export default function AdminOrgDetailPage() {
                 type="button"
                 variant="destructive"
                 onClick={() => verifyMut.mutate(false)}
-                disabled={verifyMut.isPending}
+                loading={verifyMut.isPending}
               >
                 Reject
               </Button>

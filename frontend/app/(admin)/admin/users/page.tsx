@@ -156,7 +156,6 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             type="button"
-            variant="primary"
             onClick={() => create.mutate()}
             disabled={!form.name || !form.email}
             loading={create.isPending}
@@ -199,7 +198,7 @@ export default function AdminUsersPage() {
     <div className="space-y-5 max-w-6xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Users</h1>
-        <Button type="button" variant="primary" onClick={() => setShowCreate(true)}>
+        <Button type="button" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> Create User
         </Button>
       </div>
