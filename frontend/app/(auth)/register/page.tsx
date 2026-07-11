@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, ArrowRight, Mail, User } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ArrowRight, Mail, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [ready, setReady] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Redirect to dashboard or onboarding if already authenticated
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
+    setFormError(null);
     try {
       await api.post('/auth/register', data);
       toast({
@@ -80,9 +82,10 @@ export default function RegisterPage() {
       };
       const status = err?.response?.status;
       if (status === 409) {
+        setFormError('This email is already registered. Please log in instead.');
         toast({
           title: 'Email already registered',
-          description: 'This email is already registered. Please log in.',
+          description: 'Please log in instead.',
           variant: 'destructive',
         });
       } else {
@@ -90,6 +93,7 @@ export default function RegisterPage() {
           err?.normalizedMessage ??
           err?.response?.data?.error ??
           'Something went wrong. Please try again.';
+        setFormError(message);
         toast({ title: 'Error', description: message, variant: 'destructive' });
       }
     } finally {
@@ -118,6 +122,22 @@ export default function RegisterPage() {
             Join thousands of volunteers making a difference
           </p>
         </div>
+
+        {/* Inline API error banner */}
+        {formError && (
+          <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400" role="alert">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <p className="flex-1">{formError}</p>
+            <button
+              type="button"
+              onClick={() => setFormError(null)}
+              className="text-red-500 hover:text-red-700 cursor-pointer shrink-0"
+              aria-label="Dismiss error"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           {/* Name field */}

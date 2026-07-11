@@ -45,6 +45,10 @@ const nextConfig: NextConfig = {
         hostname: 'localhost',
       },
       getApiRemotePattern(),
+      {
+        protocol: 'https' as const,
+        hostname: 'huggingface.co',
+      },
     ],
   },
   async rewrites() {
@@ -70,7 +74,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com; connect-src 'self' ${apiOrigin}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com https://huggingface.co; connect-src 'self' ${apiOrigin}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
           },
         ],
       },
