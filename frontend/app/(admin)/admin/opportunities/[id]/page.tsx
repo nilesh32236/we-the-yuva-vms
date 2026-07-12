@@ -105,7 +105,7 @@ export default function AdminOpportunityDetailPage() {
         <button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm mt-4"
+          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-11 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm mt-4"
         >
           Try Again
         </button>

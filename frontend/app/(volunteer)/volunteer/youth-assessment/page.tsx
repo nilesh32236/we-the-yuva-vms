@@ -257,7 +257,7 @@ export default function YouthAssessmentPage() {
             {steps.map((s, idx) => (
               <div
                 key={s.id}
-                role="progressbar"
+                role="img"
                 aria-current={idx === step ? 'step' : undefined}
                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? 'w-8 bg-brand-primary' : idx < step ? 'w-4 bg-brand-primary/40' : 'w-4 bg-muted'}`}
               />

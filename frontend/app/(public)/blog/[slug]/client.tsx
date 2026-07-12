@@ -36,7 +36,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
       <div className="min-h-screen bg-brand-bg py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <p className="text-brand-muted">Post not found.</p>
-          <Link href="/blog" className="text-brand-primary hover:underline mt-2 inline-block">
+          <Link href="/blog" className="text-brand-primary hover:underline mt-2 inline-block py-3 focus-visible:ring-2 focus-visible:ring-ring">
             Back to blog
           </Link>
         </div>

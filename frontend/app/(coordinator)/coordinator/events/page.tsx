@@ -214,7 +214,15 @@ export default function CoordinatorEventsPage() {
       <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
 
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-dialog-title"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setConfirmAction(null);
+          }}
+        >
           <div ref={cancelDialogRef} className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
             <h3 id="cancel-dialog-title" className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
             <p className="text-sm text-brand-muted mb-4">

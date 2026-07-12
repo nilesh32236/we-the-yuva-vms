@@ -75,7 +75,7 @@ export default function AboutPage() {
     <>
       <section className="bg-brand-primary py-20 sm:py-28">
         <div className={`${containerClass} text-center`}>
-          <span className="inline-block text-emerald-200 text-sm font-semibold tracking-widest uppercase mb-4">
+          <span className="inline-block text-brand-muted text-sm font-semibold tracking-widest uppercase mb-4">
             About Us
           </span>
           <h1 className="font-heading text-4xl sm:text-5xl font-bold text-white leading-tight max-w-3xl mx-auto">
@@ -192,7 +192,7 @@ export default function AboutPage() {
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white">
             Ready to make a difference?
           </h2>
-          <p className="text-emerald-100 text-lg mt-4">Join 7,000+ volunteers across India</p>
+          <p className="text-white/80 text-lg mt-4">Join 7,000+ volunteers across India</p>
           <div className="mt-8">
             <Link
               href="/register"

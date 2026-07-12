@@ -150,7 +150,7 @@ function CallAvailabilityInput({
               <button
                 type="button"
                 onClick={() => removeSlot(i)}
-                className="text-brand-error hover:text-red-700 cursor-pointer"
+                className="text-brand-error hover:text-brand-error/80 cursor-pointer"
                 aria-label="Remove time slot"
               >
                 <X className="w-4 h-4" />
@@ -298,7 +298,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setFormError(null)}
-              className="text-red-500 hover:text-red-700 cursor-pointer shrink-0"
+              className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0"
               aria-label="Dismiss error"
             >
               <X className="w-4 h-4" />

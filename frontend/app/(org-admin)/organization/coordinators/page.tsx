@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -25,6 +25,14 @@ export default function OrganizationCoordinatorsPage() {
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [formErrors, setFormErrors] = useState<{ name?: string; email?: string }>({});
   const [confirmingRemove, setConfirmingRemove] = useState<{ id: string; name: string } | null>(null);
+  const removeDialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (confirmingRemove && removeDialogRef.current) {
+      const firstButton = removeDialogRef.current.querySelector('button');
+      firstButton?.focus();
+    }
+  }, [confirmingRemove]);
 
   const orgId = user?.organizationId;
 
@@ -229,8 +237,11 @@ export default function OrganizationCoordinatorsPage() {
           aria-modal="true"
           aria-labelledby="confirm-dialog-title"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setConfirmingRemove(null);
+          }}
         >
-          <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 shadow-xl max-w-sm w-full mx-4">
+          <div ref={removeDialogRef} className="bg-brand-surface rounded-2xl border border-brand-border p-6 shadow-xl max-w-sm w-full mx-4">
             <h2 id="confirm-dialog-title" className="font-heading font-bold text-lg text-brand-text mb-2">
               Remove Coordinator
             </h2>
