@@ -121,32 +121,36 @@ jobs:
             echo "dir=backend/src" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Setup OpenCode
+        if: steps.select-prompt.outputs.skip != 'true'
+        run: |
+          chmod +x .github/scripts/setup-opencode.sh
+          .github/scripts/setup-opencode.sh
+
       - name: Run OpenCode audit
         if: steps.select-prompt.outputs.skip != 'true'
         continue-on-error: true
-        uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-        with:
-          model: opencode/deepseek-v4-flash-free
-          use_github_token: true
-          share: false
-          prompt: |
-            Read the prompt file at `${{ steps.select-prompt.outputs.prompt_file }}`.
+        run: |
+          PROMPT_FILE="${{ steps.select-prompt.outputs.prompt_file }}"
+          TARGET_DIR="${{ steps.select-dir.outputs.dir }}"
 
-            Audit the directory: `${{ steps.select-dir.outputs.dir }}`
+          # Build the audit prompt dynamically
+          cat << 'AUDIT_EOF' | sed 's/^            //' > /tmp/prompt.txt
+            $(cat "$PROMPT_FILE")
 
-            IMPORTANT: If the target directory starts with `frontend/`, read `frontend/AGENTS.md` for conventions. If it starts with `backend/`, refer to `backend/README.md` for project context.
+            Audit the directory: \`${TARGET_DIR}\`
 
-            The prompt file tells you what to check. Follow its instructions exactly.
+            IMPORTANT: If the target directory starts with \`frontend/\`, read \`frontend/AGENTS.md\` for conventions. If it starts with \`backend/\`, refer to \`backend/README.md\` for project context.
 
             This is a monorepo with:
-            - `frontend/` — Next.js 16 App Router (React 19, Tailwind v4)
-            - `backend/` — Express REST API (Node.js, Prisma, Zod)
+            - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4)
+            - \`backend/\` — Express REST API (Node.js, Prisma, Zod)
 
             Context window management:
             - If the target directory has more than 15 files, batch them into groups of at most 5 files.
-            - Dispatch a sub-agent for each batch via the `task` tool with `subagent_type: "general"`.
+            - Dispatch a sub-agent for each batch via the \`task\` tool with \`subagent_type: "general"\`.
             - Collect all results before writing the final output.
             - If any single file exceeds 300 lines, audit it in a separate sub-agent call.
 
@@ -159,10 +163,13 @@ jobs:
             - Do not modify any files — this is a read-only audit
             - If a prompt instruction is unclear, use your best judgment based on general best practices
 
-            Write your findings to `.audit-output.jsonl` in JSON Lines format:
+            Write your findings to \`.audit-output.jsonl\` in JSON Lines format:
 
             {"type":"summary","text":"overall assessment"}
             {"type":"issue","severity":"critical|important|minor","file":"path","line":N,"message":"what's wrong","suggestion":"how to fix","inline":false}
+            AUDIT_EOF
+
+          opencode run --model opencode/deepseek-v4-flash-free --non-interactive --prompt "$(cat /tmp/opencode-audit-prompt.txt)"
 
       - name: Close auto-created OpenCode PR
         if: always()

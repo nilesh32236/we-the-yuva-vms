@@ -25,19 +25,42 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
+      - name: Get PR head SHA
+        id: pr-info
+        run: |
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Check if commit already reviewed
+        id: check-reviewed
+        run: |
+          SHA="${{ steps.pr-info.outputs.head_sha }}"
+          TRACKING=".opencode/reviewed-commits.txt"
+          mkdir -p .opencode
+          touch "$TRACKING"
+          if grep -q "^${SHA}$" "$TRACKING" 2>/dev/null; then
+            echo "already_reviewed=true" >> "$GITHUB_OUTPUT"
+            echo "Commit ${SHA} already reviewed — skipping review"
+          else
+            echo "already_reviewed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.check-reviewed.outputs.already_reviewed != 'true'
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Configure git
+        if: steps.check-reviewed.outputs.already_reviewed != 'true'
         run: |
           git config --global user.name 'nilesh32236'
           git config --global user.email 'nilesh32236@gmail.com'
           git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Ensure labels exist
+        if: steps.check-reviewed.outputs.already_reviewed != 'true'
         run: |
           for label in autofix autofix:reviewed autofix:needs-manual-review autofix:merged; do
             gh label create "$label" --force 2>/dev/null || true
@@ -46,6 +69,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Check iteration limit
+        if: steps.check-reviewed.outputs.already_reviewed != 'true'
         id: check-iterations
         run: |
           MAX_ITER=3
@@ -65,87 +89,112 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
+      - name: Setup OpenCode
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
+        run: |
+          chmod +x .github/scripts/setup-opencode.sh
+          .github/scripts/setup-opencode.sh
+
+      - name: Write autofix review prompt
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
+        run: |
+          cat << 'PROMPT_EOF' | sed 's/^            //' > /tmp/prompt.txt
+                        Review this pull request in the we-the-yuva monorepo.
+            
+                        ## Context
+                        - **`frontend/`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, Serwist PWA)
+                        - **`backend/`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
+            
+                        ## Linked Issue Context (If any)
+                        - Parse the PR description (and commit messages) for any linked issue number(s) (e.g. "Closes #123", "Fixes #123", or just "#123").
+                        - If a linked issue exists, use the GitHub API or `gh` CLI to read that linked issue's body and all comments to gain the full context of what was requested and any discussions/feedback.
+            
+                        Before reviewing:
+                        1. Determine which project(s) the PR touches based on file paths
+                        2. For frontend files, read `frontend/AGENTS.md` for conventions and `frontend/biome.json` for linting rules
+                        3. For backend files, read `backend/README.md` and `backend/biome.json`
+            
+                        ## Context Window Management
+                        If the PR touches more than 10 files, batch them into groups of at most 3 files.
+                        Dispatch a sub-agent for each batch via the `task` tool with `subagent_type: "general"`.
+                        Collect all results before proceeding.
+            
+                        ## What to Check
+                        - **Correctness**: Does the fix work for all edge cases? Verify changes actually fix the described issue.
+                        - **Regressions**: Could this break other functionality?
+                        - **Security**: PII exposure, missing auth/RBAC checks (volunteer vs coordinator vs admin), XSS vectors, hardcoded secrets, JWT handling, Prisma raw query parameters.
+                        - **Conventions**: Biome compliance, project conventions from the correct AGENTS.md/README.md.
+                        - **TypeScript**: No `any`, no type errors, proper types.
+                        - **Error handling**: Does the fix handle failure modes gracefully?
+                        - **Dead code**: Unused imports, console.log, commented-out code, YAGNI violations.
+                        - **HTML/DOM correctness**: Duplicate id attributes, htmlFor mismatches, improper nesting.
+                        - **UX/accessibility**: Proper ARIA, keyboard nav, mobile touch targets.
+                        - **Performance**: No unnecessary re-renders, proper image optimization.
+                        - **Next.js 16 idioms**: async params, proper directives.
+            
+                        ## Severity Guide
+                        - **critical**: Bug, security hole, broken functionality — must fix before merge
+                        - **important**: Architecture concern, maintainability debt, missing error handling, accessibility gaps — should fix
+                        - **minor**: Style, naming, optimization — nice to have
+            
+                        ## Calibration
+                        - Reference specific file paths and line numbers for every issue
+                        - Explain WHY each issue matters, not just what is wrong
+                        - Acknowledge what was done well before listing issues
+            
+                        ## Safety Rules (CRITICAL)
+                        - ONLY change files that are part of this PR's scope
+                        - Do NOT add new features or fix unrelated issues
+                        - If a change would require significant refactoring outside the PR scope, note it but don't do it
+                        - If you are unsure about a change, DO NOT make it — note it in the summary
+                        - Verify every change compiles before committing
+                        - Prefer minimal, focused fixes over comprehensive rewrites
+            
+                        ## Decision Rules
+                        - If all changes look correct and no improvements needed:
+                          Write to `.review-approved.md` with "All checks passed"
+                        - If you made improvements:
+                          Write to `.review-summary.md` with:
+                          - What was improved and why
+                          - Any concerns that remain
+                          - Verification that types still pass
+                        - If you have questions about the approach:
+                          Write to `.review-summary.md` with specific concerns
+                        - If the fix is wrong or dangerous:
+                          Write to `.review-summary.md` with:
+                          - What's wrong and why
+                          - What the correct fix should be
+                          - Do NOT attempt a different fix unless you're certain
+            PROMPT_EOF
+
       - name: Run OpenCode to review and improve PR
-        if: steps.check-iterations.outputs.skip != 'true'
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
         id: opencode-review
         continue-on-error: true
-        uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-        with:
-          model: opencode/deepseek-v4-flash-free
-          use_github_token: true
-          share: true
-          prompt: |
-            Review this pull request in the we-the-yuva monorepo.
+        run: |
+          PR_NUM="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
 
-            ## Context
-            - **`frontend/`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, Serwist PWA)
-            - **`backend/`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
+          # Fetch linked issue context if PR description references one
+          PR_BODY=$(gh pr view "$PR_NUM" --json body --jq '.body' 2>/dev/null || echo "")
+          ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '#\K[0-9]+' | head -1 || echo "")
+          if [ -n "$ISSUE_NUM" ]; then
+            echo "Linked issue found: #$ISSUE_NUM — fetching context..."
+            gh issue view "$ISSUE_NUM" --json body,comments --repo "$REPO" 2>/dev/null || true
+          fi
 
-            ## Linked Issue Context (If any)
-            - Parse the PR description (and commit messages) for any linked issue number(s) (e.g. "Closes #123", "Fixes #123", or just "#123").
-            - If a linked issue exists, use the GitHub API or `gh` CLI to read that linked issue's body and all comments to gain the full context of what was requested and any discussions/feedback.
+          opencode run --model opencode/deepseek-v4-flash-free --non-interactive --prompt "$(cat /tmp/opencode-autofix-review-prompt.txt)"
 
-            Before reviewing:
-            1. Determine which project(s) the PR touches based on file paths
-            2. For frontend files, read `frontend/AGENTS.md` for conventions and `frontend/biome.json` for linting rules
-            3. For backend files, read `backend/README.md` and `backend/biome.json`
-
-            ## Context Window Management
-            If the PR touches more than 10 files, batch them into groups of at most 3 files.
-            Dispatch a sub-agent for each batch via the `task` tool with `subagent_type: "general"`.
-            Collect all results before proceeding.
-
-            ## What to Check
-            - **Correctness**: Does the fix work for all edge cases? Verify changes actually fix the described issue.
-            - **Regressions**: Could this break other functionality?
-            - **Security**: PII exposure, missing auth/RBAC checks (volunteer vs coordinator vs admin), XSS vectors, hardcoded secrets, JWT handling, Prisma raw query parameters.
-            - **Conventions**: Biome compliance, project conventions from the correct AGENTS.md/README.md.
-            - **TypeScript**: No `any`, no type errors, proper types.
-            - **Error handling**: Does the fix handle failure modes gracefully?
-            - **Dead code**: Unused imports, console.log, commented-out code, YAGNI violations.
-            - **HTML/DOM correctness**: Duplicate id attributes, htmlFor mismatches, improper nesting.
-            - **UX/accessibility**: Proper ARIA, keyboard nav, mobile touch targets.
-            - **Performance**: No unnecessary re-renders, proper image optimization.
-            - **Next.js 16 idioms**: async params, proper directives.
-
-            ## Severity Guide
-            - **critical**: Bug, security hole, broken functionality — must fix before merge
-            - **important**: Architecture concern, maintainability debt, missing error handling, accessibility gaps — should fix
-            - **minor**: Style, naming, optimization — nice to have
-
-            ## Calibration
-            - Reference specific file paths and line numbers for every issue
-            - Explain WHY each issue matters, not just what is wrong
-            - Acknowledge what was done well before listing issues
-
-            ## Safety Rules (CRITICAL)
-            - ONLY change files that are part of this PR's scope
-            - Do NOT add new features or fix unrelated issues
-            - If a change would require significant refactoring outside the PR scope, note it but don't do it
-            - If you are unsure about a change, DO NOT make it — note it in the summary
-            - Verify every change compiles before committing
-            - Prefer minimal, focused fixes over comprehensive rewrites
-
-            ## Decision Rules
-            - If all changes look correct and no improvements needed:
-              Write to `.review-approved.md` with "All checks passed"
-            - If you made improvements:
-              Write to `.review-summary.md` with:
-              - What was improved and why
-              - Any concerns that remain
-              - Verification that types still pass
-            - If you have questions about the approach:
-              Write to `.review-summary.md` with specific concerns
-            - If the fix is wrong or dangerous:
-              Write to `.review-summary.md` with:
-              - What's wrong and why
-              - What the correct fix should be
-              - Do NOT attempt a different fix unless you're certain
+      - name: Mark commit as reviewed
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
+        run: |
+          SHA="${{ steps.pr-info.outputs.head_sha }}"
+          echo "${SHA}" >> .opencode/reviewed-commits.txt
 
       - name: Close OpenCode auto-created review PR
-        if: steps.check-iterations.outputs.skip != 'true'
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
         id: close-review-pr
         run: |
           PR_BRANCH="${{ github.head_ref }}"
@@ -169,7 +218,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Apply review fixes
-        if: steps.check-iterations.outputs.skip != 'true' && steps.close-review-pr.outputs.has_changes == 'true'
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true' && steps.close-review-pr.outputs.has_changes == 'true'
         run: |
           PR_BRANCH="${{ github.head_ref }}"
           REVIEW_BRANCH="${{ steps.close-review-pr.outputs.review_branch }}"
@@ -182,34 +231,58 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Close OpenCode PR
-        if: steps.check-iterations.outputs.skip != 'true' && steps.close-review-pr.outputs.has_changes == 'true'
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true' && steps.close-review-pr.outputs.has_changes == 'true'
         run: |
           REVIEW_PR="${{ steps.close-review-pr.outputs.review_pr }}"
           gh pr close "$REVIEW_PR" --delete-branch || true
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Post review comment
-        if: steps.check-iterations.outputs.skip != 'true'
+      - name: Post review comment (update existing or create new)
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
           ITER=${{ steps.check-iterations.outputs.iteration }}
+          REPO="${{ github.repository }}"
 
           if [ -f .review-summary.md ]; then
-            BODY="<!-- autofix-iteration: ${ITER} -->\n## Review Summary\n\n$(cat .review-summary.md)"
-            gh pr comment "$PR_NUM" --body "$(echo -e "$BODY")"
+            cat << 'EOF' | sed 's/^              //' > /tmp/prompt.txt
+                            ## Review Summary
+              
+                            $(cat .review-summary.md)
+              EOF
+            chmod +x .github/scripts/post-or-update-comment.sh
+            .github/scripts/post-or-update-comment.sh \
+              "$REPO" \
+              "$PR_NUM" \
+              "<!-- autofix-iteration: ${ITER} -->" \
+              /tmp/review-body.md \
+              "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
+            rm -f /tmp/review-body.md
           fi
 
           if [ -f .review-approved.md ]; then
-            BODY="<!-- autofix-iteration: ${ITER} -->\n## Review Approved\n\n$(cat .review-approved.md)"
-            gh pr comment "$PR_NUM" --body "$(echo -e "$BODY")"
+            cat << 'EOF' | sed 's/^              //' > /tmp/prompt.txt
+                            ## Review Approved
+              
+                            $(cat .review-approved.md)
+              EOF
+            chmod +x .github/scripts/post-or-update-comment.sh
+            .github/scripts/post-or-update-comment.sh \
+              "$REPO" \
+              "$PR_NUM" \
+              "<!-- autofix-iteration: ${ITER} -->" \
+              /tmp/approved-body.md \
+              "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
+            rm -f /tmp/approved-body.md
+
             gh pr edit "$PR_NUM" --add-label "autofix:reviewed" --remove-label "autofix"
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Close original issue on merge
-        if: steps.check-iterations.outputs.skip != 'true'
+        if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
           PR_BODY=$(gh pr view "$PR_NUM" --json body --jq '.body')

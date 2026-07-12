@@ -56,59 +56,56 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Close old autofix PRs for this issue
+      - name: Setup OpenCode
         run: |
-          OLD=$(gh pr list --head "autofix/issue-${{ github.event.issue.number }}" --json number --jq '.[].number' 2>/dev/null || echo "")
-          for pr in $OLD; do
-            gh pr close "$pr" --delete-branch 2>/dev/null || true
-          done
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          chmod +x .github/scripts/setup-opencode.sh
+          .github/scripts/setup-opencode.sh
+
+      - name: Write fix prompt
+        run: |
+          cat << 'PROMPT_EOF' | sed 's/^            //' > /tmp/prompt.txt
+                        You are fixing a GitHub issue. Read the issue body and comments at ${{ github.event.issue.html_url }}.
+            
+                        Context: This is a monorepo with two projects:
+                        - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query)
+                        - \`backend/\` — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
+            
+                        Before making changes:
+                        1. Check which project the issue relates to by looking at file paths.
+                        2. If files are under \`frontend/\`, read \`frontend/AGENTS.md\` for conventions; if under \`backend/\`, refer to \`backend/README.md\`.
+                        3. Read \`frontend/biome.json\` or \`backend/biome.json\` for linting rules depending on the project.
+                        4. Read any relevant source files to understand existing patterns.
+            
+                        INSTRUCTIONS:
+                        1. Read the issue — it tells you the file, line, and fix needed.
+                        2. Open the file and apply the fix.
+                        3. If the file doesn't exist, create it following project patterns (check sister files for reference).
+                        4. After making changes, determine the correct subdirectory: if changes are in \`frontend/\`, run commands from \`frontend/\`; if in \`backend/\`, run from \`backend/\`.
+                        5. Run \`pnpm typecheck\` — fix any type errors (in the correct subdirectory).
+                        6. Run \`pnpm lint\` — fix any lint errors (in the correct subdirectory).
+                        7. Commit and push all changes.
+            
+                        RULES:
+                        - Make the exact change the issue describes — nothing more, nothing less.
+                        - Follow project conventions.
+                        - Read 2-3 similar existing files first before creating new ones (match pattern/style exactly).
+                        - Do NOT add features, refactor unrelated code, or change anything outside the issue scope.
+                        - If you CANNOT determine what to change (issue is too vague or conflicting), write \`.fix-stuck.md\` explaining what's missing.
+                        - Write \`.fix-summary.md\` describing what you changed.
+            
+                        SAFETY RULES:
+                        - Fix ONLY what the issue describes. Do not touch unrelated files.
+                        - Prefer the minimal change that resolves the issue.
+                        - Do not change formatting, rename variables, or refactor code beyond the fix.
+                        - If the issue description is unclear or doesn't match the code, write \`.fix-stuck.md\` explaining what's missing rather than guessing.
+                        - After fixing, verify the fix actually resolves the described problem (not just that it compiles).
+            PROMPT_EOF
 
       - name: Run OpenCode to fix issue
-        uses: anomalyco/opencode/github@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-        with:
-          model: opencode/deepseek-v4-flash-free
-          use_github_token: true
-          share: true
-          prompt: |
-            You are fixing a GitHub issue. Read the issue body and comments at ${{ github.event.issue.html_url }}.
-
-            Context: This is a monorepo with two projects:
-            - `frontend/` — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query)
-            - `backend/` — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
-
-            Before making changes:
-            1. Check which project the issue relates to by looking at file paths.
-            2. If files are under `frontend/`, read `frontend/AGENTS.md` for conventions; if under `backend/`, refer to `backend/README.md`.
-            3. Read `frontend/biome.json` or `backend/biome.json` for linting rules depending on the project.
-            4. Read any relevant source files to understand existing patterns.
-
-            INSTRUCTIONS:
-            1. Read the issue — it tells you the file, line, and fix needed.
-            2. Open the file and apply the fix.
-            3. If the file doesn't exist, create it following project patterns (check sister files for reference).
-            4. After making changes, determine the correct subdirectory: if changes are in `frontend/`, run commands from `frontend/`; if in `backend/`, run from `backend/`.
-            5. Run `pnpm typecheck` — fix any type errors (in the correct subdirectory).
-            6. Run `pnpm lint` — fix any lint errors (in the correct subdirectory).
-            7. Commit and push all changes.
-
-            RULES:
-            - Make the exact change the issue describes — nothing more, nothing less.
-            - Follow project conventions.
-            - Read 2-3 similar existing files first before creating new ones (match pattern/style exactly).
-            - Do NOT add features, refactor unrelated code, or change anything outside the issue scope.
-            - If you CANNOT determine what to change (issue is too vague or conflicting), write `.fix-stuck.md` explaining what's missing.
-            - Write `.fix-summary.md` describing what you changed.
-
-            SAFETY RULES:
-            - Fix ONLY what the issue describes. Do not touch unrelated files.
-            - Prefer the minimal change that resolves the issue.
-            - Do not change formatting, rename variables, or refactor code beyond the fix.
-            - If the issue description is unclear or doesn't match the code, write `.fix-stuck.md` explaining what's missing rather than guessing.
-            - After fixing, verify the fix actually resolves the described problem (not just that it compiles).
+        run: |
+          opencode run --model opencode/deepseek-v4-flash-free --non-interactive --prompt "$(cat /tmp/opencode-fix-issue-prompt.txt)"
 
       - name: Capture OpenCode changes
         id: capture
@@ -116,7 +113,23 @@ jobs:
           ISSUE_NUM=${{ github.event.issue.number }}
           OUR_BRANCH="autofix/issue-${ISSUE_NUM}"
 
-          # Find OpenCode PR whose title or body mentions the issue number
+          # Check local working tree for changes first
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "opencode_branch=" >> "$GITHUB_OUTPUT"
+            echo "opencode_pr=" >> "$GITHUB_OUTPUT"
+
+            # Create local branch
+            git checkout -b "$OUR_BRANCH" 2>/dev/null || git checkout "$OUR_BRANCH" 2>/dev/null || true
+
+            # Get fix summary if it exists
+            [ -f .fix-summary.md ] && echo "Found .fix-summary.md"
+            [ -f .fix-stuck.md ] && echo "Found .fix-stuck.md"
+            [ -f .fix-questions.md ] && echo "Found .fix-questions.md"
+            exit 0
+          fi
+
+          # Fallback: check if OpenCode created a PR
           OPENCODE_PR=$(gh pr list --state open --json headRefName,title,body,number \
             --jq ".[] | select(.headRefName | startswith(\"opencode/\")) | select((.title + \" \" + .body) | contains(\"#${ISSUE_NUM}\")) | .number" \
             | head -1)
@@ -127,7 +140,6 @@ jobs:
             git fetch origin "$OPENCODE_BRANCH"
             git checkout -b "$OUR_BRANCH" "origin/$OPENCODE_BRANCH"
 
-            # Get fix summary if it exists
             git show "origin/$OPENCODE_BRANCH:.fix-summary.md" > .fix-summary.md 2>/dev/null || true
             git show "origin/$OPENCODE_BRANCH:.fix-stuck.md" > .fix-stuck.md 2>/dev/null || true
             git show "origin/$OPENCODE_BRANCH:.fix-questions.md" > .fix-questions.md 2>/dev/null || true
@@ -138,52 +150,64 @@ jobs:
             exit 0
           fi
 
-          # Fallback: check local working tree
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "opencode_branch=" >> "$GITHUB_OUTPUT"
-            echo "opencode_pr=" >> "$GITHUB_OUTPUT"
-            git checkout -b "$OUR_BRANCH"
-            exit 0
-          fi
-
           echo "has_changes=false" >> "$GITHUB_OUTPUT"
           echo "opencode_branch=" >> "$GITHUB_OUTPUT"
           echo "opencode_pr=" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Create PR from changes
+      - name: Create or reuse PR from changes
         if: steps.capture.outputs.has_changes == 'true'
         id: create-pr
         run: |
           ISSUE_NUM=${{ github.event.issue.number }}
           OUR_BRANCH="autofix/issue-${ISSUE_NUM}"
+          REPO="${{ github.repository }}"
 
           # Push our branch
           git remote set-url origin "https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
-          git push origin "$OUR_BRANCH"
+          git push origin "$OUR_BRANCH" --force
 
-          # Create our PR
+          # Build title and body
           TITLE="[Autofix] $(gh issue view "$ISSUE_NUM" --json title --jq '.title')"
-          BODY="## Fixes #${ISSUE_NUM}\n\n"
-          if [ -f .fix-summary.md ]; then
-            BODY="${BODY}$(cat .fix-summary.md)\n\n"
-          fi
-          BODY="${BODY}---\n*Auto-generated by fix-audit-issue workflow*"
 
-          PR_URL=$(gh pr create \
-            --base main \
-            --head "$OUR_BRANCH" \
-            --title "$TITLE" \
-            --body "$(echo -e "$BODY")" \
-            --repo "${{ github.repository }}")
-          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
-          PR_NUM=$(echo "$PR_URL" | grep -oP '/pull/\K[0-9]+' || echo "")
-          echo "pr_number=$PR_NUM" >> "$GITHUB_OUTPUT"
+          BODY_FILE="/tmp/pr-body.md"
+          {
+            echo "## Fixes #${ISSUE_NUM}"
+            echo ""
+            if [ -f .fix-summary.md ]; then
+              cat .fix-summary.md
+              echo ""
+            fi
+            echo "---"
+            echo "*Auto-generated by fix-audit-issue workflow*"
+          } > "$BODY_FILE"
 
+          # Use find-or-create-autofix-pr helper to prevent duplicates
+          chmod +x .github/scripts/find-or-create-autofix-pr.sh
+          OUTPUT=$(.github/scripts/find-or-create-autofix-pr.sh \
+            "$REPO" \
+            "$ISSUE_NUM" \
+            "$OUR_BRANCH" \
+            "$TITLE" \
+            "$BODY_FILE" \
+            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}")
+
+          # Parse output
+          PR_NUMBER=$(echo "$OUTPUT" | grep '^pr_number=' | cut -d= -f2)
+          PR_URL=$(echo "$OUTPUT" | grep '^pr_url=' | cut -d= -f2)
+          ACTION=$(echo "$OUTPUT" | grep '^action=' | cut -d= -f2)
+
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
+          echo "action=${ACTION}" >> "$GITHUB_OUTPUT"
+
+          echo "PR #${PR_NUMBER} ${ACTION} for issue #${ISSUE_NUM}: ${PR_URL}"
+
+          # Comment on the issue
           gh issue comment "$ISSUE_NUM" \
-            --body "PR created: $PR_URL"
+            --body "PR ${ACTION}: ${PR_URL}" \
+            --repo "$REPO"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
@@ -208,18 +232,24 @@ jobs:
           ISSUE_NUM=${{ github.event.issue.number }}
 
           if [ -f .fix-stuck.md ] || [ -f .fix-questions.md ]; then
-            BODY="## I need more information\n\n"
-            [ -f .fix-stuck.md ] && BODY="${BODY}$(cat .fix-stuck.md)\n\n"
-            [ -f .fix-questions.md ] && BODY="${BODY}$(cat .fix-questions.md)\n\n"
-            BODY="${BODY}Comment \`/fix\` when you've provided the information."
+            {
+              echo "## I need more information"
+              echo ""
+              [ -f .fix-stuck.md ] && cat .fix-stuck.md && echo ""
+              [ -f .fix-questions.md ] && cat .fix-questions.md && echo ""
+              echo "Comment \`/fix\` when you've provided the information."
+            } > /tmp/stuck-body.md
             gh issue edit "$ISSUE_NUM" --add-label "audit:needs-info" --remove-label "autofix"
+            gh issue comment "$ISSUE_NUM" --body-file /tmp/stuck-body.md --repo "${{ github.repository }}"
           else
-            BODY="## No changes made\n\nThe automated fix could not determine what to change."
-            if [ -f .fix-summary.md ]; then
-              BODY="$BODY\n\n$(cat .fix-summary.md)"
-            fi
+            {
+              echo "## No changes made"
+              echo ""
+              echo "The automated fix could not determine what to change."
+              [ -f .fix-summary.md ] && echo "" && cat .fix-summary.md
+            } > /tmp/no-changes-body.md
+            gh issue comment "$ISSUE_NUM" --body-file /tmp/no-changes-body.md --repo "${{ github.repository }}"
           fi
-          gh issue comment "$ISSUE_NUM" --body "$(echo -e "$BODY")" --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
