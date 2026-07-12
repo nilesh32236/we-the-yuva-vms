@@ -540,11 +540,12 @@ model Attendance {
   event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   volunteer   User        @relation("VolunteerAttendances", fields: [volunteerId], references: [id], onDelete: Cascade)
   application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  approvedBy  User?       @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedBy  User?       @relation("ApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
 
   @@unique([eventId, volunteerId])
   @@index([volunteerId])
   @@index([eventId])
+  @@index([applicationId])
 }
 
 // ─── Training Models ──────────────────────────────────────────────
@@ -631,7 +632,7 @@ model ChatMessage {
   createdAt DateTime @default(now())
 
   room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user User     @relation(fields: [userId], references: [id])
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([roomId, createdAt])
   @@index([userId])
@@ -719,7 +720,7 @@ model BlogPost {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
-  author User @relation("AuthoredPosts", fields: [authorId], references: [id])
+  author User @relation("AuthoredPosts", fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([authorId])
@@ -806,9 +807,9 @@ model UserLevel {
   reviewedAt       DateTime?
   approvedAt       DateTime?
 
-  user     User   @relation("UserLevelRequests", fields: [userId], references: [id])
-  level    Level  @relation(fields: [levelId], references: [id])
-  reviewer User?  @relation("LevelReviewer", fields: [reviewerId], references: [id])
+  user     User   @relation("UserLevelRequests", fields: [userId], references: [id], onDelete: Cascade)
+  level    Level  @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  reviewer User?  @relation("LevelReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
@@ -876,6 +877,7 @@ model BadgeApproval {
 
   @@unique([userId, badgeId])
   @@index([status])
+  @@index([reviewedBy])
 }
 
 model Mentorship {
@@ -902,7 +904,8 @@ model Certificate {
   issuedAt         DateTime @default(now())
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  level Level @relation(fields: [levelId], references: [id])
+  level Level @relation(fields: [levelId], references: [id], onDelete: Restrict)
 
   @@index([userId])
+  @@index([levelId])
 }
