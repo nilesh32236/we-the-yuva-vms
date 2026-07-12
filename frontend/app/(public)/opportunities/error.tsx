@@ -10,7 +10,7 @@ export default function OpportunitiesErrorPage({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-dvh bg-brand-bg flex items-center justify-center px-4">
+    <div className="min-h-dvh bg-brand-bg flex items-center justify-center px-4" role="alert">
       <div className="text-center max-w-sm">
         <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-brand-muted/50" aria-hidden="true" />
         <h1 className="font-heading font-bold text-xl text-brand-text mb-2">

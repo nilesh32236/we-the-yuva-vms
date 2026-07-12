@@ -15,7 +15,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-brand-bg py-12">
+      <div className="min-h-screen bg-brand-bg py-12" aria-busy="true">
         <div className="mx-auto max-w-3xl px-4 space-y-4">
           <div className="h-8 w-32 bg-brand-border rounded animate-pulse" />
           <div className="h-10 w-3/4 bg-brand-border rounded animate-pulse" />
@@ -36,7 +36,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
       <div className="min-h-screen bg-brand-bg py-12">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <p className="text-brand-muted">Post not found.</p>
-          <Link href="/blog" className="text-brand-primary hover:underline mt-2 inline-block">
+          <Link href="/blog" className="text-brand-primary hover:underline mt-2 inline-block py-3 focus-visible:ring-2 focus-visible:ring-ring">
             Back to blog
           </Link>
         </div>
@@ -49,7 +49,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors mb-8"
+          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors mb-8 py-3 focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Blog
         </Link>
@@ -73,7 +73,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
               </span>
               {post.category && (
                 <span className="flex items-center gap-1.5">
-                  <Tag className="w-4 h-4" /> {post.category}
+                  <Tag className="w-4 h-4" aria-hidden="true" /> {post.category}
                 </span>
               )}
             </div>

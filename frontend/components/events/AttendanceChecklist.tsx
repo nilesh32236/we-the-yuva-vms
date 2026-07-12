@@ -278,14 +278,15 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                     </label>
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <button
+                          <button
                           key={star}
                           type="button"
                           onClick={() => {
                             haptic.light();
                             setRatings((s) => ({ ...s, [v.volunteerId]: star }));
                           }}
-                          className="cursor-pointer p-0.5"
+                          className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5"
+                          aria-label={`${star} star(s)`}
                         >
                           <Star
                             className={`w-5 h-5 ${

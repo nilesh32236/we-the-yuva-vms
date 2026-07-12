@@ -119,15 +119,15 @@ export default function CertificateDetailPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-brand-bg rounded-xl px-4 py-3">
-            <p className="text-[10px] text-brand-muted font-medium uppercase tracking-wider">
+            <p className="text-xs text-brand-muted font-medium uppercase tracking-wider">
               Status
             </p>
-            <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+            <span className="text-sm font-semibold text-brand-primary">
               {cert.status}
             </span>
           </div>
           <div className="bg-brand-bg rounded-xl px-4 py-3">
-            <p className="text-[10px] text-brand-muted font-medium uppercase tracking-wider">
+            <p className="text-xs text-brand-muted font-medium uppercase tracking-wider">
               Verification Hash
             </p>
             <p className="text-xs font-mono text-brand-text truncate">{cert.verificationHash}</p>

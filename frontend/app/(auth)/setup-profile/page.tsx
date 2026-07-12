@@ -184,7 +184,7 @@ export default function SetupProfilePage() {
           <span>Step {step + 1} of {STEPS.length}</span>
           <span>{STEPS[step].label}</span>
         </div>
-        <div className="h-2 bg-brand-border rounded-full overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-2 bg-brand-border rounded-full overflow-hidden" role="progressbar" aria-label="Profile completion progress" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
           <div className="h-full bg-brand-primary rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function SetupProfilePage() {
             onClick={() => { if (i < step) goToStep(i); }}
             disabled={i > step}
             aria-selected={i === step}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center gap-1 px-3 py-2.5 min-h-11 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               i === step
                 ? 'bg-brand-primary text-white'
                 : i < step
@@ -213,8 +213,10 @@ export default function SetupProfilePage() {
         ))}
       </div>
 
-      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
-        <CurrentStepComponent {...stepProps} />
+      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5" aria-busy={isSubmitting}>
+        <section aria-live="polite">
+          <CurrentStepComponent {...stepProps} />
+        </section>
 
         {formError && (
           <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400" role="alert">
@@ -223,7 +225,7 @@ export default function SetupProfilePage() {
             <button
               type="button"
               onClick={() => setFormError(null)}
-              className="text-red-500 hover:text-red-700 cursor-pointer shrink-0"
+              className="text-red-500 hover:text-red-700 cursor-pointer shrink-0 p-2 min-w-11 min-h-11"
               aria-label="Dismiss error"
             >
               <span aria-hidden>&times;</span>
@@ -309,7 +311,7 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
               value={value}
               onChange={(e) => setter(e.target.value)}
               placeholder={placeholder}
-              className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
           </div>
         ))}

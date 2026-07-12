@@ -21,7 +21,7 @@ export default function CoordinatorProfilePage() {
 
   if (isLoading)
     return (
-      <div className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
+      <div className="flex items-center justify-center h-40 text-brand-muted text-sm" role="status">Loading…</div>
     );
 
   return (
@@ -36,7 +36,7 @@ export default function CoordinatorProfilePage() {
           </div>
           <h1 className="font-heading font-bold text-xl text-brand-text">{user?.name}</h1>
           <div className="flex items-center gap-1.5 mt-1 text-brand-muted text-sm">
-            <Mail className="w-3.5 h-3.5" />
+            <Mail className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{user?.email}</span>
           </div>
           <span className="inline-block mt-2 text-xs font-semibold bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 px-2.5 py-0.5 rounded-full">
@@ -62,7 +62,7 @@ export default function CoordinatorProfilePage() {
             key={label}
             className="bg-brand-surface rounded-xl border border-brand-border p-4 text-center"
           >
-            <Icon className="w-4 h-4 text-cyan-600 dark:text-cyan-400 mx-auto mb-1.5" />
+            <Icon className="w-4 h-4 text-cyan-600 dark:text-cyan-400 mx-auto mb-1.5" aria-hidden="true" />
             <p className="font-heading font-bold text-base text-brand-text truncate">{value}</p>
             <p className="text-xs text-brand-muted">{label}</p>
           </div>

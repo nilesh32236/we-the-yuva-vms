@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function OfflinePage() {
   return (
-    <div className="min-h-dvh bg-brand-bg flex flex-col items-center justify-center px-6 text-center">
+    <main id="main" className="min-h-dvh bg-brand-bg flex flex-col items-center justify-center px-6 text-center">
       <div className="w-20 h-20 rounded-2xl bg-brand-primary/10 flex items-center justify-center mb-6">
         <WifiOff className="w-10 h-10 text-brand-primary" />
       </div>
@@ -22,6 +22,6 @@ export default function OfflinePage() {
       </Link>
 
       <p className="text-brand-muted text-xs mt-8">WeTheYuva VMS · Volunteer Management System</p>
-    </div>
+    </main>
   );
 }

@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,6 +22,7 @@ export default function CoordinatorOpportunitiesPage() {
   const [closing, setClosing] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
   const [page, setPage] = useState(1);
+  const closeDialogRef = useFocusTrap(!!confirmAction);
 
   const { data, isLoading } = useQuery({
     queryKey: ['coordinator-opportunities', page],
@@ -143,15 +145,17 @@ export default function CoordinatorOpportunitiesPage() {
                             <>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/applications`}
-                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
+                                className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                                 title="View Applications"
+                                aria-label="View Applications"
                               >
                                 <Users className="w-4 h-4" aria-hidden="true" />
                               </Link>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/edit`}
-                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
+                                className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                                 title="Edit"
+                                aria-label="Edit opportunity"
                               >
                                 <Pencil className="w-4 h-4" aria-hidden="true" />
                               </Link>
@@ -159,8 +163,9 @@ export default function CoordinatorOpportunitiesPage() {
                                 type="button"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 disabled={closing === opp.id}
-                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
+                                className="p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
                                 title="Close"
+                                aria-label="Close opportunity"
                               >
                                 <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </button>
@@ -180,9 +185,17 @@ export default function CoordinatorOpportunitiesPage() {
       <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
 
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
-            <h3 className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="close-dialog-title"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setConfirmAction(null);
+          }}
+        >
+          <div ref={closeDialogRef} className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
+            <h3 id="close-dialog-title" className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
             <p className="text-sm text-brand-muted mb-4">
               Close &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>

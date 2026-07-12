@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ArrowUp,
   Award,
@@ -194,7 +194,7 @@ export default function VolunteerLevelsPage() {
 
   if (isLevelError || isProgressError) {
     return (
-      <div className="text-center py-8 text-destructive max-w-5xl">
+      <div role="alert" className="text-center py-8 text-destructive max-w-5xl">
         Failed to load level data. Please try again later.
       </div>
     );
@@ -202,7 +202,7 @@ export default function VolunteerLevelsPage() {
 
   if (levelLoading || progressLoading) {
     return (
-      <div className="space-y-6 max-w-5xl">
+      <div role="status" aria-busy="true" className="space-y-6 max-w-5xl">
         <SkeletonCard />
         <SkeletonCard />
         <SkeletonCard />
@@ -255,20 +255,20 @@ export default function VolunteerLevelsPage() {
 
       {/* Tier Path */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
-        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Level Progression</h2>
           <div className="flex gap-3">
             <Link
               href="/volunteer/leaderboard"
               onClick={() => haptic.light()}
-              className="text-xs font-medium text-brand-primary hover:underline cursor-pointer flex items-center gap-1"
+              className="px-3 py-2.5 min-h-[44px] text-xs font-medium text-brand-primary hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               View Leaderboard <ExternalLink className="w-3 h-3" />
             </Link>
             <Link
               href="/volunteer/badges"
               onClick={() => haptic.light()}
-              className="text-xs font-medium text-brand-primary hover:underline cursor-pointer flex items-center gap-1"
+              className="px-3 py-2.5 min-h-[44px] text-xs font-medium text-brand-primary hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               View Badges <ExternalLink className="w-3 h-3" />
             </Link>
@@ -291,6 +291,10 @@ export default function VolunteerLevelsPage() {
           <div className="h-2.5 bg-brand-border rounded-full overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary transition-all duration-700"
+              role="progressbar"
+              aria-valuenow={Math.round(progressPct)}
+              aria-valuemin={0}
+              aria-valuemax={100}
               style={{ width: `${progressPct}%` }}
             />
           </div>
@@ -352,14 +356,14 @@ export default function VolunteerLevelsPage() {
               <span className="font-medium">
                 You already have a pending request. Wait for it to be reviewed.
               </span>
-            </div>
-          )}
+        </div>
+      )}
 
           {!allRequirementsMet && (
             <Link
               href="/volunteer/levels/request"
               onClick={() => haptic.light()}
-              className="text-sm font-medium text-brand-primary hover:underline cursor-pointer inline-flex items-center gap-1"
+              className="inline-flex items-center px-3 py-2.5 min-h-[44px] text-sm font-medium text-brand-primary hover:underline cursor-pointer"
             >
               Upload proof manually <ArrowUp className="w-3 h-3" />
             </Link>
@@ -368,20 +372,25 @@ export default function VolunteerLevelsPage() {
       )}
 
       {/* Level-Up Request Dialog */}
-      {showRequestDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {showRequestDialog &&
+        <FocusTrap>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+        >
           <button
             type="button"
             aria-label="Close"
             className="absolute inset-0 bg-black/50 cursor-pointer"
             onClick={() => setShowRequestDialog(false)}
           />
-          <div
-            role="dialog"
-            aria-modal="true"
-            className="relative bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4"
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="level-up-dialog-title"
+              className="relative bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4"
+              onKeyDown={(e) => { if (e.key === 'Escape') setShowRequestDialog(false); }}
           >
-            <h3 className="font-heading font-semibold text-lg text-brand-text">Request Level-Up</h3>
+            <h3 id="level-up-dialog-title" className="font-heading font-semibold text-lg text-brand-text">Request Level-Up</h3>
             <p className="text-sm text-brand-muted">
               Provide any notes or proof to support your level-up request.
             </p>
@@ -417,7 +426,8 @@ export default function VolunteerLevelsPage() {
             </div>
           </div>
         </div>
-      )}
+        </FocusTrap>
+      }
 
       {/* Reflection prompt for max-level volunteers */}
       {isMaxLevel && !youthProfileRes?.reflectionCompletedAt && (
@@ -524,4 +534,35 @@ export default function VolunteerLevelsPage() {
       </div>
     </div>
   );
+}
+
+function FocusTrap({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const focusable = el.querySelector<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    focusable?.focus();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusableEls = el.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableEls.length === 0) return;
+      const first = focusableEls[0];
+      const last = focusableEls[focusableEls.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+  return <div ref={ref}>{children}</div>;
 }

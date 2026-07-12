@@ -37,7 +37,7 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
+          <div className="flex items-center justify-center py-12" role="status" aria-label="Loading QR code">
             <div className="w-10 h-10 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
           </div>
         ) : data ? (

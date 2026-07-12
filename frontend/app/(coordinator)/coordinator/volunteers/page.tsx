@@ -52,6 +52,7 @@ export default function CoordinatorVolunteersPage() {
             setPage(1);
           }}
           placeholder="Search volunteers…"
+          aria-label="Search volunteers"
           className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>

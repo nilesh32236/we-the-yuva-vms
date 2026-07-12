@@ -238,7 +238,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
       {isPast && isCheckedOut && (
         <Link
           href={`/volunteer/events/${event.id}/feedback`}
-          className="flex items-center gap-1.5 text-sm font-medium text-brand-primary border border-brand-primary/30 px-4 py-2 rounded-xl hover:bg-brand-primary/5 transition-colors cursor-pointer w-fit"
+          className="flex items-center gap-1.5 text-sm font-medium text-brand-primary border border-brand-primary/30 px-4 py-3 min-h-[44px] rounded-xl hover:bg-brand-primary/5 transition-colors cursor-pointer w-fit focus-visible:ring-2 focus-visible:ring-ring"
         >
           <MessageSquare className="w-4 h-4" /> Give Feedback
         </Link>
@@ -255,7 +255,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
               type="button"
               onClick={handleCheckIn}
               disabled={busy}
-              className="flex items-center gap-1.5 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
+              className="flex items-center gap-1.5 text-sm font-medium bg-brand-primary text-white px-4 py-3 min-h-[44px] rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-ring"
             >
               <LogIn className="w-4 h-4" />
               {busy ? 'Locating…' : 'Check In'}
@@ -266,7 +266,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
               type="button"
               onClick={handleCheckOut}
               disabled={busy}
-              className="flex items-center gap-1.5 text-sm font-medium bg-brand-error text-white px-4 py-2 rounded-xl hover:bg-brand-error/80 transition-colors cursor-pointer disabled:opacity-60"
+              className="flex items-center gap-1.5 text-sm font-medium bg-brand-error text-white px-4 py-3 min-h-[44px] rounded-xl hover:bg-brand-error/80 transition-colors cursor-pointer disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-ring"
             >
               <LogOut className="w-4 h-4" />
               {busy ? 'Locating…' : 'Check Out'}
@@ -277,7 +277,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
               href={event.meetingLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm font-medium border border-brand-border text-brand-text px-4 py-2 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-sm font-medium border border-brand-border text-brand-text px-4 py-3 min-h-[44px] rounded-xl hover:bg-brand-bg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Video className="w-4 h-4" /> Join
             </a>
@@ -307,7 +307,7 @@ export default function VolunteerEventsPage() {
 
   if (isLoading)
     return (
-      <div className="space-y-4 max-w-3xl">
+      <div role="status" aria-busy={isLoading} className="space-y-4 max-w-3xl">
         {[1, 2, 3].map((i) => (
           <SkeletonCard key={i} />
         ))}
@@ -316,7 +316,7 @@ export default function VolunteerEventsPage() {
 
   if (isError)
     return (
-      <div className="text-center py-8 text-destructive max-w-3xl">
+      <div role="alert" className="text-center py-8 text-destructive max-w-3xl">
         Failed to load events. Please try again later.
       </div>
     );

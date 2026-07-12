@@ -60,14 +60,14 @@ function ToggleSwitch({
       role="switch"
       aria-checked={checked}
       onClick={onChange}
-      className={`w-10 h-6 rounded-full transition-colors duration-200 relative flex-shrink-0 cursor-pointer ${
-        checked ? 'bg-brand-primary' : 'bg-brand-border'
-      }`}
-    >
-      <div
-        className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${
-          checked ? 'translate-x-5' : 'translate-x-1'
-        }`}
+       className={`w-11 h-7 rounded-full transition-colors duration-200 relative flex-shrink-0 cursor-pointer ${
+         checked ? 'bg-brand-primary' : 'bg-brand-border'
+       }`}
+     >
+       <div
+         className={`absolute top-1 left-0.5 w-5 h-5 bg-background rounded-full shadow transition-transform duration-200 ${
+           checked ? 'translate-x-5' : 'translate-x-0'
+         }`}
       />
     </button>
   );
@@ -127,7 +127,7 @@ export default function NotificationPrefsPage() {
 
         <div className="p-6">
           {isLoading ? (
-            <div className="space-y-3">
+            <div role="status" aria-busy="true" className="space-y-3">
               {[1, 2, 3].map((i) => (
                 <SkeletonCard key={i} />
               ))}

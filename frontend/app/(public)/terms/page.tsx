@@ -11,12 +11,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function TermsPage() {
   return (
     <>
-      <section className="bg-emerald-800 py-16 sm:py-20">
+      <section className="bg-brand-primary py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h1 className="font-heading text-3xl font-bold text-white sm:text-4xl">
             Terms of Service
           </h1>
-          <p className="mt-3 text-emerald-100/80 text-sm">Last updated: July 2026</p>
+          <p className="mt-3 text-brand-muted text-sm">Last updated: July 2026</p>
         </div>
       </section>
 
@@ -91,10 +91,10 @@ export default function TermsPage() {
           <h2 className="font-heading text-xl font-semibold text-brand-text mb-3">7. Contact</h2>
           <p className="text-brand-muted leading-relaxed">
             For questions about these terms, please contact us at{' '}
-            <a
-              href="mailto:hello@wetheyuva.org"
-              className="text-brand-primary font-medium hover:underline"
-            >
+              <a
+                href="mailto:hello@wetheyuva.org"
+                className="text-brand-primary font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring inline-block py-2.5"
+              >
               hello@wetheyuva.org
             </a>
             .

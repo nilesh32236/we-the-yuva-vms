@@ -55,6 +55,10 @@ export default function TrainingPage() {
           <div className="flex-1 bg-white/20 rounded-full h-2">
             <div
               className="bg-white/80 dark:bg-white/20 rounded-full h-2 transition-all"
+              role="progressbar"
+              aria-valuenow={completedCount}
+              aria-valuemin={0}
+              aria-valuemax={courses.length}
               style={{
                 width: courses.length ? `${(completedCount / courses.length) * 100}%` : '0%',
               }}
@@ -86,6 +90,7 @@ export default function TrainingPage() {
               <div
                 key={course.id}
                 className={`bg-brand-surface rounded-2xl border border-brand-border overflow-hidden card-hover ${isLocked ? 'opacity-60' : ''}`}
+                aria-disabled={isLocked}
               >
                 <div className="p-5 flex items-center gap-4">
                   <div
@@ -119,7 +124,7 @@ export default function TrainingPage() {
                     </p>
                   </div>
                   {!isLocked && (
-                    <Link href={`/volunteer/training/${course.id}`} className="flex-shrink-0">
+                    <Link href={`/volunteer/training/${course.id}`} className="flex-shrink-0" aria-label={`View ${course.title}`}>
                       <ChevronRight className="w-5 h-5 text-brand-muted hover:text-brand-primary transition-colors cursor-pointer" />
                     </Link>
                   )}

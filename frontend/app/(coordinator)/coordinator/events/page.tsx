@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api, downloadCsv } from '../../../../lib/api';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 
@@ -22,6 +23,7 @@ export default function CoordinatorEventsPage() {
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
   const [page, setPage] = useState(1);
+  const cancelDialogRef = useFocusTrap(!!confirmAction);
 
   const { data, isLoading } = useQuery({
     queryKey: ['coordinator-events', page],
@@ -173,8 +175,9 @@ export default function CoordinatorEventsPage() {
                           </Link>
                           <Link
                             href={`/coordinator/events/${ev.id}/edit`}
-                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
+                            className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                             title="Edit event"
+                            aria-label="Edit event"
                           >
                             <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
                           </Link>
@@ -183,8 +186,9 @@ export default function CoordinatorEventsPage() {
                               type="button"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               disabled={cancelling === ev.id}
-                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
+                              className="p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
                               title="Cancel event"
+                              aria-label="Cancel event"
                             >
                               <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                             </button>
@@ -204,9 +208,17 @@ export default function CoordinatorEventsPage() {
       <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
 
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
-            <h3 className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-dialog-title"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') setConfirmAction(null);
+          }}
+        >
+          <div ref={cancelDialogRef} className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
+            <h3 id="cancel-dialog-title" className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
             <p className="text-sm text-brand-muted mb-4">
               Cancel &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>

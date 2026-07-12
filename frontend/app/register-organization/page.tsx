@@ -165,7 +165,7 @@ export default function RegisterOrganizationPage() {
   if (isAuthLoading || !user || user.role !== 'ORGANIZATION_ADMIN') return null;
 
   return (
-    <div className="min-h-screen bg-brand-bg py-8 sm:py-12">
+    <main id="main" className="min-h-screen bg-brand-bg py-8 sm:py-12" aria-busy={isSubmitting}>
       <div className="mx-auto max-w-2xl px-4 sm:px-6">
         <Link
           href="/organization/dashboard"
@@ -209,7 +209,7 @@ export default function RegisterOrganizationPage() {
           ))}
         </div>
 
-        <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 sm:p-8">
+        <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(e) => { if (e.key === 'Enter' && step < 2) e.preventDefault(); }} className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 sm:p-8">
           {step === 0 && (
             <div className="space-y-5">
               <div>
@@ -227,10 +227,10 @@ export default function RegisterOrganizationPage() {
                   id="name"
                   type="text"
                   placeholder="e.g. Yuva Foundation"
-                  className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.name ? 'border-brand-error' : 'border-brand-border'}`}
+                  className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.name ? 'border-brand-error' : 'border-brand-border'}`}
                   {...register('name')}
                 />
-                {errors.name && <p className="text-xs text-brand-error">{errors.name.message}</p>}
+                {errors.name && <p className="text-xs text-brand-error" role="alert">{errors.name.message}</p>}
               </div>
 
               <div className="space-y-1.5">
@@ -241,7 +241,7 @@ export default function RegisterOrganizationPage() {
                   id="description"
                   rows={3}
                   placeholder="Brief description of your organization's mission and work"
-                  className="w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border resize-none"
+                  className="w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border resize-none"
                   {...register('description')}
                 />
               </div>
@@ -254,7 +254,7 @@ export default function RegisterOrganizationPage() {
                   id="address"
                   rows={2}
                   placeholder="Street, city, state, pincode"
-                  className="w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border resize-none"
+                  className="w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border resize-none"
                   {...register('address')}
                 />
               </div>
@@ -268,7 +268,7 @@ export default function RegisterOrganizationPage() {
                     id="phone"
                     type="tel"
                     placeholder="+91 98765 43210"
-                    className="w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border"
+                    className="w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border"
                     {...register('phone')}
                   />
                 </div>
@@ -280,9 +280,10 @@ export default function RegisterOrganizationPage() {
                     id="email"
                     type="email"
                     placeholder="org@example.com"
-                    className="w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border"
+                    className="w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border"
                     {...register('email')}
                   />
+                  {errors.email && <p className="text-xs text-brand-error" role="alert">{errors.email.message}</p>}
                 </div>
               </div>
 
@@ -294,9 +295,10 @@ export default function RegisterOrganizationPage() {
                   id="website"
                   type="url"
                   placeholder="https://example.org"
-                  className="w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border"
+                  className="w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border"
                   {...register('website')}
                 />
+                {errors.website && <p className="text-xs text-brand-error" role="alert">{errors.website.message}</p>}
               </div>
 
               <div className="flex justify-end pt-4">
@@ -336,6 +338,10 @@ export default function RegisterOrganizationPage() {
                 <span className="text-sm font-medium text-brand-text">
                   Registration Certificate *
                 </span>
+                <div aria-live="polite" className="sr-only">
+                  {docs.filter(d => d.uploading).length > 0 ? 'Uploading documents...' : ''}
+                  {docs.filter(d => d.error).length > 0 ? 'Upload failed for some documents.' : ''}
+                </div>
                 {((): React.ReactNode => {
                   const d = docs.find((d) => d.type === 'REGISTRATION_CERTIFICATE');
                   if (!d) {
@@ -343,7 +349,7 @@ export default function RegisterOrganizationPage() {
                       <button
                         type="button"
                         onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
-                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                       >
                         <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                         <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
@@ -355,7 +361,7 @@ export default function RegisterOrganizationPage() {
                     <div
                       role="button"
                       tabIndex={d.error ? 0 : undefined}
-                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border focus-visible:ring-2 focus-visible:ring-brand-primary ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
                       onClick={d.error ? () => retryUpload(d) : undefined}
                       onKeyDown={
                         d.error
@@ -377,11 +383,11 @@ export default function RegisterOrganizationPage() {
                       </div>
                       <button
                         type="button"
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'));
                         }}
-                        className="text-xs text-brand-error hover:underline"
                       >
                         Remove
                       </button>
@@ -399,7 +405,7 @@ export default function RegisterOrganizationPage() {
                       <button
                         type="button"
                         onClick={() => addDoc('GOVT_ID')}
-                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
+                        className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                       >
                         <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                         <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
@@ -411,7 +417,7 @@ export default function RegisterOrganizationPage() {
                     <div
                       role="button"
                       tabIndex={d.error ? 0 : undefined}
-                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border focus-visible:ring-2 focus-visible:ring-brand-primary ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
                       onClick={d.error ? () => retryUpload(d) : undefined}
                       onKeyDown={
                         d.error
@@ -433,11 +439,11 @@ export default function RegisterOrganizationPage() {
                       </div>
                       <button
                         type="button"
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'));
                         }}
-                        className="text-xs text-brand-error hover:underline"
                       >
                         Remove
                       </button>
@@ -457,7 +463,7 @@ export default function RegisterOrganizationPage() {
                       <button
                         type="button"
                         onClick={() => addDoc('OTHER')}
-                        className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
+                        className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                       >
                         <span className="text-sm text-brand-muted">+ Add optional document</span>
                       </button>
@@ -468,7 +474,7 @@ export default function RegisterOrganizationPage() {
                     <div
                       role="button"
                       tabIndex={d.error ? 0 : undefined}
-                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
+                      className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border focus-visible:ring-2 focus-visible:ring-brand-primary ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
                       onClick={d.error ? () => retryUpload(d) : undefined}
                       onKeyDown={
                         d.error
@@ -490,11 +496,11 @@ export default function RegisterOrganizationPage() {
                       </div>
                       <button
                         type="button"
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeDoc(docs.findIndex((x) => x.type === 'OTHER'));
                         }}
-                        className="text-xs text-brand-error hover:underline"
                       >
                         Remove
                       </button>
@@ -541,7 +547,7 @@ export default function RegisterOrganizationPage() {
                   <button
                     type="button"
                     onClick={() => setStep(0)}
-                    className="text-xs text-brand-primary hover:underline"
+                    className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center"
                   >
                     Edit
                   </button>
@@ -557,7 +563,7 @@ export default function RegisterOrganizationPage() {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="text-xs text-brand-primary hover:underline"
+                    className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center"
                   >
                     Edit
                   </button>
@@ -589,8 +595,8 @@ export default function RegisterOrganizationPage() {
               </div>
             </div>
           )}
-        </div>
+        </form>
       </div>
-    </div>
+    </main>
   );
 }

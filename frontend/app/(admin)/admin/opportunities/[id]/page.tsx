@@ -84,7 +84,7 @@ export default function AdminOpportunityDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl animate-pulse">
+      <div role="status" aria-busy="true" className="space-y-6 max-w-4xl animate-pulse">
         <div className="h-8 w-48 bg-brand-bg rounded-lg" />
         <div className="h-40 bg-brand-surface rounded-2xl border border-brand-border" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -99,13 +99,13 @@ export default function AdminOpportunityDetailPage() {
 
   if (error) {
     return (
-      <div className="text-center py-20">
+      <div role="alert" className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load opportunity</p>
         <button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm mt-4"
+          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-11 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm mt-4"
         >
           Try Again
         </button>
@@ -267,7 +267,8 @@ export default function AdminOpportunityDetailPage() {
             <button
               type="button"
               onClick={() => setShowCloseConfirm(true)}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer transition-colors"
+              disabled={closeMut.isPending}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer transition-colors disabled:opacity-60"
             >
               <Trash2 className="w-4 h-4" />
               Close Opportunity

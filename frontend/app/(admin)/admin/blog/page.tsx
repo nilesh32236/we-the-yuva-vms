@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Archive, CheckCircle, FileText, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { Button } from '@/components/ui/Button';
 import Pagination from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
@@ -12,6 +13,7 @@ import { api } from '@/lib/api';
 
 export default function AdminBlogPage() {
   const [page, setPage] = useState(1);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -27,7 +29,7 @@ export default function AdminBlogPage() {
       const blogUrl = `${window.location.origin}/blog/${post.slug}`;
       toast({
         title: 'Post published!',
-        description: (
+        action: (
           <a
             href={blogUrl}
             target="_blank"
@@ -36,7 +38,7 @@ export default function AdminBlogPage() {
           >
             View post &rarr;
           </a>
-        ) as unknown as string,
+        ),
       });
     },
     onError: (err) => {
@@ -90,7 +92,7 @@ export default function AdminBlogPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="space-y-3" role="status" aria-busy="true">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}
@@ -160,12 +162,11 @@ export default function AdminBlogPage() {
                   <Button
                     variant="icon"
                     size="sm"
+                    className="p-3"
                     loading={deleteMutation.isPending && deleteMutation.variables === post.id}
                     onClick={(e) => {
                       e.preventDefault();
-                      if (window.confirm(`Delete "${post.title}"? This cannot be undone.`)) {
-                        deleteMutation.mutate(post.id);
-                      }
+                      setDeleteConfirm({ id: post.id, title: post.title });
                     }}
                     aria-label={`Delete ${post.title}`}
                   >
@@ -183,6 +184,19 @@ export default function AdminBlogPage() {
         </div>
       )}
       <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
+
+      <ConfirmDialog
+        open={deleteConfirm !== null}
+        title="Delete post"
+        message={`Delete "${deleteConfirm?.title}"? This cannot be undone.`}
+        confirmLabel="Delete"
+        loading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleteConfirm) deleteMutation.mutate(deleteConfirm.id);
+          setDeleteConfirm(null);
+        }}
+        onCancel={() => setDeleteConfirm(null)}
+      />
     </div>
   );
 }

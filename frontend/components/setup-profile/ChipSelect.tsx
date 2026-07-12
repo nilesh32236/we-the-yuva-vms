@@ -23,7 +23,7 @@ export function ChipSelect<T extends string>({
             key={opt}
             type="button"
             onClick={() => toggle(opt)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer ${
+            className={`px-4 py-2.5 min-h-11 rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary ${
               selected.includes(opt)
                 ? 'bg-brand-primary text-white border-brand-primary'
                 : 'border-brand-border text-brand-text hover:border-brand-primary'

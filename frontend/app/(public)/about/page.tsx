@@ -73,15 +73,15 @@ const containerClass = 'mx-auto max-w-6xl px-6';
 export default function AboutPage() {
   return (
     <>
-      <section className="bg-emerald-800 py-20 sm:py-28">
+      <section className="bg-brand-primary py-20 sm:py-28">
         <div className={`${containerClass} text-center`}>
-          <span className="inline-block text-emerald-200 text-sm font-semibold tracking-widest uppercase mb-4">
+          <span className="inline-block text-brand-muted text-sm font-semibold tracking-widest uppercase mb-4">
             About Us
           </span>
           <h1 className="font-heading text-4xl sm:text-5xl font-bold text-white leading-tight max-w-3xl mx-auto">
             Building India's largest youth volunteer network
           </h1>
-          <p className="text-emerald-100 text-lg sm:text-xl mt-5 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-brand-muted text-lg sm:text-xl mt-5 max-w-2xl mx-auto leading-relaxed">
             WeTheYuva is a volunteer management platform built by youth, for youth. We connect
             passionate young citizens with verified opportunities to serve their communities and
             build a better India.
@@ -187,16 +187,16 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-emerald-600 to-emerald-800 py-20 sm:py-28">
+      <section className="bg-gradient-to-r from-brand-primary to-brand-secondary py-20 sm:py-28">
         <div className={`${containerClass} text-center`}>
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white">
             Ready to make a difference?
           </h2>
-          <p className="text-emerald-100 text-lg mt-4">Join 7,000+ volunteers across India</p>
+          <p className="text-white/80 text-lg mt-4">Join 7,000+ volunteers across India</p>
           <div className="mt-8">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-emerald-800 font-semibold text-base transition-colors hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-brand-text font-semibold text-base transition-colors hover:bg-brand-bg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
             >
               Get started
             </Link>

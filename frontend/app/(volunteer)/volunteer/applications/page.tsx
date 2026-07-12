@@ -10,8 +10,8 @@ import { api } from '@/lib/api';
 
 const STATUS_STYLES: Record<string, string> = {
   ACCEPTED: 'bg-brand-primary/10 text-brand-primary',
-  REJECTED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-  PENDING: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+  REJECTED: 'bg-brand-error/10 text-brand-error',
+  PENDING: 'bg-brand-cta/10 text-brand-cta',
 };
 
 const STATUS_LABELS: Record<string, string> = {

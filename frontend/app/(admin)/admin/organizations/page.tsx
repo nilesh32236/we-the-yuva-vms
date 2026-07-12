@@ -55,6 +55,7 @@ export default function AdminOrganizationsPage() {
                   setStatus(s);
                   setPage(1);
                 }}
+                aria-pressed={status === s}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer
                   ${status === s ? 'bg-brand-primary text-white shadow-md' : 'text-brand-muted hover:text-brand-text'}`}
               >
@@ -66,7 +67,7 @@ export default function AdminOrganizationsPage() {
       </div>
 
       {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div role="status" aria-busy="true" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}

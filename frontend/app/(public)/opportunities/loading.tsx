@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function OpportunitiesLoading() {
   return (
-    <div className="min-h-dvh bg-brand-bg">
+    <div className="min-h-dvh bg-brand-bg" role="status" aria-busy="true">
       <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 lg:py-12">
         {/* Title skeleton */}
         <Skeleton className="h-8 w-64 mb-2" aria-hidden="true" />

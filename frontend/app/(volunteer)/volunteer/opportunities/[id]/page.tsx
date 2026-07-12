@@ -175,12 +175,12 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
 
   if (isLoading)
     return (
-      <div className="max-w-2xl space-y-4">
+      <div role="status" aria-busy={isLoading} className="max-w-2xl space-y-4">
         <SkeletonCard />
         <SkeletonCard />
       </div>
     );
-  if (!opp) return <div className="text-brand-muted text-sm">Opportunity not found.</div>;
+  if (!opp) return <div role="alert" className="text-brand-muted text-sm">Opportunity not found.</div>;
 
   const slotsLeft = opp.totalSlots - (opp._count?.applications ?? 0);
   const isFull = slotsLeft <= 0;
@@ -191,7 +191,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       <Link
         href="/volunteer/opportunities"
         onClick={() => haptic.light()}
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer py-2 min-h-[44px]"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Opportunities
       </Link>
@@ -264,11 +264,11 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                 ${myApp.status === 'ACCEPTED' ? 'bg-brand-primary/10 text-brand-primary' : myApp.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}
               >
                 {myApp.status === 'ACCEPTED' ? (
-                  <><Check className="w-4 h-4 inline" /> Accepted</>
+                  <><Check className="w-4 h-4 inline" aria-hidden="true" /><span className="sr-only">Accepted</span> Accepted</>
                 ) : myApp.status === 'REJECTED' ? (
-                  <><X className="w-4 h-4 inline" /> Rejected</>
+                  <><X className="w-4 h-4 inline" aria-hidden="true" /><span className="sr-only">Rejected</span> Rejected</>
                 ) : (
-                  <><Clock className="w-4 h-4 inline" /> Application Pending</>
+                  <><Clock className="w-4 h-4 inline" aria-hidden="true" /><span className="sr-only">Pending</span> Application Pending</>
                 )}
               </div>
               {myApp.status === 'PENDING' && (
@@ -281,7 +281,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                     }
                   }}
                   disabled={withdraw.isPending}
-                  className="block text-sm font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2.5 min-h-[44px] text-sm font-medium text-brand-error border border-brand-error/30 rounded-xl hover:bg-brand-error/5 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {withdraw.isPending ? 'Withdrawing…' : 'Withdraw Application'}
                 </button>
@@ -307,7 +307,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                 apply.mutate(undefined);
               }}
               disabled={apply.isPending}
-              className="bg-brand-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
+              className="bg-brand-primary text-white px-6 py-3 min-h-[44px] rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
             >
               {apply.isPending ? 'Applying…' : 'Apply Now'}
             </button>
@@ -330,7 +330,7 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
         <Link
           href={`/volunteer/opportunities/${id}/chat`}
           onClick={() => haptic.light()}
-          className="flex items-center gap-2 text-sm font-medium text-brand hover:text-brand-secondary transition-colors pt-1"
+          className="flex items-center gap-2 text-sm font-medium text-brand-text hover:text-brand-secondary transition-colors py-2 min-h-[44px]"
         >
           <MessageCircle className="w-4 h-4" /> Join Discussion
         </Link>

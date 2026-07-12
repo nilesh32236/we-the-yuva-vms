@@ -83,7 +83,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     type="button"
                     key={lesson.id}
                     onClick={() => setActiveLesson(lesson.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary
                     ${currentLesson?.id === lesson.id ? 'bg-brand-primary text-white' : 'hover:bg-brand-bg'}`}
                   >
                     {lesson.completed ? (
@@ -136,8 +136,8 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
               {currentLesson.type === 'VIDEO' && currentLesson.mediaUrl && (
                 <div className="rounded-xl border border-brand-border overflow-hidden bg-brand-bg">
+                  {/* biome-ignore lint/a11y/useMediaCaption: No caption VTT file available for this lesson */}
                   <video controls className="w-full aspect-video" src={currentLesson.mediaUrl}>
-                    <track kind="captions" />
                     Your browser does not support the video tag.
                   </video>
                 </div>
@@ -169,7 +169,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     complete.mutate(currentLesson.id);
                   }}
                   disabled={complete.isPending}
-                  className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
+                  className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 >
                   {complete.isPending ? (
                     'Saving…'
@@ -192,7 +192,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     if (idx < course.lessons.length - 1)
                       setActiveLesson(course.lessons[idx + 1].id);
                   }}
-                  className="w-full border border-brand-border text-brand-text py-3 rounded-xl font-semibold text-sm hover:bg-brand-bg transition-colors cursor-pointer"
+                  className="w-full border border-brand-border text-brand-text py-3 rounded-xl font-semibold text-sm hover:bg-brand-bg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary"
                 >
                   <span className="inline-flex items-center gap-2">
                     Next Lesson
@@ -203,11 +203,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
               {completedCount === course.lessons.length && (
                 <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-xl p-4 text-center">
-                  <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-2" />
-                  <p className="font-heading font-bold text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle className="w-8 h-8 text-brand-primary mx-auto mb-2" />
+                  <p className="font-heading font-bold text-brand-primary">
                     Course Complete!
                   </p>
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-1">
+                  <p className="text-sm text-brand-primary mt-1">
                     You have finished all lessons in this course.
                   </p>
                 </div>

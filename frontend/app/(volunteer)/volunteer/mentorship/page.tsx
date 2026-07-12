@@ -206,9 +206,15 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="request-mentor-title"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+    >
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4">
-        <h2 className="font-heading font-semibold text-lg text-brand-text">Request Mentor</h2>
+        <h2 id="request-mentor-title" className="font-heading font-semibold text-lg text-brand-text">Request Mentor</h2>
 
         <div>
           <label
@@ -293,7 +299,7 @@ export default function MentorshipPage() {
   function renderTab() {
     if (isLoading) {
       return (
-        <div className="space-y-3">
+        <div role="status" aria-busy={isLoading} className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}
@@ -305,7 +311,7 @@ export default function MentorshipPage() {
       if (mentors.length === 0) {
         return (
           <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
-            <Handshake className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" />
+            <Handshake className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" aria-hidden="true" />
             <p className="text-sm font-medium text-brand-text">No mentors yet</p>
             <p className="text-xs text-brand-muted mt-1">Request a mentor to get started.</p>
           </div>
@@ -324,7 +330,7 @@ export default function MentorshipPage() {
       if (mentees.length === 0) {
         return (
           <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
-            <Handshake className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" />
+            <Handshake className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" aria-hidden="true" />
             <p className="text-sm font-medium text-brand-text">No mentees yet</p>
             <p className="text-xs text-brand-muted mt-1">
               When volunteers request you as a mentor, they will appear here.
@@ -350,7 +356,7 @@ export default function MentorshipPage() {
     if (allRequests.length === 0) {
       return (
         <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
-          <MessageSquare className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" />
+          <MessageSquare className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" aria-hidden="true" />
           <p className="text-sm font-medium text-brand-text">No requests</p>
           <p className="text-xs text-brand-muted mt-1">You have no pending mentorship requests.</p>
         </div>
@@ -387,16 +393,18 @@ export default function MentorshipPage() {
         </Button>
       </div>
 
-      <div className="flex gap-1 bg-brand-surface rounded-xl p-1 border border-brand-border">
+      <div role="tablist" className="flex gap-1 bg-brand-surface rounded-xl p-1 border border-brand-border">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
+            role="tab"
+            aria-selected={activeTab === tab.key}
             onClick={() => {
               haptic.light();
               setActiveTab(tab.key);
             }}
-            className={`flex-1 text-sm font-medium py-2 rounded-lg transition-colors cursor-pointer ${
+            className={`flex-1 text-sm font-medium py-2 rounded-lg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-ring ${
               activeTab === tab.key
                 ? 'bg-brand-primary text-white shadow-sm'
                 : 'text-brand-muted hover:text-brand-text'

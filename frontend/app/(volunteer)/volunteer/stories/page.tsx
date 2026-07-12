@@ -65,7 +65,7 @@ export default function MyStoriesPage() {
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="font-heading font-semibold text-brand-text">{story.title}</h2>
                   <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'}`}
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-brand-primary/10 text-brand-primary' : 'bg-brand-cta/10 text-brand-cta'}`}
                   >
                     {story.published ? 'Published' : 'Pending review'}
                   </span>

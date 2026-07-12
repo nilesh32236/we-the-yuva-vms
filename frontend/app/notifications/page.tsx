@@ -98,7 +98,7 @@ export default function NotificationsPage() {
   const unreadCount = unreadData?.count ?? 0;
 
   return (
-    <div className="min-h-dvh bg-brand-bg">
+    <main id="main" className="min-h-dvh bg-brand-bg">
       {/* Header */}
       <header className="h-16 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
           <button
@@ -107,7 +107,7 @@ export default function NotificationsPage() {
               haptic.light();
               router.back();
             }}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
             aria-label="Go back"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -127,15 +127,15 @@ export default function NotificationsPage() {
         )}
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-1">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-1" aria-live="polite">
         {isLoading ? (
-          <div className="space-y-3">
+          <div className="space-y-3" role="status" aria-busy="true">
             {[1, 2, 3].map((i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : isError ? (
-          <div className="text-center py-16 text-brand-muted text-sm">
+          <div className="text-center py-16 text-brand-muted text-sm" role="alert">
             Failed to load notifications.
           </div>
         ) : notifications.length === 0 ? (
@@ -188,7 +188,7 @@ export default function NotificationsPage() {
                         haptic.light();
                         deleteMut.mutate(n.id);
                       }}
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+                      className="w-11 h-11 rounded-lg flex items-center justify-center text-brand-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
                       aria-label="Dismiss notification"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -201,6 +201,6 @@ export default function NotificationsPage() {
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }

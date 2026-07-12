@@ -45,13 +45,15 @@ export default function ObserverEventsPage() {
     <div className="space-y-5 max-w-4xl">
       <h1 className="font-heading font-bold text-xl text-brand-text">Events</h1>
 
-      <div className="flex gap-1 bg-brand-bg rounded-xl p-1 w-fit">
+      <div className="flex gap-1 bg-brand-bg rounded-xl p-1 w-fit" role="tablist">
         {(['upcoming', 'past'] as const).map((t) => (
           <button
             type="button"
             key={t}
+            role="tab"
+            aria-selected={tab === t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer active-bounce
+            className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer active-bounce
               ${tab === t ? 'bg-brand-surface text-brand-text shadow-sm' : 'text-brand-muted hover:text-brand-text'}`}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -66,7 +68,7 @@ export default function ObserverEventsPage() {
           ))}
         </div>
       ) : shown.length === 0 ? (
-        <div className="text-center py-16 text-brand-muted">
+        <div className="text-center py-16 text-brand-muted" role="status">
           <p>No {tab} events</p>
         </div>
       ) : (

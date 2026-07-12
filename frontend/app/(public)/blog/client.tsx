@@ -28,13 +28,13 @@ export function BlogPageClient() {
         </div>
 
         {isLoading ? (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6" aria-busy="true">
             {[1, 2, 3, 4].map((i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : data?.data?.length === 0 ? (
-          <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center" aria-live="polite">
             <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" aria-hidden="true" />
             <p className="text-brand-text font-medium">No posts yet</p>
             <p className="text-sm text-brand-muted mt-1">Check back soon for new content.</p>
@@ -56,7 +56,7 @@ export function BlogPageClient() {
                   <Link
                     key={post.id}
                     href={`/blog/${post.slug}`}
-                    className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-lg transition-all group card-hover"
+                    className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-lg transition-all group card-hover focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {post.featuredImage && (
                       <div className="relative h-48 overflow-hidden">

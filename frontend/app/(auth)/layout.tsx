@@ -4,6 +4,13 @@ import Link from 'next/link';
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh bg-brand-bg flex flex-col">
+      {/* Skip link */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-primary focus:text-white focus:rounded-xl focus:outline-none"
+      >
+        Skip to main content
+      </a>
       {/* Top bar */}
       <header className="px-6 py-4 flex items-center justify-between">
         <Link href="/" className="inline-flex items-center gap-2">

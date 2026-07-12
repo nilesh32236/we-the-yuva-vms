@@ -45,7 +45,7 @@ export default function OrgAdminOrgProfilePage() {
         </NextLink>
         <h1 className="font-heading font-bold text-xl text-brand-text">Organization Profile</h1>
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center space-y-3">
-          <Building2 className="w-10 h-10 text-brand-muted mx-auto" />
+          <Building2 className="w-10 h-10 text-brand-muted mx-auto" aria-hidden="true" />
           <p className="text-brand-muted text-sm">
             You are not associated with any organization yet.
           </p>
@@ -113,7 +113,7 @@ export default function OrgAdminOrgProfilePage() {
               />
             ) : (
               <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 flex items-center justify-center">
-                <Building2 className="w-8 h-8 text-brand-primary" />
+                <Building2 className="w-8 h-8 text-brand-primary" aria-hidden="true" />
               </div>
             )}
             <div>

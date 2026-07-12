@@ -25,24 +25,24 @@ export default function VerifyCertificatePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-4">
+      <main id="main" className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-4" role="status" aria-busy="true">
           <SkeletonCard />
         </div>
-      </div>
+      </main>
     );
   }
 
   const isValid = data?.valid ?? false;
 
   return (
-    <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
+    <main id="main" className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div
           className={`rounded-2xl border p-8 text-center space-y-5 ${
             isValid
-              ? 'bg-brand-surface border-emerald-200 dark:border-emerald-800'
-              : 'bg-brand-surface border-red-200 dark:border-red-800'
+              ? 'bg-brand-surface border-brand-border'
+              : 'bg-brand-surface border-brand-border'
           }`}
         >
           <div
@@ -109,6 +109,6 @@ export default function VerifyCertificatePage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

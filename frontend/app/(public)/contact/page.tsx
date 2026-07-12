@@ -75,7 +75,7 @@ export default function ContactPage() {
                   href="https://x.com/intent/follow?screen_name=wetheyuva"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                   aria-label="Twitter"
                 >
                   <Twitter className="h-4 w-4" aria-hidden="true" />
@@ -84,7 +84,7 @@ export default function ContactPage() {
                   href="https://instagram.com/wetheyuva"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                   aria-label="Instagram"
                 >
                   <Instagram className="h-4 w-4" aria-hidden="true" />
@@ -93,7 +93,7 @@ export default function ContactPage() {
                   href="https://linkedin.com/company/wetheyuva"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                   aria-label="LinkedIn"
                 >
                   <Linkedin className="h-4 w-4" aria-hidden="true" />
@@ -102,7 +102,7 @@ export default function ContactPage() {
                   href="https://youtube.com/@wetheyuva"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-brand-border bg-background text-brand-muted hover:text-brand-primary hover:border-brand-primary transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                   aria-label="YouTube"
                 >
                   <Youtube className="h-4 w-4" aria-hidden="true" />

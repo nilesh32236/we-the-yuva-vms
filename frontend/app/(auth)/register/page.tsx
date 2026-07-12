@@ -92,7 +92,7 @@ function CallAvailabilityInput({
             type="time"
             value={value?.afterTime ?? ''}
             onChange={(e) => onChange({ ...value, preference: 'anyday_after' as const, afterTime: e.target.value })}
-            className="w-40 px-3 py-1.5 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className="w-40 px-3 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
       )}
@@ -128,7 +128,7 @@ function CallAvailabilityInput({
               <select
                 value={slot.day}
                 onChange={(e) => updateSlot(i, 'day', Number(e.target.value))}
-                className="px-2 py-1.5 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               >
                 {DAY_LABELS.map((label) => (
                   <option key={label} value={DAY_LABELS.indexOf(label)}>{label}</option>
@@ -138,19 +138,19 @@ function CallAvailabilityInput({
                 type="time"
                 value={slot.startTime}
                 onChange={(e) => updateSlot(i, 'startTime', e.target.value)}
-                className="w-28 px-2 py-1.5 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               <span className="text-xs text-brand-muted">to</span>
               <input
                 type="time"
                 value={slot.endTime}
                 onChange={(e) => updateSlot(i, 'endTime', e.target.value)}
-                className="w-28 px-2 py-1.5 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               <button
                 type="button"
                 onClick={() => removeSlot(i)}
-                className="text-brand-error hover:text-red-700 cursor-pointer"
+                className="text-brand-error hover:text-brand-error/80 cursor-pointer"
                 aria-label="Remove time slot"
               >
                 <X className="w-4 h-4" />
@@ -277,7 +277,7 @@ export default function RegisterPage() {
         href="/login"
         className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
         Back to login
       </Link>
 
@@ -292,13 +292,13 @@ export default function RegisterPage() {
 
         {/* Inline API error banner */}
         {formError && (
-          <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400" role="alert">
+          <div className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error" role="alert">
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{formError}</p>
             <button
               type="button"
               onClick={() => setFormError(null)}
-              className="text-red-500 hover:text-red-700 cursor-pointer shrink-0"
+              className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0"
               aria-label="Dismiss error"
             >
               <X className="w-4 h-4" />
@@ -313,14 +313,14 @@ export default function RegisterPage() {
               Full name <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
               <input
                 id="name"
                 type="text"
                 autoComplete="name"
                 placeholder="Your full name"
                 aria-describedby={errors.name ? 'name-error' : undefined}
-                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                   ${errors.name ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                 {...register('name')}
@@ -339,7 +339,7 @@ export default function RegisterPage() {
               Email address <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
               <input
                 id="email"
                 type="email"
@@ -347,7 +347,7 @@ export default function RegisterPage() {
                 autoComplete="email"
                 placeholder="you@example.com"
                 aria-describedby={errors.email ? 'email-error' : undefined}
-                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                   ${errors.email ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                 {...register('email')}
@@ -366,7 +366,7 @@ export default function RegisterPage() {
               Phone number <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
               <input
                 id="phone"
                 type="tel"
@@ -374,7 +374,7 @@ export default function RegisterPage() {
                 autoComplete="tel"
                 placeholder="+91 98765 43210"
                 aria-describedby={errors.phone ? 'phone-error' : undefined}
-                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                   ${errors.phone ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                 {...register('phone')}
@@ -393,13 +393,13 @@ export default function RegisterPage() {
               Date of birth <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
               <input
                 id="dateOfBirth"
                 type="date"
                 autoComplete="bday"
                 aria-describedby={errors.dateOfBirth ? 'dob-error' : undefined}
-                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                   ${errors.dateOfBirth ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                 {...register('dateOfBirth')}
@@ -426,7 +426,7 @@ export default function RegisterPage() {
                   id="address.street"
                   type="text"
                   placeholder="Street address (optional)"
-                  className="w-full px-3 py-2 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  className="w-full px-3 py-2 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                   {...register('address.street')}
                 />
               </div>
@@ -439,7 +439,7 @@ export default function RegisterPage() {
                   type="text"
                   placeholder="Mumbai"
                   aria-describedby={errors.address?.city ? 'city-error' : undefined}
-                  className={`w-full px-3 py-2 rounded-lg border text-sm transition-colors duration-200 bg-background
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 bg-background
                     focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                     ${errors.address?.city ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                   {...register('address.city')}
@@ -459,7 +459,7 @@ export default function RegisterPage() {
                   type="text"
                   placeholder="Maharashtra"
                   aria-describedby={errors.address?.state ? 'state-error' : undefined}
-                  className={`w-full px-3 py-2 rounded-lg border text-sm transition-colors duration-200 bg-background
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 bg-background
                     focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                     ${errors.address?.state ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
                   {...register('address.state')}
@@ -479,7 +479,7 @@ export default function RegisterPage() {
                   type="text"
                   inputMode="numeric"
                   placeholder="400001 (optional)"
-                  className="w-full px-3 py-2 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  className="w-full px-3 py-2 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                   {...register('address.pincode')}
                 />
               </div>
@@ -491,7 +491,7 @@ export default function RegisterPage() {
                   id="address.country"
                   type="text"
                   placeholder="India (optional)"
-                  className="w-full px-3 py-2 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  className="w-full px-3 py-2 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                   {...register('address.country')}
                 />
               </div>
@@ -504,21 +504,21 @@ export default function RegisterPage() {
               Referred by (optional)
             </label>
             <input
-              id="reference"
-              type="text"
-              placeholder="Phone number or referral code of the person who referred you"
-              aria-describedby={errors.reference ? 'reference-error' : undefined}
-              className={`w-full px-3 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
-                focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                ${errors.reference ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-              {...register('reference')}
-            />
-            {errors.reference && (
-              <p id="reference-error" className="text-brand-error text-xs" role="alert">
-                {errors.reference.message}
-              </p>
-            )}
-          </div>
+                  id="reference"
+                  type="text"
+                  placeholder="Phone number or referral code of the person who referred you"
+                  aria-describedby={errors.reference ? 'reference-error' : undefined}
+                  className={`w-full px-3 py-2.5 rounded-lg border transition-colors duration-200 bg-background
+                    focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
+                    ${errors.reference ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
+                  {...register('reference')}
+                />
+                {errors.reference && (
+                  <p id="reference-error" className="text-brand-error text-xs" role="alert">
+                    {errors.reference.message}
+                  </p>
+                )}
+              </div>
 
           {/* Call Availability field */}
           <fieldset className="space-y-3 border border-brand-border rounded-lg p-4">
@@ -545,7 +545,7 @@ export default function RegisterPage() {
               maxLength={500}
               placeholder="Share what motivates you to volunteer..."
               aria-describedby={errors.whyVoluntary ? 'why-voluntary-error' : 'why-voluntary-count'}
-              className={`w-full px-3 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background resize-none
+              className={`w-full px-3 py-2.5 rounded-lg border transition-colors duration-200 bg-background resize-none
                 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                 ${errors.whyVoluntary ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
               {...register('whyVoluntary', {
@@ -573,7 +573,7 @@ export default function RegisterPage() {
 
           <Button type="submit" variant="cta" fullWidth loading={isLoading}>
             Create Account
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Button>
         </form>
 

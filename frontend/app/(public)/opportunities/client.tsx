@@ -84,7 +84,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
             }}
             placeholder="Search opportunities…"
             aria-label="Search opportunities"
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-brand-surface text-brand-text placeholder:text-brand-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+            className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-brand-border text-base bg-brand-surface text-brand-text placeholder:text-brand-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           />
         </div>
 
@@ -102,7 +102,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               setCategory('ALL');
               setPage(1);
             }}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
+            className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
               category === 'ALL'
                 ? 'bg-brand-primary text-white'
                 : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg'
@@ -120,7 +120,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
                 setCategory(cat);
                 setPage(1);
               }}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
+              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
                 category === cat
                   ? 'bg-brand-primary text-white'
                   : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg'
@@ -132,20 +132,21 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
         </div>
 
         {/* Results count */}
-        <p className="text-sm text-brand-muted mb-4">
-          {filtered.length} {filtered.length === 1 ? 'opportunity' : 'opportunities'} found
-        </p>
+        <div aria-live="polite" role="status">
+          <p className="text-sm text-brand-muted mb-4">
+            {filtered.length} {filtered.length === 1 ? 'opportunity' : 'opportunities'} found
+          </p>
 
-        {/* Card grid */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <Search className="w-10 h-10 mx-auto mb-3 text-brand-muted/40" aria-hidden="true" />
-            <p className="font-medium text-brand-text">No opportunities found</p>
-            <p className="text-sm text-brand-muted mt-1">Try adjusting your search or filters</p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Card grid */}
+          {filtered.length === 0 ? (
+            <div className="text-center py-16">
+              <Search className="w-10 h-10 mx-auto mb-3 text-brand-muted/40" aria-hidden="true" />
+              <p className="font-medium text-brand-text">No opportunities found</p>
+              <p className="text-sm text-brand-muted mt-1">Try adjusting your search or filters</p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {paged.map((opp) => (
                 <Link
                   key={opp.id}
@@ -198,6 +199,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
         )}
       </div>
     </div>
+  </div>
   );
 }
 

@@ -60,7 +60,7 @@ export default function AdminStoryDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl animate-pulse">
+      <div role="status" aria-busy="true" className="space-y-6 max-w-4xl animate-pulse">
         <div className="h-8 w-48 bg-brand-bg rounded-lg" />
         <div className="h-12 bg-brand-surface rounded-2xl border border-brand-border" />
         <div className="h-64 bg-brand-surface rounded-2xl border border-brand-border" />
@@ -70,13 +70,13 @@ export default function AdminStoryDetailPage() {
 
   if (error) {
     return (
-      <div className="text-center py-20">
+      <div role="alert" className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load story</p>
         <Button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 mt-4"
+          className="inline-flex items-center gap-2 mt-4 min-h-[44px]"
         >
           Try Again
         </Button>
@@ -125,7 +125,7 @@ export default function AdminStoryDetailPage() {
         <div className="flex items-start justify-between gap-4 mb-4">
           <h1 className="font-heading font-bold text-2xl text-brand-text">{story.title}</h1>
           <span
-            className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 ${story.published ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'}`}
+            className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 ${story.published ? 'bg-brand-primary/10 text-brand-primary' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'}`}
           >
             {story.published ? 'Published' : 'Pending'}
           </span>
@@ -182,6 +182,7 @@ export default function AdminStoryDetailPage() {
             type="button"
             variant="destructive"
             onClick={() => setShowDeleteConfirm(true)}
+            className="min-h-[44px]"
           >
             <Trash2 className="w-4 h-4" />
             Delete Story

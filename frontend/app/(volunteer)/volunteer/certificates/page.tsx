@@ -86,7 +86,7 @@ export default function CertificatesPage() {
               </div>
 
               <div className="bg-brand-bg rounded-xl px-3 py-2">
-                <p className="text-[10px] text-brand-muted font-medium uppercase tracking-wider">
+                <p className="text-xs text-brand-muted font-medium uppercase tracking-wider">
                   Verification Hash
                 </p>
                 <p className="text-xs font-mono text-brand-text truncate">
@@ -105,7 +105,7 @@ export default function CertificatesPage() {
                     <ExternalLink className="w-3.5 h-3.5" /> View
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={() => handleShare(cert)}>
+                <Button variant="outline" size="sm" onClick={() => handleShare(cert)} aria-label="Share certificate">
                   <Share2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
