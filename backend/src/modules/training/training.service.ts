@@ -65,7 +65,7 @@ export async function updateLesson(
   userId: string,
   data: UpdateLessonInput
 ) {
-  const lesson = await prisma.lesson.findUnique({ where: { id } });
+  const lesson = await prisma.lesson.findUnique({ where: { id }, select: { courseId: true } });
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId)
     throw new AppError('Lesson does not belong to this course', 400);
@@ -81,7 +81,7 @@ export async function updateLesson(
 }
 
 export async function deleteLesson(courseId: string, id: string, userId: string) {
-  const lesson = await prisma.lesson.findUnique({ where: { id } });
+  const lesson = await prisma.lesson.findUnique({ where: { id }, select: { courseId: true } });
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId)
     throw new AppError('Lesson does not belong to this course', 400);
@@ -155,10 +155,9 @@ export async function getCourse(courseId: string, userId: string) {
 
   return {
     ...course,
-    lessons: course.lessons.map((l) => ({
+    lessons: course.lessons.map(({ completions, ...l }) => ({
       ...l,
-      completed: l.completions.length > 0,
-      completions: undefined,
+      completed: completions.length > 0,
     })),
     progress: course.progress[0] ?? null,
   };

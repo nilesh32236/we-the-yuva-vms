@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { prisma } from '../../lib/prisma';
+
 import {
   approveAttendance,
   cancelEvent,
@@ -8,6 +8,7 @@ import {
   createEvent,
   exportEventsCsv,
   getAttendanceList,
+  getAttendanceListAll,
   getEventById,
   getIcalEvent,
   getMyEvents,
@@ -163,14 +164,7 @@ export async function getAttendanceListHandler(
 ): Promise<void> {
   try {
     if (req.query.listAll === 'true') {
-      const list = await prisma.attendance.findMany({
-        where: { eventId: req.params.id },
-        take: 500,
-        include: {
-          volunteer: { select: { id: true, name: true, email: true } },
-        },
-        orderBy: { checkedInAt: 'desc' },
-      });
+      const list = await getAttendanceListAll(req.params.id);
       res.status(200).json({ data: list });
       return;
     }

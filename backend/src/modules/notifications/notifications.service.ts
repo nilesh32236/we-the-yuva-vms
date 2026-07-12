@@ -55,31 +55,31 @@ export async function sendPushToUser(
 
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
 
-await prisma.notification.create({ data: { userId, title, body, link, type } });
+  await prisma.notification.create({ data: { userId, title, body, link, type } });
 
-const results = await Promise.allSettled(
-  subs.map((sub) =>
-    webpush.sendNotification(
-      { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-      JSON.stringify({ title, body, link })
+  const results = await Promise.allSettled(
+    subs.map((sub) =>
+      webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+        JSON.stringify({ title, body, link })
+      )
     )
-  )
-);
+  );
 
-for (let i = 0; i < subs.length; i++) {
-  if (results[i].status === 'rejected') {
-    const reason = (results[i] as PromiseRejectedResult).reason;
-    logger.warn('Push send failed, removing subscription', {
-      endpoint: subs[i].endpoint.slice(0, 30),
-      error: (reason as Error).message,
-    });
-    await prisma.pushSubscription
-      .deleteMany({ where: { endpoint: subs[i].endpoint } })
-      .catch((err) =>
-        logger.warn('Failed to clean up push subscription', { error: (err as Error).message })
-      );
+  for (let i = 0; i < subs.length; i++) {
+    if (results[i].status === 'rejected') {
+      const reason = (results[i] as PromiseRejectedResult).reason;
+      logger.warn('Push send failed, removing subscription', {
+        endpoint: subs[i].endpoint.slice(0, 30),
+        error: (reason as Error).message,
+      });
+      await prisma.pushSubscription
+        .deleteMany({ where: { endpoint: subs[i].endpoint } })
+        .catch((err) =>
+          logger.warn('Failed to clean up push subscription', { error: (err as Error).message })
+        );
+    }
   }
-}
 }
 
 export async function sendEmailToUser(

@@ -13,7 +13,7 @@ export async function getMessages(opportunityId: string, page = 1, limit = 50) {
   const [data, total] = await Promise.all([
     prisma.chatMessage.findMany({
       where: { room: { opportunityId } },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
       skip,
       take: limit,
       include: {
@@ -23,7 +23,7 @@ export async function getMessages(opportunityId: string, page = 1, limit = 50) {
     prisma.chatMessage.count({ where: { room: { opportunityId } } }),
   ]);
 
-  return { data, total, page, limit };
+  return { data: data.reverse(), total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function sendMessage(opportunityId: string, userId: string, content: string) {
