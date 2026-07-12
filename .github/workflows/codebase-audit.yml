@@ -169,7 +169,7 @@ jobs:
           {"type":"issue","severity":"critical|important|minor","file":"path","line":N,"message":"what's wrong","suggestion":"how to fix","inline":false}
           AUDIT_EOF
 
-          opencode run --model opencode/deepseek-v4-flash-free --non-interactive "$(cat /tmp/opencode-audit-prompt.txt)"
+          opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-audit-prompt.txt)"
 
       - name: Close auto-created OpenCode PR
         if: always()

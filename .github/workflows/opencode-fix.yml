@@ -98,7 +98,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
-          opencode run --model opencode/deepseek-v4-flash-free --non-interactive "$(cat /tmp/opencode-fix-prompt.txt)"
+          opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-fix-prompt.txt)"
 
       - name: Push fixes
         run: |
