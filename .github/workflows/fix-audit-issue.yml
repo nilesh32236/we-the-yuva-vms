@@ -27,7 +27,7 @@ jobs:
         (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix') && !contains(github.event.issue.labels.*.name, 'audit:needs-info'))
       )
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
 
     steps:
       - name: Acknowledge fix request
