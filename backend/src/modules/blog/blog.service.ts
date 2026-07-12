@@ -5,13 +5,20 @@ import { AppError } from '../../middleware/error.middleware';
 
 async function generateUniqueSlug(title: string): Promise<string> {
   const base = slugify(title, { lower: true, strict: true });
-  let slug = base;
+
+  const existingSlugs = await prisma.blogPost.findMany({
+    where: { slug: { startsWith: base } },
+    select: { slug: true },
+  });
+  const slugSet = new Set(existingSlugs.map((p) => p.slug));
+
+  if (!slugSet.has(base)) return base;
+
   let counter = 1;
-  while (await prisma.blogPost.findUnique({ where: { slug } })) {
-    slug = `${base}-${counter}`;
+  while (slugSet.has(`${base}-${counter}`)) {
     counter++;
   }
-  return slug;
+  return `${base}-${counter}`;
 }
 
 export async function createPost(

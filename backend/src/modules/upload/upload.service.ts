@@ -8,16 +8,23 @@ import { Upload } from '@aws-sdk/lib-storage';
 // HF Spaces has read-only filesystem; use /tmp/uploads or cloud storage
 const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
 
-// Ensure uploads directory exists at module load time
-// TODO: use S3/cloud storage for production - local disk is not persistent on HF Spaces
-try {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-} catch {
-  console.warn(`Uploads directory not writable at ${UPLOADS_DIR} — uploads will fail`);
+let uploadsDirReady = false;
+
+async function ensureUploadsDir() {
+  if (uploadsDirReady) return;
+  try {
+    await fs.promises.mkdir(UPLOADS_DIR, { recursive: true });
+    uploadsDirReady = true;
+  } catch {
+    console.warn(`Uploads directory not writable at ${UPLOADS_DIR} — uploads will fail`);
+  }
 }
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  destination: async (_req, _file, cb) => {
+    await ensureUploadsDir();
+    cb(null, UPLOADS_DIR);
+  },
   filename: (_req, file, cb) => {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const ext = path.extname(file.originalname);
@@ -94,7 +101,7 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
 
       // Clean up the local temp file after successful upload
       try {
-        fs.unlinkSync(file.path);
+        await fs.promises.unlink(file.path);
       } catch (err) {
         console.warn(`Failed to delete local temp file ${file.path}:`, err);
       }
@@ -111,7 +118,7 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
     } catch (err) {
       // Clean up local temp file on error
       try {
-        fs.unlinkSync(file.path);
+        await fs.promises.unlink(file.path).catch(() => {});
       } catch {}
       throw err;
     }

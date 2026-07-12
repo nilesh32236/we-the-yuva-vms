@@ -69,7 +69,7 @@ export async function updateStory(
   data: { title?: string; content?: string; mediaUrl?: string },
   callerRole?: string
 ) {
-  const story = await prisma.story.findUnique({ where: { id } });
+  const story = await prisma.story.findUnique({ where: { id }, select: { id: true, userId: true } });
   if (!story) throw new AppError('Story not found', 404);
   if (story.userId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
   const updated = await prisma.story.update({
@@ -85,7 +85,7 @@ export async function updateStory(
 }
 
 export async function deleteStory(id: string, userId: string, callerRole: string) {
-  const story = await prisma.story.findUnique({ where: { id } });
+  const story = await prisma.story.findUnique({ where: { id }, select: { id: true, userId: true } });
   if (!story) throw new AppError('Story not found', 404);
   if (story.userId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
   await prisma.story.delete({ where: { id } });
@@ -100,7 +100,7 @@ export async function moderateStory(
 ) {
   if (callerRole !== 'ADMIN')
     throw new AppError('Forbidden: only admins can moderate stories', 403);
-  const story = await prisma.story.findUnique({ where: { id } });
+  const story = await prisma.story.findUnique({ where: { id }, select: { id: true, userId: true, title: true } });
   if (!story) throw new AppError('Story not found', 404);
   const updated = await prisma.story.update({ where: { id }, data: { published } });
   await logAudit({

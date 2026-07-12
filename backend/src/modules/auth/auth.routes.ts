@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { ConsentSchema, RegisterSchema, SendOtpSchema, VerifyOtpSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -12,6 +13,22 @@ import {
 } from './auth.controller';
 
 export const authRouter: IRouter = Router();
+
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many accounts created from this IP, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const otpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 3,
+  message: { error: 'Too many OTP requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Public routes
 /**
@@ -34,7 +51,7 @@ export const authRouter: IRouter = Router();
  *       201:
  *         description: User registered, OTP sent
  */
-authRouter.post('/register', validate(RegisterSchema), register);
+authRouter.post('/register', registerLimiter, validate(RegisterSchema), register);
 
 /**
  * @openapi
@@ -54,7 +71,7 @@ authRouter.post('/register', validate(RegisterSchema), register);
  *       200:
  *         description: OTP sent
  */
-authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
+authRouter.post('/send-otp', otpLimiter, validate(SendOtpSchema), sendOtp);
 
 /**
  * @openapi

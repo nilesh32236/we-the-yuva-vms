@@ -126,7 +126,6 @@ export async function listOpportunities(
       include: {
         location: true,
         createdBy: { select: { name: true } },
-        _count: { select: { applications: true } },
       },
     }),
     prisma.opportunity.count({ where }),
@@ -324,7 +323,6 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
         throw err;
       }
     },
-    { isolationLevel: 'Serializable' }
   );
 
   // Notify the opportunity creator (non-blocking)
@@ -367,7 +365,9 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
       }
     };
 
-    notify();
+    notify().catch((err) =>
+      logger.warn('Failed to notify opportunity creator', { error: (err as Error).message })
+    );
   }
 
   return application;

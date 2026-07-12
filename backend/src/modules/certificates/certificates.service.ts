@@ -17,13 +17,9 @@ export async function generateCertificate(userId: string, levelId: string) {
       },
     });
 
-    await tx.certificate.update({
+    return tx.certificate.update({
       where: { id: cert.id },
       data: { certificateUrl: `/api/v1/certificates/${cert.id}/view` },
-    });
-
-    return tx.certificate.findUnique({
-      where: { id: cert.id },
       include: { level: true },
     });
   });
@@ -46,12 +42,19 @@ export async function generateCertificate(userId: string, levelId: string) {
   return certificate;
 }
 
-export async function listMyCertificates(userId: string) {
-  return prisma.certificate.findMany({
-    where: { userId },
-    include: { level: true, user: { select: { id: true, name: true } } },
-    orderBy: { issuedAt: 'desc' },
-  });
+export async function listMyCertificates(userId: string, page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.certificate.findMany({
+      where: { userId },
+      skip,
+      take: limit,
+      include: { level: true, user: { select: { id: true, name: true } } },
+      orderBy: { issuedAt: 'desc' },
+    }),
+    prisma.certificate.count({ where: { userId } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function getCertificate(id: string, userId: string) {

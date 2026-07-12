@@ -5,29 +5,30 @@ export async function listBadges() {
 }
 
 export async function getMyBadges(userId: string) {
-  const userBadges = await prisma.userBadge.findMany({
-    where: { userId },
-    include: { badge: true },
-    orderBy: { earnedAt: 'desc' },
-  });
+  const [userBadges, allBadges] = await Promise.all([
+    prisma.userBadge.findMany({
+      where: { userId },
+      include: { badge: true },
+      orderBy: { earnedAt: 'desc' },
+    }),
+    prisma.badge.findMany({
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        criteria: true,
+      },
+    }),
+  ]);
 
-  const allBadges = await prisma.badge.findMany({
-    orderBy: { name: 'asc' },
-    select: {
-      id: true,
-      name: true,
-      title: true,
-      description: true,
-      imageUrl: true,
-      criteria: true,
-    },
-  });
-
-  const earnedBadgeIds = new Set(userBadges.map((ub) => ub.badgeId));
+  const earnedMap = new Map(userBadges.map((ub) => [ub.badgeId, ub.earnedAt]));
   const result = allBadges.map((badge) => ({
     ...badge,
-    earned: earnedBadgeIds.has(badge.id),
-    earnedAt: userBadges.find((ub) => ub.badgeId === badge.id)?.earnedAt ?? null,
+    earned: earnedMap.has(badge.id),
+    earnedAt: earnedMap.get(badge.id) ?? null,
   }));
 
   return result;
