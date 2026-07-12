@@ -1009,69 +1009,78 @@ export async function generateEventsFromSeries(
   seriesId: string,
   startFrom?: Date
 ): Promise<number> {
-  const series = await prisma.eventSeries.findUnique({
-    where: { id: seriesId },
+  return prisma.$transaction(async (tx) => {
+    // Lock the EventSeries row to prevent concurrent generation from reading stale currentCount
+    const locked = await tx.eventSeries.findUnique({
+      where: { id: seriesId },
+      select: { id: true },
+    });
+    if (!locked) throw new AppError('Event series not found', 404);
+
+    const series = await tx.eventSeries.findUnique({
+      where: { id: seriesId },
+    });
+
+    if (!series) throw new AppError('Event series not found', 404);
+    if (!series.isActive) return 0;
+
+    const lastEvent = await tx.event.findFirst({
+      where: { seriesId },
+      orderBy: { eventDate: 'desc' },
+      select: { eventDate: true },
+    });
+
+    const effectiveStart = startFrom
+      ? new Date(startFrom)
+      : lastEvent
+        ? new Date(lastEvent.eventDate.getTime() + 86400000)
+        : new Date();
+
+    const dates = calculateNextDates(
+      {
+        frequency: series.frequency,
+        daysOfWeek: series.daysOfWeek,
+        interval: series.interval,
+        startTime: series.startTime,
+        endTime: series.endTime,
+        endDate: series.endDate,
+        maxOccurrences: series.maxOccurrences,
+        currentCount: series.currentCount,
+        customRule: series.customRule,
+        anchorDate: series.startDate,
+      },
+      effectiveStart
+    );
+
+    if (dates.length === 0) return 0;
+
+    const { count } = await tx.event.createMany({
+      data: dates.map((date) => ({
+        opportunityId: series.opportunityId,
+        title: series.title,
+        description: series.description,
+        eventDate: date,
+        startTime: series.startTime,
+        endTime: series.endTime,
+        venue: series.venue,
+        isVirtual: series.isVirtual,
+        meetingLink: series.meetingLink,
+        capacity: series.capacity,
+        seriesId: series.id,
+        qrToken: crypto.randomBytes(32).toString('hex'),
+        qrExpiresAt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
+      })),
+      skipDuplicates: true,
+    });
+
+    await tx.eventSeries.update({
+      where: { id: seriesId },
+      data: { currentCount: { increment: count } },
+    });
+
+    logger.info(`Generated ${count} events for series ${seriesId}`);
+    return count;
   });
-
-  if (!series) throw new AppError('Event series not found', 404);
-  if (!series.isActive) return 0;
-
-  const lastEvent = await prisma.event.findFirst({
-    where: { seriesId },
-    orderBy: { eventDate: 'desc' },
-    select: { eventDate: true },
-  });
-
-  const effectiveStart = startFrom
-    ? new Date(startFrom)
-    : lastEvent
-      ? new Date(lastEvent.eventDate.getTime() + 86400000)
-      : new Date();
-
-  const dates = calculateNextDates(
-    {
-      frequency: series.frequency,
-      daysOfWeek: series.daysOfWeek,
-      interval: series.interval,
-      startTime: series.startTime,
-      endTime: series.endTime,
-      endDate: series.endDate,
-      maxOccurrences: series.maxOccurrences,
-      currentCount: series.currentCount,
-      customRule: series.customRule,
-      anchorDate: series.startDate,
-    },
-    effectiveStart
-  );
-
-  if (dates.length === 0) return 0;
-
-  const { count } = await prisma.event.createMany({
-    data: dates.map((date) => ({
-      opportunityId: series.opportunityId,
-      title: series.title,
-      description: series.description,
-      eventDate: date,
-      startTime: series.startTime,
-      endTime: series.endTime,
-      venue: series.venue,
-      isVirtual: series.isVirtual,
-      meetingLink: series.meetingLink,
-      capacity: series.capacity,
-      seriesId: series.id,
-      qrToken: crypto.randomBytes(32).toString('hex'),
-      qrExpiresAt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
-    })),
-    skipDuplicates: true,
-  });
-
-  await prisma.eventSeries.update({
-    where: { id: seriesId },
-    data: { currentCount: { increment: count } },
-  });
-
-  logger.info(`Generated ${count} events for series ${seriesId}`);
-  return count;
 }
 
 function sanitizeCsvCell(value: string): string {
@@ -1084,8 +1093,10 @@ function sanitizeCsvCell(value: string): string {
 
 export async function exportEventsCsv(callerOrgId: string | null | undefined) {
   const where = callerOrgId ? { opportunity: { organizationId: callerOrgId } } : {};
+  // Limit to 10k rows to prevent OOM; use streaming/paginated iteration for larger exports
   const events = await prisma.event.findMany({
     where,
+    take: 10000,
     orderBy: { eventDate: 'desc' },
     include: {
       opportunity: { select: { title: true } },

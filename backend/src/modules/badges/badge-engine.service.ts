@@ -122,6 +122,9 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
 
     case 'GRIEVANCES_RESOLVED': {
       // TODO: Implement grievance resolution tracking
+      // This criteria requires a Grievance model (report + resolution status).
+      // Once that exists, query: prisma.grievance.count({ where: { reportedById: userId, status: 'RESOLVED' } })
+      // and compare against criteria.count. For now this badge is unobtainable — fix when grievance system lands.
       return false;
     }
 

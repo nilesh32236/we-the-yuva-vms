@@ -104,6 +104,8 @@ async function main() {
         'mentorship:manage',
         'file:upload',
         'youth:profile:view',
+        'chat:read',
+        'chat:send',
       ],
     },
     {

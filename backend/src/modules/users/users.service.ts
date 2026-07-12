@@ -135,7 +135,9 @@ export async function exportCoordinatorVolunteers(
 ) {
   const opportunityFilter = organizationId ? { organizationId } : { createdById: coordinatorId };
 
+  // Limit to 10k rows to prevent OOM; use streaming/paginated iteration for larger exports
   const volunteers = await prisma.user.findMany({
+    take: 10000,
     where: {
       roleRef: { name: 'VOLUNTEER' },
       applications: {
