@@ -35,17 +35,6 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
   const [address, setAddress] = useState(org.address ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  function validate(): boolean {
-    const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Organization name is required';
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Invalid email format';
-    if (website && !/^https?:\/\/.+/.test(website))
-      errs.website = 'Must be a valid URL (http/https)';
-    if (logo && !/^https?:\/\/.+/.test(logo)) errs.logo = 'Must be a valid URL (http/https)';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  }
-
   const mutation = useMutation({
     mutationFn: (body: object) => api.patch(`/organizations/${org.id}`, body),
     onSuccess: () => {
@@ -63,6 +52,19 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
       });
     },
   });
+
+  if (!org) return null;
+
+  function validate(): boolean {
+    const errs: Record<string, string> = {};
+    if (!name.trim()) errs.name = 'Organization name is required';
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Invalid email format';
+    if (website && !/^https?:\/\/.+/.test(website))
+      errs.website = 'Must be a valid URL (http/https)';
+    if (logo && !/^https?:\/\/.+/.test(logo)) errs.logo = 'Must be a valid URL (http/https)';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
 
   function handleSave() {
     if (!validate()) return;

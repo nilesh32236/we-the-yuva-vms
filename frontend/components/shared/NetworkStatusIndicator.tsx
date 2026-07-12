@@ -41,6 +41,14 @@ export function NetworkStatusIndicator() {
     };
   }, []);
 
+  // Periodic connectivity check (browser online/offline events can be unreliable)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsOnline(navigator.onLine);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Don't render anything during initial mount
   if (isOnline === null) return null;
 

@@ -3,6 +3,7 @@
 import { RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../ui/Button';
+import { useToast } from '../../hooks/use-toast';
 
 interface ResendButtonProps {
   onResend: () => Promise<void>;
@@ -12,6 +13,7 @@ interface ResendButtonProps {
 export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonProps) {
   const [countdown, setCountdown] = useState(cooldownSeconds);
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setCountdown(cooldownSeconds);
@@ -31,10 +33,13 @@ export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonPro
     try {
       await onResend();
       setCountdown(cooldownSeconds);
+    } catch (err) {
+      const msg = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to resend code';
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
-  }, [countdown, isLoading, onResend, cooldownSeconds]);
+  }, [countdown, isLoading, onResend, cooldownSeconds, toast]);
 
   return (
     <Button

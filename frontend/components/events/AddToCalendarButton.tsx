@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { CalendarPlus } from 'lucide-react';
 import { api } from '../../lib/api';
+import { useToast } from '../../hooks/use-toast';
 
 interface Props {
   eventId: string;
@@ -14,7 +16,12 @@ export function AddToCalendarButton({
   label = 'Add to Calendar',
   variant = 'button',
 }: Props) {
+  const { toast } = useToast();
+  const [downloading, setDownloading] = useState(false);
+
   const handleDownload = async () => {
+    if (downloading) return;
+    setDownloading(true);
     try {
       const response = await api.get(`/events/${eventId}/ical`, {
         responseType: 'blob',
@@ -28,7 +35,9 @@ export function AddToCalendarButton({
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch {
-      // silently fail — user can retry
+      toast({ title: 'Download failed', description: 'Could not download calendar file.', variant: 'destructive' });
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -37,7 +46,8 @@ export function AddToCalendarButton({
       <button
         type="button"
         onClick={handleDownload}
-        className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        disabled={downloading}
+        className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50"
         title={label}
         aria-label={label}
       >
@@ -50,7 +60,8 @@ export function AddToCalendarButton({
     <button
       type="button"
       onClick={handleDownload}
-      className="flex items-center gap-1.5 text-sm font-medium border border-brand-border text-brand-text px-4 py-2 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
+      disabled={downloading}
+      className="flex items-center gap-1.5 text-sm font-medium border border-brand-border text-brand-text px-4 py-2 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer disabled:opacity-50"
       aria-label={label}
     >
       <CalendarPlus className="w-4 h-4" />

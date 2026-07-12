@@ -23,7 +23,7 @@ interface OrganizationTableProps {
   orgs: Organization[];
 }
 
-export function OrganizationTable({ orgs }: OrganizationTableProps) {
+export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
       <div className="overflow-x-auto">
@@ -49,7 +49,13 @@ export function OrganizationTable({ orgs }: OrganizationTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border">
-            {orgs.map((org) => (
+            {orgs.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-brand-muted text-sm">
+                  No organizations found
+                </td>
+              </tr>
+            ) : orgs.map((org) => (
               <tr key={org.id} className="hover:bg-brand-bg/50 transition-colors">
                 <td className="px-4 py-4">
                   <div className="flex flex-col">

@@ -4,6 +4,7 @@ import { Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
 import { api } from '../../lib/api';
+import * as Sentry from '@sentry/nextjs';
 
 interface FileUploadProps {
   onUpload: (url: string) => void;
@@ -43,13 +44,12 @@ export function FileUpload({
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await api.post('/upload', formData);
       setPreview(data.url);
       onUpload(data.url);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Upload failed';
+      Sentry.captureException(err);
+      const msg = (err as { normalizedMessage?: string })?.normalizedMessage ?? (err instanceof Error ? err.message : 'Upload failed');
       setError(msg);
     } finally {
       setUploading(false);

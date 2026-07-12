@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
 import { haptic } from '../../lib/haptic';
 import { Button } from '../ui/Button';
+import { useToast } from '../../hooks/use-toast';
+import * as Sentry from '@sentry/nextjs';
 
 interface Volunteer {
   volunteerId: string;
@@ -43,6 +45,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
   const [ratings, setRatings] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
   const [approving, setApproving] = useState<Record<string, boolean>>({});
+  const { toast } = useToast();
 
   useEffect(() => {
     setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, v.attended])));
@@ -81,8 +84,8 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       await onSave(
         Object.entries(state).map(([volunteerId, attended]) => ({ volunteerId, attended }))
       );
-    } catch {
-      // Error handled by parent
+    } catch (err) {
+      Sentry.captureException(err);
     } finally {
       setSaving(false);
     }
@@ -91,14 +94,20 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
   const handleApprove = async (v: Volunteer) => {
     const hours = parseFloat(hoursInputs[v.volunteerId] || '0');
     const rating = ratings[v.volunteerId] || 0;
-    if (hours <= 0) return;
-    if (rating < 1 || rating > 5) return;
+    if (hours <= 0) {
+      toast({ title: 'Validation error', description: 'Hours must be greater than 0', variant: 'destructive' });
+      return;
+    }
+    if (rating < 1 || rating > 5) {
+      toast({ title: 'Validation error', description: 'Rating must be between 1 and 5', variant: 'destructive' });
+      return;
+    }
     setApproving((s) => ({ ...s, [v.volunteerId]: true }));
     try {
       haptic.medium();
       await onApprove(v.volunteerId, hours, rating);
-    } catch {
-      // Error handled by parent
+    } catch (err) {
+      Sentry.captureException(err);
     } finally {
       setApproving((s) => ({ ...s, [v.volunteerId]: false }));
     }

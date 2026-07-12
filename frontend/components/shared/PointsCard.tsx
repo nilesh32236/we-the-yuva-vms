@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Award } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import * as Sentry from '@sentry/nextjs';
 
 interface PointsResponse {
   currentPoints: number;
@@ -11,11 +12,15 @@ interface PointsResponse {
 }
 
 export function PointsCard() {
-  const { data, isLoading, isError } = useQuery<PointsResponse>({
+  const { data, isLoading, isError, error } = useQuery<PointsResponse>({
     queryKey: ['my-points'],
     queryFn: () => api.get('/levels/users/me/points').then((r) => r.data),
     staleTime: 60_000,
   });
+
+  if (isError && error) {
+    Sentry.captureException(error);
+  }
 
   if (isLoading) {
     return (

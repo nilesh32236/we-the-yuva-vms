@@ -11,6 +11,7 @@ export function PWAInstallBanner() {
   const { isInstallable, install } = usePWAInstall();
   const [dismissed, setDismissed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [installing, setInstalling] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -33,9 +34,16 @@ export function PWAInstallBanner() {
 
   const handleInstall = async () => {
     haptic.medium();
-    const success = await install();
-    if (success) {
-      setDismissed(true);
+    setInstalling(true);
+    try {
+      const success = await install();
+      if (success) {
+        setDismissed(true);
+      }
+    } catch (err) {
+      console.error('PWA install failed:', err);
+    } finally {
+      setInstalling(false);
     }
   };
 
@@ -100,10 +108,15 @@ export function PWAInstallBanner() {
         <button
           type="button"
           onClick={handleInstall}
-          className="flex items-center justify-center gap-2.5 bg-emerald-400 hover:bg-emerald-300 active:scale-95 text-emerald-950 font-heading font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/40 transition-colors duration-150 cursor-pointer w-full md:w-auto flex-shrink-0"
+          disabled={installing}
+          className="flex items-center justify-center gap-2.5 bg-emerald-400 hover:bg-emerald-300 active:scale-95 text-emerald-950 font-heading font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-900/40 transition-colors duration-150 cursor-pointer w-full md:w-auto flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <Download className="w-4 h-4" />
-          Install App
+          {installing ? (
+            <span className="w-4 h-4 border-2 border-emerald-950/30 border-t-emerald-950 rounded-full animate-spin" />
+          ) : (
+            <Download className="w-4 h-4" />
+          )}
+          {installing ? 'Installing...' : 'Install App'}
         </button>
       </div>
     </div>

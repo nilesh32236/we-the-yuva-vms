@@ -13,7 +13,7 @@ const SIZE_CLASSES: Record<string, { container: string; icon: string; text: stri
 };
 
 export function StreakBadge({ streak, size = 'sm' }: StreakBadgeProps) {
-  const classes = SIZE_CLASSES[size];
+  const classes = SIZE_CLASSES[size] ?? SIZE_CLASSES.sm;
 
   return (
     <div

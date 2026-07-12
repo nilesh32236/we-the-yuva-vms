@@ -79,7 +79,10 @@ export function LevelProgressCard() {
   }
 
   const level = data?.data;
-  if (!level) return null;
+  if (!level) {
+    console.warn('LevelProgressCard: no level data available');
+    return null;
+  }
 
   const currentTier = TIER_DATA[level.tier - 1] ?? TIER_DATA[0];
   const progressPct =

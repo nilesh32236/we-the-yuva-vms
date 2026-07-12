@@ -18,6 +18,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import * as Sentry from '@sentry/nextjs';
+import { useToast } from '../../hooks/use-toast';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
@@ -88,6 +90,7 @@ export function TopNav() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: unreadData } = useQuery({
     queryKey: ['notifications', 'unread-count'],
@@ -110,6 +113,14 @@ export function TopNav() {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
       queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
     },
+    onError: (err: unknown) => {
+      Sentry.captureException(err);
+      toast({
+        title: 'Error',
+        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to mark notification as read',
+        variant: 'destructive',
+      });
+    },
   });
 
   const markAllReadMut = useMutation({
@@ -117,6 +128,14 @@ export function TopNav() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
       queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
+    },
+    onError: (err: unknown) => {
+      Sentry.captureException(err);
+      toast({
+        title: 'Error',
+        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to mark all as read',
+        variant: 'destructive',
+      });
     },
   });
 

@@ -17,7 +17,7 @@ export function HoursBarChart({ data }: HoursBarChartProps) {
 
   const isDark = mounted && resolvedTheme === 'dark';
 
-  if (!data.length)
+  if (!data?.length)
     return <p className="text-center text-brand-muted text-sm py-8">No data available</p>;
 
   return (

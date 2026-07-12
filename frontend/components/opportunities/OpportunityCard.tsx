@@ -143,7 +143,7 @@ const OpportunityCard = memo(function OpportunityCard({
       } else {
         toast({
           title: 'Error',
-          description: 'Could not submit application.',
+          description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not submit application.',
           variant: 'destructive',
         });
       }
