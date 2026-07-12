@@ -1,5 +1,6 @@
 import { MapPin, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import * as Sentry from '@sentry/nextjs';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -20,7 +21,8 @@ async function getFeaturedOpportunities(): Promise<Opportunity[]> {
     if (!res.ok) return [];
     const body = await res.json();
     return body.data ?? [];
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return [];
   }
 }
@@ -28,7 +30,13 @@ async function getFeaturedOpportunities(): Promise<Opportunity[]> {
 export async function FeaturedOpportunities() {
   const opportunities = await getFeaturedOpportunities();
 
-  if (opportunities.length === 0) return null;
+  if (opportunities.length === 0) return (
+    <section className="bg-brand-bg/50 py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-6 text-center">
+        <p className="text-brand-muted">Unable to load opportunities. Please try again later.</p>
+      </div>
+    </section>
+  );
 
   return (
     <section className="bg-brand-bg/50 py-20 sm:py-28">

@@ -4,6 +4,7 @@ import { MoreVertical } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
+import * as Sentry from '@sentry/nextjs';
 
 const ROLE_COLORS: Record<string, string> = {
   VOLUNTEER: 'bg-brand-primary/10 text-brand-primary',
@@ -33,7 +34,7 @@ interface UserTableProps {
   onUpdated: () => void;
 }
 
-export function UserTable({ users, onUpdated }: UserTableProps) {
+export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const { toast } = useToast();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
@@ -60,8 +61,14 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
       await api.patch(`/admin/users/${id}`, data);
       toast({ title: msg });
       onUpdated();
-    } catch {
-      toast({ title: 'Error', description: 'Could not update user.', variant: 'destructive' });
+    } catch (err: unknown) {
+      console.error(err);
+      Sentry.captureException(err);
+      toast({
+        title: 'Error',
+        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not update user.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(null);
       setOpenMenu(null);
@@ -126,7 +133,13 @@ export function UserTable({ users, onUpdated }: UserTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border">
-            {users.map((u) => (
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-brand-muted text-sm">
+                  No users found
+                </td>
+              </tr>
+            ) : users.map((u) => (
               <tr key={u.id} className="hover:bg-brand-bg/50 transition-colors">
                 <td className="px-4 py-3 font-medium text-brand-text">{u.name}</td>
                 <td className="px-4 py-3 hidden md:table-cell">

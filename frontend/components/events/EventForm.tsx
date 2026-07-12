@@ -52,7 +52,7 @@ export function EventForm({
         className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary
           ${errors[id] ? 'border-brand-error' : 'border-brand-border'}`}
       />
-      {errors[id] && <p className="text-xs text-brand-error">{errors[id]?.message as string}</p>}
+      {errors[id] && <p className="text-xs text-brand-error">{String(errors[id]?.message ?? '')}</p>}
     </div>
   );
 

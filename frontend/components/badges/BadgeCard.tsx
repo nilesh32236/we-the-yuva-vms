@@ -111,7 +111,7 @@ export function BadgeCard({
       {/* Earned Date */}
       {earned && earnedAt && (
         <span className="text-[10px] text-brand-muted/70 mt-auto">
-          Earned {new Date(earnedAt).toLocaleDateString()}
+          Earned {(() => { try { return new Date(earnedAt!).toLocaleDateString(); } catch { return 'Unknown date'; } })()}
         </span>
       )}
       {!earned && <span className="text-[10px] text-brand-muted/40 mt-auto">Not yet earned</span>}

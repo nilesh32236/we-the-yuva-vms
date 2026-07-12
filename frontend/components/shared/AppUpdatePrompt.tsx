@@ -39,6 +39,8 @@ export function AppUpdatePrompt() {
       };
 
       reg.addEventListener('updatefound', handleUpdateFound);
+    }).catch((err) => {
+      console.error('SW registration failed:', err);
     });
 
     // 3. Listen for controlling worker change (after skipWaiting is invoked)
@@ -56,10 +58,12 @@ export function AppUpdatePrompt() {
   const handleUpdate = () => {
     haptic.medium();
     if (registration?.waiting) {
-      // Message the waiting worker to run skipWaiting()
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      try {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      } catch {
+        window.location.reload();
+      }
     } else {
-      // Fallback reload if worker is gone
       window.location.reload();
     }
   };

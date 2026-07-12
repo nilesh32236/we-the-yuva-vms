@@ -1,6 +1,7 @@
 import { Calendar, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import * as Sentry from '@sentry/nextjs';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -22,7 +23,8 @@ async function getLatestPosts(): Promise<BlogPost[]> {
     if (!res.ok) return [];
     const body = await res.json();
     return body.data ?? [];
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return [];
   }
 }
@@ -30,7 +32,13 @@ async function getLatestPosts(): Promise<BlogPost[]> {
 export async function BlogPreview() {
   const posts = await getLatestPosts();
 
-  if (posts.length === 0) return null;
+  if (posts.length === 0) return (
+    <section className="bg-brand-bg/50 py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-6 text-center">
+        <p className="text-brand-muted">Unable to load blog posts. Please try again later.</p>
+      </div>
+    </section>
+  );
 
   return (
     <section className="bg-brand-bg/50 py-20 sm:py-28">

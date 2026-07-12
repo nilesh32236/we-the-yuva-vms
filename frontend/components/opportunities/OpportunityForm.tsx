@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
+import * as Sentry from '@sentry/nextjs';
 
 const CATEGORIES = [
   'EDUCATION',
@@ -51,6 +52,7 @@ export function OpportunityForm({
     try {
       await onSubmit(data);
     } catch (err: unknown) {
+      Sentry.captureException(err);
       const msg =
         (err as { normalizedMessage?: string })?.normalizedMessage ??
         (err as Error)?.message ??
@@ -351,6 +353,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
       setShowNewForm(false);
       queryClient.invalidateQueries({ queryKey: ['opportunities', 'locations'] });
     } catch (err: unknown) {
+      Sentry.captureException(err);
       const msg =
         (err as { normalizedMessage?: string })?.normalizedMessage ??
         (err as Error)?.message ??
@@ -424,7 +427,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
         className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
       >
         <option value="">Select location (optional)</option>
-        {isLoading && <option disabled>Loading...</option>}
+        {isLoading && <option disabled>Loading locations...</option>}
         {(data ?? []).map((loc) => (
           <option key={loc.id} value={loc.id}>
             {loc.name}

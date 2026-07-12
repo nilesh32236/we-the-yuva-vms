@@ -33,7 +33,7 @@ interface EventCardProps {
 
 const EventCard = memo(function EventCard({ event, showAttendance }: EventCardProps) {
   const date = new Date(event.eventDate);
-  const isPast = date < new Date();
+  const isPast = !Number.isNaN(date.getTime()) && date < new Date();
 
   return (
     <div

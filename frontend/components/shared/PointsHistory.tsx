@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Award, Clock } from 'lucide-react';
 import { api } from '@/lib/api';
 import { SkeletonCard } from './SkeletonCard';
+import * as Sentry from '@sentry/nextjs';
 
 interface PointTransaction {
   id: string;
@@ -61,6 +62,7 @@ export function PointsHistory() {
   }
 
   if (isError) {
+    Sentry.captureException(new Error('PointsHistory: failed to load'));
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-border">

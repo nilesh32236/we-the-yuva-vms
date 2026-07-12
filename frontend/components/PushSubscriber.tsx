@@ -21,7 +21,7 @@ export function PushSubscriber() {
     if (!mounted || !user || permission !== 'granted') return;
 
     // Fire silent background subscription to refresh registration on backend
-    subscribe();
+    subscribe().catch(() => {});
   }, [user, permission, mounted, subscribe]);
 
   // 2. Handle soft permission prompt presentation
@@ -54,8 +54,12 @@ export function PushSubscriber() {
 
   const handleSubscribe = async () => {
     haptic.medium();
-    await subscribe();
-    setShowPrompt(false);
+    try {
+      await subscribe();
+      setShowPrompt(false);
+    } catch {
+      // Error handled by the hook
+    }
   };
 
   return (
