@@ -8,7 +8,8 @@
 		"bash": "allow",
 		"edit": "allow",
 		"write": "allow",
-		"read": "allow"
+		"read": "allow",
+		"external_directory": "allow"
 	},
 	"model": "opencode-go/qwen3.6-plus",
 	"agent": {
