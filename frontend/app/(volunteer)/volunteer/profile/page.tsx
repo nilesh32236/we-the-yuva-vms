@@ -685,7 +685,7 @@ function ProfileCompletionInline() {
           <span className="text-xs font-medium text-brand-muted">{completionPercentage}%</span>
         </div>
 
-        <div className="w-full h-2 rounded-full bg-brand-border overflow-hidden">
+        <div className="w-full h-2 rounded-full bg-brand-border overflow-hidden" role="progressbar" aria-valuenow={completionPercentage} aria-valuemin={0} aria-valuemax={100}>
           <div
             className="h-full rounded-full bg-brand-primary transition-all duration-500"
             style={{ width: `${completionPercentage}%` }}

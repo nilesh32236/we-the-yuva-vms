@@ -184,7 +184,7 @@ export default function SetupProfilePage() {
           <span>Step {step + 1} of {STEPS.length}</span>
           <span>{STEPS[step].label}</span>
         </div>
-        <div className="h-2 bg-brand-border rounded-full overflow-hidden" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-2 bg-brand-border rounded-full overflow-hidden" role="progressbar" aria-label="Profile completion progress" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
           <div className="h-full bg-brand-primary rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
         </div>
       </div>

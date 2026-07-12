@@ -25,8 +25,8 @@ export default function VerifyCertificatePage() {
 
   if (isLoading) {
     return (
-      <main id="main" className="min-h-screen bg-brand-bg flex items-center justify-center p-4" role="status" aria-busy="true">
-        <div className="w-full max-w-md space-y-4">
+      <main id="main" className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-4" role="status" aria-busy="true">
           <SkeletonCard />
         </div>
       </main>

@@ -209,7 +209,7 @@ export default function RegisterOrganizationPage() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 sm:p-8">
+        <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(e) => { if (e.key === 'Enter' && step < 2) e.preventDefault(); }} className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 sm:p-8">
           {step === 0 && (
             <div className="space-y-5">
               <div>

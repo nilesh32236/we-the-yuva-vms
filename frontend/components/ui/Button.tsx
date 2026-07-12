@@ -50,7 +50,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className={cn(
         'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         variants[variant],
-        variant !== 'icon' && variant !== 'ghost' && sizes[size],
+        sizes[size],
         fullWidth && 'w-full',
         className
       )}

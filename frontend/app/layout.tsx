@@ -73,7 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to main content
         </a>
-        <Providers><main id="main">{children}</main></Providers>
+        <Providers>{children}</Providers>
         <Analytics />
         <SpeedInsights />
         <AppUpdatePrompt />

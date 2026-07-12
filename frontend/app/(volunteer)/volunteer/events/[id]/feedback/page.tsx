@@ -76,10 +76,10 @@ export default function EventFeedbackPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Rating */}
           <div className="space-y-2">
-            <label htmlFor="rating" className="text-sm font-medium text-brand-text">
+            <label htmlFor="rating" id="rating-label" className="text-sm font-medium text-brand-text">
               Rating
             </label>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1" role="radiogroup" aria-labelledby="rating-label">
               <input type="hidden" id="rating" value={rating} readOnly />
               {[1, 2, 3, 4, 5].map((n) => (
                 <button

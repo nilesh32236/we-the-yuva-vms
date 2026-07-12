@@ -196,6 +196,7 @@ function ScanInner() {
               type="button"
               role="tab"
               aria-selected={mode === 'camera'}
+              aria-controls="scan-camera-panel"
               onClick={() => {
                 setMode('camera');
                 setErrorMsg('');
@@ -212,6 +213,7 @@ function ScanInner() {
               type="button"
               role="tab"
               aria-selected={mode === 'manual'}
+              aria-controls="scan-manual-panel"
               onClick={() => {
                 setMode('manual');
                 setErrorMsg('');
@@ -228,7 +230,7 @@ function ScanInner() {
 
           {/* Camera scanner */}
           {mode === 'camera' && (
-            <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+            <div id="scan-camera-panel" role="tabpanel" className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
               <div
                 id="qr-scanner-container"
                 ref={scannerContainer}
@@ -242,7 +244,7 @@ function ScanInner() {
 
           {/* Manual entry */}
           {mode === 'manual' && (
-            <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4">
+            <div id="scan-manual-panel" role="tabpanel" className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4">
               <div className="space-y-1.5">
                 <label htmlFor="token" className="text-sm font-medium text-brand-text">
                   Check-in Code

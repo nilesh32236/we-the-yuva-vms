@@ -285,7 +285,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                             haptic.light();
                             setRatings((s) => ({ ...s, [v.volunteerId]: star }));
                           }}
-                          className="cursor-pointer p-0.5"
+                          className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5"
                           aria-label={`${star} star(s)`}
                         >
                           <Star
