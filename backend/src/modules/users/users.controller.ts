@@ -3,6 +3,7 @@ import {
   exportCoordinatorVolunteers,
   getCoordinatorVolunteers,
   getMe,
+  getProfileStatus,
   getUserProfile,
   submitOnboarding,
   updateUser,
@@ -14,6 +15,15 @@ export async function getMeHandler(req: Request, res: Response, next: NextFuncti
   try {
     const user = await getMe(req.user!.id);
     res.status(200).json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getProfileStatusHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const status = await getProfileStatus(req.user!.id);
+    res.status(200).json(status);
   } catch (err) {
     next(err);
   }

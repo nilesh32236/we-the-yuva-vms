@@ -122,6 +122,14 @@ enum NotificationPreferenceType {
   STORY_PUBLISHED
   WEEKLY_DIGEST
   SYSTEM_ANNOUNCEMENT
+  PROFILE_REMINDER
+}
+
+enum RecurrenceFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  CUSTOM
 }
 
 enum VolunteerType {
@@ -216,12 +224,28 @@ model User {
   id         String        @id @default(cuid())
   email      String?       @unique
   name       String
+  phone      String?       @unique
+  dateOfBirth DateTime?
+  address    Json?         // { street, city, state, pincode, country }
   roleId     String
   roleRef    Role           @relation(fields: [roleId], references: [id])
   status     UserStatus    @default(PENDING)
   locationId String?
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
+
+  // Referral system
+  referralCode String     @unique @default(cuid())
+  referredById String?
+  referredBy   User?      @relation("UserReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals    User[]     @relation("UserReferrals")
+
+  // Onboarding
+  profileComplete Boolean @default(false)
+
+  // Call availability & motivation
+  callAvailability Json?  // { preference, afterTime, days, slots }
+  whyVoluntary   String?  // Max 500 chars
 
   // Organization
   organizationId String?
@@ -238,6 +262,8 @@ model User {
   levelReviews   UserLevel[] @relation("LevelReviewer")
   pointTransactions PointTransaction[]
   earnedBadges   UserBadge[]
+  badgeApprovals BadgeApproval[] @relation("UserBadgeApprovals")
+  badgeReviews   BadgeApproval[] @relation("BadgeReviewer")
   mentorships    Mentorship[] @relation("MentorRelation")
   mentees        Mentorship[] @relation("MenteeRelation")
   certificates   Certificate[]
@@ -270,6 +296,8 @@ model User {
   @@index([locationId])
   @@index([organizationId])
   @@index([volunteerType])
+  @@index([referredById])
+  @@index([referralCode])
 }
 
 model VolunteerProfile {
@@ -394,6 +422,7 @@ model Opportunity {
   createdBy    User          @relation("CreatedOpportunities", fields: [createdById], references: [id])
   applications Application[]
   events       Event[]
+  eventSeries  EventSeries[]
   chatRoom     ChatRoom?
 
   @@index([status])
@@ -440,13 +469,50 @@ model Event {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
+  // Recurring event
+  seriesId      String?
+  series        EventSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+
   opportunity Opportunity  @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
   attendances Attendance[]
   feedback    EventFeedback[]
 
+  @@unique([seriesId, eventDate])
   @@index([opportunityId])
   @@index([eventDate])
   @@index([status])
+  @@index([seriesId])
+}
+
+model EventSeries {
+  id              String              @id @default(cuid())
+  opportunityId   String
+  title           String
+  description     String?
+  frequency       RecurrenceFrequency
+  daysOfWeek      Int[]               // [0,6] for Sat/Sun, [1,2,3,4,5] for weekdays
+  interval        Int                 @default(1) // every N days/weeks/months
+  startDate       DateTime            @default(now())
+  startTime       String              // HH:MM
+  endTime         String              // HH:MM
+  venue           String?
+  isVirtual       Boolean             @default(false)
+  meetingLink     String?
+  capacity        Int
+  endDate         DateTime?           // stop generating after this date
+  maxOccurrences  Int?                // or stop after N events
+  currentCount    Int                 @default(0) // how many events generated so far
+  isActive        Boolean             @default(true) // pause/stop the series
+  customRule      Json?               // for complex recurrence patterns
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  opportunity     Opportunity         @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  events          Event[]
+
+  @@index([opportunityId])
+  @@index([frequency])
+  @@index([isActive])
 }
 
 model Attendance {
@@ -764,15 +830,17 @@ model PointTransaction {
 }
 
 model Badge {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  title       String
-  description String
-  imageUrl    String
-  criteria    Json
-  createdAt   DateTime @default(now())
+  id               String   @id @default(cuid())
+  name             String   @unique
+  title            String
+  description      String
+  imageUrl         String
+  criteria         Json
+  requiresApproval Boolean  @default(false)
+  createdAt        DateTime @default(now())
 
-  users UserBadge[]
+  users     UserBadge[]
+  approvals BadgeApproval[]
 }
 
 model UserBadge {
@@ -784,6 +852,30 @@ model UserBadge {
   badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
 
   @@id([userId, badgeId])
+}
+
+enum BadgeApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model BadgeApproval {
+  id          String              @id @default(cuid())
+  userId      String
+  badgeId     String
+  status      BadgeApprovalStatus @default(PENDING)
+  requestedAt DateTime            @default(now())
+  reviewedAt  DateTime?
+  reviewedBy  String?
+  reviewer    User?    @relation("BadgeReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewNote  String?
+
+  user  User  @relation("UserBadgeApprovals", fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([status])
 }
 
 model Mentorship {

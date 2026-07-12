@@ -16,15 +16,10 @@ vi.mock('../blog.service', () => ({
 const svc = await import('../blog.service');
 
 import {
-  archiveHandler,
   createHandler,
   deleteHandler,
   getByIdHandler,
-  getPublishedBySlugHandler,
-  listAllHandler,
   listPublishedHandler,
-  publishHandler,
-  updateHandler,
 } from '../blog.controller';
 
 describe('blog.controller', () => {

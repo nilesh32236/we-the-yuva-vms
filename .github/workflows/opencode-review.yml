@@ -41,7 +41,10 @@ jobs:
           ref: ${{ steps.pr.outputs.head_ref }}
 
       - name: Configure git auth for OpenCode
-        run: git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+        run: |
+          git config --global user.name 'nilesh32236'
+          git config --global user.email 'nilesh32236@gmail.com'
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Run OpenCode review
         continue-on-error: true

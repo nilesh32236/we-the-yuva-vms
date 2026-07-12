@@ -1,5 +1,12 @@
 import { type IRouter, Router } from 'express';
-import { AttendanceSchema, CheckInSchema, CheckOutSchema, EventSchema } from '@/shared';
+import {
+  AttendanceSchema,
+  CheckInSchema,
+  CheckOutSchema,
+  EventSchema,
+  EventSeriesSchema,
+  EventSeriesUpdateSchema,
+} from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -10,15 +17,21 @@ import {
   checkInHandler,
   checkOutHandler,
   createEventHandler,
+  createEventSeriesHandler,
+  deleteEventSeriesHandler,
   downloadIcalHandler,
   exportEventsCsvHandler,
+  generateEventsHandler,
   getAttendanceListHandler,
   getEventHandler,
   getEventQrCodeHandler,
+  getEventSeriesByIdHandler,
   listAllEventsHandler,
+  listEventSeriesHandler,
   listEventsByOpportunityHandler,
   markAttendanceHandler,
   updateEventHandler,
+  updateEventSeriesHandler,
 } from './events.controller';
 
 // ─── Router: /opportunities/:opportunityId/events ─────────────────
@@ -342,4 +355,48 @@ eventsRouter.post(
   requireAuth,
   requirePermission(Permissions.EVENT_MANAGE),
   approveAttendanceHandler
+);
+
+// ─── Router: /opportunities/:opportunityId/event-series ───────────
+// Mount at: /api/v1/opportunities/:opportunityId/event-series
+
+export const opportunityEventSeriesRouter: IRouter = Router({ mergeParams: true });
+
+opportunityEventSeriesRouter.post(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.EVENT_CREATE),
+  validate(EventSeriesSchema),
+  createEventSeriesHandler
+);
+
+opportunityEventSeriesRouter.get('/', requireAuth, listEventSeriesHandler);
+
+// ─── Router: /event-series/:id ───────────────────────────────────
+// Mount at: /api/v1/event-series
+
+export const eventSeriesRouter: IRouter = Router();
+
+eventSeriesRouter.get('/:id', requireAuth, getEventSeriesByIdHandler);
+
+eventSeriesRouter.put(
+  '/:id',
+  requireAuth,
+  requirePermission(Permissions.EVENT_EDIT),
+  validate(EventSeriesUpdateSchema),
+  updateEventSeriesHandler
+);
+
+eventSeriesRouter.delete(
+  '/:id',
+  requireAuth,
+  requirePermission(Permissions.EVENT_EDIT),
+  deleteEventSeriesHandler
+);
+
+eventSeriesRouter.post(
+  '/:id/generate',
+  requireAuth,
+  requirePermission(Permissions.EVENT_EDIT),
+  generateEventsHandler
 );

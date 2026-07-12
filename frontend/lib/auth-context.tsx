@@ -39,9 +39,16 @@ export interface AuthUser {
   volunteerType?: string | null;
 }
 
+export interface ProfileStatus {
+  isComplete: boolean;
+  missingFields: string[];
+  completionPercentage: number;
+}
+
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
+  profileStatus: ProfileStatus | null;
   refetch: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -50,6 +57,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
@@ -59,19 +67,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
       sessionStorage.removeItem('logged_out');
       setUser(null);
+      setProfileStatus(null);
       setIsLoading(false);
       return;
     }
     try {
-      const response = await api.get<AuthUser>('/users/me');
-      setUser(response.data);
-    } catch (err) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosErr = err as { response?: { status?: number } };
-        if (axiosErr.response?.status && axiosErr.response.status >= 500) {
-          console.error('Server error during session fetch - will retry on next navigation');
+      const [userRes, statusRes] = await Promise.allSettled([
+        api.get<AuthUser>('/users/me'),
+        api.get<ProfileStatus>('/users/me/profile-status'),
+      ]);
+
+      if (userRes.status === 'fulfilled') {
+        setUser(userRes.value.data);
+      } else {
+        const err = userRes.reason;
+        if (err && typeof err === 'object' && 'response' in err) {
+          const axiosErr = err as { response?: { status?: number } };
+          if (axiosErr.response?.status && axiosErr.response.status >= 500) {
+            console.error('Server error during session fetch - will retry on next navigation');
+          }
         }
+        setUser(null);
       }
+
+      if (statusRes.status === 'fulfilled') {
+        setProfileStatus(statusRes.value.data);
+      }
+    } catch {
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -141,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, refetch: fetchUser, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, profileStatus, refetch: fetchUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

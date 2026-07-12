@@ -213,6 +213,19 @@ export async function revokeRefreshToken(token: string): Promise<void> {
   });
 }
 
+export async function lookupReferral(
+  reference: string
+): Promise<{ id: string; name: string } | null> {
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [{ phone: reference }, { referralCode: reference }],
+      status: { not: 'PENDING' },
+    },
+    select: { id: true, name: true },
+  });
+  return user;
+}
+
 export async function cleanupPendingUsers(): Promise<number> {
   const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const result = await prisma.user.deleteMany({

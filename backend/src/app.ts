@@ -15,7 +15,12 @@ import { errorMiddleware } from './middleware/error.middleware';
 import { adminRouter } from './modules/admin/admin.routes';
 import { alertsRouter } from './modules/alerts/alerts.routes';
 import { authRouter } from './modules/auth/auth.routes';
-import { eventsRouter, opportunityEventsRouter } from './modules/events/events.routes';
+import {
+  eventsRouter,
+  eventSeriesRouter,
+  opportunityEventsRouter,
+  opportunityEventSeriesRouter,
+} from './modules/events/events.routes';
 import { feedbackRouter } from './modules/feedback/feedback.routes';
 import { locationsRouter } from './modules/locations/locations.routes';
 import { notificationsRouter } from './modules/notifications/notifications.routes';
@@ -112,7 +117,9 @@ export function createApp(): Express {
   app.use('/api/v1/users', usersRouter);
   app.use('/api/v1/opportunities', opportunitiesRouter);
   app.use('/api/v1/opportunities/:opportunityId/events', opportunityEventsRouter);
+  app.use('/api/v1/opportunities/:opportunityId/event-series', opportunityEventSeriesRouter);
   app.use('/api/v1/events', eventsRouter);
+  app.use('/api/v1/event-series', eventSeriesRouter);
   app.use('/api/v1/admin', adminRouter);
   app.use('/api/v1/organizations', organizationsRouter);
   app.use('/api/v1/stats', statsRouter);

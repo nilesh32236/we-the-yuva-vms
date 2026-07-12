@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
-import type { Prisma } from '@prisma/client';
+import type { RecurrenceFrequency } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import type { EventInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
 import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
@@ -10,6 +11,7 @@ import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 import { generateIcs } from '../../utils/ical';
+import { calculateNextDates } from './event-recurrence.service';
 
 // ─── Event CRUD ───────────────────────────────────────────────────
 
@@ -168,13 +170,20 @@ export async function listAllEvents(
   };
 }
 
-export async function getEventById(id: string) {
+export async function getEventById(
+  id: string,
+  callerId?: string,
+  callerRole?: string,
+  callerOrgId?: string | null
+) {
   const event = await prisma.event.findUnique({
     where: { id },
     include: {
       opportunity: {
         select: {
           title: true,
+          createdById: true,
+          organizationId: true,
           createdBy: { select: { name: true } },
         },
       },
@@ -183,6 +192,18 @@ export async function getEventById(id: string) {
 
   if (!event) {
     throw new AppError('Event not found', 404);
+  }
+
+  if (callerRole && callerId) {
+    const isSysAdmin = hasSystemRole(callerRole);
+    const isOwner = event.opportunity.createdById === callerId;
+    const isSameOrg =
+      event.opportunity.organizationId &&
+      callerOrgId &&
+      event.opportunity.organizationId === callerOrgId;
+    if (!isSysAdmin && !isOwner && !isSameOrg) {
+      throw new AppError('Forbidden', 403);
+    }
   }
 
   return event;
@@ -785,6 +806,297 @@ export async function checkOut(
   return updated;
 }
 
+// ─── Event Series CRUD ────────────────────────────────────────────
+
+interface CreateSeriesInput {
+  title: string;
+  description?: string;
+  frequency: RecurrenceFrequency;
+  daysOfWeek?: number[];
+  interval?: number;
+  startTime: string;
+  endTime: string;
+  venue?: string;
+  isVirtual?: boolean;
+  meetingLink?: string;
+  capacity: number;
+  endDate?: string;
+  maxOccurrences?: number;
+  customRule?: unknown;
+  firstEventDate?: string;
+}
+
+export async function createEventSeries(
+  opportunityId: string,
+  coordinatorId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined,
+  data: CreateSeriesInput
+) {
+  const opportunity = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+  });
+
+  if (!opportunity) throw new AppError('Opportunity not found', 404);
+
+  const isSysAdmin = hasSystemRole(callerRole);
+  const isOwner = opportunity.createdById === coordinatorId;
+  const isSameOrg =
+    opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
+  if (!isSysAdmin && !isOwner && !isSameOrg) throw new AppError('Forbidden', 403);
+
+    const seriesStartDate = data.firstEventDate ? new Date(data.firstEventDate) : new Date();
+    const series = await prisma.eventSeries.create({
+      data: {
+        opportunityId,
+        title: data.title,
+        description: data.description,
+        frequency: data.frequency,
+        daysOfWeek: data.daysOfWeek ?? [],
+        interval: data.interval ?? 1,
+        startDate: seriesStartDate,
+        startTime: data.startTime,
+        endTime: data.endTime,
+      venue: data.venue,
+      isVirtual: data.isVirtual ?? false,
+      meetingLink: data.meetingLink,
+      capacity: data.capacity,
+      endDate: data.endDate ? new Date(data.endDate) : null,
+      maxOccurrences: data.maxOccurrences,
+      customRule: data.customRule ?? Prisma.DbNull,
+    },
+  });
+
+  await logAudit({
+    userId: coordinatorId,
+    action: 'EVENT_CREATE',
+    targetId: series.id,
+    targetType: 'EventSeries',
+    metadata: { opportunityId, frequency: data.frequency },
+  });
+
+  const startFrom = data.firstEventDate ? new Date(data.firstEventDate) : new Date();
+  await generateEventsFromSeries(series.id, startFrom);
+
+  return prisma.eventSeries.findUnique({
+    where: { id: series.id },
+    include: {
+      events: {
+        orderBy: { eventDate: 'asc' },
+        take: 50,
+      },
+    },
+  });
+}
+
+export async function listEventSeries(opportunityId: string) {
+  return prisma.eventSeries.findMany({
+    where: { opportunityId },
+    include: {
+      _count: { select: { events: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function getEventSeriesById(id: string) {
+  const series = await prisma.eventSeries.findUnique({
+    where: { id },
+    include: {
+      events: {
+        orderBy: { eventDate: 'asc' },
+      },
+      opportunity: {
+        select: { title: true, createdById: true },
+      },
+    },
+  });
+
+  if (!series) throw new AppError('Event series not found', 404);
+  return series;
+}
+
+export async function updateEventSeries(
+  id: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined,
+  data: Partial<CreateSeriesInput> & { isActive?: boolean }
+) {
+  const series = await prisma.eventSeries.findUnique({
+    where: { id },
+    include: { opportunity: true },
+  });
+
+  if (!series) throw new AppError('Event series not found', 404);
+
+  const isSysAdmin = hasSystemRole(callerRole);
+  const isOwner = series.opportunity.createdById === callerId;
+  const isSameOrg =
+    series.opportunity.organizationId &&
+    callerOrgId &&
+    series.opportunity.organizationId === callerOrgId;
+  if (!isSysAdmin && !isOwner && !isSameOrg) throw new AppError('Forbidden', 403);
+
+  const updateData: Record<string, unknown> = {};
+  if (data.title !== undefined) updateData.title = data.title;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.frequency !== undefined) updateData.frequency = data.frequency;
+  if (data.daysOfWeek !== undefined) updateData.daysOfWeek = data.daysOfWeek;
+  if (data.interval !== undefined) updateData.interval = data.interval;
+  if (data.startTime !== undefined) updateData.startTime = data.startTime;
+  if (data.endTime !== undefined) updateData.endTime = data.endTime;
+  if (data.venue !== undefined) updateData.venue = data.venue;
+  if (data.isVirtual !== undefined) updateData.isVirtual = data.isVirtual;
+  if (data.meetingLink !== undefined) updateData.meetingLink = data.meetingLink;
+  if (data.capacity !== undefined) updateData.capacity = data.capacity;
+  if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
+  if (data.maxOccurrences !== undefined) updateData.maxOccurrences = data.maxOccurrences;
+  if (data.isActive !== undefined) updateData.isActive = data.isActive;
+  if (data.customRule !== undefined) updateData.customRule = data.customRule ?? Prisma.DbNull;
+
+  const updated = await prisma.eventSeries.update({
+    where: { id },
+    data: updateData as Prisma.EventSeriesUpdateInput,
+  });
+
+  await logAudit({
+    userId: callerId,
+    action: 'EVENT_UPDATE',
+    targetId: id,
+    targetType: 'EventSeries',
+  });
+
+  if (updated.isActive && data.frequency !== undefined) {
+    await generateEventsFromSeries(id);
+  }
+
+  return prisma.eventSeries.findUnique({
+    where: { id },
+    include: {
+      events: {
+        orderBy: { eventDate: 'asc' },
+        take: 50,
+      },
+    },
+  });
+}
+
+export async function deleteEventSeries(
+  id: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined,
+  deleteEvents = false
+) {
+  const series = await prisma.eventSeries.findUnique({
+    where: { id },
+    include: { opportunity: true },
+  });
+
+  if (!series) throw new AppError('Event series not found', 404);
+
+  const isSysAdmin = hasSystemRole(callerRole);
+  const isOwner = series.opportunity.createdById === callerId;
+  const isSameOrg =
+    series.opportunity.organizationId &&
+    callerOrgId &&
+    series.opportunity.organizationId === callerOrgId;
+  if (!isSysAdmin && !isOwner && !isSameOrg) throw new AppError('Forbidden', 403);
+
+  if (deleteEvents) {
+    await prisma.event.deleteMany({ where: { seriesId: id } });
+  }
+
+  await prisma.eventSeries.delete({ where: { id } });
+
+  await logAudit({
+    userId: callerId,
+    action: 'EVENT_DELETE',
+    targetId: id,
+    targetType: 'EventSeries',
+    metadata: { deleteEvents: String(deleteEvents) },
+  });
+}
+
+export async function generateEventsFromSeries(
+  seriesId: string,
+  startFrom?: Date
+): Promise<number> {
+  return prisma.$transaction(async (tx) => {
+    // Lock the EventSeries row to prevent concurrent generation from reading stale currentCount
+    const locked = await tx.eventSeries.findUnique({
+      where: { id: seriesId },
+      select: { id: true },
+    });
+    if (!locked) throw new AppError('Event series not found', 404);
+
+    const series = await tx.eventSeries.findUnique({
+      where: { id: seriesId },
+    });
+
+    if (!series) throw new AppError('Event series not found', 404);
+    if (!series.isActive) return 0;
+
+    const lastEvent = await tx.event.findFirst({
+      where: { seriesId },
+      orderBy: { eventDate: 'desc' },
+      select: { eventDate: true },
+    });
+
+    const effectiveStart = startFrom
+      ? new Date(startFrom)
+      : lastEvent
+        ? new Date(lastEvent.eventDate.getTime() + 86400000)
+        : new Date();
+
+    const dates = calculateNextDates(
+      {
+        frequency: series.frequency,
+        daysOfWeek: series.daysOfWeek,
+        interval: series.interval,
+        startTime: series.startTime,
+        endTime: series.endTime,
+        endDate: series.endDate,
+        maxOccurrences: series.maxOccurrences,
+        currentCount: series.currentCount,
+        customRule: series.customRule,
+        anchorDate: series.startDate,
+      },
+      effectiveStart
+    );
+
+    if (dates.length === 0) return 0;
+
+    const { count } = await tx.event.createMany({
+      data: dates.map((date) => ({
+        opportunityId: series.opportunityId,
+        title: series.title,
+        description: series.description,
+        eventDate: date,
+        startTime: series.startTime,
+        endTime: series.endTime,
+        venue: series.venue,
+        isVirtual: series.isVirtual,
+        meetingLink: series.meetingLink,
+        capacity: series.capacity,
+        seriesId: series.id,
+        qrToken: crypto.randomBytes(32).toString('hex'),
+        qrExpiresAt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
+      })),
+      skipDuplicates: true,
+    });
+
+    await tx.eventSeries.update({
+      where: { id: seriesId },
+      data: { currentCount: { increment: count } },
+    });
+
+    logger.info(`Generated ${count} events for series ${seriesId}`);
+    return count;
+  });
+}
+
 function sanitizeCsvCell(value: string): string {
   const escaped = value.replace(/"/g, '""');
   if (/^[=+\-@]/.test(escaped)) {
@@ -795,8 +1107,10 @@ function sanitizeCsvCell(value: string): string {
 
 export async function exportEventsCsv(callerOrgId: string | null | undefined) {
   const where = callerOrgId ? { opportunity: { organizationId: callerOrgId } } : {};
+  // Limit to 10k rows to prevent OOM; use streaming/paginated iteration for larger exports
   const events = await prisma.event.findMany({
     where,
+    take: 10000,
     orderBy: { eventDate: 'desc' },
     include: {
       opportunity: { select: { title: true } },

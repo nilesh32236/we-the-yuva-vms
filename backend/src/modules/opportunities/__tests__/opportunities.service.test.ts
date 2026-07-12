@@ -30,9 +30,14 @@ vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
 vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }));
+vi.mock('@/modules/users/users.service', () => ({
+  getProfileStatus: vi.fn(),
+}));
 
 const { prisma } = await import('@/lib/prisma');
 const { redis } = await import('@/lib/redis');
+
+import { getProfileStatus } from '@/modules/users/users.service';
 
 import {
   applyToOpportunity,
@@ -84,6 +89,29 @@ describe('opportunities.service', () => {
   });
 
   describe('applyToOpportunity', () => {
+    beforeEach(() => {
+      vi.mocked(getProfileStatus).mockResolvedValue({
+        isComplete: true,
+        missingFields: [],
+        completionPercentage: 100,
+      });
+    });
+
+    it('should throw PROFILE_INCOMPLETE when profile is not complete', async () => {
+      vi.mocked(getProfileStatus).mockResolvedValue({
+        isComplete: false,
+        missingFields: ['skills', 'interests'],
+        completionPercentage: 50,
+      });
+
+      await expect(applyToOpportunity('opp-1', 'user-1')).rejects.toMatchObject({
+        message: 'Complete your profile before applying to opportunities',
+        status: 403,
+        code: 'PROFILE_INCOMPLETE',
+        details: { missingFields: ['skills', 'interests'], completionPercentage: 50 },
+      });
+    });
+
     it('should throw 404 when opportunity not found', async () => {
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: unknown) => Promise<unknown>) => {

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -143,7 +143,7 @@ export async function createLevelRequest(
       });
     });
     try {
-      const cert = await generateCertificate(userId, level.id);
+      const _cert = await generateCertificate(userId, level.id);
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', {
         err,
@@ -269,7 +269,7 @@ export async function reviewLevelRequest(
 
   if (data.status === 'APPROVED') {
     try {
-      const cert = await generateCertificate(request.userId, request.levelId);
+      const _cert = await generateCertificate(request.userId, request.levelId);
     } catch (err) {
       logger.warn('Failed to generate certificate on level approval', {
         err,

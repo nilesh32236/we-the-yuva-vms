@@ -67,6 +67,9 @@ async function main() {
         'mentorship:manage',
         'file:upload',
         'youth:profile:view',
+        'badge:approve',
+        'chat:read',
+        'chat:send',
       ],
     },
     {
@@ -101,6 +104,8 @@ async function main() {
         'mentorship:manage',
         'file:upload',
         'youth:profile:view',
+        'chat:read',
+        'chat:send',
       ],
     },
     {
@@ -175,6 +180,9 @@ async function main() {
         'blog:delete',
         'blog:publish',
         'blog:view:all',
+        'badge:approve',
+        'chat:read',
+        'chat:send',
       ],
     },
     {
@@ -726,6 +734,12 @@ async function main() {
     { name: 'STREAK_MASTER', title: 'Streak Master', description: 'Maintain a 30-day streak.', imageUrl: '/badges/streak-master.png', criteria: { type: 'STREAK', count: 30 } },
     { name: 'STORYTELLER', title: 'Storyteller', description: 'Publish 5 stories.', imageUrl: '/badges/storyteller.png', criteria: { type: 'STORIES_PUBLISHED', count: 5 } },
     { name: 'NIGHT_OWL', title: 'Night Owl', description: 'Attend 3 evening/weekend events.', imageUrl: '/badges/night-owl.png', criteria: { type: 'EVENTS_AFTER_HOURS', count: 3 } },
+    // Progression badges (require approval)
+    { name: 'ON_BOARD', title: 'On Board', description: 'Complete registration and profile setup.', imageUrl: '/badges/on-board.png', criteria: { type: 'ONBOARDING_COMPLETE' }, requiresApproval: true },
+    { name: 'VOLUNTEER', title: 'Volunteer', description: 'Attend your first event.', imageUrl: '/badges/volunteer.png', criteria: { type: 'FIRST_EVENT' }, requiresApproval: true },
+    { name: 'INDUCTION', title: 'Induction', description: 'Complete 5 events or 10 hours.', imageUrl: '/badges/induction.png', criteria: { type: 'INDUCTION', eventsCount: 5, hoursCount: 10 }, requiresApproval: true },
+    { name: 'MOBILIZER', title: 'Mobilizer', description: 'Complete 20 events or 50 hours, or refer 3 people.', imageUrl: '/badges/mobilizer.png', criteria: { type: 'MOBILIZER', eventsCount: 20, hoursCount: 50, referralsCount: 3 }, requiresApproval: true },
+    { name: 'LEADER', title: 'Leader', description: 'Complete 50 events or 100 hours, or mentor 2 people.', imageUrl: '/badges/leader.png', criteria: { type: 'LEADER', eventsCount: 50, hoursCount: 100, menteesCount: 2 }, requiresApproval: true },
   ];
   const createdBadges = await Promise.all(
     badgeDefinitions.map((b) =>

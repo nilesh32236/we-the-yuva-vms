@@ -5,17 +5,21 @@ import {
   ArrowLeft,
   Briefcase,
   Calendar,
+  Check,
   Clock,
   MapPin,
   MessageCircle,
   Tag,
   Users,
   Wifi,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { use } from 'react';
+import { use, useState } from 'react';
+import { ProfileCompletionModal } from '../../../../../components/profile/ProfileCompletionModal';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
+import { useAuth } from '../../../../../hooks/useAuth';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 
@@ -34,6 +38,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function OpportunityDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
+  const { profileStatus } = useAuth();
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const qc = useQueryClient();
 
   const { data: opp, isLoading } = useQuery({
@@ -257,11 +263,13 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                 className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
                 ${myApp.status === 'ACCEPTED' ? 'bg-brand-primary/10 text-brand-primary' : myApp.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}
               >
-                {myApp.status === 'ACCEPTED'
-                  ? '✓ Accepted'
-                  : myApp.status === 'REJECTED'
-                    ? '✗ Rejected'
-                    : '⏳ Application Pending'}
+                {myApp.status === 'ACCEPTED' ? (
+                  <><Check className="w-4 h-4 inline" /> Accepted</>
+                ) : myApp.status === 'REJECTED' ? (
+                  <><X className="w-4 h-4 inline" /> Rejected</>
+                ) : (
+                  <><Clock className="w-4 h-4 inline" /> Application Pending</>
+                )}
               </div>
               {myApp.status === 'PENDING' && (
                 <button
@@ -292,6 +300,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
               type="button"
               onClick={() => {
                 haptic.medium();
+                if (profileStatus && !profileStatus.isComplete) {
+                  setShowProfileModal(true);
+                  return;
+                }
                 apply.mutate(undefined);
               }}
               disabled={apply.isPending}
@@ -323,6 +335,13 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
           <MessageCircle className="w-4 h-4" /> Join Discussion
         </Link>
       )}
+
+      <ProfileCompletionModal
+        open={showProfileModal}
+        completionPercentage={profileStatus?.completionPercentage ?? 0}
+        missingFields={profileStatus?.missingFields ?? []}
+        onClose={() => setShowProfileModal(false)}
+      />
 
       {/* Skills */}
       {opp.skills?.length > 0 && (

@@ -18,6 +18,7 @@ import {
   exportVolunteersHandler,
   getCoordinatorVolunteersHandler,
   getMeHandler,
+  getProfileStatusHandler,
   getUserProfileHandler,
   submitOnboardingHandler,
   updateMeHandler,
@@ -42,6 +43,8 @@ usersRouter.use(requireAuth);
  *         description: Current user profile retrieved
  */
 usersRouter.get('/me', getMeHandler);
+
+usersRouter.get('/me/profile-status', requireAuth, getProfileStatusHandler);
 
 /**
  * @openapi

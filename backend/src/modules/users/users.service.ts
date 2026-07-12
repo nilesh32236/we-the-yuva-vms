@@ -1,4 +1,5 @@
 import type { OnboardingInput, StaffProfileInput, VolunteerProfileInput } from '@/shared';
+import type { Prisma } from '@prisma/client';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
@@ -74,50 +75,50 @@ export async function getCoordinatorVolunteers(
 
   const opportunityFilter = organizationId ? { organizationId } : { createdById: coordinatorId };
 
-  // Fetch all volunteers with ACCEPTED applications to coordinator's organization or specific opportunities
-  const allVolunteers = await prisma.user.findMany({
-    where: {
-      roleRef: { name: 'VOLUNTEER' },
-      applications: {
-        some: {
-          status: 'ACCEPTED',
-          opportunity: opportunityFilter,
-        },
+  const where: Prisma.UserWhereInput = {
+    roleRef: { name: 'VOLUNTEER' },
+    applications: {
+      some: {
+        status: 'ACCEPTED',
+        opportunity: opportunityFilter,
       },
     },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      volunteerType: true,
-      profile: { select: { skills: true, totalHours: true } },
-      _count: {
-        select: {
-          applications: {
-            where: { opportunity: opportunityFilter },
-          },
-        },
-      },
-    },
-  });
-
-  // Apply in-memory filters
-  let filtered = allVolunteers;
+  };
 
   if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter(
-      (u) => u.name.toLowerCase().includes(q) || (u.email ?? '').toLowerCase().includes(q)
-    );
+    const q = search;
+    where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { email: { contains: q, mode: 'insensitive' } },
+    ];
   }
 
   if (skills && skills.length > 0) {
-    filtered = filtered.filter((u) => skills.some((s) => u.profile?.skills.includes(s)));
+    where.profile = { skills: { hasSome: skills } };
   }
 
-  const total = filtered.length;
-  const skip = (page - 1) * limit;
-  const data = filtered.slice(skip, skip + limit);
+  const [data, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        volunteerType: true,
+        profile: { select: { skills: true, totalHours: true } },
+        _count: {
+          select: {
+            applications: {
+              where: { opportunity: opportunityFilter },
+            },
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.user.count({ where }),
+  ]);
 
   return {
     data,
@@ -134,7 +135,9 @@ export async function exportCoordinatorVolunteers(
 ) {
   const opportunityFilter = organizationId ? { organizationId } : { createdById: coordinatorId };
 
+  // Limit to 10k rows to prevent OOM; use streaming/paginated iteration for larger exports
   const volunteers = await prisma.user.findMany({
+    take: 10000,
     where: {
       roleRef: { name: 'VOLUNTEER' },
       applications: {
@@ -203,6 +206,53 @@ export async function getMe(userId: string) {
     consent: user.consent,
     location: user.location,
   };
+}
+
+export async function getProfileStatus(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      volunteerType: true,
+      profileComplete: true,
+      profile: { select: { skills: true, interests: true, availability: true } },
+    },
+  });
+
+  if (!user) throw new AppError('User not found', 404);
+
+  if (user.profileComplete && user.profile) {
+    return {
+      isComplete: true,
+      missingFields: [],
+      completionPercentage: 100,
+    };
+  }
+
+  const missingFields: string[] = [];
+
+  const hasSkills = (user.profile?.skills?.length ?? 0) > 0;
+  const hasInterests = (user.profile?.interests?.length ?? 0) > 0;
+  const hasVolunteerType = user.volunteerType != null;
+
+  const availability = user.profile?.availability as
+    | { days?: string[]; timeSlots?: string[] }
+    | undefined;
+  const hasAvailability =
+    availability != null &&
+    (availability.days?.length ?? 0) > 0 &&
+    (availability.timeSlots?.length ?? 0) > 0;
+
+  if (!hasSkills) missingFields.push('skills');
+  if (!hasInterests) missingFields.push('interests');
+  if (!hasVolunteerType) missingFields.push('volunteerType');
+  if (!hasAvailability) missingFields.push('availability');
+
+  const totalFields = 4;
+  const filled = totalFields - missingFields.length;
+  const completionPercentage = Math.round((filled / totalFields) * 100);
+  const isComplete = missingFields.length === 0;
+
+  return { isComplete, missingFields, completionPercentage };
 }
 
 export async function upsertVolunteerProfile(userId: string, data: VolunteerProfileInput) {
@@ -285,7 +335,7 @@ export async function upsertStaffProfile(userId: string, data: StaffProfileInput
 }
 
 export async function submitOnboarding(userId: string, data: OnboardingInput) {
-  const { step1, step2, step3, step4, step5, step6, step7 } = data;
+  const { step1, step2, step3, step4, step5 } = data;
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -300,20 +350,31 @@ export async function submitOnboarding(userId: string, data: OnboardingInput) {
     await tx.user.update({
       where: { id: userId },
       data: {
-        name: step1.fullName,
         volunteerType: step3.volunteerType,
+        profileComplete: true,
       },
     });
 
     const profileData = {
-      skills: step3.skills,
-      interests: step3.areasOfInterest,
+      skills: step1.skills,
+      interests: step2.causes,
       availability: {
-        days: step4.daysAvailable,
-        timeSlots: step4.preferredTime,
+        pattern: step3.availabilityPattern,
+        hoursPerWeek: step3.hoursPerWeek,
+        sessionDuration: step3.sessionDuration,
       },
+      education: step4.education,
+      bio: step5.bio,
+      avatarUrl: step5.avatarUrl ?? undefined,
       details: {
-        steps: { step1, step2, step3, step4, step5, step6, step7 },
+        expertise: step1.expertise,
+        languages: step1.languages,
+        interests: step2.interests,
+        preferredActivities: step2.preferredActivities,
+        occupation: step4.occupation,
+        experience: step4.experience,
+        certifications: step4.certifications,
+        socialLinks: step5.socialLinks,
         onboardingCompletedAt: new Date().toISOString(),
       },
     };

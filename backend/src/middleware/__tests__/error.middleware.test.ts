@@ -108,4 +108,25 @@ describe('errorMiddleware', () => {
     expect(err.status).toBe(400);
     expect(err.message).toBe('Custom error');
   });
+
+  it('should include code and details in response when AppError has them', () => {
+    const appErr = new AppError('Profile incomplete', 403, 'PROFILE_INCOMPLETE', {
+      missingFields: ['skills', 'interests'],
+      completionPercentage: 50,
+    });
+    errorMiddleware(appErr, req as Request, res as Response, next);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Profile incomplete',
+      code: 'PROFILE_INCOMPLETE',
+      details: { missingFields: ['skills', 'interests'], completionPercentage: 50 },
+    });
+  });
+
+  it('should handle basic AppError without code or details for backward compat', () => {
+    const appErr = new AppError('Not Found', 404);
+    errorMiddleware(appErr, req as Request, res as Response, next);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Not Found' });
+  });
 });

@@ -1,22 +1,30 @@
 import type { NextFunction, Request, Response } from 'express';
-
+import { AppError } from '../../middleware/error.middleware';
+import { prisma } from '../../lib/prisma';
+import { hasSystemRole } from '../../shared/helpers';
 import {
   approveAttendance,
   cancelEvent,
   checkIn,
   checkOut,
   createEvent,
+  createEventSeries,
+  deleteEventSeries,
   exportEventsCsv,
+  generateEventsFromSeries,
   getAttendanceList,
   getAttendanceListAll,
   getEventById,
+  getEventSeriesById,
   getIcalEvent,
   getMyEvents,
   getOrCreateEventQrToken,
   listAllEvents,
+  listEventSeries,
   listEventsByOpportunity,
   markAttendance,
   updateEvent,
+  updateEventSeries,
 } from './events.service';
 
 // ─── Event Handlers ───────────────────────────────────────────────
@@ -81,7 +89,12 @@ export async function getEventHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const event = await getEventById(req.params.id);
+    const event = await getEventById(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId
+    );
     res.status(200).json(event);
   } catch (err) {
     next(err);
@@ -115,6 +128,121 @@ export async function cancelEventHandler(
   try {
     await cancelEvent(req.params.id, req.user!.id, req.user!.role, req.user!.organizationId);
     res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ─── Event Series Handlers ────────────────────────────────────────
+
+export async function createEventSeriesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const series = await createEventSeries(
+      req.params.opportunityId,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      req.body
+    );
+    res.status(201).json(series);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listEventSeriesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const series = await listEventSeries(req.params.opportunityId);
+    res.status(200).json({ data: series });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getEventSeriesByIdHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const series = await getEventSeriesById(req.params.id);
+    res.status(200).json(series);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateEventSeriesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const series = await updateEventSeries(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      req.body
+    );
+    res.status(200).json(series);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteEventSeriesHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const deleteEvents = req.query.deleteEvents === 'true';
+    await deleteEventSeries(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId,
+      deleteEvents
+    );
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function generateEventsHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const series = await prisma.eventSeries.findUnique({
+      where: { id: req.params.id },
+      include: { opportunity: true },
+    });
+    if (!series) throw new AppError('Event series not found', 404);
+
+    const isSysAdmin = hasSystemRole(req.user!.role);
+    const isOwner = series.opportunity.createdById === req.user!.id;
+    const isSameOrg =
+      series.opportunity.organizationId &&
+      req.user!.organizationId &&
+      series.opportunity.organizationId === req.user!.organizationId;
+    if (!isSysAdmin && !isOwner && !isSameOrg) {
+      throw new AppError('Forbidden', 403);
+    }
+
+    const count = await generateEventsFromSeries(req.params.id);
+    res.status(200).json({ generated: count });
   } catch (err) {
     next(err);
   }

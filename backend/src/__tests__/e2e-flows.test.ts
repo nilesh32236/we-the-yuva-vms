@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from 'express';
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/config/env', () => ({
@@ -154,6 +154,10 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 vi.mock('@/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@/modules/users/users.service', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return { ...actual, getProfileStatus: vi.fn() };
+});
 vi.mock('@/lib/redis', () => ({ redis: null }));
 vi.mock('bullmq', () => ({
   Queue: vi.fn().mockImplementation(() => ({ add: vi.fn().mockResolvedValue({ id: 'job-1' }) })),
@@ -175,6 +179,7 @@ vi.mock('ioredis', () => {
 });
 
 const { prisma } = await import('@/lib/prisma');
+const { getProfileStatus } = await import('@/modules/users/users.service');
 
 describe('E2E Flows — service level', () => {
   beforeEach(() => {
@@ -183,6 +188,11 @@ describe('E2E Flows — service level', () => {
 
   describe('Flow 1: register org -> verify -> create opportunity -> apply', () => {
     beforeEach(() => {
+      vi.mocked(getProfileStatus).mockResolvedValue({
+        isComplete: true,
+        missingFields: [],
+        completionPercentage: 100,
+      });
       vi.mocked(prisma.role.findUnique).mockResolvedValue({
         id: 'role-oa',
         name: 'ORGANIZATION_ADMIN',

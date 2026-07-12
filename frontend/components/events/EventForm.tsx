@@ -2,16 +2,27 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { type EventInput, EventSchema } from '@/lib/shared';
+import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { EventSeriesForm, type EventSeriesOutput } from './EventSeriesForm';
 
 interface EventFormProps {
   defaultValues?: Partial<EventInput>;
-  onSubmit: (data: EventInput) => Promise<void>;
+  onSubmit: (data: EventInput | EventSeriesOutput) => Promise<void>;
   submitLabel?: string;
+  showRecurringOption?: boolean;
 }
 
-export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: EventFormProps) {
+export function EventForm({
+  defaultValues,
+  onSubmit,
+  submitLabel = 'Save',
+  showRecurringOption = false,
+}: EventFormProps) {
+  const [isRecurring, setIsRecurring] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -45,8 +56,78 @@ export function EventForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Eve
     </div>
   );
 
+  if (isRecurring) {
+    return (
+      <div className="space-y-5">
+        <label htmlFor="recurring-toggle-active" className="flex items-center gap-3 cursor-pointer">
+          <div
+            id="recurring-toggle-active"
+            role="switch"
+            aria-checked={isRecurring}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsRecurring(false);
+              }
+            }}
+            className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
+            onClick={() => setIsRecurring(false)}
+          >
+            <div
+              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
+            />
+          </div>
+          <span className="text-sm font-medium text-brand-text flex items-center gap-1.5">
+            <Repeat className="w-4 h-4" /> Recurring event
+          </span>
+        </label>
+        <EventSeriesForm
+          onSubmit={onSubmit}
+          submitLabel={submitLabel}
+          defaultValues={{
+            title: defaultValues?.title,
+            description: defaultValues?.description,
+            startTime: defaultValues?.startTime,
+            endTime: defaultValues?.endTime,
+            isVirtual: defaultValues?.isVirtual ?? false,
+            venue: defaultValues?.venue,
+            meetingLink: defaultValues?.meetingLink,
+            capacity: defaultValues?.capacity ?? 30,
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {showRecurringOption && (
+        <label htmlFor="recurring-toggle" className="flex items-center gap-3 cursor-pointer pb-2 border-b border-brand-border">
+          <div
+            id="recurring-toggle"
+            role="switch"
+            aria-checked={isRecurring}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsRecurring(true);
+              }
+            }}
+            className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
+            onClick={() => setIsRecurring(true)}
+          >
+            <div
+              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
+            />
+          </div>
+          <span className="text-sm font-medium text-brand-text flex items-center gap-1.5">
+            <Repeat className="w-4 h-4" /> Recurring event
+          </span>
+        </label>
+      )}
+
       {field('title', 'Event title', { placeholder: 'e.g. Community Clean-up Day' })}
 
       <div className="space-y-1.5">

@@ -6,6 +6,7 @@ import { AppError } from '../../middleware/error.middleware';
 import {
   enqueueOtpEmail,
   generateAndStoreOtp,
+  lookupReferral,
   revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
@@ -40,7 +41,17 @@ const REFRESH_COOKIE_OPTIONS = {
 
 export async function register(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, name, role } = req.body;
+    const {
+      email,
+      name,
+      role,
+      phone,
+      dateOfBirth,
+      address,
+      reference,
+      callAvailability,
+      whyVoluntary,
+    } = req.body;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() }, select: { id: true } });
@@ -52,12 +63,26 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     const roleRecord = await prisma.role.findUnique({ where: { name: roleName } });
     if (!roleRecord) throw new AppError(`Invalid role: ${roleName}`, 500);
 
+    let referredById: string | undefined;
+    if (reference) {
+      const referrer = await lookupReferral(reference);
+      if (referrer) {
+        referredById = referrer.id;
+      }
+    }
+
     const user = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
         name: sanitizedName,
         roleId: roleRecord.id,
         status: 'PENDING',
+        phone,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+        address,
+        ...(referredById && { referredById }),
+        callAvailability,
+        whyVoluntary,
       },
     });
 

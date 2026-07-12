@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import type { EventInput } from '@/lib/shared';
+import type { EventInput, EventSeriesInput } from '@/lib/shared';
 import { EventForm } from '../../../../../../components/events/EventForm';
 import { haptic } from '../../../../../../lib/haptic';
 import { useToast } from '../../../../../../hooks/use-toast';
@@ -21,7 +21,7 @@ export default function EditEventPage() {
     enabled: !!id,
   });
 
-  const handleSubmit = async (data: EventInput) => {
+  const handleSubmit = async (data: EventInput | EventSeriesInput) => {
     haptic.medium();
     try {
       await api.put(`/events/${id}`, data);

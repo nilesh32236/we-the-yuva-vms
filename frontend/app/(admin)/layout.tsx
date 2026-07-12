@@ -13,6 +13,7 @@ const navItems: NavItem[] = [
   { label: 'Stories', href: '/admin/stories', icon: 'BookOpen' },
   { label: 'Blog', href: '/admin/blog', icon: 'FileText' },
   { label: 'Level Requests', href: '/admin/level-requests', icon: 'TrendingUp' },
+  { label: 'Badges', href: '/admin/badges', icon: 'Award' },
   { label: 'Reports', href: '/admin/reports', icon: 'BarChart' },
   { label: 'Settings', href: '/admin/settings', icon: 'Settings' },
 ];
