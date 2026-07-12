@@ -63,7 +63,7 @@ export async function checkAndAwardBadges(userId: string) {
       if (badge.requiresApproval) {
         await prisma.badgeApproval.upsert({
           where: { userId_badgeId: { userId, badgeId: badge.id } },
-          update: {},
+          update: { status: 'PENDING', reviewedAt: null, reviewedBy: null, reviewNote: null },
           create: { userId, badgeId: badge.id },
         });
       } else {
@@ -114,10 +114,14 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
     }
 
     case 'REFERRALS': {
-      return false;
+      const count = await prisma.user.count({
+        where: { referredById: userId },
+      });
+      return count >= (criteria.count ?? 3);
     }
 
     case 'GRIEVANCES_RESOLVED': {
+      // TODO: Implement grievance resolution tracking
       return false;
     }
 
@@ -180,7 +184,7 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
         prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
         prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
       ]);
-      return attendedCount >= criteria.eventsCount || (profile?.totalHours ?? 0) >= criteria.hoursCount;
+      return attendedCount >= criteria.eventsCount && (profile?.totalHours ?? 0) >= criteria.hoursCount;
     }
 
     case 'MOBILIZER': {
@@ -189,7 +193,7 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
         prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
         prisma.user.count({ where: { referredById: userId } }),
       ]);
-      return attendedCount >= criteria.eventsCount || (profile?.totalHours ?? 0) >= criteria.hoursCount || referralsCount >= criteria.referralsCount;
+      return attendedCount >= criteria.eventsCount && (profile?.totalHours ?? 0) >= criteria.hoursCount && referralsCount >= criteria.referralsCount;
     }
 
     case 'LEADER': {
@@ -198,7 +202,7 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
         prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
         prisma.mentorship.count({ where: { mentorId: userId, status: 'ACTIVE' } }),
       ]);
-      return attendedCount >= criteria.eventsCount || (profile?.totalHours ?? 0) >= criteria.hoursCount || menteesCount >= criteria.menteesCount;
+      return attendedCount >= criteria.eventsCount && (profile?.totalHours ?? 0) >= criteria.hoursCount && menteesCount >= criteria.menteesCount;
     }
 
     default:

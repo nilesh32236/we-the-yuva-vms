@@ -10,16 +10,24 @@ const DISMISS_KEY = 'profile-banner-dismissed';
 
 function isDismissed(): boolean {
   if (typeof window === 'undefined') return false;
-  const stored = localStorage.getItem(DISMISS_KEY);
-  if (!stored) return false;
-  const timestamp = Number.parseInt(stored, 10);
-  if (Number.isNaN(timestamp)) return false;
-  const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
-  return Date.now() - timestamp < THREE_DAYS;
+  try {
+    const stored = localStorage.getItem(DISMISS_KEY);
+    if (!stored) return false;
+    const timestamp = Number.parseInt(stored, 10);
+    if (Number.isNaN(timestamp)) return false;
+    const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+    return Date.now() - timestamp < THREE_DAYS;
+  } catch {
+    return false;
+  }
 }
 
 function dismiss() {
-  localStorage.setItem(DISMISS_KEY, String(Date.now()));
+  try {
+    localStorage.setItem(DISMISS_KEY, String(Date.now()));
+  } catch {
+    // localStorage unavailable (private browsing, etc.)
+  }
 }
 
 const fieldLabels: Record<string, string> = {

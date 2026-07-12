@@ -54,18 +54,20 @@ export async function listPendingApprovals() {
 }
 
 export async function approveBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
-  const approval = await prisma.badgeApproval.update({
-    where: { userId_badgeId: { userId, badgeId } },
-    data: { status: 'APPROVED', reviewedAt: new Date(), reviewedBy, reviewNote },
+  return prisma.$transaction(async () => {
+    const approval = await prisma.badgeApproval.update({
+      where: { userId_badgeId: { userId, badgeId } },
+      data: { status: 'APPROVED', reviewedAt: new Date(), reviewedBy, reviewNote },
+    });
+
+    await prisma.userBadge.create({
+      data: { userId, badgeId },
+    });
+
+    await awardPoints(userId, 50, `BADGE_APPROVED_${badgeId}`, badgeId);
+
+    return approval;
   });
-
-  await prisma.userBadge.create({
-    data: { userId, badgeId },
-  });
-
-  await awardPoints(userId, 50, `BADGE_APPROVED_${badgeId}`, badgeId);
-
-  return approval;
 }
 
 export async function rejectBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {

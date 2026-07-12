@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
+import { AppError } from '../../middleware/error.middleware';
 import { prisma } from '../../lib/prisma';
+import { hasSystemRole } from '../../shared/helpers';
 import {
   approveAttendance,
   cancelEvent,
@@ -86,7 +88,12 @@ export async function getEventHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const event = await getEventById(req.params.id);
+    const event = await getEventById(
+      req.params.id,
+      req.user!.id,
+      req.user!.role,
+      req.user!.organizationId
+    );
     res.status(200).json(event);
   } catch (err) {
     next(err);
@@ -217,6 +224,22 @@ export async function generateEventsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
+    const series = await prisma.eventSeries.findUnique({
+      where: { id: req.params.id },
+      include: { opportunity: true },
+    });
+    if (!series) throw new AppError('Event series not found', 404);
+
+    const isSysAdmin = hasSystemRole(req.user!.role);
+    const isOwner = series.opportunity.createdById === req.user!.id;
+    const isSameOrg =
+      series.opportunity.organizationId &&
+      req.user!.organizationId &&
+      series.opportunity.organizationId === req.user!.organizationId;
+    if (!isSysAdmin && !isOwner && !isSameOrg) {
+      throw new AppError('Forbidden', 403);
+    }
+
     const count = await generateEventsFromSeries(req.params.id);
     res.status(200).json({ generated: count });
   } catch (err) {

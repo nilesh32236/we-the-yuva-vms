@@ -652,8 +652,6 @@ export default function VolunteerProfilePage() {
         </div>
       </div>
 
-      {/* Profile Completion Status Inline */}
-      <ProfileCompletionInline />
     </div>
   );
 }

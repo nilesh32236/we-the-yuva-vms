@@ -167,13 +167,20 @@ export async function listAllEvents(
   };
 }
 
-export async function getEventById(id: string) {
+export async function getEventById(
+  id: string,
+  callerId?: string,
+  callerRole?: string,
+  callerOrgId?: string | null
+) {
   const event = await prisma.event.findUnique({
     where: { id },
     include: {
       opportunity: {
         select: {
           title: true,
+          createdById: true,
+          organizationId: true,
           createdBy: { select: { name: true } },
         },
       },
@@ -182,6 +189,18 @@ export async function getEventById(id: string) {
 
   if (!event) {
     throw new AppError('Event not found', 404);
+  }
+
+  if (callerRole && callerId) {
+    const isSysAdmin = hasSystemRole(callerRole);
+    const isOwner = event.opportunity.createdById === callerId;
+    const isSameOrg =
+      event.opportunity.organizationId &&
+      callerOrgId &&
+      event.opportunity.organizationId === callerOrgId;
+    if (!isSysAdmin && !isOwner && !isSameOrg) {
+      throw new AppError('Forbidden', 403);
+    }
   }
 
   return event;
@@ -812,16 +831,18 @@ export async function createEventSeries(
     opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
   if (!isSysAdmin && !isOwner && !isSameOrg) throw new AppError('Forbidden', 403);
 
-  const series = await prisma.eventSeries.create({
-    data: {
-      opportunityId,
-      title: data.title,
-      description: data.description,
-      frequency: data.frequency,
-      daysOfWeek: data.daysOfWeek ?? [],
-      interval: data.interval ?? 1,
-      startTime: data.startTime,
-      endTime: data.endTime,
+    const seriesStartDate = data.firstEventDate ? new Date(data.firstEventDate) : new Date();
+    const series = await prisma.eventSeries.create({
+      data: {
+        opportunityId,
+        title: data.title,
+        description: data.description,
+        frequency: data.frequency,
+        daysOfWeek: data.daysOfWeek ?? [],
+        interval: data.interval ?? 1,
+        startDate: seriesStartDate,
+        startTime: data.startTime,
+        endTime: data.endTime,
       venue: data.venue,
       isVirtual: data.isVirtual ?? false,
       meetingLink: data.meetingLink,
@@ -1018,44 +1039,39 @@ export async function generateEventsFromSeries(
       maxOccurrences: series.maxOccurrences,
       currentCount: series.currentCount,
       customRule: series.customRule,
+      anchorDate: series.startDate,
     },
     effectiveStart
   );
 
   if (dates.length === 0) return 0;
 
-  const events = await prisma.$transaction(async (tx) => {
-    const created = [];
-    for (const date of dates) {
-      const ev = await tx.event.create({
-        data: {
-          opportunityId: series.opportunityId,
-          title: series.title,
-          description: series.description,
-          eventDate: date,
-          startTime: series.startTime,
-          endTime: series.endTime,
-          venue: series.venue,
-          isVirtual: series.isVirtual,
-          meetingLink: series.meetingLink,
-          capacity: series.capacity,
-          seriesId: series.id,
-          qrToken: crypto.randomBytes(32).toString('hex'),
-          qrExpiresAt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
-        },
-      });
-      created.push(ev.id);
-    }
-    return created;
+  const { count } = await prisma.event.createMany({
+    data: dates.map((date) => ({
+      opportunityId: series.opportunityId,
+      title: series.title,
+      description: series.description,
+      eventDate: date,
+      startTime: series.startTime,
+      endTime: series.endTime,
+      venue: series.venue,
+      isVirtual: series.isVirtual,
+      meetingLink: series.meetingLink,
+      capacity: series.capacity,
+      seriesId: series.id,
+      qrToken: crypto.randomBytes(32).toString('hex'),
+      qrExpiresAt: new Date(date.getTime() + 24 * 60 * 60 * 1000),
+    })),
+    skipDuplicates: true,
   });
 
   await prisma.eventSeries.update({
     where: { id: seriesId },
-    data: { currentCount: { increment: events.length } },
+    data: { currentCount: { increment: count } },
   });
 
-  logger.info(`Generated ${events.length} events for series ${seriesId}`);
-  return events.length;
+  logger.info(`Generated ${count} events for series ${seriesId}`);
+  return count;
 }
 
 function sanitizeCsvCell(value: string): string {

@@ -74,6 +74,18 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
             options={EXPERTISE_OPTIONS}
             selected={expertise}
             toggle={toggleExpertise}
+            labelMap={{
+              TEACHING: 'Teaching', PUBLIC_SPEAKING: 'Public Speaking',
+              EVENT_MANAGEMENT: 'Event Management', PHOTOGRAPHY: 'Photography',
+              GRAPHIC_DESIGN: 'Graphic Design', SOCIAL_MEDIA: 'Social Media',
+              CONTENT_WRITING: 'Content Writing', FUNDRAISING: 'Fundraising',
+              COUNSELLING: 'Counselling', LEADERSHIP: 'Leadership',
+              PROJECT_MANAGEMENT: 'Project Management', WEB_DEVELOPMENT: 'Web Development',
+              SOFTWARE_DEVELOPMENT: 'Software Development', VIDEO_EDITING: 'Video Editing',
+              TRANSLATION: 'Translation', FIRST_AID: 'First Aid',
+              ACCOUNTING: 'Accounting', LEGAL_SUPPORT: 'Legal Support',
+              DATA_ENTRY: 'Data Entry', ADMINISTRATION: 'Administration',
+            }}
           />
         </div>
 

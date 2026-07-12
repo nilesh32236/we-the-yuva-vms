@@ -99,7 +99,8 @@ function calculatePreviewDates(data: EventSeriesFormData): string[] {
         if (data.daysOfWeek.length === 0) return dates;
         const weekOffset = Math.floor((i * data.interval) / data.daysOfWeek.length);
         const dayIndex = i % data.daysOfWeek.length;
-        const targetDay = data.daysOfWeek.sort((a, b) => a - b)[dayIndex];
+        const sortedDays = [...data.daysOfWeek].sort((a, b) => a - b);
+        const targetDay = sortedDays[dayIndex];
         next = new Date(start);
         next.setDate(next.getDate() + weekOffset * 7 * data.interval);
         const currentDay = next.getDay();
@@ -116,8 +117,8 @@ function calculatePreviewDates(data: EventSeriesFormData): string[] {
       }
       default:
         next = new Date(start);
-        next.setDate(next.getDate() + i);
-    }
+        next.setDate(next.getDate() + i * data.interval);
+      }
 
     if (
       (data.endType === 'after' && i >= (data.maxOccurrences ?? Infinity)) ||
@@ -198,8 +199,18 @@ export function EventSeriesForm({
     </div>
   );
 
+  const handleFormSubmit = (data: EventSeriesFormData) => {
+    const formattedData: EventSeriesOutput = {
+      ...data,
+      firstEventDate: data.firstEventDate
+        ? `${data.firstEventDate}T${data.startTime}:00.000Z`
+        : undefined,
+    };
+    return onSubmit(formattedData);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
       {field('title', 'Series title', { placeholder: 'e.g. Weekly Community Clean-up' })}
 
       <div className="space-y-1.5">

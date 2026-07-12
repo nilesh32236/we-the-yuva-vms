@@ -1,4 +1,5 @@
 import type { OnboardingInput, StaffProfileInput, VolunteerProfileInput } from '@/shared';
+import { Prisma } from '@prisma/client';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
@@ -74,50 +75,50 @@ export async function getCoordinatorVolunteers(
 
   const opportunityFilter = organizationId ? { organizationId } : { createdById: coordinatorId };
 
-  // Fetch all volunteers with ACCEPTED applications to coordinator's organization or specific opportunities
-  const allVolunteers = await prisma.user.findMany({
-    where: {
-      roleRef: { name: 'VOLUNTEER' },
-      applications: {
-        some: {
-          status: 'ACCEPTED',
-          opportunity: opportunityFilter,
-        },
+  const where: Prisma.UserWhereInput = {
+    roleRef: { name: 'VOLUNTEER' },
+    applications: {
+      some: {
+        status: 'ACCEPTED',
+        opportunity: opportunityFilter,
       },
     },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      volunteerType: true,
-      profile: { select: { skills: true, totalHours: true } },
-      _count: {
-        select: {
-          applications: {
-            where: { opportunity: opportunityFilter },
-          },
-        },
-      },
-    },
-  });
-
-  // Apply in-memory filters
-  let filtered = allVolunteers;
+  };
 
   if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter(
-      (u) => u.name.toLowerCase().includes(q) || (u.email ?? '').toLowerCase().includes(q)
-    );
+    const q = search;
+    where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { email: { contains: q, mode: 'insensitive' } },
+    ];
   }
 
   if (skills && skills.length > 0) {
-    filtered = filtered.filter((u) => skills.some((s) => u.profile?.skills.includes(s)));
+    where.profile = { skills: { hasSome: skills } };
   }
 
-  const total = filtered.length;
-  const skip = (page - 1) * limit;
-  const data = filtered.slice(skip, skip + limit);
+  const [data, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        volunteerType: true,
+        profile: { select: { skills: true, totalHours: true } },
+        _count: {
+          select: {
+            applications: {
+              where: { opportunity: opportunityFilter },
+            },
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.user.count({ where }),
+  ]);
 
   return {
     data,

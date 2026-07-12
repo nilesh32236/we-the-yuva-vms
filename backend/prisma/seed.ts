@@ -67,6 +67,9 @@ async function main() {
         'mentorship:manage',
         'file:upload',
         'youth:profile:view',
+        'badge:approve',
+        'chat:read',
+        'chat:send',
       ],
     },
     {
@@ -175,6 +178,9 @@ async function main() {
         'blog:delete',
         'blog:publish',
         'blog:view:all',
+        'badge:approve',
+        'chat:read',
+        'chat:send',
       ],
     },
     {

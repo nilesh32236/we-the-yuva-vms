@@ -237,7 +237,7 @@ model User {
   // Referral system
   referralCode String     @unique @default(cuid())
   referredById String?
-  referredBy   User?      @relation("UserReferrals", fields: [referredById], references: [id])
+  referredBy   User?      @relation("UserReferrals", fields: [referredById], references: [id], onDelete: SetNull)
   referrals    User[]     @relation("UserReferrals")
 
   // Onboarding
@@ -262,7 +262,8 @@ model User {
   levelReviews   UserLevel[] @relation("LevelReviewer")
   pointTransactions PointTransaction[]
   earnedBadges   UserBadge[]
-  badgeApprovals BadgeApproval[]
+  badgeApprovals BadgeApproval[] @relation("UserBadgeApprovals")
+  badgeReviews   BadgeApproval[] @relation("BadgeReviewer")
   mentorships    Mentorship[] @relation("MentorRelation")
   mentees        Mentorship[] @relation("MenteeRelation")
   certificates   Certificate[]
@@ -470,12 +471,13 @@ model Event {
 
   // Recurring event
   seriesId      String?
-  series        EventSeries? @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  series        EventSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
 
   opportunity Opportunity  @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
   attendances Attendance[]
   feedback    EventFeedback[]
 
+  @@unique([seriesId, eventDate])
   @@index([opportunityId])
   @@index([eventDate])
   @@index([status])
@@ -490,6 +492,7 @@ model EventSeries {
   frequency       RecurrenceFrequency
   daysOfWeek      Int[]               // [0,6] for Sat/Sun, [1,2,3,4,5] for weekdays
   interval        Int                 @default(1) // every N days/weeks/months
+  startDate       DateTime            @default(now())
   startTime       String              // HH:MM
   endTime         String              // HH:MM
   venue           String?
@@ -865,9 +868,10 @@ model BadgeApproval {
   requestedAt DateTime            @default(now())
   reviewedAt  DateTime?
   reviewedBy  String?
+  reviewer    User?    @relation("BadgeReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
   reviewNote  String?
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User  @relation("UserBadgeApprovals", fields: [userId], references: [id], onDelete: Cascade)
   badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, badgeId])

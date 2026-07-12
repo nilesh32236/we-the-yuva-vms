@@ -202,8 +202,8 @@ export default function RegisterPage() {
         }
       } else {
         sessionStorage.removeItem('logged_out');
-        // Only clear in-memory token if there's evidence of a stale session
-        const hasAccessCookie = document.cookie.includes('access_token=');
+        // Check for access_token cookie using proper boundary matching
+        const hasAccessCookie = /(?:^|;)\s*access_token\s*=/.test(document.cookie);
         if (hasAccessCookie) setAccessToken(null);
         setReady(true);
       }

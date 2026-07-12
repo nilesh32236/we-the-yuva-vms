@@ -5,9 +5,9 @@ import { memo } from 'react';
 import { ApplicationStatusBadge } from '../opportunities/ApplicationStatusBadge';
 
 const EVENT_STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  SCHEDULED: 'bg-brand-cta/10 text-brand-cta',
   COMPLETED: 'bg-brand-primary/10 text-brand-primary',
-  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+  CANCELLED: 'bg-brand-error/10 text-brand-error',
 };
 
 interface EventCardProps {
@@ -49,7 +49,7 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
             {event.status}
           </span>
           {event.seriesId && (
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 flex items-center gap-1">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-accent/10 text-brand-accent flex items-center gap-1">
               <Repeat className="w-3 h-3" aria-hidden="true" /> Recurring
             </span>
           )}

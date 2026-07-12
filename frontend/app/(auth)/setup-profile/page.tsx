@@ -129,8 +129,13 @@ export default function SetupProfilePage() {
   };
 
   const handleSubmitForm = async () => {
-    const isValid = await validateStep(step);
-    if (!isValid) return;
+    for (let i = 0; i < STEPS.length; i++) {
+      const valid = await validateStep(i);
+      if (!valid) {
+        goToStep(i);
+        return;
+      }
+    }
 
     setFormError(null);
     setIsSubmitting(true);

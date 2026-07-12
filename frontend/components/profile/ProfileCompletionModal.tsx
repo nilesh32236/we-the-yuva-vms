@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface ProfileCompletionModalProps {
   open: boolean;
@@ -11,7 +12,7 @@ interface ProfileCompletionModalProps {
 
 const fieldLabels: Record<string, string> = {
   skills: 'Skills',
-  interests: 'Interests',
+  interests: 'interests',
   volunteerType: 'Volunteer Type',
   availability: 'Availability',
 };
@@ -22,14 +23,19 @@ export function ProfileCompletionModal({
   missingFields,
   onClose,
 }: ProfileCompletionModalProps) {
+  const dialogRef = useFocusTrap(open);
+
   if (!open) return null;
 
   return (
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="profile-completion-title"
+      aria-describedby="profile-completion-desc"
       onKeyDown={(e) => {
         if (e.key === 'Escape') onClose();
       }}
@@ -43,7 +49,7 @@ export function ProfileCompletionModal({
             >
               Complete Your Profile
             </h2>
-            <p className="text-sm text-brand-muted">
+            <p id="profile-completion-desc" className="text-sm text-brand-muted">
               You need to complete your profile before applying to opportunities.
             </p>
           </div>

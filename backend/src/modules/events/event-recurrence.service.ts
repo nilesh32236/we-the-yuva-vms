@@ -10,6 +10,7 @@ export interface SeriesConfig {
   maxOccurrences: number | null;
   currentCount: number;
   customRule: unknown;
+  anchorDate?: Date;
 }
 
 export function calculateNextDates(
@@ -35,7 +36,7 @@ export function calculateNextDates(
       generateWeekly(dates, start, remaining, config.daysOfWeek, config.interval, effectiveEnd);
       break;
     case 'MONTHLY':
-      generateMonthly(dates, start, remaining, config.interval, effectiveEnd);
+      generateMonthly(dates, start, remaining, config.interval, effectiveEnd, config.anchorDate?.getDate());
       break;
     case 'CUSTOM':
       generateCustom(dates, start, remaining, config.customRule, effectiveEnd);
@@ -97,9 +98,10 @@ function generateMonthly(
   start: Date,
   remaining: number,
   interval: number,
-  endDate: Date
+  endDate: Date,
+  anchorDay?: number
 ): void {
-  const targetDay = start.getDate();
+  const targetDay = anchorDay ?? start.getDate();
   let current = new Date(start);
   current.setDate(1);
 
