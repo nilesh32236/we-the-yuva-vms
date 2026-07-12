@@ -1,5 +1,5 @@
 import type { OnboardingInput, StaffProfileInput, VolunteerProfileInput } from '@/shared';
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';

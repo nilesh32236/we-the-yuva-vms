@@ -86,8 +86,9 @@ function CallAvailabilityInput({
 
       {pref === 'anyday_after' && (
         <div>
-          <label className="text-xs text-brand-muted mb-1 block">Available after</label>
+          <label htmlFor="availability-after-time" className="text-xs text-brand-muted mb-1 block">Available after</label>
           <input
+            id="availability-after-time"
             type="time"
             value={value?.afterTime ?? ''}
             onChange={(e) => onChange({ ...value, preference: 'anyday_after' as const, afterTime: e.target.value })}
@@ -100,7 +101,7 @@ function CallAvailabilityInput({
         <div className="flex flex-wrap gap-1.5">
           {DAY_LABELS.map((label, i) => (
             <button
-              key={i}
+              key={label}
               type="button"
               onClick={() => toggleDay(i)}
               className={`w-10 h-10 text-xs rounded-full border transition-colors cursor-pointer ${
@@ -122,14 +123,15 @@ function CallAvailabilityInput({
             <p className="text-xs text-brand-muted">No time slots added yet.</p>
           )}
           {(value?.slots ?? []).map((slot, i) => (
-            <div key={i} className="flex items-center gap-2 flex-wrap">
+            // biome-ignore lint/suspicious/noArrayIndexKey: slots have no stable ID; index is the correct key here
+            <div key={`slot-${i}`} className="flex items-center gap-2 flex-wrap">
               <select
                 value={slot.day}
                 onChange={(e) => updateSlot(i, 'day', Number(e.target.value))}
                 className="px-2 py-1.5 rounded-lg border text-sm border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               >
-                {DAY_LABELS.map((label, d) => (
-                  <option key={d} value={d}>{label}</option>
+                {DAY_LABELS.map((label) => (
+                  <option key={label} value={DAY_LABELS.indexOf(label)}>{label}</option>
                 ))}
               </select>
               <input
@@ -221,7 +223,7 @@ export default function RegisterPage() {
     defaultValues: { role: 'VOLUNTEER' },
   });
 
-  const selectedRole = watch('role');
+  const _selectedRole = watch('role');
   const watchWhyVoluntary = watch('whyVoluntary');
 
   useEffect(() => {

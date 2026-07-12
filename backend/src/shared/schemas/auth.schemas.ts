@@ -36,7 +36,7 @@ export const RegisterSchema = z.object({
   dateOfBirth: z.string().refine(
     (val) => {
       const date = new Date(val);
-      if (isNaN(date.getTime())) return false;
+      if (Number.isNaN(date.getTime())) return false;
       const today = new Date();
       const age = today.getFullYear() - date.getFullYear();
       const monthDiff = today.getMonth() - date.getMonth();

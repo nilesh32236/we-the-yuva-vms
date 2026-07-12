@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Button } from '../ui/Button';
 
 const DAYS = [
@@ -229,7 +229,7 @@ export function EventSeriesForm({
 
       {/* Frequency */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-brand-text">Frequency</label>
+        <p className="text-sm font-medium text-brand-text">Frequency</p>
         <div className="flex gap-2">
           {FREQUENCIES.map((f) => (
             <button
@@ -251,7 +251,7 @@ export function EventSeriesForm({
       {/* Days of week (for WEEKLY) */}
       {frequency === 'WEEKLY' && (
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-brand-text">Repeat on</label>
+          <p className="text-sm font-medium text-brand-text">Repeat on</p>
           <div className="flex gap-1.5 flex-wrap">
             {DAYS.map((day) => (
               <button
@@ -276,7 +276,7 @@ export function EventSeriesForm({
 
       {/* Interval */}
       <div className="space-y-1.5">
-        <label className="text-sm font-medium text-brand-text">
+        <label htmlFor="series-interval" className="text-sm font-medium text-brand-text">
           Every{' '}
           {frequency === 'DAILY'
             ? 'day(s)'
@@ -287,6 +287,7 @@ export function EventSeriesForm({
                 : 'occurrence(s)'}
         </label>
         <input
+          id="series-interval"
           type="number"
           min={1}
           {...register('interval', { valueAsNumber: true })}
@@ -368,7 +369,7 @@ export function EventSeriesForm({
 
       {/* End condition */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-brand-text">End condition</label>
+        <p className="text-sm font-medium text-brand-text">End condition</p>
         <div className="space-y-2">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -424,8 +425,8 @@ export function EventSeriesForm({
             Preview — next {previewDates.length} occurrences
           </p>
           <ul className="space-y-1">
-            {previewDates.map((d, i) => (
-              <li key={i} className="text-sm text-brand-text flex items-center gap-2">
+            {previewDates.map((d) => (
+              <li key={d} className="text-sm text-brand-text flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                 {d}
               </li>

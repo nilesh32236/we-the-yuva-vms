@@ -59,8 +59,9 @@ export function EventForm({
   if (isRecurring) {
     return (
       <div className="space-y-5">
-        <label className="flex items-center gap-3 cursor-pointer">
+        <label htmlFor="recurring-toggle-active" className="flex items-center gap-3 cursor-pointer">
           <div
+            id="recurring-toggle-active"
             role="switch"
             aria-checked={isRecurring}
             tabIndex={0}
@@ -102,8 +103,9 @@ export function EventForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {showRecurringOption && (
-        <label className="flex items-center gap-3 cursor-pointer pb-2 border-b border-brand-border">
+        <label htmlFor="recurring-toggle" className="flex items-center gap-3 cursor-pointer pb-2 border-b border-brand-border">
           <div
+            id="recurring-toggle"
             role="switch"
             aria-checked={isRecurring}
             tabIndex={0}

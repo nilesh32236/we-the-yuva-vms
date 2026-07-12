@@ -2,7 +2,6 @@ import { onFeedbackSubmitted } from '../badges/badge-engine.service';
 import { hasSystemRole } from '../../shared/helpers';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
-import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
 export async function submitFeedback(

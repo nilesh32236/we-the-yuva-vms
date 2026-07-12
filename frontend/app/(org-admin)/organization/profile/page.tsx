@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import NextLink from 'next/link';
+import NextImage from 'next/image';
 import { useState } from 'react';
 import OrgProfileForm from '@/components/org/OrgProfileForm';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
@@ -103,9 +104,11 @@ export default function OrgAdminOrgProfilePage() {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             {org.logo ? (
-              <img
+              <NextImage
                 src={org.logo}
                 alt={`${org.name} logo`}
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-2xl object-cover border border-brand-border"
               />
             ) : (

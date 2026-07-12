@@ -53,7 +53,7 @@ function generateDaily(
   interval: number,
   endDate: Date
 ): void {
-  let current = new Date(start);
+  const current = new Date(start);
   for (let i = 0; i < remaining && current <= endDate; i++) {
     dates.push(new Date(current));
     current.setDate(current.getDate() + interval);
@@ -71,7 +71,7 @@ function generateWeekly(
   if (daysOfWeek.length === 0) return;
 
   const sortedDays = [...daysOfWeek].sort();
-  let current = new Date(start);
+  const current = new Date(start);
 
   while (dates.length < remaining) {
     const weekStart = new Date(current);
@@ -102,7 +102,7 @@ function generateMonthly(
   anchorDay?: number
 ): void {
   const targetDay = anchorDay ?? start.getDate();
-  let current = new Date(start);
+  const current = new Date(start);
   current.setDate(1);
 
   for (let i = 0; i < remaining; i++) {
@@ -166,7 +166,7 @@ function generateMonthlyByPosition(
   interval: number,
   endDate: Date
 ): void {
-  let current = new Date(start);
+  const current = new Date(start);
   current.setDate(1);
 
   for (let i = 0; i < remaining; i++) {
