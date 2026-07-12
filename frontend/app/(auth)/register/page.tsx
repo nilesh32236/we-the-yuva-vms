@@ -402,6 +402,8 @@ export default function RegisterPage() {
                 inputMode="tel"
                 autoComplete="tel"
                 placeholder="+91 98765 43210"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.phone}
                 aria-describedby={errors.phone ? 'phone-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -430,6 +432,8 @@ export default function RegisterPage() {
                 id="dateOfBirth"
                 type="date"
                 autoComplete="bday"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.dateOfBirth}
                 aria-describedby={errors.dateOfBirth ? 'dob-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent

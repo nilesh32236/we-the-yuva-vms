@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
@@ -52,8 +52,12 @@ export function OpportunityForm({
     defaultValues: { isRemote: false, skills: [], ...defaultValues },
   });
 
+  const mounted = useRef(false);
   useEffect(() => {
-    reset(defaultValues);
+    if (!mounted.current) {
+      reset(defaultValues);
+      mounted.current = true;
+    }
   }, [reset, defaultValues]);
 
   const [skillInput, setSkillInput] = useState('');

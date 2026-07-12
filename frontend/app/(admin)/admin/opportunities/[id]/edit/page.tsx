@@ -38,7 +38,7 @@ export default function AdminEditOpportunityPage() {
   });
 
   const handleSubmit = async (data: OpportunityInput) => {
-    await updateMutation.mutateAsync(data);
+    updateMutation.mutate(data);
   };
 
   if (isLoading) {

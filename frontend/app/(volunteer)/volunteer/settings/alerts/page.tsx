@@ -50,7 +50,7 @@ export default function AlertSubscriptionsPage() {
   const [showForm, setShowForm] = useState(false);
   const [skillInput, setSkillInput] = useState('');
 
-  const { watch, setValue, reset } = useForm<z.infer<typeof alertSchema>>({
+  const { watch, setValue, reset, handleSubmit } = useForm<z.infer<typeof alertSchema>>({
     resolver: zodResolver(alertSchema),
     defaultValues: { categories: [], skills: [] },
   });
@@ -138,7 +138,13 @@ export default function AlertSubscriptionsPage() {
             </div>
           ) : showForm ? (
             /* New alert form */
-            <div className="bg-brand-bg rounded-xl p-5 space-y-4 border border-brand-border">
+            <form
+              onSubmit={handleSubmit((data) => {
+                haptic.medium();
+                createMut.mutate(data);
+              })}
+              className="bg-brand-bg rounded-xl p-5 space-y-4 border border-brand-border"
+            >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-brand-text">Create Alert Subscription</h3>
                 <button
@@ -247,18 +253,15 @@ export default function AlertSubscriptionsPage() {
                   Cancel
                 </Button>
                 <Button
+                  type="submit"
                   variant="primary"
                   size="sm"
-                  onClick={() => {
-                    haptic.medium();
-                    createMut.mutate({ categories: selectedCats, skills });
-                  }}
                   loading={createMut.isPending}
                 >
                   <BellRing className="w-3.5 h-3.5" /> Create Alert
                 </Button>
               </div>
-            </div>
+            </form>
           ) : !subs?.length ? (
             /* Empty state */
             <div className="text-center py-12">

@@ -20,6 +20,7 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
   ) => {
     const id = `social-${field}`;
     const val = socialLinks?.[field] ?? '';
+    const fieldError = errors.step5?.socialLinks?.[field];
     return (
       <div className="space-y-1.5">
         <label htmlFor={id} className="text-sm font-medium text-brand-text">
@@ -37,8 +38,15 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
             )
           }
           placeholder={`https://${field}.com/...`}
-          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+          aria-invalid={!!fieldError}
+          aria-describedby={fieldError ? `${id}-error` : undefined}
+          className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+            fieldError ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+          }`}
         />
+        {fieldError && (
+          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">{fieldError.message}</p>
+        )}
       </div>
     );
   };
@@ -94,9 +102,16 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
             id="avatarUrl"
             type="url"
             placeholder="https://example.com/photo.jpg"
-            className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+            aria-invalid={!!errors.step5?.avatarUrl}
+            aria-describedby={errors.step5?.avatarUrl ? 'avatarUrl-error' : undefined}
+            className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+              errors.step5?.avatarUrl ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+            }`}
             {...register('step5.avatarUrl')}
           />
+          {errors.step5?.avatarUrl && (
+            <p id="avatarUrl-error" className="text-brand-error text-xs" role="alert">{errors.step5.avatarUrl.message}</p>
+          )}
         </div>
 
         <div className="border border-brand-border rounded-xl p-4 space-y-4">

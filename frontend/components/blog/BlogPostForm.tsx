@@ -61,9 +61,14 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
           rows={2}
           placeholder="Brief summary for card previews"
           disabled={isSubmitting}
+          aria-invalid={!!errors.excerpt}
+          aria-describedby={errors.excerpt ? 'excerpt-error' : undefined}
           className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${errors.excerpt ? 'border-brand-error' : 'border-brand-border'}`}
           {...register('excerpt')}
         />
+        {errors.excerpt && (
+          <p id="excerpt-error" className="text-xs text-brand-error">{errors.excerpt.message}</p>
+        )}
       </div>
 
       <div className="space-y-1.5">
@@ -95,9 +100,14 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
           type="text"
           placeholder="https://example.com/image.jpg"
           disabled={isSubmitting}
+          aria-invalid={!!errors.featuredImage}
+          aria-describedby={errors.featuredImage ? 'featuredImage-error' : undefined}
           className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.featuredImage ? 'border-brand-error' : 'border-brand-border'}`}
           {...register('featuredImage')}
         />
+        {errors.featuredImage && (
+          <p id="featuredImage-error" className="text-xs text-brand-error">{errors.featuredImage.message}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -120,8 +130,13 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
                   .filter(Boolean)
               )
             }
+            aria-invalid={!!errors.tags}
+            aria-describedby={errors.tags ? 'tags-error' : undefined}
             className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.tags ? 'border-brand-error' : 'border-brand-border'}`}
           />
+          {errors.tags && (
+            <p id="tags-error" className="text-xs text-brand-error">{errors.tags.message}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <label htmlFor="category" className="text-sm font-medium text-brand-text">
@@ -132,9 +147,14 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
             type="text"
             placeholder="e.g. Stories, Updates"
             disabled={isSubmitting}
+            aria-invalid={!!errors.category}
+            aria-describedby={errors.category ? 'category-error' : undefined}
             className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.category ? 'border-brand-error' : 'border-brand-border'}`}
             {...register('category')}
           />
+          {errors.category && (
+            <p id="category-error" className="text-xs text-brand-error">{errors.category.message}</p>
+          )}
         </div>
       </div>
 

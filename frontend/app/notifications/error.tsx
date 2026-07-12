@@ -21,7 +21,7 @@ export default function NotificationsError({
     >
       <div role="alert">
         <h2 className="font-heading font-bold text-xl text-brand-text">Something went wrong</h2>
-        <p className="text-sm text-brand-muted">{error.message}</p>
+        <p className="text-sm text-brand-muted">An unexpected error occurred. Please try again.</p>
         <Button onClick={reset} variant="primary">
           Try again
         </Button>

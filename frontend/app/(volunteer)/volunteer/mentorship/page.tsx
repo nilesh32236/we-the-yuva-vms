@@ -179,7 +179,7 @@ function MentorshipCard({
 }
 
 const requestSchema = z.object({
-  menteeId: z.string().min(1, 'Please enter a mentor email or name'),
+  menteeId: z.string().trim().min(1, 'Please enter a mentor email or name'),
   message: z.string().optional(),
 });
 
@@ -249,6 +249,7 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
             {...register('menteeId')}
             placeholder="Enter mentor email or name"
             aria-invalid={!!errors.menteeId}
+            aria-describedby={errors.menteeId ? 'menteeId-error' : undefined}
             className={`w-full px-3 py-2.5 rounded-xl bg-brand-bg border text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 ${
               errors.menteeId
                 ? 'border-brand-error focus:ring-brand-error/30'
@@ -256,7 +257,7 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
             }`}
           />
           {errors.menteeId && (
-            <p role="alert" className="text-xs text-brand-error mt-1">
+            <p id="menteeId-error" role="alert" className="text-xs text-brand-error mt-1">
               {errors.menteeId.message}
             </p>
           )}
@@ -275,6 +276,7 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
             placeholder="Why do you want this mentor?"
             rows={3}
             aria-invalid={!!errors.message}
+            aria-describedby={errors.message ? 'message-error' : undefined}
             className={`w-full px-3 py-2.5 rounded-xl bg-brand-bg border text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 resize-none ${
               errors.message
                 ? 'border-brand-error focus:ring-brand-error/30'
@@ -282,7 +284,7 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
             }`}
           />
           {errors.message && (
-            <p role="alert" className="text-xs text-brand-error mt-1">
+            <p id="message-error" role="alert" className="text-xs text-brand-error mt-1">
               {errors.message.message}
             </p>
           )}

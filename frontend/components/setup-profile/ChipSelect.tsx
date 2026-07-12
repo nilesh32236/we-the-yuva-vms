@@ -16,7 +16,7 @@ export function ChipSelect<T extends string>({
   error,
 }: ChipSelectProps<T>) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" aria-invalid={!!error || undefined}>
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => (
           <button

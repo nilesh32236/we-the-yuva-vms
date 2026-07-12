@@ -68,6 +68,8 @@ export function EventForm({
       <input
         id={id}
         aria-invalid={!!errors[id]}
+        aria-describedby={errors[id] ? `${id}-error` : undefined}
+        disabled={isSubmitting}
         {...register(id)}
         {...extra}
         className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary
