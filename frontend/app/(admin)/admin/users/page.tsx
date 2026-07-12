@@ -6,8 +6,9 @@ import { useState } from 'react';
 import Pagination from '@/components/shared/Pagination';
 import { UserTable } from '../../../../components/admin/UserTable';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useFocusTrap } from '../../../../hooks/useFocusTrap';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api } from '../../../../lib/api';
 
 const ROLES = ['ALL', 'VOLUNTEER', 'COORDINATOR', 'ADMIN', 'OBSERVER'];
@@ -150,21 +151,18 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex gap-3 px-6 pb-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg bg-background cursor-pointer transition-colors"
-          >
+          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => create.mutate()}
-            disabled={!form.name || !form.email || create.isPending}
-            className="flex-1 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
+            disabled={!form.name || !form.email}
+            loading={create.isPending}
+            className="flex-1"
           >
-            {create.isPending ? 'Creating…' : 'Create User'}
-          </button>
+            Create User
+          </Button>
         </div>
       </div>
     </div>
@@ -200,13 +198,9 @@ export default function AdminUsersPage() {
     <div className="space-y-5 max-w-6xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Users</h1>
-        <button
-          type="button"
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer"
-        >
+        <Button type="button" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> Create User
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}

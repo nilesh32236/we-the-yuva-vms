@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -8,7 +8,7 @@ interface ConfirmDialogProps {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: 'danger' | 'primary';
+  variant?: 'destructive' | 'primary';
   loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -20,7 +20,7 @@ export function ConfirmDialog({
   message,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
-  variant = 'danger',
+  variant = 'destructive',
   loading = false,
   onConfirm,
   onCancel,
@@ -45,27 +45,24 @@ export function ConfirmDialog({
           <p className="text-sm text-brand-muted">{message}</p>
         </div>
         <div className="flex gap-3 px-6 pb-5">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onCancel}
             disabled={loading}
-            className="flex-1 py-2.5 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg bg-background cursor-pointer transition-colors disabled:opacity-50"
+            className="flex-1"
           >
             {cancelLabel}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={variant}
             onClick={onConfirm}
-            disabled={loading}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-colors disabled:opacity-60 flex items-center justify-center gap-2 ${
-              variant === 'danger'
-                ? 'bg-brand-error text-white hover:bg-red-700'
-                : 'bg-brand-primary text-white hover:bg-brand-secondary'
-            }`}
+            loading={loading}
+            className="flex-1"
           >
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
