@@ -17,10 +17,11 @@ concurrency:
 
 jobs:
   review:
+    # Only review human PRs (not autofix PRs — those use autofix-review-loop.yml)
     if: |
       github.actor != 'github-actions[bot]' &&
       (
-        (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'autofix')) ||
+        (github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'autofix') && !contains(github.event.pull_request.labels.*.name, 'autofix:approved') && !contains(github.event.pull_request.labels.*.name, 'autofix:merged')) ||
         (github.event_name == 'issue_comment' && (contains(github.event.comment.body || '', '/oc') || contains(github.event.comment.body || '', '/review')))
       )
     runs-on: ubuntu-latest
@@ -30,93 +31,118 @@ jobs:
         id: pr
         run: |
           PR_NUMBER="${{ github.event.pull_request.number || github.event.issue.number }}"
+
+          # Verify this is actually a PR (for issue_comment events)
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            IS_PR=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.number' 2>/dev/null || echo "")
+            if [ -z "$IS_PR" ]; then
+              echo "Not a PR — skipping"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            # Also skip if this is an autofix PR
+            HAS_AUTOFIX=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '[.labels[].name] | any(. == "autofix" or . == "autofix:approved" or . == "autofix:merged")' 2>/dev/null || echo "false")
+            if [ "$HAS_AUTOFIX" = "true" ]; then
+              echo "Autofix PR — handled by autofix-review-loop.yml, skipping"
+              echo "skip=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
           HEAD_REF=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.ref')
           HEAD_SHA=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.sha')
           echo "head_ref=$HEAD_REF" >> $GITHUB_OUTPUT
           echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Check if commit already reviewed
-        id: check-reviewed
-        run: |
-          SHA="${{ steps.pr.outputs.head_sha }}"
-          TRACKING=".opencode/reviewed-commits.txt"
-          mkdir -p .opencode
-          touch "$TRACKING"
-          if grep -q "^${SHA}$" "$TRACKING" 2>/dev/null; then
-            echo "already_reviewed=true" >> $GITHUB_OUTPUT
-            echo "Commit ${SHA} already reviewed — skipping"
-          else
-            echo "already_reviewed=false" >> $GITHUB_OUTPUT
-          fi
-
       - uses: actions/checkout@v7
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
+        if: steps.pr.outputs.skip != 'true'
         with:
           fetch-depth: 0
           ref: ${{ steps.pr.outputs.head_ref }}
 
       - name: Configure git auth for OpenCode
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
+        if: steps.pr.outputs.skip != 'true'
         run: |
           git config --global user.name 'nilesh32236'
           git config --global user.email 'nilesh32236@gmail.com'
           git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Setup OpenCode
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
+        if: steps.pr.outputs.skip != 'true'
         run: |
           chmod +x .github/scripts/setup-opencode.sh
           .github/scripts/setup-opencode.sh
 
-      - name: Write review prompt
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
+      - name: Gather context
+        if: steps.pr.outputs.skip != 'true'
         run: |
-          cat << 'PROMPT_EOF' > /tmp/opencode-review-prompt.txt
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+
+          # Extract linked issue if any
+          PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body' --repo "${{ github.repository }}" 2>/dev/null || echo "")
+          ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '(?:Fixes|Closes|Resolves)\s+#\K[0-9]+' | head -1 || echo "")
+
+          chmod +x .github/scripts/gather-context.sh
+          ARGS="${{ github.repository }} /tmp/pr-context.md --pr $PR_NUMBER"
+          [ -n "$ISSUE_NUM" ] && ARGS="$ARGS --issue $ISSUE_NUM"
+          .github/scripts/gather-context.sh $ARGS
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Write review prompt
+        if: steps.pr.outputs.skip != 'true'
+        run: |
+          PR_CONTEXT=$(cat /tmp/pr-context.md 2>/dev/null || echo "No context available")
+
+          cat << PROMPT_EOF > /tmp/opencode-review-prompt.txt
           You are a Senior Code Reviewer with deep expertise in software architecture, design patterns, and best practices. Review this pull request thoroughly.
-          
-          ## Context
+
+          ## PR & Issue Context
+
+          ${PR_CONTEXT}
+
+          ---
+
+          ## Project Context
           This is a monorepo with two independent projects:
-          - **`frontend/`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, zod, Serwist PWA)
-          - **`backend/`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest, TypeScript)
-          
-          ## Linked Issue Context (If any)
-          - Parse the PR description (and commit messages) for any linked issue number(s) (e.g. "Closes #123", "Fixes #123", or just "#123").
-          - If a linked issue exists, use the GitHub API or `gh` CLI to read that linked issue's body and all comments to gain the full context of what was requested and any discussions/feedback.
-          
+          - **\`frontend/\`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, zod, Serwist PWA)
+          - **\`backend/\`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest, TypeScript)
+
           ## Context Window Management
-          
+
           This repository may be too large to review in one pass. To prevent context overflow:
-          
-          1. Read the PR diff via `github_pull_request_read` with method `get_diff` to get the full list of changed files.
-          2. Determine which project(s) the PR touches based on file paths (files starting with `frontend/` or `backend/`).
+
+          1. Read the PR diff via \`github_pull_request_read\` with method \`get_diff\` to get the full list of changed files.
+          2. Determine which project(s) the PR touches based on file paths (files starting with \`frontend/\` or \`backend/\`).
           3. Group files into batches of at most 3 files per batch.
-          4. For each batch, dispatch a sub-agent via the `task` tool with `subagent_type: "general"`. Give the sub-agent these exact instructions:
+          4. For each batch, dispatch a sub-agent via the \`task\` tool with \`subagent_type: "general"\`. Give the sub-agent these exact instructions:
           - Read the assigned files from the local filesystem
           - Review for ALL items listed under "What to Check" below
-          - If the file is under `frontend/`, read `frontend/AGENTS.md` for conventions; if under `backend/`, refer to `backend/README.md`
+          - If the file is under \`frontend/\`, read \`frontend/AGENTS.md\` for conventions; if under \`backend/\`, refer to \`backend/README.md\`
           - Return findings as a JSON array of objects with keys: severity, file, line, message, suggestion
           5. Collect all sub-agent results, deduplicate, and hold them in memory.
-          6. Once ALL batches are complete, write findings to `.opencode/review-output.jsonl` in JSON Lines format (one JSON object per line).
-          7. IMPORTANT: Only set `"inline": true` on an issue if the referenced line is in the PR diff. Lines NOT in the diff must never be inline comments — set `"inline": false` or omit it. When unsure, omit it.
-          
+          6. Once ALL batches are complete, write findings to \`.opencode/review-output.jsonl\` in JSON Lines format (one JSON object per line).
+          7. IMPORTANT: Only set \`"inline": true\` on an issue if the referenced line is in the PR diff. Lines NOT in the diff must never be inline comments — set \`"inline": false\` or omit it.
+
           ## What to Check
-          
+
           **Plan alignment:**
           - Does the implementation match what the PR description states?
           - Are deviations justified improvements, or problematic departures?
           - Is all intended functionality present?
-          
+
           **Bugs & correctness:**
           - Logic errors, missing null checks, race conditions
           - Improper error handling (swallowed errors, bare throws)
-          - Type safety issues (loose `any`, missing generics)
+          - Type safety issues (loose \`any\`, missing generics)
           - Edge cases not handled (empty states, boundaries, timeouts)
           - Backend: API input validation (Zod schema gaps), database query issues (N+1, missing transactions)
           - Frontend: Missing loading/error states, stale query cache
-          
+
           **Security (CRITICAL):**
           - PII exposure in logs, URLs, or client-side code
           - Missing authentication or authorization checks (route guard bypass)
@@ -127,38 +153,38 @@ jobs:
           - JWT token handling (stored securely? proper expiry?)
           - Backend: SQL injection via raw queries, missing rate limiting, insecure file uploads
           - Backend: Prisma raw queries without parameterization
-          
+
           **Frontend-specific (Affordance & UX):**
-          - `cursor-pointer` on non-interactive elements (users expect a click action)
-          - Missing `aria-label`, `role`, or keyboard handlers on interactive elements
-          - Form elements without associated `<label>` or `aria-labelledby`
+          - \`cursor-pointer\` on non-interactive elements (users expect a click action)
+          - Missing \`aria-label\`, \`role\`, or keyboard handlers on interactive elements
+          - Form elements without associated \`<label>\` or \`aria-labelledby\`
           - Mobile touch targets too small (< 44px)
-          
+
           **Backend-specific (API & Data):**
           - Proper HTTP status codes and error response structure
           - Missing input validation via Zod schemas
           - Inefficient database queries (missing indexes, N+1 patterns)
           - Missing pagination on list endpoints
           - Proper middleware chain (validation → auth → RBAC → handler)
-          
+
           **Dead code & YAGNI:**
           - Unused state variables, imports, parameters, or functions
           - Console.log / debug code left in
           - Features implemented but never called (YAGNI violations)
           - Commented-out code blocks
-          
+
           **HTML & DOM correctness:**
-          - Duplicate `id` attributes (form elements, ARIA refs)
-          - `htmlFor` mismatches with actual `id` values
-          - Improper nesting (e.g., `<button>` inside `<a>`, `<div>` inside `<p>`)
-          
+          - Duplicate \`id\` attributes (form elements, ARIA refs)
+          - \`htmlFor\` mismatches with actual \`id\` values
+          - Improper nesting (e.g., \`<button>\` inside \`<a>\`, \`<div>\` inside \`<p>\`)
+
           **Styling & maintainability:**
-          - Inline `style={{}}` for layout properties that Tailwind can express
+          - Inline \`style={{}}\` for layout properties that Tailwind can express
           - Mixed styling approaches in the same component
           - Magic numbers where named constants would be clearer
           - Hardcoded strings that should be props or data-driven
-          - Use of raw hex colors instead of theme tokens (`bg-brand-primary`, `text-brand-text`)
-          
+          - Use of raw hex colors instead of theme tokens (\`bg-brand-primary\`, \`text-brand-text\`)
+
           **Architecture:**
           - Clean separation of concerns?
           - Sound design decisions for this codebase's scale?
@@ -166,56 +192,56 @@ jobs:
           - Reasonable performance (large lists, unnecessary re-renders, bundle impact, API endpoint efficiency)
           - Frontend: Route group placement makes sense?
           - Backend: Module structure (controller → service → routes) follows existing patterns?
-          
+
           **Project conventions:**
-          - Frontend: `frontend/AGENTS.md` — spaces (2) indent, single quotes, semicolons, trailing commas (es5)
-          - Frontend: Use `@/` path alias (maps to repo root, so files under `frontend/` use `@/frontend/...` or relative imports)
+          - Frontend: \`frontend/AGENTS.md\` — spaces (2) indent, single quotes, semicolons, trailing commas (es5)
+          - Frontend: Use \`@/\` path alias (maps to repo root, so files under \`frontend/\` use \`@/frontend/...\` or relative imports)
           - Frontend: CSS variables theme tokens, not raw hex; CSS animations not framer-motion; Lucide icons, no emoji icons
-          - Frontend: `cn()` from `@/lib/utils` for class merging
-          - Backend: Use `@/*` path alias → `src/*` (configured in `backend/tsconfig.json` and `backend/vitest.config.ts`)
+          - Frontend: \`cn()\` from \`@/lib/utils\` for class merging
+          - Backend: Use \`@/*\` path alias → \`src/*\` (configured in \`backend/tsconfig.json\` and \`backend/vitest.config.ts\`)
           - Backend: Tests use vitest with mocked Prisma/Redis/BullMQ
-          
+
           **Test gaps (if tests exist in the PR):**
           - Do tests verify real behavior or just mocks?
           - Are edge cases covered?
           - Are integration tests present where they matter?
           - Backend: Are Prisma/Redis mocks consistent with real usage?
-          
+
           ## Calibration
-          
+
           Be specific — reference file paths and line numbers for every issue. Explain WHY each issue matters, not just what's wrong. Categorize by actual severity — not everything is Critical. Acknowledge what was done well before listing issues. Accurate praise helps the author trust the rest of the feedback.
-          
+
           If you find significant deviations from the PR intent, flag them specifically so the author can confirm whether the deviation was intentional. If you find issues with the PR scope itself rather than the implementation, say so.
-          
+
           ## Severity Guide
-          
+
           - **critical**: Bug, security hole, broken functionality, HTML spec violation, PII exposure — must fix before merge
           - **important**: Architecture concern, maintainability debt, significant duplication, missing error handling, accessibility gaps — should fix
           - **minor**: Style, naming, optimization, documentation, small refactors — nice to have
-          
+
           ## Output Format: JSON Lines
-          
-          Write findings to `.opencode/review-output.jsonl`. Each line MUST be a complete, independent JSON object. One broken line cannot corrupt the rest.
-          
-          ```
+
+          Write findings to \`.opencode/review-output.jsonl\`. Each line MUST be a complete, independent JSON object. One broken line cannot corrupt the rest.
+
+          \`\`\`
           {"type":"summary","text":"Brief overall assessment of the PR. 2-3 sentences covering what was implemented, overall quality, and key concerns."}
           {"type":"verdict","ready":false,"reasoning":"1-2 sentence technical assessment explaining the verdict."}
           {"type":"strength","file":"src/example.ts","line":10,"message":"What's well done and why it's good."}
           {"type":"issue","severity":"critical","file":"src/example.ts","line":42,"message":"What's wrong and why it matters.","suggestion":"How to fix it.","inline":true}
-          ```
-          
+          \`\`\`
+
           **Rules for the JSONL file:**
-          - Write exactly ONE `summary` line and exactly ONE `verdict` line
-          - Write zero or more `strength` and `issue` lines
-          - `severity` must be exactly "critical", "important", or "minor"
+          - Write exactly ONE \`summary\` line and exactly ONE \`verdict\` line
+          - Write zero or more \`strength\` and \`issue\` lines
+          - \`severity\` must be exactly "critical", "important", or "minor"
           - Every issue MUST include file and line
           - Suggestion is optional but recommended
-          - `"inline": true` ONLY if the line is in the PR diff. Omit or set `false` for lines outside the diff
-          - If you find zero issues, write a verdict with `"ready": true`
+          - \`"inline": true\` ONLY if the line is in the PR diff. Omit or set \`false\` for lines outside the diff
+          - If you find zero issues, write a verdict with \`"ready": true\`
           - Do NOT wrap in an array, do NOT put commas between lines, do NOT add trailing commas
-          
+
           ## Critical Rules
-          
+
           **DO:**
           - Reference specific file:line for every issue
           - Explain WHY each issue matters
@@ -223,7 +249,7 @@ jobs:
           - Acknowledge strengths before issues
           - Give a clear verdict
           - Use sub-agents to batch reviews and protect context
-          
+
           **DON'T:**
           - Say "looks good" without checking
           - Mark nitpicks as Critical
@@ -232,24 +258,30 @@ jobs:
           - Avoid giving a clear verdict
           - Skip sub-agent batching — context overflow WILL happen on large PRs
           - Try to review every file in a single pass
+          - Run git push, git commit, or create any pull requests
           PROMPT_EOF
 
       - name: Run OpenCode review
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
+        if: steps.pr.outputs.skip != 'true'
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
           opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-review-prompt.txt)"
 
-      - name: Mark commit as reviewed
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
+      - name: Close auto-created OpenCode PR
+        if: steps.pr.outputs.skip != 'true'
         run: |
-          SHA="${{ steps.pr.outputs.head_sha }}"
-          echo "${SHA}" >> .opencode/reviewed-commits.txt
+          gh pr list --state open --json headRefName,number \
+            --jq '.[] | select(.headRefName | startswith("opencode/")) | .number' \
+            | while read -r num; do
+              gh pr close "$num" --delete-branch 2>/dev/null || true
+            done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Parse review and post via GitHub Reviews API
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
+        if: steps.pr.outputs.skip != 'true'
         run: |
           # Best-effort — never block CI
           fail() { echo "::warning::review: $*"; exit 0; }
@@ -294,13 +326,9 @@ jobs:
             [ -n "$t" ] && echo "" && echo "### Issues" && echo "$t"
           } > /tmp/body.md
 
-          # Determine PR number and commit SHA (handle pull_request + issue_comment events)
+          # Determine PR number and commit SHA
           PR_NUMBER="${{ steps.pr.outputs.number }}"
-          COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
-
-          if [ -z "$COMMIT_SHA" ]; then
-            COMMIT_SHA=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.sha' 2>/dev/null || echo "")
-          fi
+          COMMIT_SHA="${{ steps.pr.outputs.head_sha }}"
 
           [ -z "$PR_NUMBER" ] && fail "Could not determine PR number"
           [ -z "$COMMIT_SHA" ] && fail "Could not determine commit SHA"
@@ -332,46 +360,5 @@ jobs:
           echo "::endgroup::"
 
           echo "Review posted to PR #${PR_NUMBER}"
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-
-      - name: Post fix ticket (update existing or create new)
-        if: steps.check-reviewed.outputs.already_reviewed != 'true'
-        continue-on-error: true
-        run: |
-          PR_NUMBER="${{ steps.pr.outputs.number }}"
-          FILE=".opencode/review-output.jsonl"
-          [ -f "$FILE" ] || exit 0
-
-          MARKER="<!-- opencode-fix-ticket -->"
-
-          # Write fix ticket body to temp file
-          cat << 'ENDOF' > /tmp/fix-ticket-body.md
-          ## 🤖 Fix Ticket
-          
-          The following issues were found. Comment `/fix` on this PR to auto-fix them:
-          
-          ENDOF
-          jq -r 'select(.type=="issue") | "- [ ] **\(.severity|ascii_upcase):** \(.file):\(.line) — \(.message)"' "$FILE" >> /tmp/fix-ticket-body.md 2>/dev/null
-          issues_count=$(jq -r 'select(.type=="issue") | .message' "$FILE" 2>/dev/null | wc -l)
-          if [ "$issues_count" -eq 0 ]; then
-            echo "No issues to ticket — skipping"
-            rm -f /tmp/fix-ticket-body.md
-            exit 0
-          fi
-          echo "" >> /tmp/fix-ticket-body.md
-          echo "---" >> /tmp/fix-ticket-body.md
-          echo "_Fix Ticket — updated by \`opencode-fix\` workflow after fixes are applied._" >> /tmp/fix-ticket-body.md
-
-          # Use post-or-update-comment helper
-          chmod +x .github/scripts/post-or-update-comment.sh
-          .github/scripts/post-or-update-comment.sh \
-            "${{ github.repository }}" \
-            "$PR_NUMBER" \
-            "$MARKER" \
-            /tmp/fix-ticket-body.md \
-            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
-
-          rm -f /tmp/fix-ticket-body.md
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}

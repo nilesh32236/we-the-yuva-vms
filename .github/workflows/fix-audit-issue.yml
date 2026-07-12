@@ -12,43 +12,103 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: fix-${{ github.event.issue.number }}
+  group: fix-issue-${{ github.event.issue.number }}
   cancel-in-progress: true
 
 jobs:
   fix:
+    # Trigger when:
+    # 1. Issue is opened/labeled with "autofix-trigger" (auto from audit)
+    # 2. Someone comments "/fix" on an issue (not a PR)
     if: |
-      github.actor != 'github-actions[bot]' &&
+      github.event.issue.pull_request == null &&
       (
-        (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:critical') && !contains(github.event.issue.labels.*.name, 'autofix') && !contains(github.event.issue.labels.*.name, 'audit:needs-info')) ||
-        (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'audit') && !endsWith(github.event.issue.title, 'Minor findings') && contains(github.event.issue.labels.*.name, 'audit:important') && !contains(github.event.issue.labels.*.name, 'autofix') && !contains(github.event.issue.labels.*.name, 'audit:needs-info')) ||
-        (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix') && github.event.issue.pull_request == null)
+        (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'autofix-trigger') && !contains(github.event.issue.labels.*.name, 'autofix') && !contains(github.event.issue.labels.*.name, 'audit:needs-info')) ||
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body || '', '/fix') && !contains(github.event.issue.labels.*.name, 'audit:needs-info'))
       )
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
+      - name: Acknowledge fix request
+        if: github.event_name == 'issue_comment'
+        run: |
+          gh api "repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions" \
+            -f content='+1' --silent 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Check for existing autofix PR
+        id: check-existing
+        run: |
+          ISSUE_NUM=${{ github.event.issue.number }}
+          EXISTING_PR=$(gh pr list \
+            --head "autofix/issue-${ISSUE_NUM}" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty' \
+            --repo "${{ github.repository }}" 2>/dev/null || echo "")
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Existing autofix PR #${EXISTING_PR} found"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$EXISTING_PR" >> "$GITHUB_OUTPUT"
+          else
+            echo "No existing autofix PR"
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Skip if PR already exists (auto-trigger only)
+        if: steps.check-existing.outputs.exists == 'true' && github.event_name == 'issues'
+        run: |
+          echo "PR already exists for this issue — skipping auto-trigger"
+          echo "Existing PR: #${{ steps.check-existing.outputs.pr_number }}"
+
       - name: Checkout
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: main
 
       - name: Configure git
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
         run: |
           git config --global user.name 'nilesh32236'
           git config --global user.email 'nilesh32236@gmail.com'
           git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
-      - name: Ensure labels exist
+      - name: Setup branch
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
+        id: branch
         run: |
-          for label in autofix autofix:reviewed autofix:needs-manual-review autofix:merged audit:needs-info; do
+          ISSUE_NUM=${{ github.event.issue.number }}
+          BRANCH="autofix/issue-${ISSUE_NUM}"
+
+          # If PR exists (re-trigger via /fix), check out its branch
+          if [ "${{ steps.check-existing.outputs.exists }}" = "true" ]; then
+            git fetch origin "$BRANCH" 2>/dev/null || true
+            git checkout "$BRANCH" 2>/dev/null || git checkout -b "$BRANCH"
+            git pull origin "$BRANCH" --rebase 2>/dev/null || true
+          else
+            git checkout -b "$BRANCH"
+          fi
+
+          echo "name=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure labels exist
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
+        run: |
+          for label in autofix autofix-trigger autofix:approved autofix:needs-fix autofix:needs-manual-review audit:needs-info; do
             gh label create "$label" --force 2>/dev/null || true
           done
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Add autofix label
+      - name: Add autofix label to issue
+        if: steps.check-existing.outputs.exists != 'true'
         run: |
           gh issue edit ${{ github.event.issue.number }} \
             --add-label "autofix" \
@@ -56,199 +116,191 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
+      - name: Gather issue context
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
+        run: |
+          chmod +x .github/scripts/gather-context.sh
+
+          ARGS="${{ github.repository }} /tmp/issue-context.md --issue ${{ github.event.issue.number }}"
+
+          # If PR exists, also gather PR context
+          if [ "${{ steps.check-existing.outputs.exists }}" = "true" ]; then
+            ARGS="$ARGS --pr ${{ steps.check-existing.outputs.pr_number }}"
+          fi
+
+          .github/scripts/gather-context.sh $ARGS
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
       - name: Setup OpenCode
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
         run: |
           chmod +x .github/scripts/setup-opencode.sh
           .github/scripts/setup-opencode.sh
 
       - name: Write fix prompt
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
         run: |
-          cat << 'PROMPT_EOF' > /tmp/opencode-fix-issue-prompt.txt
-          You are fixing a GitHub issue. Read the issue body and comments at ${{ github.event.issue.html_url }}.
-          
+          ISSUE_CONTEXT=$(cat /tmp/issue-context.md 2>/dev/null || echo "No context available")
+
+          cat << PROMPT_EOF > /tmp/opencode-fix-prompt.txt
+          You are fixing a GitHub issue. Here is the full context:
+
+          ${ISSUE_CONTEXT}
+
+          ---
+
           Context: This is a monorepo with two projects:
           - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query)
           - \`backend/\` — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
-          
+
           Before making changes:
           1. Check which project the issue relates to by looking at file paths.
           2. If files are under \`frontend/\`, read \`frontend/AGENTS.md\` for conventions; if under \`backend/\`, refer to \`backend/README.md\`.
           3. Read \`frontend/biome.json\` or \`backend/biome.json\` for linting rules depending on the project.
           4. Read any relevant source files to understand existing patterns.
-          
+
           INSTRUCTIONS:
-          1. Read the issue — it tells you the file, line, and fix needed.
-          2. Open the file and apply the fix.
+          1. Read the issue context above — it tells you the files, lines, and fixes needed.
+          2. Open each file and apply the fix.
           3. If the file doesn't exist, create it following project patterns (check sister files for reference).
-          4. After making changes, determine the correct subdirectory: if changes are in \`frontend/\`, run commands from \`frontend/\`; if in \`backend/\`, run from \`backend/\`.
-          5. Run \`pnpm typecheck\` — fix any type errors (in the correct subdirectory).
-          6. Run \`pnpm lint\` — fix any lint errors (in the correct subdirectory).
-          7. Commit and push all changes.
-          
-          RULES:
-          - Make the exact change the issue describes — nothing more, nothing less.
+          4. After making changes, run from the correct subdirectory:
+             - Frontend: \`cd frontend && pnpm typecheck && pnpm lint\`
+             - Backend: \`cd backend && pnpm typecheck && pnpm lint\`
+          5. Fix any type or lint errors.
+
+          CRITICAL RULES:
+          - Do NOT run \`git push\`, \`git commit\`, or create any pull requests.
+          - Do NOT run any git commands at all. The workflow will handle git operations.
+          - Make the exact changes the issue describes — nothing more, nothing less.
           - Follow project conventions.
-          - Read 2-3 similar existing files first before creating new ones (match pattern/style exactly).
+          - Read 2-3 similar existing files first before creating new ones.
           - Do NOT add features, refactor unrelated code, or change anything outside the issue scope.
-          - If you CANNOT determine what to change (issue is too vague or conflicting), write \`.fix-stuck.md\` explaining what's missing.
-          - Write \`.fix-summary.md\` describing what you changed.
-          
-          SAFETY RULES:
-          - Fix ONLY what the issue describes. Do not touch unrelated files.
+          - If you CANNOT determine what to change, write \`.fix-stuck.md\` explaining what's missing.
           - Prefer the minimal change that resolves the issue.
-          - Do not change formatting, rename variables, or refactor code beyond the fix.
-          - If the issue description is unclear or doesn't match the code, write \`.fix-stuck.md\` explaining what's missing rather than guessing.
-          - After fixing, verify the fix actually resolves the described problem (not just that it compiles).
           PROMPT_EOF
 
       - name: Run OpenCode to fix issue
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
-          opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-fix-issue-prompt.txt)"
+          opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-fix-prompt.txt)"
 
-      - name: Capture OpenCode changes
-        id: capture
+      - name: Close auto-created OpenCode PR
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
         run: |
-          ISSUE_NUM=${{ github.event.issue.number }}
-          OUR_BRANCH="autofix/issue-${ISSUE_NUM}"
-
-          # Check local working tree for changes first
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "opencode_branch=" >> "$GITHUB_OUTPUT"
-            echo "opencode_pr=" >> "$GITHUB_OUTPUT"
-
-            # Create local branch
-            git checkout -b "$OUR_BRANCH" 2>/dev/null || git checkout "$OUR_BRANCH" 2>/dev/null || true
-
-            # Get fix summary if it exists
-            [ -f .fix-summary.md ] && echo "Found .fix-summary.md"
-            [ -f .fix-stuck.md ] && echo "Found .fix-stuck.md"
-            [ -f .fix-questions.md ] && echo "Found .fix-questions.md"
-            exit 0
-          fi
-
-          # Fallback: check if OpenCode created a PR
-          OPENCODE_PR=$(gh pr list --state open --json headRefName,title,body,number \
-            --jq ".[] | select(.headRefName | startswith(\"opencode/\")) | select((.title + \" \" + .body) | contains(\"#${ISSUE_NUM}\")) | .number" \
-            | head -1)
-
-          if [ -n "$OPENCODE_PR" ]; then
-            OPENCODE_BRANCH=$(gh pr view "$OPENCODE_PR" --json headRefName --jq '.headRefName')
-            echo "Found OpenCode branch: $OPENCODE_BRANCH for issue #$ISSUE_NUM"
-            git fetch origin "$OPENCODE_BRANCH"
-            git checkout -b "$OUR_BRANCH" "origin/$OPENCODE_BRANCH"
-
-            git show "origin/$OPENCODE_BRANCH:.fix-summary.md" > .fix-summary.md 2>/dev/null || true
-            git show "origin/$OPENCODE_BRANCH:.fix-stuck.md" > .fix-stuck.md 2>/dev/null || true
-            git show "origin/$OPENCODE_BRANCH:.fix-questions.md" > .fix-questions.md 2>/dev/null || true
-
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
-            echo "opencode_branch=$OPENCODE_BRANCH" >> "$GITHUB_OUTPUT"
-            echo "opencode_pr=$OPENCODE_PR" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          echo "opencode_branch=" >> "$GITHUB_OUTPUT"
-          echo "opencode_pr=" >> "$GITHUB_OUTPUT"
+          gh pr list --state open --json headRefName,number \
+            --jq '.[] | select(.headRefName | startswith("opencode/")) | .number' \
+            | while read -r num; do
+              gh pr close "$num" --comment "Auto-closed — changes captured by fix-audit-issue workflow" --delete-branch 2>/dev/null || true
+            done
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Create or reuse PR from changes
-        if: steps.capture.outputs.has_changes == 'true'
+      - name: Commit and push changes
+        if: steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment'
+        id: push
+        run: |
+          ISSUE_NUM=${{ github.event.issue.number }}
+          BRANCH="${{ steps.branch.outputs.name }}"
+
+          # Remove metadata files before committing (keep for PR body)
+          [ -f .fix-stuck.md ] && cp .fix-stuck.md /tmp/fix-stuck.md && rm .fix-stuck.md
+          [ -f .fix-summary.md ] && cp .fix-summary.md /tmp/fix-summary.md && rm .fix-summary.md
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "fix: address audit findings from issue #${ISSUE_NUM}"
+            git remote set-url origin "https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+            git push origin "$BRANCH" --force
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create or update PR
+        if: (steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment') && steps.push.outputs.has_changes == 'true'
         id: create-pr
         run: |
           ISSUE_NUM=${{ github.event.issue.number }}
-          OUR_BRANCH="autofix/issue-${ISSUE_NUM}"
+          BRANCH="${{ steps.branch.outputs.name }}"
           REPO="${{ github.repository }}"
+          EXISTING_PR="${{ steps.check-existing.outputs.pr_number }}"
 
-          # Push our branch
-          git remote set-url origin "https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
-          git push origin "$OUR_BRANCH" --force
+          ISSUE_TITLE=$(gh issue view "$ISSUE_NUM" --json title --jq '.title' --repo "$REPO")
 
-          # Build title and body
-          TITLE="[Autofix] $(gh issue view "$ISSUE_NUM" --json title --jq '.title')"
-
-          BODY_FILE="/tmp/pr-body.md"
+          # Build PR body
           {
             echo "## Fixes #${ISSUE_NUM}"
             echo ""
-            if [ -f .fix-summary.md ]; then
-              cat .fix-summary.md
+            if [ -f /tmp/fix-summary.md ]; then
+              cat /tmp/fix-summary.md
               echo ""
             fi
             echo "---"
             echo "*Auto-generated by fix-audit-issue workflow*"
-          } > "$BODY_FILE"
+          } > /tmp/pr-body.md
 
-          # Use find-or-create-autofix-pr helper to prevent duplicates
-          chmod +x .github/scripts/find-or-create-autofix-pr.sh
-          OUTPUT=$(.github/scripts/find-or-create-autofix-pr.sh \
-            "$REPO" \
-            "$ISSUE_NUM" \
-            "$OUR_BRANCH" \
-            "$TITLE" \
-            "$BODY_FILE" \
-            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}")
-
-          # Parse output
-          PR_NUMBER=$(echo "$OUTPUT" | grep '^pr_number=' | cut -d= -f2)
-          PR_URL=$(echo "$OUTPUT" | grep '^pr_url=' | cut -d= -f2)
-          ACTION=$(echo "$OUTPUT" | grep '^action=' | cut -d= -f2)
+          if [ -n "$EXISTING_PR" ]; then
+            # Update existing PR body
+            gh pr edit "$EXISTING_PR" --body-file /tmp/pr-body.md --repo "$REPO" 2>/dev/null || true
+            PR_NUMBER="$EXISTING_PR"
+            PR_URL=$(gh pr view "$EXISTING_PR" --json url --jq '.url' --repo "$REPO")
+            echo "Updated existing PR #${PR_NUMBER}"
+          else
+            # Create new PR
+            PR_URL=$(gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "[Autofix] ${ISSUE_TITLE}" \
+              --body-file /tmp/pr-body.md \
+              --label "autofix" \
+              --repo "$REPO")
+            PR_NUMBER=$(echo "$PR_URL" | grep -oP '/pull/\K[0-9]+' || echo "")
+          fi
 
           echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
           echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
-          echo "action=${ACTION}" >> "$GITHUB_OUTPUT"
 
-          echo "PR #${PR_NUMBER} ${ACTION} for issue #${ISSUE_NUM}: ${PR_URL}"
-
-          # Comment on the issue
-          gh issue comment "$ISSUE_NUM" \
-            --body "PR ${ACTION}: ${PR_URL}" \
-            --repo "$REPO"
+          # Update issue with a single status comment (not a new comment each time)
+          echo "🔧 Autofix PR: ${PR_URL}" > /tmp/issue-status.md
+          chmod +x .github/scripts/post-or-update-comment.sh
+          .github/scripts/post-or-update-comment.sh \
+            "$REPO" "$ISSUE_NUM" \
+            "<!-- autofix-pr-link -->" /tmp/issue-status.md \
+            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
-      - name: Add autofix label to PR
-        if: steps.create-pr.outputs.pr_number != ''
-        run: |
-          gh pr edit ${{ steps.create-pr.outputs.pr_number }} --add-label 'autofix'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-
-      - name: Close OpenCode PR
-        if: steps.capture.outputs.has_changes == 'true' && steps.capture.outputs.opencode_pr != ''
-        run: |
-          OPENCODE_PR="${{ steps.capture.outputs.opencode_pr }}"
-          gh pr close "$OPENCODE_PR" --delete-branch || true
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-
-      - name: Post stuck/comment
-        if: steps.capture.outputs.has_changes != 'true'
+      - name: Handle stuck / no changes
+        if: (steps.check-existing.outputs.exists != 'true' || github.event_name == 'issue_comment') && steps.push.outputs.has_changes != 'true'
         run: |
           ISSUE_NUM=${{ github.event.issue.number }}
 
-          if [ -f .fix-stuck.md ] || [ -f .fix-questions.md ]; then
+          if [ -f /tmp/fix-stuck.md ]; then
             {
-              echo "## I need more information"
+              echo "## ⚠️ Fix agent needs more information"
               echo ""
-              [ -f .fix-stuck.md ] && cat .fix-stuck.md && echo ""
-              [ -f .fix-questions.md ] && cat .fix-questions.md && echo ""
-              echo "Comment \`/fix\` when you've provided the information."
+              cat /tmp/fix-stuck.md
+              echo ""
+              echo "---"
+              echo "Provide the missing information, then comment \`/fix\` to retry."
             } > /tmp/stuck-body.md
-            gh issue edit "$ISSUE_NUM" --add-label "audit:needs-info" --remove-label "autofix"
-            gh issue comment "$ISSUE_NUM" --body-file /tmp/stuck-body.md --repo "${{ github.repository }}"
+            gh issue edit "$ISSUE_NUM" --add-label "audit:needs-info" --remove-label "autofix,autofix-trigger"
+            chmod +x .github/scripts/post-or-update-comment.sh
+            .github/scripts/post-or-update-comment.sh \
+              "${{ github.repository }}" "$ISSUE_NUM" \
+              "<!-- autofix-status -->" /tmp/stuck-body.md \
+              "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
           else
-            {
-              echo "## No changes made"
-              echo ""
-              echo "The automated fix could not determine what to change."
-              [ -f .fix-summary.md ] && echo "" && cat .fix-summary.md
-            } > /tmp/no-changes-body.md
-            gh issue comment "$ISSUE_NUM" --body-file /tmp/no-changes-body.md --repo "${{ github.repository }}"
+            echo "ℹ️ Fix agent made no changes. Comment \`/fix\` to retry, or provide more details." > /tmp/no-changes.md
+            chmod +x .github/scripts/post-or-update-comment.sh
+            .github/scripts/post-or-update-comment.sh \
+              "${{ github.repository }}" "$ISSUE_NUM" \
+              "<!-- autofix-status -->" /tmp/no-changes.md \
+              "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
@@ -256,6 +308,12 @@ jobs:
       - name: Report failure
         if: failure()
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "OpenCode attempted to fix this issue but encountered an error. Check workflow logs for details."
+          echo "❌ Fix workflow error. Check [logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}). Comment \`/fix\` to retry." > /tmp/fail.md
+          chmod +x .github/scripts/post-or-update-comment.sh 2>/dev/null || true
+          .github/scripts/post-or-update-comment.sh \
+            "${{ github.repository }}" "${{ github.event.issue.number }}" \
+            "<!-- autofix-status -->" /tmp/fail.md \
+            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}" 2>/dev/null || \
+          gh issue comment ${{ github.event.issue.number }} --body-file /tmp/fail.md --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
