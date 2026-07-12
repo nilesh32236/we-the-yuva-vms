@@ -246,7 +246,7 @@ jobs:
           REPO="${{ github.repository }}"
 
           if [ -f .review-summary.md ]; then
-            cat << 'EOF' > /tmp/prompt.txt
+            cat << EOF > /tmp/review-body.md
             ## Review Summary
             
             $(cat .review-summary.md)
@@ -262,7 +262,7 @@ jobs:
           fi
 
           if [ -f .review-approved.md ]; then
-            cat << 'EOF' > /tmp/prompt.txt
+            cat << EOF > /tmp/approved-body.md
             ## Review Approved
             
             $(cat .review-approved.md)
