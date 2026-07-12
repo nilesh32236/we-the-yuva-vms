@@ -1,8 +1,14 @@
 'use client';
 import { useMutation } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
-import { queueCheckin, getQueuedCheckins, syncQueuedCheckins } from '@/lib/offline-queue';
+import {
+  queueCheckin,
+  getQueuedCheckins,
+  syncQueuedCheckins,
+  clearQueue,
+} from '@/lib/offline-queue';
+import { useAuth } from '@/lib/auth-context';
 
 interface UseOfflineCheckinOptions {
   eventId: string;
@@ -11,20 +17,56 @@ interface UseOfflineCheckinOptions {
 }
 
 export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineCheckinOptions) {
+  const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== 'undefined' ? navigator.onLine : true
   );
   const [queuedCount, setQueuedCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryAttemptRef = useRef(0);
+  const prevUserRef = useRef(user);
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
 
   useEffect(() => {
-    const handleOnline = async () => {
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+  }, [onSuccess, onError]);
+
+  useEffect(() => {
+    if (prevUserRef.current != null && user == null) {
+      clearQueue();
+      setQueuedCount(0);
+    }
+    prevUserRef.current = user;
+  }, [user]);
+
+  const sync = useCallback(async () => {
+    setIsSyncing(true);
+    const result = await syncQueuedCheckins();
+    if (result.failed === 0) {
+      retryAttemptRef.current = 0;
+      if (onSuccessRef.current) onSuccessRef.current();
+    } else {
+      const backoff = [10000, 30000, 60000];
+      const delay = backoff[Math.min(retryAttemptRef.current, backoff.length - 1)];
+      retryAttemptRef.current++;
+      if (onErrorRef.current) {
+        onErrorRef.current(
+          `Synced ${result.synced} of ${result.synced + result.failed} check-in(s)`
+        );
+      }
+      retryTimeoutRef.current = setTimeout(sync, delay);
+    }
+    setIsSyncing(false);
+  }, []);
+
+  useEffect(() => {
+    const handleOnline = () => {
       setIsOnline(true);
-      setIsSyncing(true);
-      const result = await syncQueuedCheckins();
-      if (result.synced > 0 && onSuccess) onSuccess();
-      if (result.failed > 0 && onError) onError(`${result.failed} check-in(s) failed to sync`);
-      setIsSyncing(false);
+      retryAttemptRef.current = 0;
+      sync();
     };
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online', handleOnline);
@@ -32,8 +74,21 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
     };
-  }, [onSuccess, onError]);
+  }, [sync]);
+
+  const retrySync = useCallback(() => {
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+    retryAttemptRef.current = 0;
+    sync();
+  }, [sync]);
 
   const refreshQueue = useCallback(async () => {
     const items = await getQueuedCheckins();
@@ -84,5 +139,6 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     isSyncing,
     queuedCount,
     isOffline: !isOnline,
+    retrySync,
   };
 }
