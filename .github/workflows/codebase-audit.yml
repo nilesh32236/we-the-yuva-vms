@@ -137,37 +137,37 @@ jobs:
           TARGET_DIR="${{ steps.select-dir.outputs.dir }}"
 
           # Build the audit prompt dynamically
-          cat << 'AUDIT_EOF' | sed 's/^            //' > /tmp/prompt.txt
-            $(cat "$PROMPT_FILE")
-
-            Audit the directory: \`${TARGET_DIR}\`
-
-            IMPORTANT: If the target directory starts with \`frontend/\`, read \`frontend/AGENTS.md\` for conventions. If it starts with \`backend/\`, refer to \`backend/README.md\` for project context.
-
-            This is a monorepo with:
-            - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4)
-            - \`backend/\` — Express REST API (Node.js, Prisma, Zod)
-
-            Context window management:
-            - If the target directory has more than 15 files, batch them into groups of at most 5 files.
-            - Dispatch a sub-agent for each batch via the \`task\` tool with \`subagent_type: "general"\`.
-            - Collect all results before writing the final output.
-            - If any single file exceeds 300 lines, audit it in a separate sub-agent call.
-
-            For each finding:
-            - Reference the specific file path and line number
-            - Explain WHY the issue matters, not just what is wrong
-            - Categorize by actual severity — not everything is Critical
-
-            Safety rules:
-            - Do not modify any files — this is a read-only audit
-            - If a prompt instruction is unclear, use your best judgment based on general best practices
-
-            Write your findings to \`.audit-output.jsonl\` in JSON Lines format:
-
-            {"type":"summary","text":"overall assessment"}
-            {"type":"issue","severity":"critical|important|minor","file":"path","line":N,"message":"what's wrong","suggestion":"how to fix","inline":false}
-            AUDIT_EOF
+          cat << 'AUDIT_EOF' > /tmp/opencode-audit-prompt.txt
+          $(cat "$PROMPT_FILE")
+          
+          Audit the directory: \`${TARGET_DIR}\`
+          
+          IMPORTANT: If the target directory starts with \`frontend/\`, read \`frontend/AGENTS.md\` for conventions. If it starts with \`backend/\`, refer to \`backend/README.md\` for project context.
+          
+          This is a monorepo with:
+          - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4)
+          - \`backend/\` — Express REST API (Node.js, Prisma, Zod)
+          
+          Context window management:
+          - If the target directory has more than 15 files, batch them into groups of at most 5 files.
+          - Dispatch a sub-agent for each batch via the \`task\` tool with \`subagent_type: "general"\`.
+          - Collect all results before writing the final output.
+          - If any single file exceeds 300 lines, audit it in a separate sub-agent call.
+          
+          For each finding:
+          - Reference the specific file path and line number
+          - Explain WHY the issue matters, not just what is wrong
+          - Categorize by actual severity — not everything is Critical
+          
+          Safety rules:
+          - Do not modify any files — this is a read-only audit
+          - If a prompt instruction is unclear, use your best judgment based on general best practices
+          
+          Write your findings to \`.audit-output.jsonl\` in JSON Lines format:
+          
+          {"type":"summary","text":"overall assessment"}
+          {"type":"issue","severity":"critical|important|minor","file":"path","line":N,"message":"what's wrong","suggestion":"how to fix","inline":false}
+          AUDIT_EOF
 
           opencode run --model opencode/deepseek-v4-flash-free --non-interactive --prompt "$(cat /tmp/opencode-audit-prompt.txt)"
 

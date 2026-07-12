@@ -63,43 +63,43 @@ jobs:
 
       - name: Write fix prompt
         run: |
-          cat << 'PROMPT_EOF' | sed 's/^            //' > /tmp/prompt.txt
-                        You are fixing a GitHub issue. Read the issue body and comments at ${{ github.event.issue.html_url }}.
-            
-                        Context: This is a monorepo with two projects:
-                        - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query)
-                        - \`backend/\` — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
-            
-                        Before making changes:
-                        1. Check which project the issue relates to by looking at file paths.
-                        2. If files are under \`frontend/\`, read \`frontend/AGENTS.md\` for conventions; if under \`backend/\`, refer to \`backend/README.md\`.
-                        3. Read \`frontend/biome.json\` or \`backend/biome.json\` for linting rules depending on the project.
-                        4. Read any relevant source files to understand existing patterns.
-            
-                        INSTRUCTIONS:
-                        1. Read the issue — it tells you the file, line, and fix needed.
-                        2. Open the file and apply the fix.
-                        3. If the file doesn't exist, create it following project patterns (check sister files for reference).
-                        4. After making changes, determine the correct subdirectory: if changes are in \`frontend/\`, run commands from \`frontend/\`; if in \`backend/\`, run from \`backend/\`.
-                        5. Run \`pnpm typecheck\` — fix any type errors (in the correct subdirectory).
-                        6. Run \`pnpm lint\` — fix any lint errors (in the correct subdirectory).
-                        7. Commit and push all changes.
-            
-                        RULES:
-                        - Make the exact change the issue describes — nothing more, nothing less.
-                        - Follow project conventions.
-                        - Read 2-3 similar existing files first before creating new ones (match pattern/style exactly).
-                        - Do NOT add features, refactor unrelated code, or change anything outside the issue scope.
-                        - If you CANNOT determine what to change (issue is too vague or conflicting), write \`.fix-stuck.md\` explaining what's missing.
-                        - Write \`.fix-summary.md\` describing what you changed.
-            
-                        SAFETY RULES:
-                        - Fix ONLY what the issue describes. Do not touch unrelated files.
-                        - Prefer the minimal change that resolves the issue.
-                        - Do not change formatting, rename variables, or refactor code beyond the fix.
-                        - If the issue description is unclear or doesn't match the code, write \`.fix-stuck.md\` explaining what's missing rather than guessing.
-                        - After fixing, verify the fix actually resolves the described problem (not just that it compiles).
-            PROMPT_EOF
+          cat << 'PROMPT_EOF' > /tmp/opencode-fix-issue-prompt.txt
+          You are fixing a GitHub issue. Read the issue body and comments at ${{ github.event.issue.html_url }}.
+          
+          Context: This is a monorepo with two projects:
+          - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query)
+          - \`backend/\` — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
+          
+          Before making changes:
+          1. Check which project the issue relates to by looking at file paths.
+          2. If files are under \`frontend/\`, read \`frontend/AGENTS.md\` for conventions; if under \`backend/\`, refer to \`backend/README.md\`.
+          3. Read \`frontend/biome.json\` or \`backend/biome.json\` for linting rules depending on the project.
+          4. Read any relevant source files to understand existing patterns.
+          
+          INSTRUCTIONS:
+          1. Read the issue — it tells you the file, line, and fix needed.
+          2. Open the file and apply the fix.
+          3. If the file doesn't exist, create it following project patterns (check sister files for reference).
+          4. After making changes, determine the correct subdirectory: if changes are in \`frontend/\`, run commands from \`frontend/\`; if in \`backend/\`, run from \`backend/\`.
+          5. Run \`pnpm typecheck\` — fix any type errors (in the correct subdirectory).
+          6. Run \`pnpm lint\` — fix any lint errors (in the correct subdirectory).
+          7. Commit and push all changes.
+          
+          RULES:
+          - Make the exact change the issue describes — nothing more, nothing less.
+          - Follow project conventions.
+          - Read 2-3 similar existing files first before creating new ones (match pattern/style exactly).
+          - Do NOT add features, refactor unrelated code, or change anything outside the issue scope.
+          - If you CANNOT determine what to change (issue is too vague or conflicting), write \`.fix-stuck.md\` explaining what's missing.
+          - Write \`.fix-summary.md\` describing what you changed.
+          
+          SAFETY RULES:
+          - Fix ONLY what the issue describes. Do not touch unrelated files.
+          - Prefer the minimal change that resolves the issue.
+          - Do not change formatting, rename variables, or refactor code beyond the fix.
+          - If the issue description is unclear or doesn't match the code, write \`.fix-stuck.md\` explaining what's missing rather than guessing.
+          - After fixing, verify the fix actually resolves the described problem (not just that it compiles).
+          PROMPT_EOF
 
       - name: Run OpenCode to fix issue
         env:
