@@ -185,7 +185,7 @@ jobs:
             gh issue view "$ISSUE_NUM" --json body,comments --repo "$REPO" 2>/dev/null || true
           fi
 
-          opencode run --model opencode/deepseek-v4-flash-free --non-interactive --prompt "$(cat /tmp/opencode-autofix-review-prompt.txt)"
+          opencode run --model opencode/deepseek-v4-flash-free --non-interactive "$(cat /tmp/opencode-autofix-review-prompt.txt)"
 
       - name: Mark commit as reviewed
         if: steps.check-reviewed.outputs.already_reviewed != 'true' && steps.check-iterations.outputs.skip != 'true'
