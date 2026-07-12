@@ -21,14 +21,16 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
       setUploadError('File exceeds 10MB limit');
       return;
     }
+    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+      setUploadError('Only image files and PDFs are allowed');
+      return;
+    }
     setUploadError(null);
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await api.post('/upload', formData);
       const newFiles = [...files, { url: data.url, name: file.name }];
       setFiles(newFiles);
       onFilesChange(newFiles.map((f) => f.url));

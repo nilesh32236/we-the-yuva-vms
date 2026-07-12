@@ -23,6 +23,7 @@ async function getFeaturedOpportunities(): Promise<Opportunity[]> {
     return body.data ?? [];
   } catch (error) {
     Sentry.captureException(error);
+    console.error('Failed to fetch featured opportunities:', error);
     return [];
   }
 }

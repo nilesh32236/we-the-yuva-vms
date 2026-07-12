@@ -59,12 +59,15 @@ api.interceptors.request.use(async (config) => {
         if (data.accessToken) {
           setAccessToken(data.accessToken);
           config.headers.Authorization = `Bearer ${data.accessToken}`;
+        } else {
+          config.headers.Authorization = `Bearer ${token}`;
         }
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
       }
     } catch {
-      // Invalid JWT — continue with original token
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

@@ -28,11 +28,24 @@ export function EventForm({
     handleSubmit,
     watch,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<EventInput>({
     resolver: zodResolver(EventSchema),
     defaultValues: { isVirtual: false, ...defaultValues },
   });
+
+  const wrappedOnSubmit = async (data: EventInput) => {
+    try {
+      await onSubmit(data);
+    } catch (err: unknown) {
+      const msg =
+        (err as { normalizedMessage?: string })?.normalizedMessage ??
+        (err as Error)?.message ??
+        'Something went wrong';
+      setError('root', { message: msg });
+    }
+  };
 
   const isVirtual = watch('isVirtual');
 
@@ -101,7 +114,7 @@ export function EventForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(wrappedOnSubmit)} className="space-y-5">
       {showRecurringOption && (
         <label htmlFor="recurring-toggle" className="flex items-center gap-3 cursor-pointer pb-2 border-b border-brand-border">
           <div
@@ -152,9 +165,7 @@ export function EventForm({
         <input
           id="eventDate"
           type="datetime-local"
-          {...register('eventDate', {
-            setValueAs: (v: string) => (v ? new Date(v).toISOString() : v),
-          })}
+          {...register('eventDate')}
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.eventDate ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.eventDate && (
@@ -212,6 +223,9 @@ export function EventForm({
           })
         : field('venue', 'Venue (optional)', { placeholder: 'e.g. Community Hall, Mumbai' })}
 
+      {errors.root && (
+        <p className="text-xs text-brand-error text-center">{errors.root.message}</p>
+      )}
       <Button type="submit" variant="primary" fullWidth loading={isSubmitting}>
         {submitLabel}
       </Button>

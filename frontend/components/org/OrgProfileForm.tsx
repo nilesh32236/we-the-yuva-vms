@@ -1,10 +1,13 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
 
 interface OrgData {
@@ -26,19 +29,29 @@ interface OrgProfileFormProps {
 export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [name, setName] = useState(org.name);
-  const [description, setDescription] = useState(org.description ?? '');
   const [logo, setLogo] = useState(org.logo ?? '');
-  const [phone, setPhone] = useState(org.phone ?? '');
-  const [email, setEmail] = useState(org.email ?? '');
-  const [website, setWebsite] = useState(org.website ?? '');
-  const [address, setAddress] = useState(org.address ?? '');
-  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterOrganizationInput>({
+    resolver: zodResolver(RegisterOrganizationSchema),
+    defaultValues: {
+      name: org.name,
+      description: org.description ?? undefined,
+      phone: org.phone ?? undefined,
+      email: org.email ?? undefined,
+      website: org.website ?? undefined,
+      address: org.address ?? undefined,
+    },
+  });
 
   const mutation = useMutation({
-    mutationFn: (body: object) => api.patch(`/organizations/${org.id}`, body),
+    mutationFn: (body: RegisterOrganizationInput & { logo?: string }) =>
+      api.patch(`/organizations/${org.id}`, body),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['organization', org.id] });
+      qc.invalidateQueries({ queryKey: ['organizations', org.id] });
       qc.invalidateQueries({ queryKey: ['my-profile'] });
       toast({ title: 'Organization profile updated successfully' });
       onCancel();
@@ -55,52 +68,31 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
 
   if (!org) return null;
 
-  function validate(): boolean {
-    const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Organization name is required';
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = 'Invalid email format';
-    if (website && !/^https?:\/\/.+/.test(website))
-      errs.website = 'Must be a valid URL (http/https)';
-    if (logo && !/^https?:\/\/.+/.test(logo)) errs.logo = 'Must be a valid URL (http/https)';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  }
-
-  function handleSave() {
-    if (!validate()) return;
-    mutation.mutate({
-      name: name.trim(),
-      description: description.trim() || undefined,
-      logo: logo.trim() || undefined,
-      phone: phone.trim() || undefined,
-      email: email.trim() || undefined,
-      website: website.trim() || undefined,
-      address: address.trim() || undefined,
-    });
+  function onSave(data: RegisterOrganizationInput) {
+    mutation.mutate({ ...data, logo: logo.trim() || undefined });
   }
 
   const inputCls = (field: string) =>
     `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
-      errors[field]
+      errors[field as keyof typeof errors]
         ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'
     }`;
 
   return (
     <div className="space-y-5" data-profile-editor>
-      <div className="space-y-4">
+      <form onSubmit={handleSubmit(onSave)} className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="org-name" className="text-sm font-medium text-brand-text">
             Organization Name
           </label>
           <input
             id="org-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            {...register('name')}
             className={inputCls('name')}
             placeholder="Organization name"
           />
-          {errors.name && <p className="text-xs text-brand-error">{errors.name}</p>}
+          {errors.name && <p className="text-xs text-brand-error">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -109,8 +101,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <textarea
             id="org-description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            {...register('description')}
             rows={3}
             className={inputCls('description')}
             placeholder="Describe your organization…"
@@ -125,10 +116,9 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
             id="org-logo"
             value={logo}
             onChange={(e) => setLogo(e.target.value)}
-            className={inputCls('logo')}
+            className="w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background border-brand-border focus:ring-brand-primary/30"
             placeholder="https://example.com/logo.png"
           />
-          {errors.logo && <p className="text-xs text-brand-error">{errors.logo}</p>}
         </div>
 
         <div className="space-y-2">
@@ -137,8 +127,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            {...register('phone')}
             className={inputCls('phone')}
             placeholder="+91 12345 67890"
           />
@@ -150,12 +139,11 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register('email')}
             className={inputCls('email')}
             placeholder="contact@organization.org"
           />
-          {errors.email && <p className="text-xs text-brand-error">{errors.email}</p>}
+          {errors.email && <p className="text-xs text-brand-error">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -164,12 +152,11 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-website"
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
+            {...register('website')}
             className={inputCls('website')}
             placeholder="https://organization.org"
           />
-          {errors.website && <p className="text-xs text-brand-error">{errors.website}</p>}
+          {errors.website && <p className="text-xs text-brand-error">{errors.website.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -178,22 +165,21 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            {...register('address')}
             className={inputCls('address')}
             placeholder="Organization address"
           />
         </div>
-      </div>
 
-      <div className="flex gap-3 pt-2">
-        <Button variant="outline" fullWidth onClick={onCancel}>
-          <X className="w-4 h-4" /> Cancel
-        </Button>
-        <Button variant="primary" fullWidth onClick={handleSave} loading={mutation.isPending}>
-          <Check className="w-4 h-4" /> Save Changes
-        </Button>
-      </div>
+        <div className="flex gap-3 pt-2">
+          <Button variant="outline" fullWidth onClick={onCancel} type="button">
+            <X className="w-4 h-4" /> Cancel
+          </Button>
+          <Button variant="primary" fullWidth loading={mutation.isPending} type="submit">
+            <Check className="w-4 h-4" /> Save Changes
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

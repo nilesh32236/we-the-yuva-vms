@@ -1,9 +1,10 @@
 'use client';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { useToast } from '../../hooks/use-toast';
-import { api } from '../../lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import * as Sentry from '@sentry/nextjs';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -36,10 +37,34 @@ interface UserTableProps {
 
 export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const { toast } = useToast();
+  const qc = useQueryClient();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
-  const [loading, setLoading] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: object }) => api.patch(`/admin/users/${id}`, data),
+    onSuccess: (_data, variables) => {
+      const msg = (variables.data as { status?: string; role?: string }).status
+        ? `User ${(variables.data as { status?: string }).status?.toLowerCase()}`
+        : `Role changed to ${(variables.data as { role?: string }).role}`;
+      toast({ title: msg });
+      qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+      onUpdated();
+    },
+    onError: (err: unknown) => {
+      Sentry.captureException(err);
+      toast({
+        title: 'Error',
+        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not update user.',
+        variant: 'destructive',
+      });
+    },
+    onSettled: () => {
+      setOpenMenu(null);
+      setMenuPosition(null);
+    },
+  });
 
   // Close menu on outside click
   useEffect(() => {
@@ -55,27 +80,6 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, [openMenu]);
 
-  const update = async (id: string, data: object, msg: string) => {
-    setLoading(id);
-    try {
-      await api.patch(`/admin/users/${id}`, data);
-      toast({ title: msg });
-      onUpdated();
-    } catch (err: unknown) {
-      console.error(err);
-      Sentry.captureException(err);
-      toast({
-        title: 'Error',
-        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not update user.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(null);
-      setOpenMenu(null);
-      setMenuPosition(null);
-    }
-  };
-
   function handleMenuClick(id: string, e: React.MouseEvent) {
     if (openMenu === id) {
       setOpenMenu(null);
@@ -86,6 +90,8 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
     setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
     setOpenMenu(id);
   }
+
+  const pendingId = updateMutation.isPending ? (updateMutation.variables as { id?: string })?.id : null;
 
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -180,7 +186,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     type="button"
                     onClick={(e) => handleMenuClick(u.id, e)}
                     className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer"
-                    disabled={loading === u.id}
+                    disabled={pendingId === u.id}
                     aria-label={`Actions for ${u.name}`}
                   >
                     <MoreVertical className="w-4 h-4" />
@@ -217,7 +223,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                   {user.status !== 'ACTIVE' && (
                     <button
                       type="button"
-                      onClick={() => update(user.id, { status: 'ACTIVE' }, 'User activated')}
+                      onClick={() => updateMutation.mutate({ id: user.id, data: { status: 'ACTIVE' } })}
                       className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
                       aria-label={`Activate ${user.name}`}
                       role="menuitem"
@@ -229,7 +235,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                   {user.status !== 'SUSPENDED' && (
                     <button
                       type="button"
-                      onClick={() => update(user.id, { status: 'SUSPENDED' }, 'User suspended')}
+                      onClick={() => updateMutation.mutate({ id: user.id, data: { status: 'SUSPENDED' } })}
                       className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
                       aria-label={`Suspend ${user.name}`}
                       role="menuitem"
@@ -244,7 +250,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                         <button
                           type="button"
                           key={role}
-                          onClick={() => update(user.id, { role }, `Role changed to ${role}`)}
+                          onClick={() => updateMutation.mutate({ id: user.id, data: { role } })}
                           className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
                           aria-label={`Change role to ${role}`}
                           role="menuitem"

@@ -25,6 +25,7 @@ async function getLatestPosts(): Promise<BlogPost[]> {
     return body.data ?? [];
   } catch (error) {
     Sentry.captureException(error);
+    console.error('Failed to fetch blog posts:', error);
     return [];
   }
 }

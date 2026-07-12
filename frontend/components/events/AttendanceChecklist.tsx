@@ -48,7 +48,16 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
   const { toast } = useToast();
 
   useEffect(() => {
-    setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, v.attended])));
+    setState((prev) => {
+      const next = { ...prev };
+      const newIds = new Set(Object.keys(prev));
+      for (const v of volunteers) {
+        if (!newIds.has(v.volunteerId)) {
+          next[v.volunteerId] = v.attended;
+        }
+      }
+      return next;
+    });
     setHoursInputs((prev) => {
       const next = { ...prev };
       for (const v of volunteers) {
@@ -86,6 +95,11 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       );
     } catch (err) {
       Sentry.captureException(err);
+      toast({
+        title: 'Error',
+        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to save attendance',
+        variant: 'destructive',
+      });
     } finally {
       setSaving(false);
     }
@@ -108,6 +122,11 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       await onApprove(v.volunteerId, hours, rating);
     } catch (err) {
       Sentry.captureException(err);
+      toast({
+        title: 'Error',
+        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to approve volunteer',
+        variant: 'destructive',
+      });
     } finally {
       setApproving((s) => ({ ...s, [v.volunteerId]: false }));
     }

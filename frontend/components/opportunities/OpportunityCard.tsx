@@ -4,8 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Briefcase, Calendar, MapPin, Users, Wifi } from 'lucide-react';
 import Link from 'next/link';
 import { memo } from 'react';
-import { useToast } from '../../hooks/use-toast';
-import { api } from '../../lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -78,9 +78,10 @@ const OpportunityCard = memo(function OpportunityCard({
 
       const previousQueries = qc.getQueriesData<OpportunityCacheData>({
         queryKey: ['opportunities'],
+        exact: true,
       });
 
-      qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] }, (oldData) => {
+      qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'], exact: true }, (oldData) => {
         if (!oldData) return oldData;
 
         if (Array.isArray(oldData)) {

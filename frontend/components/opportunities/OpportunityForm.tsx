@@ -5,10 +5,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
 import * as Sentry from '@sentry/nextjs';
+
+const CreateLocationSchema = z.object({
+  name: z.string().min(1, 'Location name is required'),
+  district: z.string().optional(),
+  state: z.string().optional(),
+});
 
 const CATEGORIES = [
   'EDUCATION',
@@ -305,7 +312,7 @@ interface Location {
 function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const queryClient = useQueryClient();
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['opportunities', 'locations'],
+    queryKey: ['locations'],
     queryFn: () => api.get('/locations').then((r) => r.data.data as Location[]),
     staleTime: 300_000,
   });
@@ -336,22 +343,26 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   }
 
   const handleCreate = async () => {
-    if (!newName.trim()) return;
+    const parsed = CreateLocationSchema.safeParse({
+      name: newName.trim(),
+      district: newDistrict.trim() || undefined,
+      state: newState.trim() || undefined,
+    });
+    if (!parsed.success) {
+      setCreateError(parsed.error.errors[0]?.message ?? 'Invalid input');
+      return;
+    }
     setCreating(true);
     setCreateError(null);
     try {
-      const res = await api.post('/locations', {
-        name: newName.trim(),
-        district: newDistrict.trim() || undefined,
-        state: newState.trim() || undefined,
-      });
+      const res = await api.post('/locations', parsed.data);
       const loc = res.data.data as Location;
       onChange(loc.id);
       setNewName('');
       setNewDistrict('');
       setNewState('');
       setShowNewForm(false);
-      queryClient.invalidateQueries({ queryKey: ['opportunities', 'locations'] });
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
     } catch (err: unknown) {
       Sentry.captureException(err);
       const msg =
