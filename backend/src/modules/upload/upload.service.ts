@@ -116,10 +116,7 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
       }
       return `${endpoint}/${process.env.S3_BUCKET_NAME}/${file.filename}`;
     } catch (err) {
-      // Clean up local temp file on error
-      try {
-        await fs.promises.unlink(file.path).catch(() => {});
-      } catch {}
+      await fs.promises.unlink(file.path).catch(() => {});
       throw err;
     }
   }

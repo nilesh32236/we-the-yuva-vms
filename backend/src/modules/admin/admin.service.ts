@@ -74,7 +74,7 @@ export async function createUser(
     targetId: user.id,
     targetType: 'User',
     metadata: { role: data.role },
-  }).catch(() => {});
+  }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
 
   return user;
 }
@@ -202,7 +202,7 @@ export async function updateUser(
 
     if (notificationsQueue) {
       try {
-        notificationsQueue.add('account-suspended', {
+        await notificationsQueue.add('account-suspended', {
           userId: id,
           email: user.email,
         });

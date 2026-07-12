@@ -49,31 +49,31 @@ async function sendPushToUser(
 
     const subs = await prisma.pushSubscription.findMany({ where: { userId } });
 
-const results = await Promise.allSettled(
-  subs.map((sub) =>
-    webpush.sendNotification(
-      { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-      JSON.stringify({ title, body, link })
-    )
-  )
-);
+    const results = await Promise.allSettled(
+      subs.map((sub) =>
+        webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title, body, link })
+        )
+      )
+    );
 
-for (let i = 0; i < subs.length; i++) {
-  if (results[i].status === 'rejected') {
-    const reason = (results[i] as PromiseRejectedResult).reason;
-    logger.warn('Push subscription send failed, removing', {
-      endpoint: subs[i].endpoint.slice(0, 30),
-      error: (reason as Error).message,
-    });
-    await prisma.pushSubscription
-      .deleteMany({ where: { endpoint: subs[i].endpoint } })
-      .catch((cleanupErr) =>
-        logger.warn('Failed to clean up expired push subscription', {
-          error: (cleanupErr as Error).message,
-        })
-      );
-  }
-}
+    for (let i = 0; i < subs.length; i++) {
+      if (results[i].status === 'rejected') {
+        const reason = (results[i] as PromiseRejectedResult).reason;
+        logger.warn('Push subscription send failed, removing', {
+          endpoint: subs[i].endpoint.slice(0, 30),
+          error: (reason as Error).message,
+        });
+        await prisma.pushSubscription
+          .deleteMany({ where: { endpoint: subs[i].endpoint } })
+          .catch((cleanupErr) =>
+            logger.warn('Failed to clean up expired push subscription', {
+              error: (cleanupErr as Error).message,
+            })
+          );
+      }
+    }
   } catch (err) {
     logger.error('Failed to send push notification', { userId, error: (err as Error).message });
   }
@@ -880,44 +880,42 @@ if (redis && notificationsQueue) {
           take: 100,
         });
 
-        const eventIds = upcomingEvents.map((e) => e.id);
+        // Batch-fetch all accepted applications for all upcoming events
+        const allAcceptedApps = await prisma.application.findMany({
+          where: {
+            opportunityId: { in: upcomingEvents.map((e) => e.opportunityId) },
+            status: 'ACCEPTED',
+          },
+          select: { volunteerId: true, opportunityId: true },
+        });
 
-// Batch-fetch all accepted applications for all upcoming events
-const allAcceptedApps = await prisma.application.findMany({
-  where: {
-    opportunityId: { in: upcomingEvents.map((e) => e.opportunityId) },
-    status: 'ACCEPTED',
-  },
-  select: { volunteerId: true, opportunityId: true },
-});
+        // Group by opportunityId
+        const appsByOpportunity = new Map<string, string[]>();
+        for (const app of allAcceptedApps) {
+          const list = appsByOpportunity.get(app.opportunityId) ?? [];
+          list.push(app.volunteerId);
+          appsByOpportunity.set(app.opportunityId, list);
+        }
 
-// Group by opportunityId
-const appsByOpportunity = new Map<string, string[]>();
-for (const app of allAcceptedApps) {
-  const list = appsByOpportunity.get(app.opportunityId) ?? [];
-  list.push(app.volunteerId);
-  appsByOpportunity.set(app.opportunityId, list);
-}
-
-// Enqueue reminders per event
-for (const event of upcomingEvents) {
-  const volunteerIds = appsByOpportunity.get(event.opportunityId) ?? [];
-  for (const volunteerId of volunteerIds) {
-    await notificationsQueue?.add(
-      'event-reminder',
-      {
-        volunteerId,
-        eventId: event.id,
-        eventTitle: event.title,
-        eventDate: event.eventDate.toISOString(),
-        venue: event.venue ?? undefined,
-      },
-      {
-        jobId: `event-reminder-${event.id}-${volunteerId}`,
-      }
-    );
-  }
-}
+        // Enqueue reminders per event
+        for (const event of upcomingEvents) {
+          const volunteerIds = appsByOpportunity.get(event.opportunityId) ?? [];
+          for (const volunteerId of volunteerIds) {
+            await notificationsQueue?.add(
+              'event-reminder',
+              {
+                volunteerId,
+                eventId: event.id,
+                eventTitle: event.title,
+                eventDate: event.eventDate.toISOString(),
+                venue: event.venue ?? undefined,
+              },
+              {
+                jobId: `event-reminder-${event.id}-${volunteerId}`,
+              }
+            );
+          }
+        }
 
         logger.info('Event reminders enqueued', {
           eventsChecked: upcomingEvents.length,

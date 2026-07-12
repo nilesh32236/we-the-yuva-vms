@@ -92,7 +92,7 @@ authRouter.post('/send-otp', otpLimiter, validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
-authRouter.post('/verify-otp', validate(VerifyOtpSchema), verifyOtpHandler);
+authRouter.post('/verify-otp', otpLimiter, validate(VerifyOtpSchema), verifyOtpHandler);
 
 /**
  * @openapi

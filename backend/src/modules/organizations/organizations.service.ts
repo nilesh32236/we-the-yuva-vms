@@ -379,7 +379,7 @@ export async function listCoordinators(orgId: string, page = 1, limit = 20) {
     }),
     prisma.user.count({ where }),
   ]);
-  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+  return data;
 }
 
 export async function getPublicOrganizationBySlug(slug: string) {

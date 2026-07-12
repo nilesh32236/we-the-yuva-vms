@@ -479,6 +479,17 @@ export async function getAttendanceList(
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
+export async function getAttendanceListAll(eventId: string) {
+  return prisma.attendance.findMany({
+    where: { eventId },
+    take: 500,
+    include: {
+      volunteer: { select: { id: true, name: true, email: true } },
+    },
+    orderBy: { checkedInAt: 'desc' },
+  });
+}
+
 export async function getMyEvents(
   volunteerId: string,
   pagination: { page: number; limit: number }
@@ -786,7 +797,6 @@ export async function exportEventsCsv(callerOrgId: string | null | undefined) {
   const where = callerOrgId ? { opportunity: { organizationId: callerOrgId } } : {};
   const events = await prisma.event.findMany({
     where,
-    take: 1000,
     orderBy: { eventDate: 'desc' },
     include: {
       opportunity: { select: { title: true } },

@@ -114,14 +114,14 @@ export async function reviewMentorshipRequest(
   }
 
   if (status === 'ACTIVE' && notificationsQueue) {
-    await notificationsQueue
+    notificationsQueue
       .add('mentorship-update', {
         userId: result.menteeId,
         title: 'Mentorship Approved',
         body: `${result.mentor.name} has accepted your mentorship request!`,
         link: '/volunteer/mentorship',
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
   }
 
   return result;
@@ -184,22 +184,22 @@ export async function completeMentorship(requestId: string, userId: string) {
   }
 
   if (notificationsQueue) {
-    await notificationsQueue
+    notificationsQueue
       .add('mentorship-update', {
         userId: result.menteeId,
         title: 'Mentorship Completed',
         body: `Your mentorship with ${result.mentor.name} has been completed!`,
         link: '/volunteer/mentorship',
       })
-      .catch(() => {});
-    await notificationsQueue
+      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
+    notificationsQueue
       .add('mentorship-update', {
         userId: result.mentorId,
         title: 'Mentorship Completed',
         body: `Your mentorship with ${result.mentee.name} has been completed. Great job mentoring!`,
         link: '/coordinator/mentorship',
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
   }
 
   return result;
