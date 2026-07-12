@@ -73,7 +73,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
               </span>
               {post.category && (
                 <span className="flex items-center gap-1.5">
-                  <Tag className="w-4 h-4" /> {post.category}
+                  <Tag className="w-4 h-4" aria-hidden="true" /> {post.category}
                 </span>
               )}
             </div>

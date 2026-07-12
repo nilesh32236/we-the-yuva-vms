@@ -85,7 +85,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               placeholder="e.g. Priya Sharma"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
             {touched && !form.name && <p role="alert" className="text-xs text-brand-error mt-1">Name is required</p>}
           </div>
@@ -103,7 +103,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
               placeholder="e.g. priya@example.com"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
             {touched && !form.email && <p role="alert" className="text-xs text-brand-error mt-1">Email is required</p>}
           </div>
@@ -119,7 +119,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               id="create-role"
               value={form.role}
               onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
             >
               {CREATE_ROLES.map((r) => (
                 <option key={r} value={r}>
@@ -142,7 +142,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
                 value={form.locationName}
                 onChange={(e) => setForm((f) => ({ ...f, locationName: e.target.value }))}
                 placeholder="e.g. Mumbai"
-                className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
           )}

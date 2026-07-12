@@ -18,7 +18,7 @@ const sizes = {
   sm: 'text-sm px-3 py-2 min-h-[44px]',
   md: 'text-sm px-4 py-3 min-h-[44px]',
   lg: 'text-base px-5 py-3 min-h-[44px]',
-  icon: '',
+  icon: 'min-h-[44px] min-w-[44px]',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

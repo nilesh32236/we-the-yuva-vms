@@ -2,8 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api } from '../../../../lib/api';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
@@ -25,14 +26,7 @@ export default function OrganizationCoordinatorsPage() {
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [formErrors, setFormErrors] = useState<{ name?: string; email?: string }>({});
   const [confirmingRemove, setConfirmingRemove] = useState<{ id: string; name: string } | null>(null);
-  const removeDialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (confirmingRemove && removeDialogRef.current) {
-      const firstButton = removeDialogRef.current.querySelector('button');
-      firstButton?.focus();
-    }
-  }, [confirmingRemove]);
+  const removeDialogRef = useFocusTrap(!!confirmingRemove);
 
   const orgId = user?.organizationId;
 

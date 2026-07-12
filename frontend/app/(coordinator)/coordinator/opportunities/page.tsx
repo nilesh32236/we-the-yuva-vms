@@ -3,10 +3,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -21,14 +22,7 @@ export default function CoordinatorOpportunitiesPage() {
   const [closing, setClosing] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
   const [page, setPage] = useState(1);
-  const closeDialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (confirmAction && closeDialogRef.current) {
-      const firstButton = closeDialogRef.current.querySelector('button');
-      firstButton?.focus();
-    }
-  }, [confirmAction]);
+  const closeDialogRef = useFocusTrap(!!confirmAction);
 
   const { data, isLoading } = useQuery({
     queryKey: ['coordinator-opportunities', page],
@@ -151,7 +145,7 @@ export default function CoordinatorOpportunitiesPage() {
                             <>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/applications`}
-                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
+                                className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                                 title="View Applications"
                                 aria-label="View Applications"
                               >
@@ -159,7 +153,7 @@ export default function CoordinatorOpportunitiesPage() {
                               </Link>
                               <Link
                                 href={`/coordinator/opportunities/${opp.id}/edit`}
-                                className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
+                                className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                                 title="Edit"
                                 aria-label="Edit opportunity"
                               >
@@ -169,7 +163,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 type="button"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 disabled={closing === opp.id}
-                                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
+                                className="p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
                                 title="Close"
                                 aria-label="Close opportunity"
                               >

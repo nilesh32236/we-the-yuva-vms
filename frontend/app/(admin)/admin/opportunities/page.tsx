@@ -58,7 +58,7 @@ export default function AdminOpportunitiesPage() {
       <h1 className="font-heading font-bold text-xl text-brand-text">All Opportunities</h1>
 
       <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
         <input
           value={search}
           onChange={(e) => {
@@ -157,7 +157,7 @@ export default function AdminOpportunitiesPage() {
                               type="button"
                               onClick={() => handleClose(opp.id, opp.title)}
                               disabled={closing === opp.id}
-                              className="p-1.5 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer"
+                              className="p-3 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer"
                               aria-label={`Close ${opp.title}`}
                               title="Close"
                             >
@@ -168,7 +168,7 @@ export default function AdminOpportunitiesPage() {
                         <td className="px-4 py-3">
                           <Link
                             href={`/admin/opportunities/${opp.id}`}
-                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
+                            className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
                             aria-label={`Manage ${opp.title}`}
                             title="Manage"
                           >

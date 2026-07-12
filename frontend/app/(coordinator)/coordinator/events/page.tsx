@@ -3,10 +3,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClipboardList, Download, Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../hooks/use-toast';
+import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api, downloadCsv } from '../../../../lib/api';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 
@@ -22,14 +23,7 @@ export default function CoordinatorEventsPage() {
   const [cancelling, setCancelling] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ id: string; title: string } | null>(null);
   const [page, setPage] = useState(1);
-  const cancelDialogRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (confirmAction && cancelDialogRef.current) {
-      const firstButton = cancelDialogRef.current.querySelector('button');
-      firstButton?.focus();
-    }
-  }, [confirmAction]);
+  const cancelDialogRef = useFocusTrap(!!confirmAction);
 
   const { data, isLoading } = useQuery({
     queryKey: ['coordinator-events', page],
@@ -181,7 +175,7 @@ export default function CoordinatorEventsPage() {
                           </Link>
                           <Link
                             href={`/coordinator/events/${ev.id}/edit`}
-                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
+                            className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
                             title="Edit event"
                             aria-label="Edit event"
                           >
@@ -192,7 +186,7 @@ export default function CoordinatorEventsPage() {
                               type="button"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               disabled={cancelling === ev.id}
-                              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
+                              className="p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
                               title="Cancel event"
                               aria-label="Cancel event"
                             >

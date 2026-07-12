@@ -196,7 +196,7 @@ export default function AboutPage() {
           <div className="mt-8">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-emerald-800 font-semibold text-base transition-colors hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-brand-text font-semibold text-base transition-colors hover:bg-brand-bg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
             >
               Get started
             </Link>
