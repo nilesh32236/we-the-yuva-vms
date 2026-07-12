@@ -81,16 +81,19 @@ export default function OpportunityChatPage({ params }: { params: Promise<{ id: 
           href={`/volunteer/opportunities/${id}`}
           onClick={() => haptic.light()}
           className="cursor-pointer"
+          aria-label="Back to opportunity details"
         >
           <ArrowLeft className="w-5 h-5 text-brand-muted hover:text-brand-text" />
         </Link>
-        <MessageCircle className="w-5 h-5 text-brand" />
+        <MessageCircle className="w-5 h-5 text-brand-text" />
         <h1 className="font-heading font-semibold text-sm text-brand-text">Discussion</h1>
       </div>
 
       {/* Messages */}
       <div
         className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-brand-surface/50"
+        role="log"
+        aria-live="polite"
         onScroll={handleScroll}
       >
         {isLoading ? (
@@ -132,7 +135,7 @@ export default function OpportunityChatPage({ params }: { params: Promise<{ id: 
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
                       isMe
-                        ? 'bg-brand text-white rounded-br-md'
+                        ? 'bg-brand-primary text-white rounded-br-md'
                         : 'bg-muted text-brand-text rounded-bl-md'
                     }`}
                   >
@@ -172,15 +175,16 @@ export default function OpportunityChatPage({ params }: { params: Promise<{ id: 
           placeholder="Type a message..."
           rows={1}
           maxLength={2000}
-          className="flex-1 rounded-xl border border-brand-border bg-background px-4 py-2.5 text-sm
-            placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none max-h-32"
+          className="flex-1 rounded-xl border border-brand-border bg-background px-4 py-2.5 text-base
+            placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/40 resize-none max-h-32"
         />
         <Button
           onClick={handleSend}
           disabled={!input.trim() || sendMutation.isPending}
           loading={sendMutation.isPending}
           size="icon"
-          className="h-10 w-10 rounded-xl flex-shrink-0"
+          aria-label="Send message"
+          className="h-11 w-11 rounded-xl flex-shrink-0"
         >
           <Send className="w-4 h-4" />
         </Button>

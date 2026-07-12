@@ -36,7 +36,7 @@ export default function EditBlogPostPage() {
       const blogUrl = `${window.location.origin}/blog/${post.slug}`;
       toast({
         title: 'Post published!',
-        description: (
+        action: (
           <a
             href={blogUrl}
             target="_blank"
@@ -45,7 +45,7 @@ export default function EditBlogPostPage() {
           >
             View post &rarr;
           </a>
-        ) as unknown as string,
+        ),
       });
     },
     onError: (err) => {
@@ -83,7 +83,7 @@ export default function EditBlogPostPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl space-y-5">
+      <div role="status" aria-busy="true" className="max-w-2xl space-y-5">
         <div className="h-5 w-24 bg-brand-border rounded animate-pulse" />
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4">
           {[1, 2, 3].map((i) => (

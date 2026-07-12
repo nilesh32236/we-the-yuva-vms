@@ -211,14 +211,14 @@ export default function VolunteerProfilePage() {
       .slice(0, 2) ?? '?';
 
   const inputCls = (field: string) =>
-    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
+    `w-full text-base border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
       fieldErrors[field]
         ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'
     }`;
 
   const selectCls = (field: string) =>
-    `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
+    `w-full text-base border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
       fieldErrors[field]
         ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'
@@ -226,15 +226,16 @@ export default function VolunteerProfilePage() {
 
   if (isLoading)
     return (
-      <div className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
+      <div role="status" aria-live="polite" className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
     );
 
   const editorContent = (
     <div data-profile-editor>
       {/* Volunteer Type */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <h2 className="font-heading font-semibold text-sm text-brand-text">Volunteer Type</h2>
+        <label htmlFor="volunteerType" className="font-heading font-semibold text-sm text-brand-text">Volunteer Type</label>
         <select
+          id="volunteerType"
           value={volunteerType}
           onChange={(e) => setVolunteerType(e.target.value)}
           className={selectCls('volunteerType')}
@@ -247,66 +248,70 @@ export default function VolunteerProfilePage() {
           ))}
         </select>
         {fieldErrors.volunteerType && (
-          <p className="text-xs text-brand-error">{fieldErrors.volunteerType}</p>
+          <p role="alert" className="text-xs text-brand-error">{fieldErrors.volunteerType}</p>
         )}
       </div>
 
       {/* Bio */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
-        <h2 className="font-heading font-semibold text-sm text-brand-text">About</h2>
+        <label htmlFor="bio" className="font-heading font-semibold text-sm text-brand-text">About</label>
         <textarea
+          id="bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           rows={3}
           placeholder="Tell us about yourself…"
           className={inputCls('bio')}
         />
-        {fieldErrors.bio && <p className="text-xs text-brand-error">{fieldErrors.bio}</p>}
+        {fieldErrors.bio && <p role="alert" className="text-xs text-brand-error">{fieldErrors.bio}</p>}
       </div>
 
       {/* Skills */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+        <label htmlFor="skills" className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
           <Tag className="w-4 h-4 text-brand-primary" /> Skills
-        </h2>
+        </label>
         <input
+          id="skills"
           value={skills}
           onChange={(e) => setSkills(e.target.value)}
           placeholder="e.g. Teaching, Design, Coding"
           className={inputCls('skills')}
         />
-        {fieldErrors.skills && <p className="text-xs text-brand-error">{fieldErrors.skills}</p>}
+        {fieldErrors.skills && <p role="alert" className="text-xs text-brand-error">{fieldErrors.skills}</p>}
       </div>
 
       {/* Interests */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+        <label htmlFor="interests" className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
           <Tag className="w-4 h-4 text-brand-cta" /> Interests
-        </h2>
+        </label>
         <input
+          id="interests"
           value={interests}
           onChange={(e) => setInterests(e.target.value)}
           placeholder="e.g. Environment, Education, Health"
           className={inputCls('interests')}
         />
         {fieldErrors.interests && (
-          <p className="text-xs text-brand-error">{fieldErrors.interests}</p>
+          <p role="alert" className="text-xs text-brand-error">{fieldErrors.interests}</p>
         )}
       </div>
 
       {/* Education */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
-        <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+        <label htmlFor="education" className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
           <GraduationCap className="w-4 h-4 text-brand-primary" /> Education
-        </h2>
+        </label>
         <input
+          id="education"
           value={education}
           onChange={(e) => setEducation(e.target.value)}
           placeholder="e.g., B.Com, MBA, 12th Pass"
           className={inputCls('education')}
         />
         {fieldErrors.education && (
-          <p className="text-xs text-brand-error">{fieldErrors.education}</p>
+          <p role="alert" className="text-xs text-brand-error">{fieldErrors.education}</p>
         )}
       </div>
 
@@ -321,15 +326,16 @@ export default function VolunteerProfilePage() {
               <button
                 key={day}
                 type="button"
+                aria-pressed={selectedDays.includes(day)}
                 onClick={() => toggleDay(day)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer
+                className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary
                   ${selectedDays.includes(day) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
               >
                 {day}
               </button>
             ))}
           </div>
-          {fieldErrors.days && <p className="text-xs text-brand-error">{fieldErrors.days}</p>}
+          {fieldErrors.days && <p role="alert" className="text-xs text-brand-error">{fieldErrors.days}</p>}
         </div>
 
         <div className="space-y-2">
@@ -339,8 +345,9 @@ export default function VolunteerProfilePage() {
               <button
                 key={slot}
                 type="button"
+                aria-pressed={selectedSlots.includes(slot)}
                 onClick={() => toggleSlot(slot)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors cursor-pointer
+                className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary
                   ${selectedSlots.includes(slot) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
               >
                 {slot}
@@ -348,7 +355,7 @@ export default function VolunteerProfilePage() {
             ))}
           </div>
           {fieldErrors.timeSlots && (
-            <p className="text-xs text-brand-error">{fieldErrors.timeSlots}</p>
+            <p role="alert" className="text-xs text-brand-error">{fieldErrors.timeSlots}</p>
           )}
         </div>
       </div>
@@ -391,7 +398,7 @@ export default function VolunteerProfilePage() {
               <button
                 type="button"
                 onClick={startEdit}
-                className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:bg-brand-bg px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:bg-brand-bg px-3 py-2.5 min-h-[44px] rounded-lg transition-colors cursor-pointer"
               >
                 <Edit2 className="w-3.5 h-3.5" /> Edit
               </button>
@@ -590,7 +597,7 @@ export default function VolunteerProfilePage() {
 
           {/* Availability (view mode) */}
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-            <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
+        <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
             {user?.profile?.availability ? (
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-1.5">

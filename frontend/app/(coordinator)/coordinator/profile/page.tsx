@@ -21,7 +21,7 @@ export default function CoordinatorProfilePage() {
 
   if (isLoading)
     return (
-      <div className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
+      <div className="flex items-center justify-center h-40 text-brand-muted text-sm" role="status">Loading…</div>
     );
 
   return (

@@ -16,9 +16,9 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="bg-brand-bg">
-        <div className="min-h-dvh flex items-center justify-center p-6">
+        <div role="alert" className="min-h-dvh flex items-center justify-center p-6">
           <div className="max-w-md text-center space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center mx-auto border border-red-100 dark:border-red-900/50">
               <svg

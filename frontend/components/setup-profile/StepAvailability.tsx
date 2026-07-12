@@ -34,7 +34,7 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           aria-describedby={error ? `${id}-error` : undefined}
-          className={`w-full px-4 py-2.5 rounded-lg border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+          className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
             error ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
           }`}
         />

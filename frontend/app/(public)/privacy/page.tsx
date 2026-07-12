@@ -11,10 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function PrivacyPage() {
   return (
     <>
-      <section className="bg-emerald-800 py-16 sm:py-20">
+      <section className="bg-brand-primary py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h1 className="font-heading text-3xl font-bold text-white sm:text-4xl">Privacy Policy</h1>
-          <p className="mt-3 text-emerald-100/80 text-sm">Last updated: July 2026</p>
+          <p className="mt-3 text-brand-muted text-sm">Last updated: July 2026</p>
         </div>
       </section>
 
@@ -90,10 +90,10 @@ export default function PrivacyPage() {
           <p className="text-brand-muted leading-relaxed">
             If you have questions about this Privacy Policy or our data practices, please email us
             at{' '}
-            <a
-              href="mailto:hello@wetheyuva.org"
-              className="text-brand-primary font-medium hover:underline"
-            >
+              <a
+                href="mailto:hello@wetheyuva.org"
+                className="text-brand-primary font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring inline-block py-2.5"
+              >
               hello@wetheyuva.org
             </a>
             .

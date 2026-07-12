@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { Award } from 'lucide-react';
 import { BadgeCard } from '@/components/badges/BadgeCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
@@ -65,7 +66,7 @@ export default function VolunteerBadgesPage() {
         </div>
       ) : badgeList.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-4xl mb-3">🎖️</p>
+          <Award className="w-12 h-12 mx-auto mb-3 text-brand-muted opacity-50" />
           <h3 className="text-sm font-semibold text-brand-text">No badges available</h3>
           <p className="text-xs text-brand-muted mt-1">Check back later for new achievements.</p>
         </div>

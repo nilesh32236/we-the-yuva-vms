@@ -27,7 +27,7 @@ export default function AdminBlogPage() {
       const blogUrl = `${window.location.origin}/blog/${post.slug}`;
       toast({
         title: 'Post published!',
-        description: (
+        action: (
           <a
             href={blogUrl}
             target="_blank"
@@ -36,7 +36,7 @@ export default function AdminBlogPage() {
           >
             View post &rarr;
           </a>
-        ) as unknown as string,
+        ),
       });
     },
     onError: (err) => {
@@ -160,6 +160,7 @@ export default function AdminBlogPage() {
                   <Button
                     variant="icon"
                     size="sm"
+                    className="p-3"
                     loading={deleteMutation.isPending && deleteMutation.variables === post.id}
                     onClick={(e) => {
                       e.preventDefault();

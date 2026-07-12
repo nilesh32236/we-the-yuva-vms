@@ -67,7 +67,7 @@ export default function AdminEventDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl animate-pulse">
+      <div role="status" aria-busy="true" className="space-y-6 max-w-4xl animate-pulse">
         <div className="h-8 w-48 bg-brand-bg rounded-lg" />
         <div className="h-40 bg-brand-surface rounded-2xl border border-brand-border" />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -82,7 +82,7 @@ export default function AdminEventDetailPage() {
 
   if (error) {
     return (
-      <div className="text-center py-20">
+      <div role="alert" className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load event</p>
         <button

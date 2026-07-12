@@ -4,7 +4,7 @@ export default function NotFoundPage() {
   return (
     <div className="min-h-dvh bg-brand-bg flex items-center justify-center p-6">
       <div className="max-w-md text-center space-y-4">
-        <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto border border-amber-100">
+        <div className="w-16 h-16 rounded-2xl bg-brand-surface flex items-center justify-center mx-auto border border-brand-border">
           <svg
             className="w-8 h-8 text-amber-500 dark:text-amber-400"
             fill="none"

@@ -36,7 +36,7 @@ export default function AdminEventsPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div aria-busy={isLoading} role="status" className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}
@@ -90,7 +90,7 @@ export default function AdminEventsPage() {
                     }) => (
                       <tr key={ev.id} className="hover:bg-brand-bg/50 transition-colors">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-brand-text truncate max-w-[200px]">
+                          <p className="font-medium text-brand-text truncate max-w-[200px]" title={ev.title}>
                             {ev.title}
                           </p>
                           {ev.opportunity && (
@@ -119,8 +119,8 @@ export default function AdminEventsPage() {
                         <td className="px-4 py-3">
                           <Link
                             href={`/admin/events/${ev.id}`}
-                            className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
-                            title="Manage"
+                            className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
+                            aria-label={`Manage ${ev.title}`}
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Link>

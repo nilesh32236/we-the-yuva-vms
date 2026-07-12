@@ -133,40 +133,40 @@ function ScanInner() {
   // Auto-redirect from URL params
   if (token && eventId) {
     return (
-      <div className="max-w-md mx-auto mt-20 text-center space-y-6 px-4">
+      <main id="main" className="max-w-md mx-auto mt-20 text-center space-y-6 px-4">
         <div aria-live="polite">
           {checkinMutation.isPending ? (
             <div className="space-y-4">
-              <div className="w-16 h-16 border-4 border-brand/30 border-t-brand rounded-full animate-spin mx-auto" />
+              <div className="w-16 h-16 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mx-auto" />
               <p className="text-brand-muted">Processing check-in...</p>
             </div>
           ) : result === 'success' ? (
             <div className="space-y-4">
-              <CheckCircle className="w-16 h-16 text-green-500 dark:text-green-400 mx-auto" />
+          <CheckCircle className="w-16 h-16 text-brand-primary mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
               <p className="text-brand-muted">Redirecting to your events...</p>
             </div>
           ) : (
             <div className="space-y-4">
-              <XCircle className="w-16 h-16 text-red-500 dark:text-red-400 mx-auto" />
+              <XCircle className="w-16 h-16 text-brand-error mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Check-in Failed</h2>
               <p className="text-brand-muted">{errorMsg}</p>
               <button
                 type="button"
                 onClick={() => router.push('/volunteer/events')}
-                className="text-brand hover:underline text-sm cursor-pointer"
+                className="text-brand-primary hover:underline text-sm cursor-pointer"
               >
                 Back to Events
               </button>
             </div>
           )}
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 space-y-6 px-4">
+    <main id="main" className="max-w-md mx-auto mt-8 space-y-6 px-4">
       <div className="text-center space-y-2">
         <QrCode className="w-10 h-10 text-brand mx-auto" />
         <h1 className="font-heading font-bold text-xl text-brand-text">Event Check-in</h1>
@@ -178,27 +178,29 @@ function ScanInner() {
       </div>
 
       {errorMsg && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-4 text-sm text-red-600 dark:text-red-400">
+        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-4 text-sm text-red-600 dark:text-red-400" role="alert">
           {errorMsg}
         </div>
       )}
 
       {result === 'success' ? (
         <div className="text-center space-y-4 py-8">
-          <CheckCircle className="w-16 h-16 text-green-500 dark:text-green-400 mx-auto" />
+          <CheckCircle className="w-16 h-16 text-brand-primary mx-auto" />
           <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
         </div>
       ) : (
         <>
           {/* Mode toggle */}
-          <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-1">
+          <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-1" role="tablist">
             <button
               type="button"
+              role="tab"
+              aria-selected={mode === 'camera'}
               onClick={() => {
                 setMode('camera');
                 setErrorMsg('');
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'camera'
                   ? 'bg-brand-surface shadow-sm text-brand-primary'
                   : 'text-gray-500 dark:text-gray-400'
@@ -208,11 +210,13 @@ function ScanInner() {
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={mode === 'manual'}
               onClick={() => {
                 setMode('manual');
                 setErrorMsg('');
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'manual'
                   ? 'bg-brand-surface shadow-sm text-brand-primary'
                   : 'text-gray-500 dark:text-gray-400'
@@ -231,7 +235,7 @@ function ScanInner() {
                 className="w-full aspect-square bg-black"
               />
               {!scannerReady && (
-                <div className="text-center py-4 text-sm text-brand-muted">Starting camera...</div>
+                <div className="text-center py-4 text-sm text-brand-muted" aria-live="polite">Starting camera...</div>
               )}
             </div>
           )}
@@ -252,7 +256,7 @@ function ScanInner() {
                     if (e.key === 'Enter') handleManualSubmit();
                   }}
                   placeholder="Paste or type the check-in code"
-                  className="w-full px-4 py-3 rounded-xl bg-background border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                  className="w-full px-4 py-3 rounded-xl bg-background border border-brand-border text-base focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
                 />
               </div>
               <Button
@@ -266,7 +270,7 @@ function ScanInner() {
           )}
         </>
       )}
-    </div>
+    </main>
   );
 }
 

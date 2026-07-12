@@ -62,7 +62,7 @@ export default function EventFeedbackPage() {
     <div className="max-w-2xl space-y-5">
       <Link
         href="/volunteer/events"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer py-2 min-h-11"
       >
         <ArrowLeft className="w-4 h-4" /> Back
       </Link>
@@ -85,16 +85,17 @@ export default function EventFeedbackPage() {
                 <button
                   key={n}
                   type="button"
+                  aria-label={`Rate ${n} star${n > 1 ? 's' : ''}`}
                   onClick={() => {
                     setRating(n);
                     setRatingTouched(true);
                   }}
                   onMouseEnter={() => setHover(n)}
                   onMouseLeave={() => setHover(0)}
-                  className="p-1 cursor-pointer transition-colors"
+                  className="p-1.5 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary rounded-lg"
                 >
                   <Star
-                    className={`w-7 h-7 ${n <= (hover || rating) ? 'text-amber-400 fill-amber-400' : 'text-brand-border'}`}
+                    className={`w-8 h-8 ${n <= (hover || rating) ? 'text-amber-400 fill-amber-400' : 'text-brand-border'}`}
                   />
                 </button>
               ))}
@@ -148,7 +149,7 @@ export default function EventFeedbackPage() {
                   key={n}
                   type="button"
                   onClick={() => setConfidence(n === confidence ? 0 : n)}
-                  className={`w-10 h-10 rounded-xl text-sm font-semibold border transition-colors cursor-pointer
+                  className={`w-11 h-11 rounded-xl text-sm font-semibold border transition-colors cursor-pointer
                     ${n <= confidence ? 'bg-brand-primary text-white border-brand-primary' : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary'}`}
                 >
                   {n}

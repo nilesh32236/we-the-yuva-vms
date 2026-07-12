@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Mail } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
@@ -175,7 +175,7 @@ function VerifyOtpContent() {
         {devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
-              ⚠️ Dev OTP (temporary — remove before production)
+              <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP (temporary — remove before production)
             </p>
             <p className="text-yellow-900 dark:text-yellow-100 text-2xl font-mono font-bold tracking-widest mt-1">
               {devOtp}
@@ -190,7 +190,7 @@ function VerifyOtpContent() {
           <OtpInput value={otp} onChange={setOtp} disabled={isVerifying} />
 
           {isVerifying && (
-            <div className="flex items-center justify-center gap-2 text-brand-muted text-sm">
+            <div className="flex items-center justify-center gap-2 text-brand-muted text-sm" role="status">
               <span className="w-4 h-4 border-2 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
               Verifying...
             </div>

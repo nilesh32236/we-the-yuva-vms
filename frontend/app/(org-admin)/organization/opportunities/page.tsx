@@ -27,7 +27,7 @@ export default function OrgAdminOpportunitiesPage() {
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Opportunities</h1>
         <Link
-          href="/coordinator/opportunities/new"
+          href="/organization/opportunities/new"
           className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary active-bounce transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" aria-hidden="true" /> New Opportunity

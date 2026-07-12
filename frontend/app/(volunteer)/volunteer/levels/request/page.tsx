@@ -123,7 +123,8 @@ export default function LevelRequestPage() {
         <Link
           href="/volunteer/levels"
           onClick={() => haptic.light()}
-          className="w-9 h-9 rounded-xl border border-brand-border flex items-center justify-center hover:bg-brand-bg transition-colors cursor-pointer"
+          className="w-11 h-11 rounded-xl border border-brand-border flex items-center justify-center hover:bg-brand-bg transition-colors cursor-pointer"
+          aria-label="Back to levels"
         >
           <ArrowLeft className="w-4 h-4 text-brand-muted" />
         </Link>
@@ -153,6 +154,9 @@ export default function LevelRequestPage() {
               >
                 <button
                   type="button"
+                  id={`accordion-trigger-${lvl.id}`}
+                  aria-expanded={isOpen}
+                  aria-controls={`accordion-panel-${lvl.id}`}
                   onClick={() => {
                     haptic.light();
                     setSelectedLevel(isOpen ? null : lvl.id);
@@ -183,7 +187,7 @@ export default function LevelRequestPage() {
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-5 space-y-5 border-t border-brand-border pt-4">
+                  <section id={`accordion-panel-${lvl.id}`} aria-labelledby={`accordion-trigger-${lvl.id}`} className="px-5 pb-5 space-y-5 border-t border-brand-border pt-4">
                     {/* Requirements summary */}
                     {lvl.requirements && Object.keys(lvl.requirements).length > 0 && (
                       <div className="space-y-2">
@@ -227,7 +231,7 @@ export default function LevelRequestPage() {
                     <Button fullWidth onClick={handleSubmit} loading={submitMutation.isPending}>
                       <Send className="w-4 h-4" /> Submit Request
                     </Button>
-                  </div>
+                  </section>
                 )}
               </div>
             );

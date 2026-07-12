@@ -111,7 +111,7 @@ export default function AlertSubscriptionsPage() {
 
         <div className="p-6">
           {isLoading ? (
-            <div className="space-y-3">
+            <div role="status" aria-busy="true" className="space-y-3">
               {[1, 2].map((i) => (
                 <SkeletonCard key={i} />
               ))}
@@ -123,12 +123,13 @@ export default function AlertSubscriptionsPage() {
                 <h3 className="text-sm font-semibold text-brand-text">Create Alert Subscription</h3>
                 <button
                   type="button"
+                  aria-label="Close form"
                   onClick={() => {
                     setShowForm(false);
                     setSelectedCats([]);
                     setSkills([]);
                   }}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-surface cursor-pointer transition-colors"
+                  className="min-w-11 min-h-11 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-surface cursor-pointer transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -144,6 +145,7 @@ export default function AlertSubscriptionsPage() {
                       type="button"
                       key={cat}
                       onClick={() => toggleCat(cat)}
+                      aria-pressed={selectedCats.includes(cat)}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer
                         ${
                           selectedCats.includes(cat)
@@ -180,6 +182,7 @@ export default function AlertSubscriptionsPage() {
                         type="button"
                         onClick={() => setSkills((prev) => prev.filter((x) => x !== s))}
                         className="cursor-pointer text-brand-muted hover:text-brand-text"
+                        aria-label={`Remove ${s}`}
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -280,7 +283,7 @@ export default function AlertSubscriptionsPage() {
                         haptic.light();
                         deleteMut.mutate(s.id);
                       }}
-                      className="p-2 rounded-lg text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-brand-error transition-colors cursor-pointer shrink-0"
+                      className="p-2.5 rounded-lg text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-brand-error transition-colors cursor-pointer shrink-0"
                       aria-label="Remove alert"
                     >
                       <Trash2 className="w-4 h-4" />

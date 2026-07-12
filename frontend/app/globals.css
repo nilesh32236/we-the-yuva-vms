@@ -36,6 +36,7 @@
   --color-border: var(--clr-border);
   --color-input: var(--clr-input);
   --color-ring: var(--clr-ring);
+  --color-shadow: var(--clr-shadow);
 
   /* Fonts — Inter for body, Poppins for headings */
   --font-heading: "Poppins", sans-serif;
@@ -69,7 +70,7 @@
   --clr-brand-muted: #6b7280;
   --clr-brand-error: #dc2626;
   --clr-brand-surface: #ffffff;
-  --clr-brand-border: #d1fae5;
+  --clr-brand-border: #a3c9b5;
 
   --clr-background: #ffffff;
   --clr-foreground: #065f46;
@@ -85,9 +86,10 @@
   --clr-accent-foreground: #065f46;
   --clr-destructive: #dc2626;
   --clr-destructive-foreground: #ffffff;
-  --clr-border: #d1fae5;
-  --clr-input: #d1fae5;
+  --clr-border: #9ec0a8;
+  --clr-input: #9ec0a8;
   --clr-ring: #047857;
+  --clr-shadow: rgba(0, 0, 0, 0.08);
 }
 
 /* ─── Dark Theme ────────────────────────────────────────────────── */
@@ -102,7 +104,7 @@
   --clr-brand-muted: #94a3b8;
   --clr-brand-error: #f87171;
   --clr-brand-surface: #1a2332;
-  --clr-brand-border: #1e293b;
+  --clr-brand-border: #4a5a7a;
 
   --clr-background: #0c1222;
   --clr-foreground: #e2e8f0;
@@ -118,9 +120,10 @@
   --clr-accent-foreground: #e2e8f0;
   --clr-destructive: #f87171;
   --clr-destructive-foreground: #0c1222;
-  --clr-border: #1e293b;
-  --clr-input: #1e293b;
+  --clr-border: #4a5a7a;
+  --clr-input: #4a5a7a;
   --clr-ring: #34d399;
+  --clr-shadow: rgba(0, 0, 0, 0.3);
 }
 
 /* ─── Reduced Motion ─────────────────────────────────────────── */
@@ -190,17 +193,20 @@
     border-color: var(--color-border);
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+  }
+  *:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  button, a, input, select, textarea {
     touch-action: manipulation;
   }
 
   html {
     overscroll-behavior: none;
     scroll-behavior: smooth;
-    color-scheme: light;
-  }
-
-  .dark {
-    color-scheme: dark;
+    color-scheme: light dark;
   }
 
   body {
@@ -244,12 +250,8 @@
 
 /* ─── NProgress Top Loading Bar ──────────────────────────────── */
 #nprogress .bar {
-  background: #059669 !important;
+  background: var(--color-brand-primary) !important;
   height: 3px !important;
-}
-
-.dark #nprogress .bar {
-  background: #34d399 !important;
 }
 
 /* ─── Staggered Reveal Utility ───────────────────────────────── */
@@ -316,7 +318,7 @@
   }
   .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px var(--color-shadow);
     border-color: var(--color-brand-primary);
   }
   .tabular-nums {

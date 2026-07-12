@@ -122,7 +122,7 @@ export default function LoginPage() {
                 autoComplete="email"
                 placeholder="you@example.com"
                 aria-describedby={errors.email ? 'email-error' : undefined}
-                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-colors duration-200 bg-background
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                   ${
                     errors.email

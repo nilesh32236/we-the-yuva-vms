@@ -21,7 +21,7 @@ export default function AdminProfilePage() {
 
   if (isLoading)
     return (
-      <div className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
+      <div role="status" aria-busy="true" className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
     );
 
   return (
@@ -45,7 +45,7 @@ export default function AdminProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { icon: User, label: 'Status', value: user?.status ?? 'Active' },
           { icon: MapPin, label: 'Location', value: user?.location?.name ?? 'Not set' },
@@ -62,7 +62,7 @@ export default function AdminProfilePage() {
             key={label}
             className="bg-brand-surface rounded-xl border border-brand-border p-4 text-center"
           >
-            <Icon className="w-4 h-4 text-brand-primary mx-auto mb-1.5" />
+            <Icon className="w-4 h-4 text-brand-primary mx-auto mb-1.5" aria-hidden="true" />
             <p className="font-heading font-bold text-base text-brand-text truncate">{value}</p>
             <p className="text-xs text-brand-muted">{label}</p>
           </div>

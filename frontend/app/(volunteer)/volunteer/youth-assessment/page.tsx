@@ -72,15 +72,16 @@ function PillSelector({
           const isSelected = selected.includes(opt);
           const atLimit = selected.length >= max && !isSelected;
           return (
-            <button
-              key={opt}
-              type="button"
-              disabled={atLimit}
-              onClick={() => onToggle(opt)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+              <button
+                  key={opt}
+                  type="button"
+                  disabled={atLimit}
+                  aria-pressed={isSelected}
+                  onClick={() => onToggle(opt)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
                 ${
                   isSelected
-                    ? 'bg-brand-bg border-2 border-brand text-brand shadow-sm'
+                    ? 'bg-brand-bg border-2 border-brand-primary text-brand-primary shadow-sm'
                     : atLimit
                       ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
                       : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
@@ -127,7 +128,7 @@ export default function YouthAssessmentPage() {
   if (checking) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-brand animate-spin" />
+        <Loader2 className="w-6 h-6 text-brand-primary animate-spin" role="status" aria-label="Checking status" />
       </div>
     );
   }
@@ -158,15 +159,16 @@ export default function YouthAssessmentPage() {
             max={5}
           />
           <div className="space-y-2">
-            <p className="text-sm font-medium text-brand-muted">Learning goals (optional)</p>
+            <label htmlFor="learning-goals" className="text-sm font-medium text-brand-muted">Learning goals (optional)</label>
             <textarea
+              id="learning-goals"
               value={learningGoals}
               onChange={(e) => setLearningGoals(e.target.value)}
               placeholder="What do you hope to gain from your volunteering journey?"
               rows={3}
               maxLength={500}
               className="w-full rounded-xl border border-brand-border bg-background px-4 py-3 text-sm
-                placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand/40 resize-none"
+                placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand-primary/40 resize-none"
             />
             <p className="text-xs text-muted-foreground text-right">{learningGoals.length}/500</p>
           </div>
@@ -245,8 +247,8 @@ export default function YouthAssessmentPage() {
       <div className="w-full max-w-xl space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-bg mb-2">
-            <Sparkles className="w-6 h-6 text-brand" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-bg mb-2">
+            <Sparkles className="w-6 h-6 text-brand-primary" />
           </div>
           <h1 className="font-heading font-bold text-2xl text-brand-text">{current.title}</h1>
           <p className="text-brand-muted text-sm">{current.subtitle}</p>
@@ -255,7 +257,9 @@ export default function YouthAssessmentPage() {
             {steps.map((s, idx) => (
               <div
                 key={s.id}
-                className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? 'w-8 bg-brand' : idx < step ? 'w-4 bg-brand/40' : 'w-4 bg-muted'}`}
+                role="progressbar"
+                aria-current={idx === step ? 'step' : undefined}
+                className={`h-1.5 rounded-full transition-all duration-300 ${idx === step ? 'w-8 bg-brand-primary' : idx < step ? 'w-4 bg-brand-primary/40' : 'w-4 bg-muted'}`}
               />
             ))}
           </div>

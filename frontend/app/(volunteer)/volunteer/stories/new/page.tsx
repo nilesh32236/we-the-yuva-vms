@@ -17,10 +17,15 @@ export default function NewStoryPage() {
   const [content, setContent] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+    const errs: { title?: string; content?: string } = {};
+    if (!title.trim()) errs.title = 'Title is required';
+    if (!content.trim()) errs.content = 'Story content is required';
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
     haptic.medium();
     setSubmitting(true);
     try {
@@ -68,11 +73,12 @@ export default function NewStoryPage() {
           <input
             id="title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => { setTitle(e.target.value); setErrors((p) => ({ ...p, title: undefined })); }}
             required
             placeholder="e.g. Teaching 200 Children to Read"
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 transition-colors ${errors.title ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5' : 'border-brand-border focus:ring-brand-primary'}`}
           />
+          {errors.title && <p role="alert" className="text-xs text-brand-error">{errors.title}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -82,12 +88,13 @@ export default function NewStoryPage() {
           <textarea
             id="content"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => { setContent(e.target.value); setErrors((p) => ({ ...p, content: undefined })); }}
             required
             rows={8}
             placeholder="Describe your experience, what you learned, and the impact you made..."
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+            className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 transition-colors resize-none ${errors.content ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5' : 'border-brand-border focus:ring-brand-primary'}`}
           />
+          {errors.content && <p role="alert" className="text-xs text-brand-error">{errors.content}</p>}
         </div>
 
         <FileUpload

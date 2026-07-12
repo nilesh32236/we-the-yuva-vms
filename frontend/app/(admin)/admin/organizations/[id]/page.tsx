@@ -78,7 +78,7 @@ export default function AdminOrgDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl animate-pulse">
+      <div role="status" aria-busy="true" className="space-y-6 max-w-4xl animate-pulse">
         <div className="h-8 w-48 bg-brand-bg rounded-lg" />
         <div className="h-40 bg-brand-surface rounded-2xl border border-brand-border" />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -94,7 +94,7 @@ export default function AdminOrgDetailPage() {
 
   if (error) {
     return (
-      <div className="text-center py-20">
+      <div role="alert" className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load organization</p>
         <p className="text-sm text-brand-muted mb-6">
@@ -103,7 +103,7 @@ export default function AdminOrgDetailPage() {
         <Button
           type="button"
           onClick={() => refetch()}
-          className="inline-flex items-center gap-2 mt-4"
+          className="inline-flex items-center gap-2 mt-4 min-h-11"
         >
           Try Again
         </Button>
@@ -133,7 +133,7 @@ export default function AdminOrgDetailPage() {
       {/* Back link */}
       <Link
         href="/admin/organizations"
-        className="inline-flex items-center gap-2 text-sm text-brand-muted hover:text-brand-text transition-colors"
+        className="inline-flex items-center gap-2 text-sm text-brand-muted hover:text-brand-text transition-colors p-2.5 min-h-11"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Organizations
@@ -283,7 +283,7 @@ export default function AdminOrgDetailPage() {
                   href={doc.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 text-brand-muted hover:text-brand-primary transition-colors"
+                  className="p-3.5 min-h-11 w-11 text-brand-muted hover:text-brand-primary transition-colors flex items-center justify-center"
                   aria-label="Download document"
                 >
                   <Download className="w-4 h-4" />

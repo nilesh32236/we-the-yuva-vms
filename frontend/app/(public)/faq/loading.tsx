@@ -13,7 +13,7 @@ function AccordionSkeleton() {
 
 export default function FAQLoading() {
   return (
-    <div className="min-h-dvh bg-brand-bg">
+    <div className="min-h-dvh bg-brand-bg" aria-busy="true">
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="text-center mb-12">
           <Skeleton className="h-9 w-72 mx-auto mb-3" />

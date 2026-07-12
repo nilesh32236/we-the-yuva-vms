@@ -15,9 +15,9 @@ const variants = {
 };
 
 const sizes = {
-  sm: 'text-sm px-3 py-1.5',
-  md: 'text-sm px-4 py-2.5',
-  lg: 'text-base px-5 py-3',
+  sm: 'text-sm px-3 py-2 min-h-[44px]',
+  md: 'text-sm px-4 py-3 min-h-[44px]',
+  lg: 'text-base px-5 py-3 min-h-[44px]',
   icon: '',
 };
 
@@ -48,7 +48,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       type={type}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors duration-200',
+        'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         variants[variant],
         variant !== 'icon' && variant !== 'ghost' && sizes[size],
         fullWidth && 'w-full',

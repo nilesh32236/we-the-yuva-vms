@@ -16,8 +16,6 @@ export function ContactForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name || !email || !subject || !message) return;
-
     setLoading(true);
     try {
       await api.post('/contact', { name, email, subject, message });
@@ -52,7 +50,7 @@ export function ContactForm() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full rounded-xl border border-brand-border p-3 bg-background text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+          className="w-full rounded-xl border border-brand-border p-3 bg-background text-base text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           placeholder="Your name"
         />
       </div>
@@ -67,7 +65,7 @@ export function ContactForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full rounded-xl border border-brand-border p-3 bg-background text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+          className="w-full rounded-xl border border-brand-border p-3 bg-background text-base text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           placeholder="you@example.com"
         />
       </div>
@@ -81,7 +79,7 @@ export function ContactForm() {
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           required
-          className="w-full rounded-xl border border-brand-border p-3 bg-background text-sm text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+          className="w-full rounded-xl border border-brand-border p-3 bg-background text-base text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
         >
           <option value="" disabled>
             Select a subject
@@ -104,7 +102,7 @@ export function ContactForm() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
-          className="w-full rounded-xl border border-brand-border p-3 bg-background text-sm text-brand-text placeholder:text-brand-muted resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+          className="w-full rounded-xl border border-brand-border p-3 bg-background text-base text-brand-text placeholder:text-brand-muted resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           placeholder="Tell us what's on your mind..."
         />
       </div>
@@ -112,7 +110,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary text-white px-6 py-3 font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary text-white px-6 py-3.5 font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
       >
         {loading ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />

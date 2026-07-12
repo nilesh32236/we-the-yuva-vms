@@ -2,7 +2,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 
 export default function VolunteerLoading() {
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div role="status" aria-busy="true" className="space-y-6 max-w-5xl">
       <div className="space-y-2">
         <Skeleton className="h-7 w-32" />
         <Skeleton className="h-4 w-64" />

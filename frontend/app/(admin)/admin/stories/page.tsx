@@ -52,7 +52,7 @@ export default function AdminStoriesPage() {
       <h1 className="font-heading font-bold text-xl text-brand-text">Story Moderation</h1>
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div role="status" aria-busy="true" className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}
@@ -86,7 +86,7 @@ export default function AdminStoriesPage() {
                     </p>
                   </div>
                   <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'}`}
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${story.published ? 'bg-brand-primary/10 text-brand-primary' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'}`}
                   >
                     {story.published ? 'Published' : 'Pending'}
                   </span>
@@ -97,7 +97,7 @@ export default function AdminStoriesPage() {
                 <div className="flex items-center gap-2 pt-1">
                   <Link
                     href={`/admin/stories/${story.id}`}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     View
@@ -107,7 +107,8 @@ export default function AdminStoriesPage() {
                     onClick={() =>
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer"
+                    disabled={moderateMut.isPending}
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer disabled:opacity-60"
                   >
                     {story.published ? (
                       <XCircle className="w-3.5 h-3.5" />
@@ -119,21 +120,10 @@ export default function AdminStoriesPage() {
                   <button
                     type="button"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border text-brand-error hover:bg-brand-error/10 transition-colors cursor-pointer"
                   >
                     Delete
                   </button>
-                  {confirmDelete && (
-                    <ConfirmDialog
-                      open={confirmDelete !== null}
-                      title="Delete Story"
-                      message={`Delete "${confirmDelete.title}"? This action cannot be undone.`}
-                      confirmLabel="Delete"
-                      variant="destructive"
-                      onConfirm={handleDelete}
-                      onCancel={() => setConfirmDelete(null)}
-                    />
-                  )}
                 </div>
               </div>
             )
@@ -141,6 +131,16 @@ export default function AdminStoriesPage() {
         </div>
       )}
       <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
+
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        title="Delete Story"
+        message={confirmDelete ? `Delete "${confirmDelete.title}"? This action cannot be undone.` : ''}
+        confirmLabel="Delete"
+        variant="destructive"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

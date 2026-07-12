@@ -111,6 +111,7 @@ export default function VolunteerOpportunitiesPage() {
           </div>
           <select
             value={category}
+            aria-label="Filter by category"
             onChange={(e) => {
               setCategory(e.target.value);
               setPage(1);
@@ -132,7 +133,7 @@ export default function VolunteerOpportunitiesPage() {
             ))}
           </div>
         ) : list?.data?.length === 0 ? (
-          <div className="text-center py-16 text-brand-muted">
+          <div role="status" className="text-center py-16 text-brand-muted">
             <Search className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p className="font-medium">No opportunities found</p>
             <p className="text-sm mt-1">Try adjusting your search or filters</p>

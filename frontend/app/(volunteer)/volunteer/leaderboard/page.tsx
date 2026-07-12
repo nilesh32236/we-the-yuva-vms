@@ -70,7 +70,7 @@ export default function VolunteerLeaderboardPage() {
             type="button"
             onClick={() => setScope('global')}
             className={cn(
-              'px-4 py-1.5 text-sm font-medium rounded-lg transition-colors',
+              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
               scope === 'global'
                 ? 'bg-brand-primary text-white shadow-sm'
                 : 'text-brand-muted hover:text-brand-text'
@@ -82,7 +82,7 @@ export default function VolunteerLeaderboardPage() {
             type="button"
             onClick={() => setScope('location')}
             className={cn(
-              'px-4 py-1.5 text-sm font-medium rounded-lg transition-colors',
+              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
               scope === 'location'
                 ? 'bg-brand-primary text-white shadow-sm'
                 : 'text-brand-muted hover:text-brand-text'
@@ -95,13 +95,13 @@ export default function VolunteerLeaderboardPage() {
         {/* Timeframe + Sort */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex gap-1 bg-brand-surface rounded-lg p-0.5 border border-brand-border">
-            {(['weekly', 'monthly', 'all_time'] as Timeframe[]).map((tf) => (
+              {(['weekly', 'monthly', 'all_time'] as Timeframe[]).map((tf) => (
               <button
                 key={tf}
                 type="button"
                 onClick={() => setTimeframe(tf)}
                 className={cn(
-                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
+                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
                   timeframe === tf
                     ? 'bg-brand-primary text-white shadow-sm'
                     : 'text-brand-muted hover:text-brand-text'
@@ -119,7 +119,7 @@ export default function VolunteerLeaderboardPage() {
                 type="button"
                 onClick={() => setSortBy(sb)}
                 className={cn(
-                  'px-3 py-1 text-xs font-medium rounded-md transition-colors',
+                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
                   sortBy === sb
                     ? 'bg-brand-primary text-white shadow-sm'
                     : 'text-brand-muted hover:text-brand-text'
@@ -155,7 +155,7 @@ export default function VolunteerLeaderboardPage() {
 
       {/* Error State */}
       {isError && (
-        <div className="text-center py-8">
+        <div role="alert" className="text-center py-8">
           <h3 className="text-sm font-semibold text-destructive">Failed to load leaderboard</h3>
           <p className="text-xs text-brand-muted mt-1">Please try again later.</p>
         </div>

@@ -33,7 +33,7 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
             rows={opts.rows ?? 3}
             placeholder={opts?.placeholder}
             aria-describedby={error ? `${id}-error` : undefined}
-            className={`w-full px-4 py-2.5 rounded-lg border text-sm bg-background resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+            className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
               error ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
             }`}
             {...register(`step4.${fieldName}`)}
@@ -44,7 +44,7 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
             type="text"
             placeholder={opts?.placeholder}
             aria-describedby={error ? `${id}-error` : undefined}
-            className={`w-full px-4 py-2.5 rounded-lg border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+            className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
               error ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
             }`}
             {...register(`step4.${fieldName}`)}
@@ -80,7 +80,7 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
                   const idx = certifications.indexOf(cert);
                   setValue('step4.certifications', certifications.filter((_, j) => j !== idx), { shouldValidate: true });
                 }}
-                className="text-brand-muted hover:text-red-500 text-xs cursor-pointer"
+                className="text-brand-muted hover:text-red-500 text-xs cursor-pointer px-3 py-2 min-h-11"
               >
                 Remove
               </button>
@@ -94,7 +94,7 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
               onChange={(e) => setCertInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCertification(); } }}
               placeholder="Type a certification and press Enter or Add"
-              className="flex-1 px-3 py-2 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="flex-1 px-3 py-2 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
             <button
               type="button"

@@ -66,12 +66,13 @@ export default function AdminOpportunitiesPage() {
             setPage(1);
           }}
           placeholder="Search…"
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          aria-label="Search opportunities"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div aria-busy={isLoading} role="status" className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}
@@ -157,6 +158,7 @@ export default function AdminOpportunitiesPage() {
                               onClick={() => handleClose(opp.id, opp.title)}
                               disabled={closing === opp.id}
                               className="p-1.5 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer"
+                              aria-label={`Close ${opp.title}`}
                               title="Close"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -167,6 +169,7 @@ export default function AdminOpportunitiesPage() {
                           <Link
                             href={`/admin/opportunities/${opp.id}`}
                             className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-primary transition-colors inline-block"
+                            aria-label={`Manage ${opp.title}`}
                             title="Manage"
                           >
                             <ExternalLink className="w-4 h-4" />

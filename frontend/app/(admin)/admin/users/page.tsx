@@ -19,6 +19,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [form, setForm] = useState({ name: '', email: '', role: 'VOLUNTEER', locationName: '' });
+  const [touched, setTouched] = useState(false);
   const dialogRef = useFocusTrap(true);
 
   const create = useMutation({
@@ -65,7 +66,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
+            className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
           >
             <X className="w-4 h-4 text-brand-muted" />
           </button>
@@ -86,6 +87,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               placeholder="e.g. Priya Sharma"
               className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
+            {touched && !form.name && <p role="alert" className="text-xs text-brand-error mt-1">Name is required</p>}
           </div>
 
           <div>
@@ -103,6 +105,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
               placeholder="e.g. priya@example.com"
               className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
+            {touched && !form.email && <p role="alert" className="text-xs text-brand-error mt-1">Email is required</p>}
           </div>
 
           <div>
@@ -156,8 +159,12 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           </Button>
           <Button
             type="button"
-            onClick={() => create.mutate()}
-            disabled={!form.name || !form.email}
+            onClick={() => {
+              setTouched(true);
+              if (!form.name || !form.email) return;
+              create.mutate();
+            }}
+            disabled={create.isPending}
             loading={create.isPending}
             className="flex-1"
           >
@@ -198,15 +205,15 @@ export default function AdminUsersPage() {
     <div className="space-y-5 max-w-6xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Users</h1>
-        <Button type="button" onClick={() => setShowCreate(true)}>
-          <Plus className="w-4 h-4" /> Create User
+        <Button type="button" onClick={() => setShowCreate(true)} className="min-h-[44px] py-3.5">
+          <Plus className="w-4 h-4" aria-hidden="true" /> Create User
         </Button>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
           <input
             value={search}
             onChange={(e) => {
@@ -220,6 +227,7 @@ export default function AdminUsersPage() {
         </div>
         <select
           value={role}
+          aria-label="Filter by role"
           onChange={(e) => {
             setRole(e.target.value);
             setPage(1);
@@ -234,6 +242,7 @@ export default function AdminUsersPage() {
         </select>
         <select
           value={status}
+          aria-label="Filter by status"
           onChange={(e) => {
             setStatus(e.target.value);
             setPage(1);
@@ -249,7 +258,7 @@ export default function AdminUsersPage() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div role="status" aria-busy="true" className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}

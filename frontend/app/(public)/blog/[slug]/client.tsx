@@ -15,7 +15,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-brand-bg py-12">
+      <div className="min-h-screen bg-brand-bg py-12" aria-busy="true">
         <div className="mx-auto max-w-3xl px-4 space-y-4">
           <div className="h-8 w-32 bg-brand-border rounded animate-pulse" />
           <div className="h-10 w-3/4 bg-brand-border rounded animate-pulse" />
@@ -49,7 +49,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors mb-8"
+          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors mb-8 py-3 focus-visible:ring-2 focus-visible:ring-ring"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Blog
         </Link>

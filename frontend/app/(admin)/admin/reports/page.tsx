@@ -20,7 +20,7 @@ export default function AdminReportsPage() {
       <h1 className="font-heading font-bold text-xl text-brand-text">Platform Reports</h1>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div role="status" aria-busy="true" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}

@@ -76,7 +76,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
+            className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
           >
             <X className="w-4 h-4 text-brand-muted" />
           </button>
@@ -114,7 +114,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-brand-primary hover:underline cursor-pointer"
+                    className="flex items-center gap-2 text-sm text-brand-primary hover:underline cursor-pointer p-2.5 min-h-11"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Proof {i + 1}
@@ -134,7 +134,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
               onChange={(e) => setReviewNote(e.target.value)}
               rows={3}
               placeholder="Add a note for the volunteer..."
-              className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+              className="w-full text-base border border-brand-border rounded-xl px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
             />
           </div>
         </div>
@@ -144,7 +144,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             type="button"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
+            className="flex-1 py-3.5 min-h-11 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
           >
             {reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED' ? (
               <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
@@ -157,7 +157,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             type="button"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
+            className="flex-1 py-3.5 min-h-11 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
           >
             {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? (
               <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
@@ -208,19 +208,19 @@ export default function AdminLevelRequestsPage() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by volunteer name or email…"
           aria-label="Search level-up requests"
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>
 
       {/* List */}
       {isLoading ? (
-        <div className="space-y-3">
+        <div role="status" aria-busy="true" className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
       ) : requests.length === 0 ? (
-        <div className="text-center py-12 text-brand-muted text-sm bg-brand-surface rounded-2xl border border-brand-border">
+        <div role="status" className="text-center py-12 text-brand-muted text-sm bg-brand-surface rounded-2xl border border-brand-border">
           <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p className="font-medium">No pending requests</p>
           <p className="text-sm mt-1">All level-up requests have been reviewed.</p>
@@ -243,7 +243,7 @@ export default function AdminLevelRequestsPage() {
                       ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                       : req.status === 'APPROVED'
                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                        : 'bg-red-100 dark:bg-red-900/30 text-brand-error'
+                        : 'bg-brand-error/10 text-brand-error'
                   }`}
                 >
                   {req.status}
@@ -290,7 +290,7 @@ export default function AdminLevelRequestsPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer"
+                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer px-4 py-2.5 min-h-11"
                   >
                     Review
                   </button>
