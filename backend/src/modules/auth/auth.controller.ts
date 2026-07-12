@@ -54,7 +54,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     } = req.body;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
-    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() }, select: { id: true } });
     if (existing) {
       throw new AppError('Email already registered', 409);
     }
@@ -86,12 +86,12 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       },
     });
 
-    await logAudit({
+    logAudit({
       userId: user.id,
       action: 'USER_CREATE',
       targetId: user.id,
       targetType: 'User',
-    });
+    }).catch(() => {});
 
     res
       .status(201)
@@ -105,7 +105,7 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() }, select: { id: true, status: true } });
     if (!user) {
       // Don't reveal whether email exists
       res.status(200).json({ message: 'Verification code sent to your email.', devOtp: null });
@@ -118,7 +118,7 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
 
     const otp = await generateAndStoreOtp(email);
     await enqueueOtpEmail(email, otp);
-    await logAudit({ userId: user.id, action: 'OTP_SENT' });
+    logAudit({ userId: user.id, action: 'OTP_SENT' }).catch(() => {});
 
     // TEMPORARY: return OTP for testing until SMTP is configured
     res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
@@ -223,7 +223,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     const refreshToken = req.cookies?.refresh_token;
     if (refreshToken) {
       const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-      const record = await prisma.refreshToken.findUnique({ where: { tokenHash } });
+      const record = await prisma.refreshToken.findUnique({ where: { tokenHash }, select: { userId: true } });
       if (record) {
         await logAudit({ userId: record.userId, action: 'LOGOUT' });
       }

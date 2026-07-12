@@ -100,7 +100,9 @@ export async function createEvent(
       }
     };
 
-    send();
+    send().catch((err) =>
+      logger.warn('Event invitation send failed', { error: (err as Error).message })
+    );
   }
 
   return event;
@@ -116,6 +118,7 @@ export async function listEventsByOpportunity(
         opportunityId,
         status: { not: 'CANCELLED' },
       },
+      take: 50,
       orderBy: { eventDate: 'asc' },
     });
   }
@@ -495,6 +498,17 @@ export async function getAttendanceList(
     prisma.attendance.count({ where }),
   ]);
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+}
+
+export async function getAttendanceListAll(eventId: string) {
+  return prisma.attendance.findMany({
+    where: { eventId },
+    take: 500,
+    include: {
+      volunteer: { select: { id: true, name: true, email: true } },
+    },
+    orderBy: { checkedInAt: 'desc' },
+  });
 }
 
 export async function getMyEvents(

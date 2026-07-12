@@ -48,19 +48,25 @@ async function sendPushToUser(
     }
 
     const subs = await prisma.pushSubscription.findMany({ where: { userId } });
-    for (const sub of subs) {
-      try {
-        await webpush.sendNotification(
+
+    const results = await Promise.allSettled(
+      subs.map((sub) =>
+        webpush.sendNotification(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
           JSON.stringify({ title, body, link })
-        );
-      } catch (err) {
+        )
+      )
+    );
+
+    for (let i = 0; i < subs.length; i++) {
+      if (results[i].status === 'rejected') {
+        const reason = (results[i] as PromiseRejectedResult).reason;
         logger.warn('Push subscription send failed, removing', {
-          endpoint: sub.endpoint.slice(0, 30),
-          error: (err as Error).message,
+          endpoint: subs[i].endpoint.slice(0, 30),
+          error: (reason as Error).message,
         });
         await prisma.pushSubscription
-          .deleteMany({ where: { endpoint: sub.endpoint } })
+          .deleteMany({ where: { endpoint: subs[i].endpoint } })
           .catch((cleanupErr) =>
             logger.warn('Failed to clean up expired push subscription', {
               error: (cleanupErr as Error).message,
@@ -874,17 +880,27 @@ if (redis && notificationsQueue) {
           take: 100,
         });
 
-        for (const event of upcomingEvents) {
-          // Find all volunteers with ACCEPTED applications for this event's opportunity
-          const acceptedApplications = await prisma.application.findMany({
-            where: {
-              opportunityId: event.opportunityId,
-              status: 'ACCEPTED',
-            },
-            select: { volunteerId: true },
-          });
+        // Batch-fetch all accepted applications for all upcoming events
+        const allAcceptedApps = await prisma.application.findMany({
+          where: {
+            opportunityId: { in: upcomingEvents.map((e) => e.opportunityId) },
+            status: 'ACCEPTED',
+          },
+          select: { volunteerId: true, opportunityId: true },
+        });
 
-          for (const { volunteerId } of acceptedApplications) {
+        // Group by opportunityId
+        const appsByOpportunity = new Map<string, string[]>();
+        for (const app of allAcceptedApps) {
+          const list = appsByOpportunity.get(app.opportunityId) ?? [];
+          list.push(app.volunteerId);
+          appsByOpportunity.set(app.opportunityId, list);
+        }
+
+        // Enqueue reminders per event
+        for (const event of upcomingEvents) {
+          const volunteerIds = appsByOpportunity.get(event.opportunityId) ?? [];
+          for (const volunteerId of volunteerIds) {
             await notificationsQueue?.add(
               'event-reminder',
               {
@@ -895,7 +911,6 @@ if (redis && notificationsQueue) {
                 venue: event.venue ?? undefined,
               },
               {
-                // Deduplicate: same event+volunteer pair won't be enqueued twice
                 jobId: `event-reminder-${event.id}-${volunteerId}`,
               }
             );

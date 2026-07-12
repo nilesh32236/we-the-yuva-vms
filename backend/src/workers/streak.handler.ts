@@ -18,27 +18,40 @@ export async function updateStreaks() {
   let updated = 0;
   let reset = 0;
 
-  for (const profile of profiles) {
-    const wasActiveYesterday =
-      profile.lastActiveAt &&
-      profile.lastActiveAt >= yesterday &&
-      profile.lastActiveAt < todayStart;
+  const BATCH_SIZE = 100;
+  for (let i = 0; i < profiles.length; i += BATCH_SIZE) {
+    const batch = profiles.slice(i, i + BATCH_SIZE);
+    const ops = [];
+    
+    for (const profile of batch) {
+      const wasActiveYesterday =
+        profile.lastActiveAt &&
+        profile.lastActiveAt >= yesterday &&
+        profile.lastActiveAt < todayStart;
 
-    if (wasActiveYesterday) {
-      const newStreak = profile.currentStreak + 1;
-      const newLongest = Math.max(newStreak, profile.longestStreak);
+      if (wasActiveYesterday) {
+        const newStreak = profile.currentStreak + 1;
+        const newLongest = Math.max(newStreak, profile.longestStreak);
+        ops.push(
+          prisma.volunteerProfile.update({
+            where: { userId: profile.userId },
+            data: { currentStreak: newStreak, longestStreak: newLongest },
+          })
+        );
+        updated++;
+      } else if (profile.lastActiveAt && profile.lastActiveAt < yesterday) {
+        ops.push(
+          prisma.volunteerProfile.update({
+            where: { userId: profile.userId },
+            data: { currentStreak: 0 },
+          })
+        );
+        reset++;
+      }
+    }
 
-      await prisma.volunteerProfile.update({
-        where: { userId: profile.userId },
-        data: { currentStreak: newStreak, longestStreak: newLongest },
-      });
-      updated++;
-    } else if (profile.lastActiveAt && profile.lastActiveAt < yesterday) {
-      await prisma.volunteerProfile.update({
-        where: { userId: profile.userId },
-        data: { currentStreak: 0 },
-      });
-      reset++;
+    if (ops.length > 0) {
+      await prisma.$transaction(ops);
     }
   }
 

@@ -127,20 +127,27 @@ export async function listOpportunities(
       include: {
         location: true,
         createdBy: { select: { name: true } },
-        _count: { select: { applications: true } },
       },
     }),
     prisma.opportunity.count({ where }),
   ]);
 
-  // Batch-fetch accepted counts for all opportunities
+  // Batch-fetch accepted and total application counts for all opportunities
   const oppIds = data.map((o) => o.id);
-  const acceptedCounts = await prisma.application.groupBy({
-    by: ['opportunityId'],
-    where: { opportunityId: { in: oppIds }, status: 'ACCEPTED' },
-    _count: { id: true },
-  });
+  const [acceptedCounts, totalCounts] = await Promise.all([
+    prisma.application.groupBy({
+      by: ['opportunityId'],
+      where: { opportunityId: { in: oppIds }, status: 'ACCEPTED' },
+      _count: { id: true },
+    }),
+    prisma.application.groupBy({
+      by: ['opportunityId'],
+      where: { opportunityId: { in: oppIds } },
+      _count: { id: true },
+    }),
+  ]);
   const acceptedMap = new Map(acceptedCounts.map((c) => [c.opportunityId, c._count.id]));
+  const totalMap = new Map(totalCounts.map((c) => [c.opportunityId, c._count.id]));
 
   let enriched = data;
   if (userId) {
@@ -151,12 +158,14 @@ export async function listOpportunities(
     const appMap = new Map(userApps.map((a) => [a.opportunityId, a]));
     enriched = data.map((opp) => ({
       ...opp,
+      _count: { applications: totalMap.get(opp.id) ?? 0 },
       acceptedCount: acceptedMap.get(opp.id) ?? 0,
       userApplication: appMap.has(opp.id) ? { status: appMap.get(opp.id)!.status } : null,
     }));
   } else {
     enriched = data.map((opp) => ({
       ...opp,
+      _count: { applications: totalMap.get(opp.id) ?? 0 },
       acceptedCount: acceptedMap.get(opp.id) ?? 0,
     }));
   }
@@ -339,7 +348,6 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
         throw err;
       }
     },
-    { isolationLevel: 'Serializable' }
   );
 
   // Notify the opportunity creator (non-blocking)
@@ -382,7 +390,9 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
       }
     };
 
-    notify();
+    notify().catch((err) =>
+      logger.warn('Failed to notify opportunity creator', { error: (err as Error).message })
+    );
   }
 
   return application;

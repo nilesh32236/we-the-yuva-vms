@@ -3,6 +3,26 @@ import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
+let coordinatorRoleId: string | null = null;
+
+async function getCoordinatorRoleId(): Promise<string> {
+  if (coordinatorRoleId) return coordinatorRoleId;
+  const role = await prisma.role.findUnique({ where: { name: 'COORDINATOR' } });
+  if (!role) throw new AppError('COORDINATOR role not found', 500);
+  coordinatorRoleId = role.id;
+  return coordinatorRoleId;
+}
+
+let volunteerRoleId: string | null = null;
+
+async function getVolunteerRoleId(): Promise<string> {
+  if (volunteerRoleId) return volunteerRoleId;
+  const role = await prisma.role.findUnique({ where: { name: 'VOLUNTEER' } });
+  if (!role) throw new AppError('VOLUNTEER role not found', 500);
+  volunteerRoleId = role.id;
+  return volunteerRoleId;
+}
+
 export interface RegisterOrgInput {
   name: string;
   slug?: string;
@@ -319,40 +339,47 @@ export async function addCoordinatorToOrg(
     throw new AppError('Unauthorized to add coordinators to this organization', 403);
   }
 
-  const coordinatorRole = await prisma.role.findUnique({ where: { name: 'COORDINATOR' } });
-  if (!coordinatorRole) throw new AppError('COORDINATOR role not found', 500);
+  const coordinatorRoleId = await getCoordinatorRoleId();
 
   const email = data.email.toLowerCase();
   return prisma.user.upsert({
     where: { email },
     update: {
-      roleId: coordinatorRole.id,
+      roleId: coordinatorRoleId,
       organizationId: orgId,
     },
     create: {
       email,
       name: data.name,
-      roleId: coordinatorRole.id,
+      roleId: coordinatorRoleId,
       organizationId: orgId,
       status: 'ACTIVE',
     },
   });
 }
 
-export async function listCoordinators(orgId: string) {
-  return prisma.user.findMany({
-    where: {
-      organizationId: orgId,
-      roleRef: { name: 'COORDINATOR' },
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      status: true,
-      createdAt: true,
-    },
-  });
+export async function listCoordinators(orgId: string, page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const where = {
+    organizationId: orgId,
+    roleRef: { name: 'COORDINATOR' },
+  };
+  const [data, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        createdAt: true,
+      },
+    }),
+    prisma.user.count({ where }),
+  ]);
+  return data;
 }
 
 export async function getPublicOrganizationBySlug(slug: string) {
@@ -406,14 +433,13 @@ export async function removeCoordinatorFromOrg(
     throw new AppError('User is not a coordinator', 400);
   }
 
-  const volunteerRole = await prisma.role.findUnique({ where: { name: 'VOLUNTEER' } });
-  if (!volunteerRole) throw new AppError('VOLUNTEER role not found', 500);
+  const volunteerRoleId = await getVolunteerRoleId();
 
   return prisma.user.update({
     where: { id: userIdToRemove },
     data: {
       organizationId: null,
-      roleId: volunteerRole.id,
+      roleId: volunteerRoleId,
     },
   });
 }

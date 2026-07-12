@@ -9,19 +9,18 @@ export async function submitFeedback(
   volunteerId: string,
   data: { rating: number; comments?: string; learnings?: string; confidenceLevel?: number }
 ) {
-  const event = await prisma.event.findUnique({ where: { id: eventId } });
-  if (!event) throw new AppError('Event not found', 404);
+  const [event, attendance] = await Promise.all([
+    prisma.event.findUnique({ where: { id: eventId } }),
+    prisma.attendance.findUnique({
+      where: { eventId_volunteerId: { eventId, volunteerId } },
+    }),
+  ]);
 
-  const attendance = await prisma.attendance.findUnique({
-    where: { eventId_volunteerId: { eventId, volunteerId } },
-  });
+  if (!event) throw new AppError('Event not found', 404);
   if (!attendance?.attended) throw new AppError('You have not attended this event', 403);
 
   if (data.rating < 1 || data.rating > 5) throw new AppError('Rating must be between 1 and 5', 400);
-  if (
-    data.confidenceLevel !== undefined &&
-    (data.confidenceLevel < 1 || data.confidenceLevel > 5)
-  ) {
+  if (data.confidenceLevel !== undefined && (data.confidenceLevel < 1 || data.confidenceLevel > 5)) {
     throw new AppError('Confidence level must be between 1 and 5', 400);
   }
 
@@ -97,6 +96,7 @@ export async function getEventFeedback(
   if (!pagination) {
     return prisma.eventFeedback.findMany({
       where: { eventId },
+      take: 100,
       include: { volunteer: { select: { name: true } } },
     });
   }
@@ -164,15 +164,26 @@ export async function getEventFeedbackSummary(
     throw new AppError('Forbidden', 403);
   }
 
-  const feedback = await prisma.eventFeedback.findMany({ where: { eventId } });
-  if (feedback.length === 0) return { average: 0, count: 0, distribution: {} };
-  const total = feedback.reduce((s, f) => s + f.rating, 0);
-  const distribution: Record<number, number> = {};
-  for (let i = 1; i <= 5; i++) distribution[i] = 0;
-  for (const f of feedback) distribution[f.rating]++;
+  const [aggregate, distribution] = await Promise.all([
+    prisma.eventFeedback.aggregate({
+      where: { eventId },
+      _avg: { rating: true },
+      _count: true,
+    }),
+    prisma.eventFeedback.groupBy({
+      by: ['rating'],
+      where: { eventId },
+      _count: true,
+    }),
+  ]);
+
+  const dist: Record<number, number> = {};
+  for (let i = 1; i <= 5; i++) dist[i] = 0;
+  for (const d of distribution) dist[d.rating] = (dist[d.rating] ?? 0) + d._count;
+
   return {
-    average: Math.round((total / feedback.length) * 10) / 10,
-    count: feedback.length,
-    distribution,
+    average: aggregate._avg.rating ? Math.round(aggregate._avg.rating * 10) / 10 : 0,
+    count: aggregate._count,
+    distribution: dist,
   };
 }

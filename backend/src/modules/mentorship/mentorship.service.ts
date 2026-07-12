@@ -38,39 +38,53 @@ export async function requestMentorship(mentorId: string, menteeId: string, _mes
   });
 
   if (notificationsQueue) {
-    await notificationsQueue
+    notificationsQueue
       .add('mentorship-update', {
         userId: mentorId,
         title: 'New Mentorship Request',
         body: `${mentorship.mentee.name} wants you as their mentor`,
         link: '/coordinator/mentorship',
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
   }
 
   return mentorship;
 }
 
-export async function listPendingRequests(userId: string) {
-  return prisma.mentorship.findMany({
-    where: { mentorId: userId, status: 'PENDING' },
-    include: {
-      mentee: {
-        select: { id: true, name: true, email: true, profile: true },
+export async function listPendingRequests(userId: string, page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.mentorship.findMany({
+      where: { mentorId: userId, status: 'PENDING' },
+      skip,
+      take: limit,
+      include: {
+        mentee: {
+          select: { id: true, name: true, email: true, profile: true },
+        },
       },
-    },
-    orderBy: { startedAt: 'desc' },
-  });
+      orderBy: { startedAt: 'desc' },
+    }),
+    prisma.mentorship.count({ where: { mentorId: userId, status: 'PENDING' } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function listMyRequests(userId: string) {
-  return prisma.mentorship.findMany({
-    where: { menteeId: userId },
-    include: {
-      mentor: { select: { id: true, name: true, email: true } },
-    },
-    orderBy: { startedAt: 'desc' },
-  });
+export async function listMyRequests(userId: string, page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.mentorship.findMany({
+      where: { menteeId: userId },
+      skip,
+      take: limit,
+      include: {
+        mentor: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: { startedAt: 'desc' },
+    }),
+    prisma.mentorship.count({ where: { menteeId: userId } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function reviewMentorshipRequest(
@@ -100,37 +114,51 @@ export async function reviewMentorshipRequest(
   }
 
   if (status === 'ACTIVE' && notificationsQueue) {
-    await notificationsQueue
+    notificationsQueue
       .add('mentorship-update', {
         userId: result.menteeId,
         title: 'Mentorship Approved',
         body: `${result.mentor.name} has accepted your mentorship request!`,
         link: '/volunteer/mentorship',
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
   }
 
   return result;
 }
 
-export async function listMyMentors(menteeId: string) {
-  return prisma.mentorship.findMany({
-    where: { menteeId, status: { in: ['ACTIVE', 'COMPLETED'] } },
-    include: {
-      mentor: { select: { id: true, name: true, email: true, profile: true } },
-    },
-    orderBy: { startedAt: 'desc' },
-  });
+export async function listMyMentors(menteeId: string, page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.mentorship.findMany({
+      where: { menteeId, status: { in: ['ACTIVE', 'COMPLETED'] } },
+      skip,
+      take: limit,
+      include: {
+        mentor: { select: { id: true, name: true, email: true, profile: true } },
+      },
+      orderBy: { startedAt: 'desc' },
+    }),
+    prisma.mentorship.count({ where: { menteeId, status: { in: ['ACTIVE', 'COMPLETED'] } } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function listMyMentees(mentorId: string) {
-  return prisma.mentorship.findMany({
-    where: { mentorId, status: { in: ['ACTIVE', 'COMPLETED'] } },
-    include: {
-      mentee: { select: { id: true, name: true, email: true, profile: true } },
-    },
-    orderBy: { startedAt: 'desc' },
-  });
+export async function listMyMentees(mentorId: string, page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.mentorship.findMany({
+      where: { mentorId, status: { in: ['ACTIVE', 'COMPLETED'] } },
+      skip,
+      take: limit,
+      include: {
+        mentee: { select: { id: true, name: true, email: true, profile: true } },
+      },
+      orderBy: { startedAt: 'desc' },
+    }),
+    prisma.mentorship.count({ where: { mentorId, status: { in: ['ACTIVE', 'COMPLETED'] } } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function completeMentorship(requestId: string, userId: string) {
@@ -156,22 +184,22 @@ export async function completeMentorship(requestId: string, userId: string) {
   }
 
   if (notificationsQueue) {
-    await notificationsQueue
+    notificationsQueue
       .add('mentorship-update', {
         userId: result.menteeId,
         title: 'Mentorship Completed',
         body: `Your mentorship with ${result.mentor.name} has been completed!`,
         link: '/volunteer/mentorship',
       })
-      .catch(() => {});
-    await notificationsQueue
+      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
+    notificationsQueue
       .add('mentorship-update', {
         userId: result.mentorId,
         title: 'Mentorship Completed',
         body: `Your mentorship with ${result.mentee.name} has been completed. Great job mentoring!`,
         link: '/coordinator/mentorship',
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
   }
 
   return result;

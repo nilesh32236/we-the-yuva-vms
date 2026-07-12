@@ -1,3 +1,4 @@
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 
@@ -48,42 +49,48 @@ export async function checkAndAwardBadges(userId: string) {
     })).map((b) => b.badgeId)
   );
 
-  const results: { badge: (typeof allBadges)[number]; newlyEarned: boolean }[] = [];
+  const eligibleBadges = allBadges.filter((b) => !earnedBadgeIds.has(b.id));
+  const criteriaResults = await Promise.all(
+    eligibleBadges.map((badge) => evaluateCriteria(userId, badge.criteria as BadgeCriteria))
+  );
 
-  for (const badge of allBadges) {
-    if (earnedBadgeIds.has(badge.id) || pendingApprovalBadgeIds.has(badge.id)) {
-      results.push({ badge, newlyEarned: false });
-      continue;
-    }
-
-    const criteria = badge.criteria as BadgeCriteria;
-    const met = await evaluateCriteria(userId, criteria);
-
-    if (met) {
-      if (badge.requiresApproval) {
-        await prisma.badgeApproval.upsert({
-          where: { userId_badgeId: { userId, badgeId: badge.id } },
-          update: { status: 'PENDING', reviewedAt: null, reviewedBy: null, reviewNote: null },
-          create: { userId, badgeId: badge.id },
-        });
-      } else {
-        await prisma.userBadge.create({
-          data: { userId, badgeId: badge.id },
-        });
-        await awardPoints(userId, 50, `BADGE_${badge.name}`, badge.id);
-        if (notificationsQueue) {
-          await notificationsQueue
-            .add('badge-earned', { userId, badgeName: badge.name })
-            .catch(() => {});
+  const awardOps: Promise<unknown>[] = [];
+  for (let i = 0; i < eligibleBadges.length; i++) {
+    if (criteriaResults[i]) {
+      const badge = eligibleBadges[i];
+      const op = (async () => {
+        if (badge.requiresApproval) {
+          await prisma.badgeApproval.upsert({
+            where: { userId_badgeId: { userId, badgeId: badge.id } },
+            update: { status: 'PENDING', reviewedAt: null, reviewedBy: null, reviewNote: null },
+            create: { userId, badgeId: badge.id },
+          });
+        } else {
+          await prisma.$transaction([
+            prisma.userBadge.create({
+              data: { userId, badgeId: badge.id },
+            }),
+            prisma.pointTransaction.create({
+              data: { userId, amount: 50, reason: `BADGE_${badge.name}`, reference: badge.id },
+            }),
+            prisma.user.update({
+              where: { id: userId },
+              data: { points: { increment: 50 } },
+            }),
+          ]);
+          if (notificationsQueue) {
+            await notificationsQueue
+              .add('badge-earned', { userId, badgeName: badge.name })
+              .catch((err) => logger.warn('Badge notification failed', { error: (err as Error).message }));
+          }
         }
-      }
-      results.push({ badge, newlyEarned: true });
-    } else {
-      results.push({ badge, newlyEarned: false });
+      })();
+      awardOps.push(op);
     }
   }
+  await Promise.all(awardOps);
 
-  return results.filter((r) => r.newlyEarned);
+  return eligibleBadges.filter((_, i) => criteriaResults[i]);
 }
 
 async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promise<boolean> {
@@ -165,9 +172,12 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
     case 'EVENTS_AFTER_HOURS': {
       const attendances = await prisma.attendance.findMany({
         where: { volunteerId: userId, attended: true },
-        include: { event: { select: { startTime: true, eventDate: true } } },
+        select: {
+          event: { select: { startTime: true, eventDate: true } },
+        },
       });
       const eveningWeekendCount = attendances.filter((a) => {
+        if (!a.event.startTime) return false;
         const hour = Number.parseInt(a.event.startTime.split(':')[0] ?? '0', 10);
         const day = a.event.eventDate.getDay();
         return hour >= 17 || day === 0 || day === 6;

@@ -16,32 +16,47 @@ export async function createCourse(userId: string, data: CreateCourseInput) {
 }
 
 export async function updateCourse(id: string, userId: string, data: UpdateCourseInput) {
-  const course = await prisma.course.findUnique({ where: { id } });
-  if (!course) throw new AppError('Course not found', 404);
-  const updated = await prisma.course.update({ where: { id }, data });
-  await logAudit({ userId, action: 'COURSE_UPDATE', targetId: id, targetType: 'Course' });
-  return updated;
+  try {
+    const updated = await prisma.course.update({ where: { id }, data });
+    await logAudit({ userId, action: 'COURSE_UPDATE', targetId: id, targetType: 'Course' });
+    return updated;
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === 'P2025') {
+      throw new AppError('Course not found', 404);
+    }
+    throw err;
+  }
 }
 
 export async function deleteCourse(id: string, userId: string) {
-  const course = await prisma.course.findUnique({ where: { id } });
-  if (!course) throw new AppError('Course not found', 404);
-  await prisma.course.delete({ where: { id } });
-  await logAudit({ userId, action: 'COURSE_DELETE', targetId: id, targetType: 'Course' });
+  try {
+    await prisma.course.delete({ where: { id } });
+    await logAudit({ userId, action: 'COURSE_DELETE', targetId: id, targetType: 'Course' });
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === 'P2025') {
+      throw new AppError('Course not found', 404);
+    }
+    throw err;
+  }
 }
 
 export async function createLesson(courseId: string, userId: string, data: CreateLessonInput) {
-  const course = await prisma.course.findUnique({ where: { id: courseId } });
-  if (!course) throw new AppError('Course not found', 404);
-  const lesson = await prisma.lesson.create({ data: { ...data, courseId } });
-  await logAudit({
-    userId,
-    action: 'LESSON_CREATE',
-    targetId: lesson.id,
-    targetType: 'Lesson',
-    metadata: { courseId },
-  });
-  return lesson;
+  try {
+    const lesson = await prisma.lesson.create({ data: { ...data, course: { connect: { id: courseId } } } });
+    await logAudit({
+      userId,
+      action: 'LESSON_CREATE',
+      targetId: lesson.id,
+      targetType: 'Lesson',
+      metadata: { courseId },
+    });
+    return lesson;
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === 'P2025') {
+      throw new AppError('Course not found', 404);
+    }
+    throw err;
+  }
 }
 
 export async function updateLesson(
@@ -50,7 +65,7 @@ export async function updateLesson(
   userId: string,
   data: UpdateLessonInput
 ) {
-  const lesson = await prisma.lesson.findUnique({ where: { id } });
+  const lesson = await prisma.lesson.findUnique({ where: { id }, select: { courseId: true } });
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId)
     throw new AppError('Lesson does not belong to this course', 400);
@@ -66,7 +81,7 @@ export async function updateLesson(
 }
 
 export async function deleteLesson(courseId: string, id: string, userId: string) {
-  const lesson = await prisma.lesson.findUnique({ where: { id } });
+  const lesson = await prisma.lesson.findUnique({ where: { id }, select: { courseId: true } });
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId)
     throw new AppError('Lesson does not belong to this course', 400);
@@ -126,23 +141,24 @@ export async function getCourse(courseId: string, userId: string) {
   const course = await prisma.course.findUnique({
     where: { id: courseId },
     include: {
-      lessons: { orderBy: { order: 'asc' } },
+      lessons: {
+        orderBy: { order: 'asc' },
+        include: {
+          completions: { where: { userId }, select: { lessonId: true } },
+        },
+      },
       progress: { where: { userId } },
     },
   });
 
   if (!course) throw new AppError('Course not found', 404);
 
-  const completedLessonIds = await prisma.lessonCompletion.findMany({
-    where: { userId, lesson: { courseId } },
-    select: { lessonId: true },
-  });
-
-  const completedSet = new Set(completedLessonIds.map((l) => l.lessonId));
-
   return {
     ...course,
-    lessons: course.lessons.map((l) => ({ ...l, completed: completedSet.has(l.id) })),
+    lessons: course.lessons.map(({ completions, ...l }) => ({
+      ...l,
+      completed: completions.length > 0,
+    })),
     progress: course.progress[0] ?? null,
   };
 }

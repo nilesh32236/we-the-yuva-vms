@@ -129,7 +129,7 @@ export default function AdminStoriesPage() {
                       title="Delete Story"
                       message={`Delete "${confirmDelete.title}"? This action cannot be undone.`}
                       confirmLabel="Delete"
-                      variant="danger"
+                      variant="destructive"
                       onConfirm={handleDelete}
                       onCancel={() => setConfirmDelete(null)}
                     />

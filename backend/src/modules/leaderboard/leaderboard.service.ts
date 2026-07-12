@@ -1,11 +1,29 @@
 import { prisma } from '../../lib/prisma';
 
+interface CacheEntry {
+  data: unknown;
+  expiresAt: number;
+}
+
+const cache = new Map<string, CacheEntry>();
+const CACHE_TTL = 120_000; // 2 minutes
+
+function getCacheKey(params: Record<string, unknown>): string {
+  return `leaderboard:${JSON.stringify(params)}`;
+}
+
 export async function getLeaderboard(params: {
   scope?: 'global' | 'location';
   timeframe?: 'weekly' | 'monthly' | 'alltime';
   sortBy?: 'points' | 'hours';
   locationId?: string;
 }) {
+  const cacheKey = getCacheKey(params);
+  const cached = cache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
   const { scope = 'global', timeframe = 'alltime', sortBy = 'points', locationId } = params;
 
   let dateFilter: Date | undefined;
@@ -55,6 +73,8 @@ export async function getLeaderboard(params: {
     avatarUrl: u.profile?.avatarUrl,
     eventsAttended: u._count.attendances,
   }));
+
+  cache.set(cacheKey, { data: ranked, expiresAt: Date.now() + CACHE_TTL });
 
   return ranked;
 }

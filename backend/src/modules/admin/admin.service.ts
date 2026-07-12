@@ -68,13 +68,13 @@ export async function createUser(
     throw err;
   }
 
-  await logAudit({
+  logAudit({
     userId: adminId,
     action: 'USER_CREATE',
     targetId: user.id,
     targetType: 'User',
     metadata: { role: data.role },
-  });
+  }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
 
   return user;
 }
@@ -131,7 +131,10 @@ export async function updateUser(
   adminId?: string
 ) {
   // Verify user exists
-  const existing = await prisma.user.findUnique({ where: { id } });
+  const existing = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, roleId: true, status: true, email: true, roleRef: { select: { name: true } } },
+  });
   if (!existing) {
     throw new AppError('User not found', 404);
   }
@@ -145,8 +148,6 @@ export async function updateUser(
     updateRoleId = roleRecord.id;
   }
 
-  const existingRole = await prisma.role.findUnique({ where: { id: existing.roleId } });
-
   const user = await prisma.user.update({
     where: { id },
     data: {
@@ -155,39 +156,40 @@ export async function updateUser(
       }),
       ...(updateRoleId && { roleId: updateRoleId }),
     },
+    select: { id: true, name: true, email: true, status: true },
   });
 
   if (adminId) {
     const changes: Record<string, string> = {};
     if (data.status && data.status !== existing.status)
       changes.status = `${existing.status} → ${data.status}`;
-    if (data.role && existingRole && data.role !== existingRole.name)
-      changes.role = `${existingRole.name} → ${data.role}`;
+    if (data.role && existing.roleRef && data.role !== existing.roleRef.name)
+      changes.role = `${existing.roleRef.name} → ${data.role}`;
 
     if (data.status === 'SUSPENDED' && existing.status !== 'SUSPENDED') {
-      await logAudit({
+      logAudit({
         userId: adminId,
         action: 'USER_SUSPEND',
         targetId: id,
         targetType: 'User',
         metadata: changes,
-      });
-    } else if (data.role && existingRole && data.role !== existingRole.name) {
-      await logAudit({
+      }).catch(() => {});
+    } else if (data.role && existing.roleRef && data.role !== existing.roleRef.name) {
+      logAudit({
         userId: adminId,
         action: 'USER_CHANGE_ROLE',
         targetId: id,
         targetType: 'User',
         metadata: changes,
-      });
+      }).catch(() => {});
     } else if (Object.keys(changes).length > 0) {
-      await logAudit({
+      logAudit({
         userId: adminId,
         action: 'USER_UPDATE',
         targetId: id,
         targetType: 'User',
         metadata: changes,
-      });
+      }).catch(() => {});
     }
   }
 
