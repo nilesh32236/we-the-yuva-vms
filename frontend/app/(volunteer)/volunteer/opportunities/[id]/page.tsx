@@ -13,9 +13,11 @@ import {
   Wifi,
 } from 'lucide-react';
 import Link from 'next/link';
-import { use } from 'react';
+import { use, useState } from 'react';
+import { ProfileCompletionModal } from '../../../../../components/profile/ProfileCompletionModal';
 import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
 import { useToast } from '../../../../../hooks/use-toast';
+import { useAuth } from '../../../../../hooks/useAuth';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 
@@ -34,6 +36,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function OpportunityDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { toast } = useToast();
+  const { profileStatus } = useAuth();
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const qc = useQueryClient();
 
   const { data: opp, isLoading } = useQuery({
@@ -292,6 +296,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
               type="button"
               onClick={() => {
                 haptic.medium();
+                if (profileStatus && !profileStatus.isComplete) {
+                  setShowProfileModal(true);
+                  return;
+                }
                 apply.mutate(undefined);
               }}
               disabled={apply.isPending}
@@ -323,6 +331,13 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
           <MessageCircle className="w-4 h-4" /> Join Discussion
         </Link>
       )}
+
+      <ProfileCompletionModal
+        open={showProfileModal}
+        completionPercentage={profileStatus?.completionPercentage ?? 0}
+        missingFields={profileStatus?.missingFields ?? []}
+        onClose={() => setShowProfileModal(false)}
+      />
 
       {/* Skills */}
       {opp.skills?.length > 0 && (

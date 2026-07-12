@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import type { EventInput } from '@/lib/shared';
+import type { EventInput, EventSeriesInput } from '@/lib/shared';
 import { AddToCalendarButton } from '../../../../../components/events/AddToCalendarButton';
 import { EventForm } from '../../../../../components/events/EventForm';
 import { useToast } from '../../../../../hooks/use-toast';
@@ -14,6 +14,7 @@ export default function NewEventPage() {
   const { toast } = useToast();
   const [opportunityId, setOpportunityId] = useState('');
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
+  const [createdSeriesId, setCreatedSeriesId] = useState<string | null>(null);
 
   const { data: oppData } = useQuery({
     queryKey: ['coordinator-opportunities'],
@@ -24,7 +25,7 @@ export default function NewEventPage() {
   const opportunities =
     oppData?.data?.filter((o: { status: string }) => o.status === 'ACTIVE') ?? [];
 
-  const handleSubmit = async (data: EventInput) => {
+  const handleSubmit = async (data: EventInput | EventSeriesInput) => {
     if (!opportunityId) {
       toast({
         title: 'Error',
@@ -34,9 +35,15 @@ export default function NewEventPage() {
       return;
     }
     try {
-      const res = await api.post(`/opportunities/${opportunityId}/events`, data);
-      toast({ title: 'Event created!' });
-      setCreatedEventId(res.data.id);
+      if ('frequency' in data && data.frequency) {
+        const res = await api.post(`/opportunities/${opportunityId}/event-series`, data);
+        toast({ title: 'Event series created!' });
+        setCreatedSeriesId(res.data.id);
+      } else {
+        const res = await api.post(`/opportunities/${opportunityId}/events`, data);
+        toast({ title: 'Event created!' });
+        setCreatedEventId(res.data.id);
+      }
     } catch (err) {
       toast({
         title: 'Error',
@@ -77,7 +84,9 @@ export default function NewEventPage() {
           </select>
         </div>
 
-        {opportunityId && <EventForm onSubmit={handleSubmit} submitLabel="Create Event" />}
+        {opportunityId && (
+          <EventForm onSubmit={handleSubmit} submitLabel="Create Event" showRecurringOption />
+        )}
 
         {createdEventId && (
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center space-y-4 card-hover">
@@ -91,6 +100,18 @@ export default function NewEventPage() {
                 Back to Events
               </Link>
             </div>
+          </div>
+        )}
+
+        {createdSeriesId && (
+          <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center space-y-4 card-hover">
+            <p className="font-medium text-brand-text text-lg">Event Series Created Successfully!</p>
+            <Link
+              href="/coordinator/events"
+              className="inline-flex items-center gap-2 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer active-bounce"
+            >
+              Back to Events
+            </Link>
           </div>
         )}
       </div>

@@ -10,6 +10,37 @@
 		"write": "allow",
 		"read": "allow"
 	},
+	"model": "opencode-go/qwen3.6-plus",
+	"agent": {
+		"orchestrator": {
+			"description": "Interactive mode: plans, divides tasks, and coordinates sub-agents for complicated but not-too-long tasks. Ask questions mid-task as needed.",
+			"mode": "primary",
+			"model": "opencode-go/qwen3.6-plus",
+			"prompt": "{file:./.opencode/prompts/orchestrator.md}",
+			"temperature": 0.3,
+			"color": "accent"
+		},
+		"auto-pilot": {
+			"description": "Auto-pilot mode: for long-running tasks with many changes. Asks ALL questions upfront, then works independently. Skips blockers instead of asking.",
+			"mode": "primary",
+			"model": "opencode-go/qwen3.6-plus",
+			"prompt": "{file:./.opencode/prompts/auto-pilot.md}",
+			"temperature": 0.2,
+			"color": "warning"
+		},
+		"general": {
+			"model": "opencode/deepseek-v4-flash-free"
+		},
+		"explore": {
+			"model": "opencode/deepseek-v4-flash-free"
+		},
+		"scout": {
+			"model": "opencode/deepseek-v4-flash-free"
+		},
+		"verifier": {
+			"mode": "subagent"
+		}
+	},
 	"plugin": [
 		"superpowers@git+https://github.com/obra/superpowers.git",
 		"opencode-notify"

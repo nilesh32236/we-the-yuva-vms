@@ -46,6 +46,8 @@ export const Permissions = {
   LEVEL_REQUEST: 'level:request',
   LEVEL_REVIEW: 'level:review',
 
+  BADGE_APPROVE: 'badge:approve',
+
   CERTIFICATE_VIEW: 'certificate:view',
   CERTIFICATE_DOWNLOAD: 'certificate:download',
 

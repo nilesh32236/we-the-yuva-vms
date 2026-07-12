@@ -9,19 +9,158 @@ import {
 
 describe('auth.schemas', () => {
   describe('RegisterSchema', () => {
-    it('should accept valid registration', () => {
-      const result = RegisterSchema.safeParse({ name: 'Test', email: 'test@example.com' });
+    const validPayload = {
+      name: 'Test User',
+      email: 'test@example.com',
+      phone: '+919876543210',
+      dateOfBirth: '2000-01-15',
+      address: { city: 'Mumbai', state: 'Maharashtra' },
+    };
+
+    it('should accept valid registration with required fields', () => {
+      const result = RegisterSchema.safeParse(validPayload);
       expect(result.success).toBe(true);
     });
 
     it('should reject short name', () => {
-      const result = RegisterSchema.safeParse({ name: 'A', email: 'test@example.com' });
+      const result = RegisterSchema.safeParse({ ...validPayload, name: 'A' });
       expect(result.success).toBe(false);
     });
 
     it('should reject invalid email', () => {
-      const result = RegisterSchema.safeParse({ name: 'Test', email: 'not-email' });
+      const result = RegisterSchema.safeParse({ ...validPayload, email: 'not-email' });
       expect(result.success).toBe(false);
+    });
+
+    it('should reject missing phone', () => {
+      const { phone, ...noPhone } = validPayload;
+      const result = RegisterSchema.safeParse(noPhone);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject invalid phone format', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, phone: 'abc' });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject date of birth for under 14 years old', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, dateOfBirth: '2020-06-15' });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject invalid date string', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, dateOfBirth: 'not-a-date' });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject missing address', () => {
+      const { address, ...noAddr } = validPayload;
+      const result = RegisterSchema.safeParse(noAddr);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject address without city', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        address: { state: 'Maharashtra' },
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject address without state', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        address: { city: 'Mumbai' },
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should accept address with all optional fields', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        address: {
+          street: '123 Main St',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          pincode: '400001',
+          country: 'India',
+        },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept valid reference', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, reference: '+919876543210' });
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept callAvailability with anytime preference', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        callAvailability: { preference: 'anytime' },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept callAvailability with specific_days', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        callAvailability: { preference: 'specific_days', days: [1, 3, 5] },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept callAvailability with anyday_after and time', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        callAvailability: { preference: 'anyday_after', afterTime: '14:00' },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject callAvailability with invalid afterTime format', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        callAvailability: { preference: 'anyday_after', afterTime: '2pm' },
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should accept callAvailability with custom slots', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        callAvailability: {
+          preference: 'custom',
+          slots: [{ day: 1, startTime: '09:00', endTime: '12:00' }],
+        },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject whyVoluntary over 500 characters', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        whyVoluntary: 'x'.repeat(501),
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should accept whyVoluntary within 500 characters', () => {
+      const result = RegisterSchema.safeParse({
+        ...validPayload,
+        whyVoluntary: 'I want to make a difference in my community.',
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept optional fields as undefined', () => {
+      const result = RegisterSchema.safeParse(validPayload);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.reference).toBeUndefined();
+        expect(result.data.callAvailability).toBeUndefined();
+        expect(result.data.whyVoluntary).toBeUndefined();
+      }
     });
   });
 

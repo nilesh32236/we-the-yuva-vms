@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    user: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
+    user: { findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
     role: { findUnique: vi.fn() },
     refreshToken: { findUnique: vi.fn() },
     consentRecord: { findUnique: vi.fn(), create: vi.fn() },
@@ -22,6 +22,7 @@ vi.mock('../auth.service', () => ({
   revokeRefreshToken: vi.fn(),
   rotateRefreshToken: vi.fn(),
   enqueueOtpEmail: vi.fn(),
+  lookupReferral: vi.fn(),
 }));
 
 const { prisma } = await import('@/lib/prisma');
@@ -61,8 +62,16 @@ describe('auth.controller', () => {
   });
 
   describe('register', () => {
-    it('should create a new user successfully', async () => {
-      req.body = { email: 'new@test.com', name: 'New User' };
+    const baseBody = {
+      email: 'new@test.com',
+      name: 'New User',
+      phone: '+919876543210',
+      dateOfBirth: '2000-01-15',
+      address: { city: 'Mumbai', state: 'Maharashtra' },
+    };
+
+    it('should create a new user with all required fields', async () => {
+      req.body = { ...baseBody };
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
       vi.mocked(prisma.role.findUnique).mockResolvedValue({
         id: 'role-vol',
@@ -74,13 +83,89 @@ describe('auth.controller', () => {
 
       await register(req as Request, res as Response, next);
 
-      expect(prisma.user.create).toHaveBeenCalled();
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          email: 'new@test.com',
+          name: 'New User',
+          phone: '+919876543210',
+          dateOfBirth: expect.any(Date),
+          address: { city: 'Mumbai', state: 'Maharashtra' },
+          roleId: 'role-vol',
+          status: 'PENDING',
+        }),
+      });
       expect(res.status).toHaveBeenCalledWith(201);
       expect(logAudit).toHaveBeenCalled();
     });
 
+    it('should create user with optional fields when provided', async () => {
+      req.body = {
+        ...baseBody,
+        whyVoluntary: 'I want to help my community.',
+        callAvailability: { preference: 'anytime' },
+      };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.role.findUnique).mockResolvedValue({
+        id: 'role-vol',
+        name: 'VOLUNTEER',
+        permissions: [],
+      } as never);
+      vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
+
+      await register(req as Request, res as Response, next);
+
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          whyVoluntary: 'I want to help my community.',
+          callAvailability: { preference: 'anytime' },
+        }),
+      });
+    });
+
+    it('should link referredById when valid reference is provided', async () => {
+      req.body = { ...baseBody, reference: '+919876543210' };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.role.findUnique).mockResolvedValue({
+        id: 'role-vol',
+        name: 'VOLUNTEER',
+        permissions: [],
+      } as never);
+      vi.mocked(authService.lookupReferral).mockResolvedValue({
+        id: 'referrer-id',
+        name: 'Referrer',
+      });
+      vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
+
+      await register(req as Request, res as Response, next);
+
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          referredById: 'referrer-id',
+        }),
+      });
+    });
+
+    it('should NOT fail when reference is invalid (optional field)', async () => {
+      req.body = { ...baseBody, reference: 'nonexistent' };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.role.findUnique).mockResolvedValue({
+        id: 'role-vol',
+        name: 'VOLUNTEER',
+        permissions: [],
+      } as never);
+      vi.mocked(authService.lookupReferral).mockResolvedValue(null);
+      vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
+
+      await register(req as Request, res as Response, next);
+
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: expect.not.objectContaining({ referredById: expect.anything() }),
+      });
+      expect(res.status).toHaveBeenCalledWith(201);
+    });
+
     it('should return 409 when email already exists', async () => {
-      req.body = { email: 'existing@test.com', name: 'Existing' };
+      req.body = { ...baseBody, email: 'existing@test.com' };
       vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'existing-id' } as never);
 
       await register(req as Request, res as Response, next);
@@ -89,34 +174,13 @@ describe('auth.controller', () => {
     });
 
     it('should return 500 when VOLUNTEER role not found', async () => {
-      req.body = { email: 'new@test.com', name: 'New User' };
+      req.body = { ...baseBody };
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
       vi.mocked(prisma.role.findUnique).mockResolvedValue(null);
 
       await register(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalledWith(expect.objectContaining({ status: 500 }));
-    });
-
-    it('should register without volunteerType', async () => {
-      req.body = { email: 'new@test.com', name: 'New User' };
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
-      vi.mocked(prisma.role.findUnique).mockResolvedValue({
-        id: 'role-vol',
-        name: 'VOLUNTEER',
-        description: '',
-        permissions: [],
-      } as never);
-      vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
-
-      await register(req as Request, res as Response, next);
-
-      expect(prisma.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.not.objectContaining({ volunteerType: expect.anything() }),
-        })
-      );
-      expect(res.status).toHaveBeenCalledWith(201);
     });
   });
 

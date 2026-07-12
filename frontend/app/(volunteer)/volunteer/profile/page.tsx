@@ -10,6 +10,7 @@ import {
   Clock,
   Edit2,
   GraduationCap,
+  Loader2,
   Mail,
   Settings,
   Tag,
@@ -53,6 +54,12 @@ export default function VolunteerProfilePage() {
     queryKey: ['my-level'],
     queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
     staleTime: 60_000,
+  });
+
+  const { data: pendingBadges } = useQuery({
+    queryKey: ['my-pending-badges'],
+    queryFn: () => api.get('/badges/me').then((r) => r.data),
+    staleTime: 30_000,
   });
 
   const mutation = useMutation({
@@ -433,6 +440,9 @@ export default function VolunteerProfilePage() {
         ))}
       </div>
 
+      {/* Profile Completion Status */}
+      {!editing && <ProfileCompletionInline />}
+
       {/* Current Level */}
       {levelData?.data && !editing && (
         <Link
@@ -490,6 +500,29 @@ export default function VolunteerProfilePage() {
             </div>
           </div>
         </Link>
+      )}
+
+      {/* Pending Badges */}
+      {pendingBadges?.filter((b: { pending: boolean }) => b.pending).length > 0 && !editing && (
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
+          <h2 className="font-heading font-semibold text-sm text-brand-text">Pending Badges</h2>
+          <p className="text-xs text-brand-muted">
+            These badges have been requested and are awaiting approval.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {pendingBadges
+              .filter((b: { pending: boolean }) => b.pending)
+              .map((badge: { name: string; title: string; description: string; imageUrl: string }) => (
+                <div
+                  key={badge.name}
+                  className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-full text-sm"
+                >
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  {badge.title}
+                </div>
+              ))}
+          </div>
+        </div>
       )}
 
       {/* Edit mode: all edit fields */}
@@ -617,6 +650,65 @@ export default function VolunteerProfilePage() {
             </div>
           </Link>
         </div>
+      </div>
+
+      {/* Profile Completion Status Inline */}
+      <ProfileCompletionInline />
+    </div>
+  );
+}
+
+function ProfileCompletionInline() {
+  const { profileStatus } = useAuth();
+
+  if (!profileStatus || profileStatus.isComplete) return null;
+
+  const { completionPercentage, missingFields } = profileStatus;
+
+  const fieldLabels: Record<string, string> = {
+    skills: 'Skills',
+    interests: 'Interests',
+    volunteerType: 'Volunteer Type',
+    availability: 'Availability',
+  };
+
+  return (
+    <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+      <div className="p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading font-semibold text-sm text-brand-text">Profile Completion</h2>
+          <span className="text-xs font-medium text-brand-muted">{completionPercentage}%</span>
+        </div>
+
+        <div className="w-full h-2 rounded-full bg-brand-border overflow-hidden">
+          <div
+            className="h-full rounded-full bg-brand-primary transition-all duration-500"
+            style={{ width: `${completionPercentage}%` }}
+          />
+        </div>
+
+        {missingFields.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-xs text-brand-muted font-medium">Missing fields:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {missingFields.map((f) => (
+                <span
+                  key={f}
+                  className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full"
+                >
+                  {fieldLabels[f] ?? f}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <Link
+          href="/setup-profile"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-primary hover:underline"
+        >
+          Complete Profile →
+        </Link>
       </div>
     </div>
   );

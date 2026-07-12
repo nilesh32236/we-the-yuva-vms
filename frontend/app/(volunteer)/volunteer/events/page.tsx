@@ -9,6 +9,7 @@ import {
   LogOut,
   MapPin,
   MessageSquare,
+  Repeat,
   Video,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -45,6 +46,7 @@ interface VolunteerEvent {
   startTime: string;
   endTime: string;
   isVirtual: boolean;
+  seriesId?: string | null;
   venue?: string;
   meetingLink?: string;
   opportunity?: { title: string };
@@ -125,6 +127,11 @@ function EventRow({ event }: { event: VolunteerEvent }) {
         >
           {event.status}
         </span>
+        {event.seriesId && (
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 flex items-center gap-1">
+            <Repeat className="w-3 h-3" aria-hidden="true" /> Recurring
+          </span>
+        )}
         {isCheckedOut ? (
           <span className="text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full">
             Completed

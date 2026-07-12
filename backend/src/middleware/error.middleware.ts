@@ -7,7 +7,9 @@ import { logger } from '../lib/logger';
 export class AppError extends Error {
   constructor(
     public message: string,
-    public status: number = 500
+    public status: number = 500,
+    public code?: string,
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'AppError';
@@ -33,7 +35,10 @@ export function errorMiddleware(
     if (err.status >= 500) {
       Sentry.captureException(err);
     }
-    res.status(err.status).json({ error: err.message });
+    const response: Record<string, unknown> = { error: err.message };
+    if (err.code) response.code = err.code;
+    if (err.details) response.details = err.details;
+    res.status(err.status).json(response);
     return;
   }
 

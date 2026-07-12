@@ -7,6 +7,7 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { redis } from '../../lib/redis';
+import { getProfileStatus } from '../users/users.service';
 import { AppError } from '../../middleware/error.middleware';
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -275,6 +276,20 @@ export async function closeOpportunity(
 // ─── Applications ─────────────────────────────────────────────────
 
 export async function applyToOpportunity(opportunityId: string, volunteerId: string) {
+  // Profile completeness check
+  const profileStatus = await getProfileStatus(volunteerId);
+  if (!profileStatus.isComplete) {
+    throw new AppError(
+      'Complete your profile before applying to opportunities',
+      403,
+      'PROFILE_INCOMPLETE',
+      {
+        missingFields: profileStatus.missingFields,
+        completionPercentage: profileStatus.completionPercentage,
+      }
+    );
+  }
+
   // Fetch opportunity info before transaction for notification
   const oppInfo = await prisma.opportunity.findUnique({
     where: { id: opportunityId },

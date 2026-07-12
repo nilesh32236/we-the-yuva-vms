@@ -41,3 +41,5 @@ Thumbs.db
 # Prisma
 prisma/migrations/dev.db
 tsconfig.tsbuildinfo
+
+/docs

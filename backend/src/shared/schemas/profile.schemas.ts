@@ -46,3 +46,13 @@ export const UpdateMeSchema = z.object({
   email: z.string().email('Invalid email').optional(),
   volunteerType: z.enum(VOLUNTEER_TYPES).optional(),
 });
+
+export const MISSING_FIELD_KEYS = ['skills', 'interests', 'volunteerType', 'availability'] as const;
+
+export const ProfileStatusSchema = z.object({
+  isComplete: z.boolean(),
+  missingFields: z.array(z.enum(MISSING_FIELD_KEYS)),
+  completionPercentage: z.number().min(0).max(100),
+});
+
+export type ProfileStatus = z.infer<typeof ProfileStatusSchema>;

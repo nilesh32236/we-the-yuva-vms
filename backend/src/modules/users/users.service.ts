@@ -205,6 +205,53 @@ export async function getMe(userId: string) {
   };
 }
 
+export async function getProfileStatus(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      volunteerType: true,
+      profileComplete: true,
+      profile: { select: { skills: true, interests: true, availability: true } },
+    },
+  });
+
+  if (!user) throw new AppError('User not found', 404);
+
+  if (user.profileComplete && user.profile) {
+    return {
+      isComplete: true,
+      missingFields: [],
+      completionPercentage: 100,
+    };
+  }
+
+  const missingFields: string[] = [];
+
+  const hasSkills = (user.profile?.skills?.length ?? 0) > 0;
+  const hasInterests = (user.profile?.interests?.length ?? 0) > 0;
+  const hasVolunteerType = user.volunteerType != null;
+
+  const availability = user.profile?.availability as
+    | { days?: string[]; timeSlots?: string[] }
+    | undefined;
+  const hasAvailability =
+    availability != null &&
+    (availability.days?.length ?? 0) > 0 &&
+    (availability.timeSlots?.length ?? 0) > 0;
+
+  if (!hasSkills) missingFields.push('skills');
+  if (!hasInterests) missingFields.push('interests');
+  if (!hasVolunteerType) missingFields.push('volunteerType');
+  if (!hasAvailability) missingFields.push('availability');
+
+  const totalFields = 4;
+  const filled = totalFields - missingFields.length;
+  const completionPercentage = Math.round((filled / totalFields) * 100);
+  const isComplete = missingFields.length === 0;
+
+  return { isComplete, missingFields, completionPercentage };
+}
+
 export async function upsertVolunteerProfile(userId: string, data: VolunteerProfileInput) {
   const { volunteerType, ...profileData } = data;
 
@@ -285,7 +332,7 @@ export async function upsertStaffProfile(userId: string, data: StaffProfileInput
 }
 
 export async function submitOnboarding(userId: string, data: OnboardingInput) {
-  const { step1, step2, step3, step4, step5, step6, step7 } = data;
+  const { step1, step2, step3, step4, step5 } = data;
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -300,20 +347,31 @@ export async function submitOnboarding(userId: string, data: OnboardingInput) {
     await tx.user.update({
       where: { id: userId },
       data: {
-        name: step1.fullName,
         volunteerType: step3.volunteerType,
+        profileComplete: true,
       },
     });
 
     const profileData = {
-      skills: step3.skills,
-      interests: step3.areasOfInterest,
+      skills: step1.skills,
+      interests: step2.causes,
       availability: {
-        days: step4.daysAvailable,
-        timeSlots: step4.preferredTime,
+        pattern: step3.availabilityPattern,
+        hoursPerWeek: step3.hoursPerWeek,
+        sessionDuration: step3.sessionDuration,
       },
+      education: step4.education,
+      bio: step5.bio,
+      avatarUrl: step5.avatarUrl ?? undefined,
       details: {
-        steps: { step1, step2, step3, step4, step5, step6, step7 },
+        expertise: step1.expertise,
+        languages: step1.languages,
+        interests: step2.interests,
+        preferredActivities: step2.preferredActivities,
+        occupation: step4.occupation,
+        experience: step4.experience,
+        certifications: step4.certifications,
+        socialLinks: step5.socialLinks,
         onboardingCompletedAt: new Date().toISOString(),
       },
     };

@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Calendar, Clock, MapPin, Users, Video } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, MapPin, Repeat, Users, Video } from 'lucide-react';
 import { memo } from 'react';
 import { ApplicationStatusBadge } from '../opportunities/ApplicationStatusBadge';
 
@@ -22,6 +22,8 @@ interface EventCardProps {
     venue?: string | null;
     meetingLink?: string | null;
     capacity: number;
+    seriesId?: string | null;
+    series?: { title: string } | null;
     opportunity: { title: string };
     _count: { attendances: number };
     attendance?: { attended: boolean } | null;
@@ -40,11 +42,18 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
-        <span
-          className={`text-xs font-semibold px-2.5 py-1 rounded-full ${EVENT_STATUS_COLORS[event.status] ?? EVENT_STATUS_COLORS.SCHEDULED}`}
-        >
-          {event.status}
-        </span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span
+            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${EVENT_STATUS_COLORS[event.status] ?? EVENT_STATUS_COLORS.SCHEDULED}`}
+          >
+            {event.status}
+          </span>
+          {event.seriesId && (
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 flex items-center gap-1">
+              <Repeat className="w-3 h-3" aria-hidden="true" /> Recurring
+            </span>
+          )}
+        </div>
         {showAttendance && event.attendance !== undefined && (
           <ApplicationStatusBadge status={event.attendance?.attended ? 'ACCEPTED' : 'PENDING'} />
         )}

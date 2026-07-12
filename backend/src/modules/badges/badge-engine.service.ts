@@ -11,7 +11,11 @@ type BadgeCriteria =
   | { type: 'LEVEL_2_IN_30_DAYS' }
   | { type: 'STREAK'; count: number }
   | { type: 'STORIES_PUBLISHED'; count: number }
-  | { type: 'EVENTS_AFTER_HOURS'; count: number };
+  | { type: 'EVENTS_AFTER_HOURS'; count: number }
+  | { type: 'FIRST_EVENT' }
+  | { type: 'INDUCTION'; eventsCount: number; hoursCount: number }
+  | { type: 'MOBILIZER'; eventsCount: number; hoursCount: number; referralsCount: number }
+  | { type: 'LEADER'; eventsCount: number; hoursCount: number; menteesCount: number };
 
 export async function awardPoints(
   userId: string,
@@ -37,11 +41,17 @@ export async function checkAndAwardBadges(userId: string) {
       (b) => b.badgeId
     )
   );
+  const pendingApprovalBadgeIds = new Set(
+    (await prisma.badgeApproval.findMany({
+      where: { userId, status: 'PENDING' },
+      select: { badgeId: true },
+    })).map((b) => b.badgeId)
+  );
 
   const results: { badge: (typeof allBadges)[number]; newlyEarned: boolean }[] = [];
 
   for (const badge of allBadges) {
-    if (earnedBadgeIds.has(badge.id)) {
+    if (earnedBadgeIds.has(badge.id) || pendingApprovalBadgeIds.has(badge.id)) {
       results.push({ badge, newlyEarned: false });
       continue;
     }
@@ -50,14 +60,22 @@ export async function checkAndAwardBadges(userId: string) {
     const met = await evaluateCriteria(userId, criteria);
 
     if (met) {
-      await prisma.userBadge.create({
-        data: { userId, badgeId: badge.id },
-      });
-      await awardPoints(userId, 50, `BADGE_${badge.name}`, badge.id);
-      if (notificationsQueue) {
-        await notificationsQueue
-          .add('badge-earned', { userId, badgeName: badge.name })
-          .catch(() => {});
+      if (badge.requiresApproval) {
+        await prisma.badgeApproval.upsert({
+          where: { userId_badgeId: { userId, badgeId: badge.id } },
+          update: {},
+          create: { userId, badgeId: badge.id },
+        });
+      } else {
+        await prisma.userBadge.create({
+          data: { userId, badgeId: badge.id },
+        });
+        await awardPoints(userId, 50, `BADGE_${badge.name}`, badge.id);
+        if (notificationsQueue) {
+          await notificationsQueue
+            .add('badge-earned', { userId, badgeName: badge.name })
+            .catch(() => {});
+        }
       }
       results.push({ badge, newlyEarned: true });
     } else {
@@ -148,6 +166,39 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
         return hour >= 17 || day === 0 || day === 6;
       }).length;
       return eveningWeekendCount >= (criteria.count ?? 3);
+    }
+
+    case 'FIRST_EVENT': {
+      const count = await prisma.attendance.count({
+        where: { volunteerId: userId, attended: true },
+      });
+      return count >= 1;
+    }
+
+    case 'INDUCTION': {
+      const [attendedCount, profile] = await Promise.all([
+        prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
+        prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
+      ]);
+      return attendedCount >= criteria.eventsCount || (profile?.totalHours ?? 0) >= criteria.hoursCount;
+    }
+
+    case 'MOBILIZER': {
+      const [attendedCount, profile, referralsCount] = await Promise.all([
+        prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
+        prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
+        prisma.user.count({ where: { referredById: userId } }),
+      ]);
+      return attendedCount >= criteria.eventsCount || (profile?.totalHours ?? 0) >= criteria.hoursCount || referralsCount >= criteria.referralsCount;
+    }
+
+    case 'LEADER': {
+      const [attendedCount, profile, menteesCount] = await Promise.all([
+        prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
+        prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
+        prisma.mentorship.count({ where: { mentorId: userId, status: 'ACTIVE' } }),
+      ]);
+      return attendedCount >= criteria.eventsCount || (profile?.totalHours ?? 0) >= criteria.hoursCount || menteesCount >= criteria.menteesCount;
     }
 
     default:
