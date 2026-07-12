@@ -1,14 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  CheckCircle,
-  FileText,
-  Loader2,
-  Search,
-  X,
-  XCircle,
-} from 'lucide-react';
+import { CheckCircle, FileText, Loader2, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
@@ -23,13 +16,7 @@ interface PendingApproval {
   requestedAt: string;
 }
 
-function ReviewModal({
-  request,
-  onClose,
-}: {
-  request: PendingApproval;
-  onClose: () => void;
-}) {
+function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: () => void }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [reviewNote, setReviewNote] = useState('');

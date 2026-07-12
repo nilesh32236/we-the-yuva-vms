@@ -53,7 +53,9 @@ api.interceptors.request.use(async (config) => {
           refreshPromise = axios
             .post('/api/v1/auth/refresh', {}, { withCredentials: true, timeout: 10000 })
             .then((r) => r.data)
-            .finally(() => { refreshPromise = null; });
+            .finally(() => {
+              refreshPromise = null;
+            });
         }
         const data = await refreshPromise;
         if (data.accessToken) {

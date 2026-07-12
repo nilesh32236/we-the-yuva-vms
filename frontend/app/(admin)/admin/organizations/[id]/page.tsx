@@ -74,6 +74,10 @@ export default function AdminOrgDetailPage() {
         variant: 'destructive',
       });
     },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['admin-org-detail', id] });
+      qc.invalidateQueries({ queryKey: ['admin-orgs'] });
+    },
   });
 
   if (isLoading) {

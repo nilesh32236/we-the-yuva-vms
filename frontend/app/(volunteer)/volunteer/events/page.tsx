@@ -194,7 +194,8 @@ function EventRow({ event }: { event: VolunteerEvent }) {
                 })}
                 {attendance.checkInLat && (
                   <span className="text-brand-muted ml-1.5">
-                    <MapPin className="w-3 h-3 inline" /> {attendance.checkInLat.toFixed(4)}, {attendance.checkInLng?.toFixed(4)}
+                    <MapPin className="w-3 h-3 inline" /> {attendance.checkInLat.toFixed(4)},{' '}
+                    {attendance.checkInLng?.toFixed(4)}
                   </span>
                 )}
               </span>
@@ -213,7 +214,8 @@ function EventRow({ event }: { event: VolunteerEvent }) {
                 })}
                 {attendance.checkOutLat && (
                   <span className="text-brand-muted ml-1.5">
-                    <MapPin className="w-3 h-3 inline" /> {attendance.checkOutLat.toFixed(4)}, {attendance.checkOutLng?.toFixed(4)}
+                    <MapPin className="w-3 h-3 inline" /> {attendance.checkOutLat.toFixed(4)},{' '}
+                    {attendance.checkOutLng?.toFixed(4)}
                   </span>
                 )}
               </span>

@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
@@ -45,11 +45,16 @@ export function OpportunityForm({
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<OpportunityInput>({
     resolver: zodResolver(OpportunitySchema),
     defaultValues: { isRemote: false, skills: [], ...defaultValues },
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [reset, defaultValues]);
 
   const [skillInput, setSkillInput] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
@@ -89,12 +94,18 @@ export function OpportunityForm({
       </label>
       <input
         id={id}
+        aria-invalid={!!errors[id]}
+        aria-describedby={errors[id] ? `${id}-error` : undefined}
         {...register(id)}
         {...extra}
         className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary
           ${errors[id] ? 'border-brand-error' : 'border-brand-border'}`}
       />
-      {errors[id] && <p className="text-xs text-brand-error">{errors[id]?.message as string}</p>}
+      {errors[id] && (
+        <p id={`${id}-error`} className="text-xs text-brand-error">
+          {errors[id]?.message as string}
+        </p>
+      )}
     </div>
   );
 

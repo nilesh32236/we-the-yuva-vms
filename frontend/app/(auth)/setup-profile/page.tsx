@@ -1,7 +1,18 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, User, GraduationCap, Heart, Clock, BookOpen } from 'lucide-react';
+import { z } from 'zod';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  User,
+  GraduationCap,
+  Heart,
+  Clock,
+  BookOpen,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -34,7 +45,12 @@ const STEP_KEYS = ['step1', 'step2', 'step3', 'step4', 'step5'] as const;
 const defaultValues: OnboardingData = {
   step1: { skills: [], expertise: [], languages: [] },
   step2: { causes: [], interests: [], preferredActivities: [] },
-  step3: { volunteerType: '' as never, availabilityPattern: '' as never, hoursPerWeek: 0, sessionDuration: 0 },
+  step3: {
+    volunteerType: '' as never,
+    availabilityPattern: '' as never,
+    hoursPerWeek: 0,
+    sessionDuration: 0,
+  },
   step4: { education: '', occupation: '', experience: '', certifications: [] },
   step5: { bio: '', avatarUrl: '', socialLinks: {} },
 };
@@ -85,7 +101,9 @@ export default function SetupProfilePage() {
     const sub = watch((data) => {
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
-      } catch { /* quota exceeded — ignore */ }
+      } catch {
+        /* quota exceeded — ignore */
+      }
     });
     return () => sub.unsubscribe();
   }, [watch]);
@@ -93,6 +111,30 @@ export default function SetupProfilePage() {
   useEffect(() => {
     if (!isLoading && !user) router.push('/login');
   }, [user, isLoading, router]);
+
+  // Persist step to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('setup-profile-step', String(step));
+    } catch {
+      /* ignore */
+    }
+  }, [step]);
+
+  // Restore step from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('setup-profile-step');
+      if (saved !== null) {
+        const parsed = parseInt(saved, 10);
+        if (!Number.isNaN(parsed) && parsed >= 0 && parsed < STEPS.length) {
+          setStep(parsed);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const goToStep = (newStep: number) => {
     setFormError(null);
@@ -169,23 +211,43 @@ export default function SetupProfilePage() {
   }
 
   const progress = ((step + 1) / STEPS.length) * 100;
-  const CurrentStepComponent = [StepSkills, StepInterests, StepAvailability, StepEducation, StepBio][step];
+  const CurrentStepComponent = [
+    StepSkills,
+    StepInterests,
+    StepAvailability,
+    StepEducation,
+    StepBio,
+  ][step];
   const stepProps = { register, setValue, watch, errors };
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto pb-12">
       <div>
         <h1 className="font-heading font-bold text-2xl text-brand-text">Complete Your Profile</h1>
-        <p className="text-brand-muted text-sm mt-1">Help us match you with the perfect opportunities</p>
+        <p className="text-brand-muted text-sm mt-1">
+          Help us match you with the perfect opportunities
+        </p>
       </div>
 
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-brand-muted">
-          <span>Step {step + 1} of {STEPS.length}</span>
+          <span>
+            Step {step + 1} of {STEPS.length}
+          </span>
           <span>{STEPS[step].label}</span>
         </div>
-        <div className="h-2 bg-brand-border rounded-full overflow-hidden" role="progressbar" aria-label="Profile completion progress" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-          <div className="h-full bg-brand-primary rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+        <div
+          className="h-2 bg-brand-border rounded-full overflow-hidden"
+          role="progressbar"
+          aria-label="Profile completion progress"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div
+            className="h-full bg-brand-primary rounded-full transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
@@ -196,10 +258,12 @@ export default function SetupProfilePage() {
             key={s.label}
             type="button"
             role="tab"
-            onClick={() => { if (i < step) goToStep(i); }}
+            onClick={() => {
+              if (i < step) goToStep(i);
+            }}
             disabled={i > step}
             aria-selected={i === step}
-              className={`flex items-center gap-1 px-3 py-2.5 min-h-11 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+            className={`flex items-center gap-1 px-3 py-2.5 min-h-11 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               i === step
                 ? 'bg-brand-primary text-white'
                 : i < step
@@ -213,13 +277,19 @@ export default function SetupProfilePage() {
         ))}
       </div>
 
-      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5" aria-busy={isSubmitting}>
+      <div
+        className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5"
+        aria-busy={isSubmitting}
+      >
         <section aria-live="polite">
           <CurrentStepComponent {...stepProps} />
         </section>
 
         {formError && (
-          <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400" role="alert">
+          <div
+            className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400"
+            role="alert"
+          >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{formError}</p>
             <button
@@ -241,11 +311,7 @@ export default function SetupProfilePage() {
             </Button>
           )}
           {step < STEPS.length - 1 ? (
-            <Button
-              variant="cta"
-              className={step === 0 ? 'w-full' : 'flex-1'}
-              onClick={handleNext}
-            >
+            <Button variant="cta" className={step === 0 ? 'w-full' : 'flex-1'} onClick={handleNext}>
               Next <ArrowRight className="w-4 h-4" />
             </Button>
           ) : (
@@ -265,60 +331,95 @@ export default function SetupProfilePage() {
   );
 }
 
+const StaffProfileSchema = z.object({
+  locationName: z.string().min(1, 'Location name is required'),
+  district: z.string().optional(),
+  state: z.string().optional(),
+});
+
+type StaffProfileInput = z.infer<typeof StaffProfileSchema>;
+
 function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
   const { toast } = useToast();
-  const [locationName, setLocationName] = useState('');
-  const [district, setDistrict] = useState('');
-  const [state, setState] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!locationName.trim()) return;
-    setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<StaffProfileInput>({
+    resolver: zodResolver(StaffProfileSchema),
+    defaultValues: { locationName: '', district: '', state: '' },
+  });
+
+  const onSubmit = async (data: StaffProfileInput) => {
     try {
       await api.post('/users/me/staff-profile', {
-        locationName,
-        district: district || undefined,
-        state: state || undefined,
+        locationName: data.locationName,
+        district: data.district || undefined,
+        state: data.state || undefined,
       });
       onComplete();
     } catch (err) {
       const message =
-        (err as { normalizedMessage?: string; response?: { data?: { error?: string; message?: string } } })?.normalizedMessage ??
-        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error ??
-        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.message ??
+        (
+          err as {
+            normalizedMessage?: string;
+            response?: { data?: { error?: string; message?: string } };
+          }
+        )?.normalizedMessage ??
+        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+          ?.error ??
+        (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data
+          ?.message ??
         'Could not save profile. Please try again.';
       toast({ title: 'Error', description: message, variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5"
+    >
       <h2 className="font-heading font-semibold text-xl text-brand-text">Set up your profile</h2>
       <div className="space-y-4">
         {[
-          { id: 'locationName', label: 'Location / Area *', value: locationName, setter: setLocationName, placeholder: 'e.g. Mumbai Central' },
-          { id: 'district', label: 'District', value: district, setter: setDistrict, placeholder: 'e.g. Mumbai' },
-          { id: 'state', label: 'State', value: state, setter: setState, placeholder: 'e.g. Maharashtra' },
-        ].map(({ id, label, value, setter, placeholder }) => (
+          { id: 'locationName', label: 'Location / Area *', placeholder: 'e.g. Mumbai Central' },
+          { id: 'district', label: 'District', placeholder: 'e.g. Mumbai' },
+          { id: 'state', label: 'State', placeholder: 'e.g. Maharashtra' },
+        ].map(({ id, label, placeholder }) => (
           <div key={id} className="space-y-1.5">
-            <label htmlFor={id} className="text-sm font-medium text-brand-text">{label}</label>
+            <label htmlFor={id} className="text-sm font-medium text-brand-text">
+              {label}
+            </label>
             <input
               id={id}
               type="text"
-              value={value}
-              onChange={(e) => setter(e.target.value)}
               placeholder={placeholder}
-              className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              disabled={isSubmitting}
+              aria-invalid={!!errors[id as keyof StaffProfileInput]}
+              aria-describedby={errors[id as keyof StaffProfileInput] ? `${id}-error` : undefined}
+              className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
+                ${errors[id as keyof StaffProfileInput] ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
+              {...register(id as keyof StaffProfileInput)}
             />
+            {errors[id as keyof StaffProfileInput] && (
+              <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">
+                {errors[id as keyof StaffProfileInput]?.message}
+              </p>
+            )}
           </div>
         ))}
       </div>
-      <Button variant="primary" fullWidth onClick={handleSubmit} disabled={!locationName.trim()} loading={isLoading}>
+      <Button
+        type="submit"
+        variant="primary"
+        fullWidth
+        loading={isSubmitting}
+        disabled={isSubmitting}
+      >
         Complete Setup <ArrowRight className="w-4 h-4" />
       </Button>
-    </div>
+    </form>
   );
 }

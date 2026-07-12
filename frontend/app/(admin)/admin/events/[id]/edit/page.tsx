@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -20,9 +20,12 @@ export default function AdminEditEventPage() {
     enabled: !!id,
   });
 
+  const queryClient = useQueryClient();
+
   const handleSubmit = async (data: EventInput | EventSeriesInput) => {
     try {
       await api.put(`/events/${id}`, data);
+      queryClient.invalidateQueries({ queryKey: ['event', id] });
       toast({ title: 'Event updated!' });
       router.push('/admin/events');
     } catch (err) {
@@ -68,7 +71,7 @@ export default function AdminEditEventPage() {
   const defaultValues: Partial<EventInput> = {
     title: event.title,
     description: event.description ?? undefined,
-    eventDate: new Date(event.eventDate).toISOString(),
+    eventDate: new Date(event.eventDate).toISOString().slice(0, 16),
     startTime: event.startTime,
     endTime: event.endTime,
     venue: event.venue ?? undefined,

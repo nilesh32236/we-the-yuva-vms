@@ -147,59 +147,59 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {paged.map((opp) => (
-                <Link
-                  key={opp.id}
-                  href={`/opportunities/${opp.id}`}
-                  className="group rounded-2xl border border-brand-border p-5 bg-brand-surface flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none card-hover"
-                >
-                  {/* Category badge */}
-                  <div>
-                    <span className="rounded-full bg-brand-bg px-3 py-1 text-xs font-semibold text-brand-primary">
-                      {CATEGORY_LABELS[opp.category] ?? opp.category}
-                    </span>
-                  </div>
+                {paged.map((opp) => (
+                  <Link
+                    key={opp.id}
+                    href={`/opportunities/${opp.id}`}
+                    className="group rounded-2xl border border-brand-border p-5 bg-brand-surface flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none card-hover"
+                  >
+                    {/* Category badge */}
+                    <div>
+                      <span className="rounded-full bg-brand-bg px-3 py-1 text-xs font-semibold text-brand-primary">
+                        {CATEGORY_LABELS[opp.category] ?? opp.category}
+                      </span>
+                    </div>
 
-                  {/* Title */}
-                  <h2 className="font-heading font-semibold text-brand-text text-base leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
-                    {opp.title}
-                  </h2>
+                    {/* Title */}
+                    <h2 className="font-heading font-semibold text-brand-text text-base leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
+                      {opp.title}
+                    </h2>
 
-                  {/* Description */}
-                  {opp.description && (
-                    <p className="text-sm text-brand-muted leading-relaxed line-clamp-2">
-                      {opp.description}
-                    </p>
-                  )}
+                    {/* Description */}
+                    {opp.description && (
+                      <p className="text-sm text-brand-muted leading-relaxed line-clamp-2">
+                        {opp.description}
+                      </p>
+                    )}
 
-                  {/* Meta */}
-                  <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-brand-muted">
-                    {opp.location && (
+                    {/* Meta */}
+                    <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-brand-muted">
+                      {opp.location && (
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+                          {opp.location.name}
+                        </span>
+                      )}
+                      {opp.isRemote && !opp.location && (
+                        <span className="flex items-center gap-1.5 text-brand-primary">
+                          <WifiIcon />
+                          Remote
+                        </span>
+                      )}
                       <span className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
-                        {opp.location.name}
+                        <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
+                        {formatDateRange(opp.startDate, opp.endDate)}
                       </span>
-                    )}
-                    {opp.isRemote && !opp.location && (
-                      <span className="flex items-center gap-1.5 text-brand-primary">
-                        <WifiIcon />
-                        Remote
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
-                      {formatDateRange(opp.startDate, opp.endDate)}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
-          </>
-        )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+            </>
+          )}
+        </div>
       </div>
     </div>
-  </div>
   );
 }
 

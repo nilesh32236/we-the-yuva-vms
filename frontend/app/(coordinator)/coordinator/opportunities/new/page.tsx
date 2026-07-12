@@ -13,9 +13,17 @@ export default function NewOpportunityPage() {
   const { toast } = useToast();
 
   const handleSubmit = async (data: OpportunityInput) => {
-    await api.post('/opportunities', data);
-    toast({ title: 'Opportunity created!' });
-    router.push('/coordinator/opportunities');
+    try {
+      await api.post('/opportunities', data);
+      toast({ title: 'Opportunity created!' });
+      router.push('/coordinator/opportunities');
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'Something went wrong',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (

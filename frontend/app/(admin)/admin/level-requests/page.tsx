@@ -40,10 +40,10 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
         status,
         reviewNote: reviewNote || undefined,
       }),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['admin-level-requests'] });
       toast({
-        title: `Request ${reviewMutation.variables?.status === 'APPROVED' ? 'approved' : 'rejected'}`,
+        title: `Request ${variables.status === 'APPROVED' ? 'approved' : 'rejected'}`,
       });
       onClose();
     },
@@ -202,7 +202,10 @@ export default function AdminLevelRequestsPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+          aria-hidden="true"
+        />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -220,7 +223,10 @@ export default function AdminLevelRequestsPage() {
           ))}
         </div>
       ) : requests.length === 0 ? (
-        <div role="status" className="text-center py-12 text-brand-muted text-sm bg-brand-surface rounded-2xl border border-brand-border">
+        <div
+          role="status"
+          className="text-center py-12 text-brand-muted text-sm bg-brand-surface rounded-2xl border border-brand-border"
+        >
           <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p className="font-medium">No pending requests</p>
           <p className="text-sm mt-1">All level-up requests have been reviewed.</p>

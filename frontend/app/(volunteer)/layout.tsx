@@ -22,7 +22,10 @@ const navItems: NavItem[] = [
 export default function VolunteerLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-dvh bg-brand-bg flex flex-col overflow-hidden">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-primary focus:text-white focus:rounded-xl focus:text-sm focus:font-semibold">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-primary focus:text-white focus:rounded-xl focus:text-sm focus:font-semibold"
+      >
         Skip to main content
       </a>
       <TopNav />

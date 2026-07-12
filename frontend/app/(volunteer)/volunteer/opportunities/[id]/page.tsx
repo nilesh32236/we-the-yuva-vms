@@ -125,7 +125,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
   });
 
   const withdraw = useMutation({
-    mutationFn: () => api.delete(`/opportunities/applications/${myApp!.id}`),
+    mutationFn: () => {
+      if (!myApp) throw new Error('No application found');
+      return api.delete(`/opportunities/applications/${myApp.id}`);
+    },
     onMutate: async () => {
       await qc.cancelQueries({ queryKey: ['my-applications'] });
       await qc.cancelQueries({ queryKey: ['opportunity', id] });
@@ -180,7 +183,12 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
         <SkeletonCard />
       </div>
     );
-  if (!opp) return <div role="alert" className="text-brand-muted text-sm">Opportunity not found.</div>;
+  if (!opp)
+    return (
+      <div role="alert" className="text-brand-muted text-sm">
+        Opportunity not found.
+      </div>
+    );
 
   const slotsLeft = opp.totalSlots - (opp._count?.applications ?? 0);
   const isFull = slotsLeft <= 0;
@@ -264,11 +272,20 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                 ${myApp.status === 'ACCEPTED' ? 'bg-brand-primary/10 text-brand-primary' : myApp.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}
               >
                 {myApp.status === 'ACCEPTED' ? (
-                  <><Check className="w-4 h-4 inline" aria-hidden="true" /><span className="sr-only">Accepted</span> Accepted</>
+                  <>
+                    <Check className="w-4 h-4 inline" aria-hidden="true" />
+                    <span className="sr-only">Accepted</span> Accepted
+                  </>
                 ) : myApp.status === 'REJECTED' ? (
-                  <><X className="w-4 h-4 inline" aria-hidden="true" /><span className="sr-only">Rejected</span> Rejected</>
+                  <>
+                    <X className="w-4 h-4 inline" aria-hidden="true" />
+                    <span className="sr-only">Rejected</span> Rejected
+                  </>
                 ) : (
-                  <><Clock className="w-4 h-4 inline" aria-hidden="true" /><span className="sr-only">Pending</span> Application Pending</>
+                  <>
+                    <Clock className="w-4 h-4 inline" aria-hidden="true" />
+                    <span className="sr-only">Pending</span> Application Pending
+                  </>
                 )}
               </div>
               {myApp.status === 'PENDING' && (

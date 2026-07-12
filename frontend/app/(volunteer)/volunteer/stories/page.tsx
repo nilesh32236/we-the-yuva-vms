@@ -9,7 +9,7 @@ import { useAuth } from '../../../../lib/auth-context';
 
 export default function MyStoriesPage() {
   const { user } = useAuth();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['my-stories', user?.id],
     queryFn: () => api.get(`/stories/published?userId=${user?.id}`).then((r) => r.data),
     enabled: !!user,
@@ -28,7 +28,14 @@ export default function MyStoriesPage() {
         </Link>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div
+          role="alert"
+          className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center"
+        >
+          <p className="text-destructive">Failed to load stories. Please try again later.</p>
+        </div>
+      ) : isLoading ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
             <SkeletonCard key={i} />

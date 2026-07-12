@@ -34,7 +34,9 @@ export function ChipSelect<T extends string>({
         ))}
       </div>
       {error && (
-        <p className="text-brand-error text-xs" role="alert">{error}</p>
+        <p className="text-brand-error text-xs" role="alert">
+          {error}
+        </p>
       )}
     </div>
   );

@@ -3,7 +3,7 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BlogPostForm } from '@/components/blog/BlogPostForm';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
@@ -14,17 +14,22 @@ export default function NewBlogPostPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const handleSubmit = async (data: CreateBlogPostInput) => {
-    try {
-      await api.post('/blog', data);
+  const createMutation = useMutation({
+    mutationFn: (data: CreateBlogPostInput) => api.post('/blog', data),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
       toast({ title: 'Post created!', description: 'Your draft has been saved.' });
       router.push('/admin/blog');
-    } catch (err) {
+    },
+    onError: (err) => {
       const message =
         (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to create post';
       toast({ title: 'Error', description: message, variant: 'destructive' });
-    }
+    },
+  });
+
+  const handleSubmit = async (data: CreateBlogPostInput) => {
+    await createMutation.mutateAsync(data);
   };
 
   return (

@@ -135,7 +135,9 @@ export default function AdminStoriesPage() {
       <ConfirmDialog
         open={confirmDelete !== null}
         title="Delete Story"
-        message={confirmDelete ? `Delete "${confirmDelete.title}"? This action cannot be undone.` : ''}
+        message={
+          confirmDelete ? `Delete "${confirmDelete.title}"? This action cannot be undone.` : ''
+        }
         confirmLabel="Delete"
         variant="destructive"
         onConfirm={handleDelete}

@@ -100,7 +100,6 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       rating: number;
     }) => api.post(`/events/${id}/attendance/${volunteerId}/approve`, { approvedHours, rating }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['attendance', id] });
       toast({ title: 'Hours approved!' });
     },
     onError: (err) => {
@@ -109,6 +108,9 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
         description: err instanceof Error ? err.message : 'Approval failed',
         variant: 'destructive',
       });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['attendance', id] });
     },
   });
 
@@ -119,7 +121,11 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
 
   const handleApprove = async (volunteerId: string, approvedHours: number, rating: number) => {
     haptic.medium();
-    await approveMutation.mutateAsync({ volunteerId, approvedHours, rating });
+    try {
+      await approveMutation.mutateAsync({ volunteerId, approvedHours, rating });
+    } catch {
+      // Error handled by mutation onError
+    }
   };
 
   const records: AttendanceRecord[] = attendance?.data ?? attendance ?? [];

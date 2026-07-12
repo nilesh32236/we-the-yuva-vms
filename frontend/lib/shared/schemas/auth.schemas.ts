@@ -41,9 +41,7 @@ export const RegisterSchema = z.object({
       const age = today.getFullYear() - date.getFullYear();
       const monthDiff = today.getMonth() - date.getMonth();
       const actualAge =
-        monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())
-          ? age - 1
-          : age;
+        monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate()) ? age - 1 : age;
       return actualAge >= 14;
     },
     { message: 'You must be at least 14 years old' }
@@ -51,10 +49,7 @@ export const RegisterSchema = z.object({
   address: AddressSchema,
   reference: z.string().optional(),
   callAvailability: CallAvailabilitySchema.optional(),
-  whyVoluntary: z
-    .string()
-    .max(500, 'Must be 500 characters or less')
-    .optional(),
+  whyVoluntary: z.string().max(500, 'Must be 500 characters or less').optional(),
 });
 
 export const SendOtpSchema = z.object({

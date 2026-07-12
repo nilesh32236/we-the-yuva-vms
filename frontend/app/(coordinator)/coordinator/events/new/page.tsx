@@ -13,6 +13,7 @@ import { api } from '../../../../../lib/api';
 export default function NewEventPage() {
   const { toast } = useToast();
   const [opportunityId, setOpportunityId] = useState('');
+  const [oppError, setOppError] = useState('');
   const [createdEventId, setCreatedEventId] = useState<string | null>(null);
   const [createdSeriesId, setCreatedSeriesId] = useState<string | null>(null);
 
@@ -27,13 +28,10 @@ export default function NewEventPage() {
 
   const handleSubmit = async (data: EventInput | EventSeriesInput) => {
     if (!opportunityId) {
-      toast({
-        title: 'Error',
-        description: 'Please select an opportunity first',
-        variant: 'destructive',
-      });
+      setOppError('Please select an opportunity first');
       return;
     }
+    setOppError('');
     try {
       if ('frequency' in data && data.frequency) {
         const res = await api.post(`/opportunities/${opportunityId}/event-series`, data);
@@ -72,8 +70,11 @@ export default function NewEventPage() {
           <select
             id="opportunity"
             value={opportunityId}
-            onChange={(e) => setOpportunityId(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
+            onChange={(e) => {
+              setOpportunityId(e.target.value);
+              setOppError('');
+            }}
+            className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background ${oppError ? 'border-brand-error' : 'border-brand-border'}`}
           >
             <option value="">Select an active opportunity...</option>
             {opportunities.map((o: { id: string; title: string }) => (
@@ -82,9 +83,14 @@ export default function NewEventPage() {
               </option>
             ))}
           </select>
+          {oppError && (
+            <p className="text-xs text-brand-error" role="alert">
+              {oppError}
+            </p>
+          )}
         </div>
 
-        {opportunityId && (
+        {opportunityId && !createdEventId && !createdSeriesId && (
           <EventForm onSubmit={handleSubmit} submitLabel="Create Event" showRecurringOption />
         )}
 
@@ -105,7 +111,9 @@ export default function NewEventPage() {
 
         {createdSeriesId && (
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 text-center space-y-4 card-hover">
-            <p className="font-medium text-brand-text text-lg">Event Series Created Successfully!</p>
+            <p className="font-medium text-brand-text text-lg">
+              Event Series Created Successfully!
+            </p>
             <Link
               href="/coordinator/events"
               className="inline-flex items-center gap-2 text-sm font-medium bg-brand-primary text-white px-4 py-2 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer active-bounce"

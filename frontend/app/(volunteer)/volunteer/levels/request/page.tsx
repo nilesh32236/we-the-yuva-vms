@@ -4,7 +4,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Check, ChevronDown, ChevronUp, Send } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { LevelBadge } from '@/components/levels/LevelBadge';
 import { ProofUploadForm } from '@/components/levels/ProofUploadForm';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +11,17 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const requestSchema = z.object({
+  selectedLevel: z.string().min(1, 'Please select a level'),
+  notes: z.string().optional(),
+  proofUrls: z.array(z.string()).optional(),
+});
+
+type RequestForm = z.infer<typeof requestSchema>;
 
 const TIER_DATA = [
   {
@@ -62,9 +72,19 @@ interface LevelDefinition {
 export default function LevelRequestPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const [notes, setNotes] = useState('');
-  const [proofUrls, setProofUrls] = useState<string[]>([]);
+
+  const {
+    register,
+    handleSubmit: formSubmit,
+    watch,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm<RequestForm>({
+    resolver: zodResolver(requestSchema),
+    defaultValues: { selectedLevel: '', notes: '', proofUrls: [] },
+    mode: 'onChange',
+  });
+  const selectedLevel = watch('selectedLevel');
 
   const { data: levelRes, isLoading: levelLoading } = useQuery<{ data: { tier: number } }>({
     queryKey: ['my-level'],
@@ -97,15 +117,14 @@ export default function LevelRequestPage() {
   const levels = levelsRes?.data ?? [];
   const requestableLevels = levels.filter((l) => l.tier > currentTier);
 
-  function handleSubmit() {
-    if (!selectedLevel) return;
+  const handleSubmit = formSubmit((data: RequestForm) => {
     haptic.medium();
     submitMutation.mutate({
-      levelId: selectedLevel,
-      notes: notes || undefined,
-      proofUrls: proofUrls.length > 0 ? proofUrls : undefined,
+      levelId: data.selectedLevel,
+      notes: data.notes || undefined,
+      proofUrls: data.proofUrls && data.proofUrls.length > 0 ? data.proofUrls : undefined,
     });
-  }
+  });
 
   if (levelLoading || levelsLoading) {
     return (
@@ -159,9 +178,9 @@ export default function LevelRequestPage() {
                   aria-controls={`accordion-panel-${lvl.id}`}
                   onClick={() => {
                     haptic.light();
-                    setSelectedLevel(isOpen ? null : lvl.id);
-                    setProofUrls([]);
-                    setNotes('');
+                    setValue('selectedLevel', isOpen ? '' : lvl.id);
+                    setValue('proofUrls', []);
+                    setValue('notes', '');
                   }}
                   className="w-full flex items-center gap-4 p-5 text-left hover:bg-brand-bg/50 transition-colors cursor-pointer"
                 >
@@ -187,7 +206,11 @@ export default function LevelRequestPage() {
                 </button>
 
                 {isOpen && (
-                  <section id={`accordion-panel-${lvl.id}`} aria-labelledby={`accordion-trigger-${lvl.id}`} className="px-5 pb-5 space-y-5 border-t border-brand-border pt-4">
+                  <section
+                    id={`accordion-panel-${lvl.id}`}
+                    aria-labelledby={`accordion-trigger-${lvl.id}`}
+                    className="px-5 pb-5 space-y-5 border-t border-brand-border pt-4"
+                  >
                     {/* Requirements summary */}
                     {lvl.requirements && Object.keys(lvl.requirements).length > 0 && (
                       <div className="space-y-2">
@@ -216,8 +239,7 @@ export default function LevelRequestPage() {
                       </label>
                       <textarea
                         id="notes"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
+                        {...register('notes')}
                         rows={3}
                         placeholder="Add any additional information for the reviewer..."
                         className="w-full text-sm border border-brand-border rounded-xl px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
@@ -225,10 +247,21 @@ export default function LevelRequestPage() {
                     </div>
 
                     {/* Proof upload */}
-                    <ProofUploadForm onFilesChange={setProofUrls} />
+                    <ProofUploadForm onFilesChange={(urls) => setValue('proofUrls', urls)} />
+
+                    {errors.selectedLevel && (
+                      <p role="alert" className="text-xs text-brand-error">
+                        {errors.selectedLevel.message}
+                      </p>
+                    )}
 
                     {/* Submit */}
-                    <Button fullWidth onClick={handleSubmit} loading={submitMutation.isPending}>
+                    <Button
+                      fullWidth
+                      onClick={handleSubmit}
+                      loading={submitMutation.isPending}
+                      disabled={!isValid}
+                    >
                       <Send className="w-4 h-4" /> Submit Request
                     </Button>
                   </section>

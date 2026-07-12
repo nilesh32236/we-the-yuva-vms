@@ -19,19 +19,28 @@ interface EarnedBadge {
 }
 
 export default function VolunteerBadgesPage() {
-  const { data: allBadges, isLoading: loadingBadges } = useQuery({
+  const {
+    data: allBadges,
+    isLoading: loadingBadges,
+    isError: badgesError,
+  } = useQuery({
     queryKey: ['badges'],
     queryFn: () => api.get('/badges').then((r) => r.data),
     staleTime: 60_000,
   });
 
-  const { data: myBadges, isLoading: loadingMine } = useQuery({
+  const {
+    data: myBadges,
+    isLoading: loadingMine,
+    isError: mineError,
+  } = useQuery({
     queryKey: ['badges', 'me'],
     queryFn: () => api.get('/badges/me').then((r) => r.data),
     staleTime: 60_000,
   });
 
   const isLoading = loadingBadges || loadingMine;
+  const isError = badgesError || mineError;
 
   const badgeDefinitions: BadgeDefinition[] = allBadges ?? [];
   const earnedMap: Record<string, string> = {};
@@ -57,7 +66,11 @@ export default function VolunteerBadgesPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div role="alert" className="text-center py-8 text-destructive">
+          Failed to load badges. Please try again later.
+        </div>
+      ) : isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array

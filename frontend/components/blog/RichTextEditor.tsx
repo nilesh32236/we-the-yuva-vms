@@ -50,7 +50,12 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     },
   });
 
-  if (!editor) return <p className="text-sm text-brand-muted p-4">Editor failed to load. Please refresh the page.</p>;
+  if (!editor)
+    return (
+      <p className="text-sm text-brand-muted p-4">
+        Editor failed to load. Please refresh the page.
+      </p>
+    );
 
   return (
     <div className="rounded-xl border border-brand-border bg-background overflow-hidden focus-within:ring-2 focus-within:ring-brand-primary">

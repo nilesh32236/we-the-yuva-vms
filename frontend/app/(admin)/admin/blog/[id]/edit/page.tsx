@@ -69,16 +69,22 @@ export default function EditBlogPostPage() {
     },
   });
 
-  const handleSubmit = async (data: CreateBlogPostInput) => {
-    try {
-      await api.put(`/blog/${id}`, data);
+  const updateMutation = useMutation({
+    mutationFn: (data: CreateBlogPostInput) => api.put(`/blog/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-blog-posts'] });
       toast({ title: 'Post updated!' });
       router.push('/admin/blog');
-    } catch (err) {
+    },
+    onError: (err) => {
       const message =
         (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to update post';
       toast({ title: 'Error', description: message, variant: 'destructive' });
-    }
+    },
+  });
+
+  const handleSubmit = async (data: CreateBlogPostInput) => {
+    await updateMutation.mutateAsync(data);
   };
 
   if (isLoading) {

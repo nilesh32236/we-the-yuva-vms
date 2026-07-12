@@ -194,8 +194,16 @@ export default function CoordinatorOpportunitiesPage() {
             if (e.key === 'Escape') setConfirmAction(null);
           }}
         >
-          <div ref={closeDialogRef} className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border">
-            <h3 id="close-dialog-title" className="font-heading font-bold text-lg text-brand-text mb-2">Confirm</h3>
+          <div
+            ref={closeDialogRef}
+            className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border"
+          >
+            <h3
+              id="close-dialog-title"
+              className="font-heading font-bold text-lg text-brand-text mb-2"
+            >
+              Confirm
+            </h3>
             <p className="text-sm text-brand-muted mb-4">
               Close &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>

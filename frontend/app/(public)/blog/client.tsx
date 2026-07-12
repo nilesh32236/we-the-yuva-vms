@@ -34,7 +34,10 @@ export function BlogPageClient() {
             ))}
           </div>
         ) : data?.data?.length === 0 ? (
-          <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center" aria-live="polite">
+          <div
+            className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center"
+            aria-live="polite"
+          >
             <BookOpen className="w-10 h-10 text-brand-muted mx-auto mb-3" aria-hidden="true" />
             <p className="text-brand-text font-medium">No posts yet</p>
             <p className="text-sm text-brand-muted mt-1">Check back soon for new content.</p>

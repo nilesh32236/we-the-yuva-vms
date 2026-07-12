@@ -1,6 +1,6 @@
 import { Skeleton } from '../../components/ui/skeleton';
 
-export default function AdminLoading() {
+export default function OrgAdminLoading() {
   return (
     <div
       role="status"
@@ -9,8 +9,8 @@ export default function AdminLoading() {
       className="space-y-6 max-w-5xl"
     >
       <div className="space-y-2">
-        <Skeleton className="h-7 w-36" />
-        <Skeleton className="h-4 w-60" />
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-4 w-64" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (

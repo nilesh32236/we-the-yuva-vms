@@ -3,7 +3,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, Check, Sparkles, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { GROWTH_AREAS } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
@@ -28,15 +31,38 @@ const SKILL_SUGGESTIONS = [
   'First Aid',
 ];
 
+const reflectionSchema = z.object({
+  skillsDeveloped: z.array(z.string()).min(1, 'Please select at least one skill'),
+  growthAreas: z.array(z.string()).min(1, 'Please select at least one growth area'),
+  confidenceLevel: z.number().min(1, 'Please select a confidence level'),
+  impactDescription: z.string().optional(),
+});
+
 export default function YouthReflectionPage() {
   const router = useRouter();
   const { toast } = useToast();
   const qc = useQueryClient();
 
-  const [skillsDeveloped, setSkillsDeveloped] = useState<string[]>([]);
-  const [growthAreas, setGrowthAreas] = useState<string[]>([]);
-  const [confidenceLevel, setConfidenceLevel] = useState(0);
-  const [impactDescription, setImpactDescription] = useState('');
+  const form = useForm({
+    resolver: zodResolver(reflectionSchema),
+    defaultValues: {
+      skillsDeveloped: [] as string[],
+      growthAreas: [] as string[],
+      confidenceLevel: 0,
+      impactDescription: '',
+    },
+  });
+  const {
+    watch,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = form;
+  const skillsDeveloped = watch('skillsDeveloped');
+  const growthAreas = watch('growthAreas');
+  const confidenceLevel = watch('confidenceLevel');
+  const impactDescription = watch('impactDescription');
 
   const { data: profileRes, isLoading } = useQuery({
     queryKey: ['youth-profile'],
@@ -48,12 +74,14 @@ export default function YouthReflectionPage() {
   useEffect(() => {
     if (profileRes?.reflectionResponses) {
       const r = profileRes.reflectionResponses;
-      setSkillsDeveloped(r.skillsDeveloped ?? []);
-      setGrowthAreas(r.growthAreas ?? []);
-      setConfidenceLevel(r.confidenceLevel ?? 0);
-      setImpactDescription(r.impactDescription ?? '');
+      reset({
+        skillsDeveloped: r.skillsDeveloped ?? [],
+        growthAreas: r.growthAreas ?? [],
+        confidenceLevel: r.confidenceLevel ?? 0,
+        impactDescription: r.impactDescription ?? '',
+      });
     }
-  }, [profileRes]);
+  }, [profileRes, reset]);
 
   const mutation = useMutation({
     mutationFn: (data: unknown) => api.post('/youth-profiles/me/reflect', data),
@@ -67,15 +95,29 @@ export default function YouthReflectionPage() {
     },
   });
 
-  const toggleSkill = (v: string) =>
-    setSkillsDeveloped((p) =>
-      p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p
-    );
+  const toggleSkill = (v: string) => {
+    const current = form.getValues('skillsDeveloped');
+    if (current.includes(v)) {
+      setValue(
+        'skillsDeveloped',
+        current.filter((x: string) => x !== v)
+      );
+    } else if (current.length < 10) {
+      setValue('skillsDeveloped', [...current, v]);
+    }
+  };
 
-  const toggleGrowth = (v: string) =>
-    setGrowthAreas((p) =>
-      p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p
-    );
+  const toggleGrowth = (v: string) => {
+    const current = form.getValues('growthAreas');
+    if (current.includes(v)) {
+      setValue(
+        'growthAreas',
+        current.filter((x: string) => x !== v)
+      );
+    } else if (current.length < 5) {
+      setValue('growthAreas', [...current, v]);
+    }
+  };
 
   const canSubmit = skillsDeveloped.length > 0 && growthAreas.length > 0 && confidenceLevel > 0;
 
@@ -105,18 +147,22 @@ export default function YouthReflectionPage() {
         {/* Skills Developed */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-brand-muted">
-            Skills you developed <span className="text-brand-error">*</span>
+            Skills you developed{' '}
+            <span className="text-brand-error" aria-hidden="true">
+              *
+            </span>
           </p>
-          <div className="flex flex-wrap gap-2">
+          <fieldset className="flex flex-wrap gap-2" aria-label="Skills developed">
             {SKILL_SUGGESTIONS.map((s) => {
               const isSelected = skillsDeveloped.includes(s);
               const atLimit = skillsDeveloped.length >= 10 && !isSelected;
               return (
-                    <button
+                <button
                   key={s}
                   type="button"
                   disabled={atLimit}
                   aria-pressed={isSelected}
+                  aria-invalid={!!errors.skillsDeveloped}
                   onClick={() => toggleSkill(s)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
                     ${
@@ -125,31 +171,40 @@ export default function YouthReflectionPage() {
                         : atLimit
                           ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
                           : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
-                    }`}
+                    }${errors.skillsDeveloped ? ' border-brand-error' : ''}`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5" />}
                   {s}
                 </button>
               );
             })}
-          </div>
+          </fieldset>
+          {errors.skillsDeveloped && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.skillsDeveloped.message}
+            </p>
+          )}
         </div>
 
         {/* Growth Areas */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-brand-muted">
-            Areas where you grew <span className="text-brand-error">*</span>
+            Areas where you grew{' '}
+            <span className="text-brand-error" aria-hidden="true">
+              *
+            </span>
           </p>
-          <div className="flex flex-wrap gap-2">
+          <fieldset className="flex flex-wrap gap-2" aria-label="Growth areas">
             {GROWTH_AREAS.map((g) => {
               const isSelected = growthAreas.includes(g);
               const atLimit = growthAreas.length >= 5 && !isSelected;
               return (
-                    <button
+                <button
                   key={g}
                   type="button"
                   disabled={atLimit}
                   aria-pressed={isSelected}
+                  aria-invalid={!!errors.growthAreas}
                   onClick={() => toggleGrowth(g)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
                     ${
@@ -158,14 +213,19 @@ export default function YouthReflectionPage() {
                         : atLimit
                           ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
                           : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
-                    }`}
+                    }${errors.growthAreas ? ' border-brand-error' : ''}`}
                 >
                   {isSelected && <Check className="w-3.5 h-3.5" />}
                   {g}
                 </button>
               );
             })}
-          </div>
+          </fieldset>
+          {errors.growthAreas && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.growthAreas.message}
+            </p>
+          )}
         </div>
 
         {/* Confidence Level */}
@@ -173,7 +233,12 @@ export default function YouthReflectionPage() {
           <p className="text-sm font-medium text-brand-muted">
             Confidence level <span className="text-brand-error">*</span>
           </p>
-          <div className="flex gap-1" role="radiogroup">
+          <div
+            className="flex gap-1"
+            role="radiogroup"
+            aria-required="true"
+            aria-label="Confidence level"
+          >
             {[1, 2, 3, 4, 5].map((star) => (
               // biome-ignore lint/a11y/useSemanticElements: custom star rating using radiogroup pattern
               <button
@@ -182,8 +247,9 @@ export default function YouthReflectionPage() {
                 role="radio"
                 aria-checked={confidenceLevel >= star}
                 aria-label={`${star} star${star > 1 ? 's' : ''}`}
-                onClick={() => setConfidenceLevel(star)}
-                className="cursor-pointer p-2.5"
+                aria-invalid={!!errors.confidenceLevel}
+                onClick={() => setValue('confidenceLevel', star)}
+                className={`cursor-pointer p-2.5${errors.confidenceLevel ? ' rounded-lg ring-2 ring-brand-error' : ''}`}
               >
                 <Star
                   className={`w-8 h-8 transition-all ${
@@ -193,6 +259,11 @@ export default function YouthReflectionPage() {
               </button>
             ))}
           </div>
+          {errors.confidenceLevel && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.confidenceLevel.message}
+            </p>
+          )}
           <p className="text-xs text-brand-muted">
             {confidenceLevel === 0 && 'Tap a star'}
             {confidenceLevel === 1 && 'Need more support'}
@@ -205,11 +276,12 @@ export default function YouthReflectionPage() {
 
         {/* Impact Description */}
         <div className="space-y-2">
-          <label htmlFor="impact-description" className="text-sm font-medium text-brand-muted">Describe your impact (optional)</label>
+          <label htmlFor="impact-description" className="text-sm font-medium text-brand-muted">
+            Describe your impact (optional)
+          </label>
           <textarea
             id="impact-description"
-            value={impactDescription}
-            onChange={(e) => setImpactDescription(e.target.value)}
+            {...form.register('impactDescription')}
             placeholder="How did your volunteering make a difference? What moments stood out?"
             rows={4}
             maxLength={1000}
@@ -223,14 +295,14 @@ export default function YouthReflectionPage() {
       </div>
 
       <Button
-        onClick={() =>
+        onClick={handleSubmit((data) =>
           mutation.mutate({
-            skillsDeveloped,
-            growthAreas,
-            confidenceLevel,
-            impactDescription: impactDescription || undefined,
+            skillsDeveloped: data.skillsDeveloped,
+            growthAreas: data.growthAreas,
+            confidenceLevel: data.confidenceLevel,
+            impactDescription: data.impactDescription || undefined,
           })
-        }
+        )}
         loading={mutation.isPending}
         disabled={!canSubmit}
         className="w-full"

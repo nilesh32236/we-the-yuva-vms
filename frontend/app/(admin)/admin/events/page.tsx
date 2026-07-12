@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import Pagination from '../../../../components/shared/Pagination';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { useToast } from '../../../../hooks/use-toast';
 import { api, downloadCsv } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -16,6 +17,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function AdminEventsPage() {
   const [page, setPage] = useState(1);
+  const { toast } = useToast();
   const { data, isLoading } = useQuery({
     queryKey: ['admin-events', page],
     queryFn: () => api.get('/events', { params: { limit: 50, page } }).then((r) => r.data),
@@ -28,7 +30,17 @@ export default function AdminEventsPage() {
         <h1 className="font-heading font-bold text-xl text-brand-text">All Events</h1>
         <button
           type="button"
-          onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
+          onClick={async () => {
+            try {
+              await downloadCsv('/events/export/csv', 'events.csv');
+            } catch {
+              toast({
+                title: 'Error',
+                description: 'Failed to export CSV',
+                variant: 'destructive',
+              });
+            }
+          }}
           className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
         >
           <Download className="w-4 h-4" /> Export CSV
@@ -90,7 +102,10 @@ export default function AdminEventsPage() {
                     }) => (
                       <tr key={ev.id} className="hover:bg-brand-bg/50 transition-colors">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-brand-text truncate max-w-[200px]" title={ev.title}>
+                          <p
+                            className="font-medium text-brand-text truncate max-w-[200px]"
+                            title={ev.title}
+                          >
                             {ev.title}
                           </p>
                           {ev.opportunity && (

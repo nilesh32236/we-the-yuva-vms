@@ -90,10 +90,10 @@ export default function PrivacyPage() {
           <p className="text-brand-muted leading-relaxed">
             If you have questions about this Privacy Policy or our data practices, please email us
             at{' '}
-              <a
-                href="mailto:hello@wetheyuva.org"
-                className="text-brand-primary font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring inline-block py-2.5"
-              >
+            <a
+              href="mailto:hello@wetheyuva.org"
+              className="text-brand-primary font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring inline-block py-2.5"
+            >
               hello@wetheyuva.org
             </a>
             .

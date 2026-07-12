@@ -48,7 +48,11 @@ export default function VolunteerOpportunitiesPage() {
     staleTime: 60_000,
   });
 
-  const { data: list, isLoading: loadingList } = useQuery({
+  const {
+    data: list,
+    isLoading: loadingList,
+    isError: listError,
+  } = useQuery({
     queryKey: ['opportunities', 'list', search, category, page],
     queryFn: () =>
       api
@@ -126,7 +130,11 @@ export default function VolunteerOpportunitiesPage() {
           </select>
         </div>
 
-        {loadingList ? (
+        {listError ? (
+          <div role="alert" className="text-center py-16 text-destructive">
+            Failed to load opportunities. Please try again later.
+          </div>
+        ) : loadingList ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <SkeletonCard key={i} />

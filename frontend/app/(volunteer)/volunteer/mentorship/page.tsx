@@ -3,6 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, Handshake, MessageSquare, UserPlus, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
@@ -175,24 +178,34 @@ function MentorshipCard({
   );
 }
 
+const requestSchema = z.object({
+  menteeId: z.string().min(1, 'Please enter a mentor email or name'),
+  message: z.string().optional(),
+});
+
 function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient();
   const { toast } = useToast();
-  const [menteeId, setMenteeId] = useState('');
-  const [message, setMessage] = useState('');
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(requestSchema),
+    defaultValues: {
+      menteeId: '',
+      message: '',
+    },
+  });
 
   const requestMutation = useMutation({
-    mutationFn: () =>
-      api.post('/mentorship', {
-        menteeId,
-        ...(message.trim() ? { message: message.trim() } : {}),
-      }),
+    mutationFn: (data: { menteeId: string; message?: string }) => api.post('/mentorship', data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['mentorship'] });
       toast({ title: 'Request sent!' });
       haptic.success();
-      setMenteeId('');
-      setMessage('');
+      reset();
       onClose();
     },
     onError: (e: { response?: { data?: { error?: string } } }) =>
@@ -211,10 +224,17 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
       role="dialog"
       aria-modal="true"
       aria-labelledby="request-mentor-title"
-      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose();
+      }}
     >
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4">
-        <h2 id="request-mentor-title" className="font-heading font-semibold text-lg text-brand-text">Request Mentor</h2>
+        <h2
+          id="request-mentor-title"
+          className="font-heading font-semibold text-lg text-brand-text"
+        >
+          Request Mentor
+        </h2>
 
         <div>
           <label
@@ -226,11 +246,20 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
           <input
             id="mentor-input"
             type="text"
-            value={menteeId}
-            onChange={(e) => setMenteeId(e.target.value)}
+            {...register('menteeId')}
             placeholder="Enter mentor email or name"
-            className="w-full px-3 py-2.5 rounded-xl bg-brand-bg border border-brand-border text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+            aria-invalid={!!errors.menteeId}
+            className={`w-full px-3 py-2.5 rounded-xl bg-brand-bg border text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 ${
+              errors.menteeId
+                ? 'border-brand-error focus:ring-brand-error/30'
+                : 'border-brand-border focus:ring-brand-primary/40'
+            }`}
           />
+          {errors.menteeId && (
+            <p role="alert" className="text-xs text-brand-error mt-1">
+              {errors.menteeId.message}
+            </p>
+          )}
         </div>
 
         <div>
@@ -242,12 +271,21 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
           </label>
           <textarea
             id="mentor-message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            {...register('message')}
             placeholder="Why do you want this mentor?"
             rows={3}
-            className="w-full px-3 py-2.5 rounded-xl bg-brand-bg border border-brand-border text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary/40 resize-none"
+            aria-invalid={!!errors.message}
+            className={`w-full px-3 py-2.5 rounded-xl bg-brand-bg border text-sm text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 resize-none ${
+              errors.message
+                ? 'border-brand-error focus:ring-brand-error/30'
+                : 'border-brand-border focus:ring-brand-primary/40'
+            }`}
           />
+          {errors.message && (
+            <p role="alert" className="text-xs text-brand-error mt-1">
+              {errors.message.message}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-2 pt-2">
@@ -256,8 +294,8 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
           </Button>
           <Button
             variant="primary"
-            onClick={() => requestMutation.mutate()}
-            disabled={!menteeId.trim() || requestMutation.isPending}
+            onClick={handleSubmit((data) => requestMutation.mutate(data))}
+            disabled={requestMutation.isPending}
             loading={requestMutation.isPending}
             className="flex-1"
           >
@@ -311,7 +349,10 @@ export default function MentorshipPage() {
       if (mentors.length === 0) {
         return (
           <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
-            <Handshake className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" aria-hidden="true" />
+            <Handshake
+              className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50"
+              aria-hidden="true"
+            />
             <p className="text-sm font-medium text-brand-text">No mentors yet</p>
             <p className="text-xs text-brand-muted mt-1">Request a mentor to get started.</p>
           </div>
@@ -330,7 +371,10 @@ export default function MentorshipPage() {
       if (mentees.length === 0) {
         return (
           <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
-            <Handshake className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" aria-hidden="true" />
+            <Handshake
+              className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50"
+              aria-hidden="true"
+            />
             <p className="text-sm font-medium text-brand-text">No mentees yet</p>
             <p className="text-xs text-brand-muted mt-1">
               When volunteers request you as a mentor, they will appear here.
@@ -356,7 +400,10 @@ export default function MentorshipPage() {
     if (allRequests.length === 0) {
       return (
         <div className="text-center py-12 bg-brand-surface rounded-2xl border border-brand-border">
-          <MessageSquare className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" aria-hidden="true" />
+          <MessageSquare
+            className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50"
+            aria-hidden="true"
+          />
           <p className="text-sm font-medium text-brand-text">No requests</p>
           <p className="text-xs text-brand-muted mt-1">You have no pending mentorship requests.</p>
         </div>
@@ -393,7 +440,10 @@ export default function MentorshipPage() {
         </Button>
       </div>
 
-      <div role="tablist" className="flex gap-1 bg-brand-surface rounded-xl p-1 border border-brand-border">
+      <div
+        role="tablist"
+        className="flex gap-1 bg-brand-surface rounded-xl p-1 border border-brand-border"
+      >
         {TABS.map((tab) => (
           <button
             key={tab.key}

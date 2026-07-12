@@ -25,6 +25,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const requestNotesSchema = z.object({
+  notes: z
+    .string()
+    .min(1, 'Please provide some notes about your accomplishments')
+    .max(500, 'Notes must be under 500 characters'),
+});
 
 const TIER_DATA = [
   {
@@ -131,8 +141,18 @@ export default function VolunteerLevelsPage() {
   });
 
   const [showRequestDialog, setShowRequestDialog] = useState(false);
-  const [requestNotes, setRequestNotes] = useState('');
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  const {
+    register: registerNotes,
+    handleSubmit: handleNotesSubmit,
+    reset: resetNotes,
+    formState: { errors: notesErrors, isValid: notesValid },
+  } = useForm({
+    resolver: zodResolver(requestNotesSchema),
+    defaultValues: { notes: '' },
+    mode: 'onChange',
+  });
 
   const cancelMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/levels/requests/${id}`),
@@ -159,7 +179,7 @@ export default function VolunteerLevelsPage() {
       qc.invalidateQueries({ queryKey: ['my-level'] });
       toast({ title: 'Level-up request submitted!' });
       setShowRequestDialog(false);
-      setRequestNotes('');
+      resetNotes();
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {
       toast({
@@ -255,7 +275,7 @@ export default function VolunteerLevelsPage() {
 
       {/* Tier Path */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5">
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <h2 className="font-heading font-semibold text-sm text-brand-text">Level Progression</h2>
           <div className="flex gap-3">
             <Link
@@ -356,8 +376,8 @@ export default function VolunteerLevelsPage() {
               <span className="font-medium">
                 You already have a pending request. Wait for it to be reviewed.
               </span>
-        </div>
-      )}
+            </div>
+          )}
 
           {!allRequirementsMet && (
             <Link
@@ -372,62 +392,74 @@ export default function VolunteerLevelsPage() {
       )}
 
       {/* Level-Up Request Dialog */}
-      {showRequestDialog &&
+      {showRequestDialog && (
         <FocusTrap>
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-        >
-          <button
-            type="button"
-            aria-label="Close"
-            className="absolute inset-0 bg-black/50 cursor-pointer"
-            onClick={() => setShowRequestDialog(false)}
-          />
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <button
+              type="button"
+              aria-label="Close"
+              className="absolute inset-0 bg-black/50 cursor-pointer"
+              onClick={() => setShowRequestDialog(false)}
+            />
             <div
               role="dialog"
               aria-modal="true"
               aria-labelledby="level-up-dialog-title"
               className="relative bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4"
-              onKeyDown={(e) => { if (e.key === 'Escape') setShowRequestDialog(false); }}
-          >
-            <h3 id="level-up-dialog-title" className="font-heading font-semibold text-lg text-brand-text">Request Level-Up</h3>
-            <p className="text-sm text-brand-muted">
-              Provide any notes or proof to support your level-up request.
-            </p>
-            <textarea
-              value={requestNotes}
-              onChange={(e) => setRequestNotes(e.target.value)}
-              placeholder="Describe what you've accomplished..."
-              rows={4}
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
-            />
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowRequestDialog(false);
-                  setRequestNotes('');
-                }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setShowRequestDialog(false);
+              }}
+            >
+              <h3
+                id="level-up-dialog-title"
+                className="font-heading font-semibold text-lg text-brand-text"
               >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  if (level?.nextLevel)
-                    requestMutation.mutate({
-                      levelId: level.nextLevel.levelId,
-                      notes: requestNotes,
-                    });
-                }}
-                loading={requestMutation.isPending}
-              >
-                Submit Request
-              </Button>
+                Request Level-Up
+              </h3>
+              <p className="text-sm text-brand-muted">
+                Provide any notes or proof to support your level-up request.
+              </p>
+              <textarea
+                {...registerNotes('notes')}
+                aria-invalid={!!notesErrors.notes}
+                aria-describedby={notesErrors.notes ? 'notes-error' : undefined}
+                placeholder="Describe what you've accomplished..."
+                rows={4}
+                className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+              />
+              {notesErrors.notes && (
+                <p id="notes-error" role="alert" className="text-xs text-brand-error">
+                  {notesErrors.notes.message}
+                </p>
+              )}
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowRequestDialog(false);
+                    resetNotes();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleNotesSubmit((data) => {
+                    if (level?.nextLevel)
+                      requestMutation.mutate({
+                        levelId: level.nextLevel.levelId,
+                        notes: data.notes,
+                      });
+                  })}
+                  disabled={!notesValid}
+                  loading={requestMutation.isPending}
+                >
+                  Submit Request
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
         </FocusTrap>
-      }
+      )}
 
       {/* Reflection prompt for max-level volunteers */}
       {isMaxLevel && !youthProfileRes?.reflectionCompletedAt && (

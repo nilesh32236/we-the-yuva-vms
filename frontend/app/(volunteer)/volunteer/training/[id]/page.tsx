@@ -32,6 +32,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       const idx = lessons.findIndex((l: { id: string }) => l.id === lessonId);
       if (idx < lessons.length - 1) setActiveLesson(lessons[idx + 1].id);
     },
+    onError: (err: unknown) => {
+      const message =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        'Failed to mark lesson as complete';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
+    },
   });
 
   if (isLoading)
@@ -204,9 +210,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               {completedCount === course.lessons.length && (
                 <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-xl p-4 text-center">
                   <CheckCircle className="w-8 h-8 text-brand-primary mx-auto mb-2" />
-                  <p className="font-heading font-bold text-brand-primary">
-                    Course Complete!
-                  </p>
+                  <p className="font-heading font-bold text-brand-primary">Course Complete!</p>
                   <p className="text-sm text-brand-primary mt-1">
                     You have finished all lessons in this course.
                   </p>

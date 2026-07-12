@@ -21,7 +21,11 @@ import { api } from '../../../../lib/api';
 
 export default function VolunteerImpactPage() {
   const { user: _user } = useAuth();
-  const { data: impact, isLoading } = useQuery({
+  const {
+    data: impact,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['stats', 'volunteer', 'impact'],
     queryFn: () => api.get('/stats/volunteer/impact').then((r) => r.data),
     staleTime: 60_000,
@@ -36,7 +40,11 @@ export default function VolunteerImpactPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div role="alert" className="text-center py-8 text-destructive">
+          Failed to load impact data. Please try again later.
+        </div>
+      ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <SkeletonCard key={i} />

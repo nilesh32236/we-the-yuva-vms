@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type EventInput, EventSchema } from '@/lib/shared';
 import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -49,6 +49,13 @@ export function EventForm({
 
   const isVirtual = watch('isVirtual');
 
+  useEffect(() => {
+    if (defaultValues?.eventDate) {
+      const sliced = defaultValues.eventDate.slice(0, 16);
+      setValue('eventDate', sliced);
+    }
+  }, [defaultValues, setValue]);
+
   const field = (
     id: keyof EventInput,
     label: string,
@@ -60,12 +67,15 @@ export function EventForm({
       </label>
       <input
         id={id}
+        aria-invalid={!!errors[id]}
         {...register(id)}
         {...extra}
         className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary
           ${errors[id] ? 'border-brand-error' : 'border-brand-border'}`}
       />
-      {errors[id] && <p className="text-xs text-brand-error">{String(errors[id]?.message ?? '')}</p>}
+      {errors[id] && (
+        <p className="text-xs text-brand-error">{String(errors[id]?.message ?? '')}</p>
+      )}
     </div>
   );
 
@@ -116,7 +126,10 @@ export function EventForm({
   return (
     <form onSubmit={handleSubmit(wrappedOnSubmit)} className="space-y-5">
       {showRecurringOption && (
-        <label htmlFor="recurring-toggle" className="flex items-center gap-3 cursor-pointer pb-2 border-b border-brand-border">
+        <label
+          htmlFor="recurring-toggle"
+          className="flex items-center gap-3 cursor-pointer pb-2 border-b border-brand-border"
+        >
           <div
             id="recurring-toggle"
             role="switch"
@@ -223,9 +236,7 @@ export function EventForm({
           })
         : field('venue', 'Venue (optional)', { placeholder: 'e.g. Community Hall, Mumbai' })}
 
-      {errors.root && (
-        <p className="text-xs text-brand-error text-center">{errors.root.message}</p>
-      )}
+      {errors.root && <p className="text-xs text-brand-error text-center">{errors.root.message}</p>}
       <Button type="submit" variant="primary" fullWidth loading={isSubmitting}>
         {submitLabel}
       </Button>

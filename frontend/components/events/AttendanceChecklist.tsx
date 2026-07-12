@@ -97,7 +97,8 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       Sentry.captureException(err);
       toast({
         title: 'Error',
-        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to save attendance',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to save attendance',
         variant: 'destructive',
       });
     } finally {
@@ -109,11 +110,19 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
     const hours = parseFloat(hoursInputs[v.volunteerId] || '0');
     const rating = ratings[v.volunteerId] || 0;
     if (hours <= 0) {
-      toast({ title: 'Validation error', description: 'Hours must be greater than 0', variant: 'destructive' });
+      toast({
+        title: 'Validation error',
+        description: 'Hours must be greater than 0',
+        variant: 'destructive',
+      });
       return;
     }
     if (rating < 1 || rating > 5) {
-      toast({ title: 'Validation error', description: 'Rating must be between 1 and 5', variant: 'destructive' });
+      toast({
+        title: 'Validation error',
+        description: 'Rating must be between 1 and 5',
+        variant: 'destructive',
+      });
       return;
     }
     setApproving((s) => ({ ...s, [v.volunteerId]: true }));
@@ -124,7 +133,9 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       Sentry.captureException(err);
       toast({
         title: 'Error',
-        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to approve volunteer',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ??
+          'Failed to approve volunteer',
         variant: 'destructive',
       });
     } finally {
@@ -259,13 +270,49 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                       type="number"
                       min="0"
                       step="0.5"
+                      aria-invalid={
+                        hoursInputs[v.volunteerId] !== undefined &&
+                        hoursInputs[v.volunteerId] !== '' &&
+                        (Number.isNaN(parseFloat(hoursInputs[v.volunteerId])) ||
+                          parseFloat(hoursInputs[v.volunteerId]) <= 0)
+                          ? true
+                          : undefined
+                      }
+                      aria-describedby={
+                        hoursInputs[v.volunteerId] !== undefined &&
+                        hoursInputs[v.volunteerId] !== '' &&
+                        (Number.isNaN(parseFloat(hoursInputs[v.volunteerId])) ||
+                          parseFloat(hoursInputs[v.volunteerId]) <= 0)
+                          ? `hours-error-${v.volunteerId}`
+                          : undefined
+                      }
                       value={hoursInputs[v.volunteerId] ?? ''}
                       onChange={(e) =>
                         setHoursInputs((s) => ({ ...s, [v.volunteerId]: e.target.value }))
                       }
-                      className="w-full px-3 py-1.5 text-sm rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                      className={`w-full px-3 py-1.5 text-sm rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30 ${
+                        hoursInputs[v.volunteerId] !== undefined &&
+                        hoursInputs[v.volunteerId] !== '' &&
+                        (
+                          Number.isNaN(parseFloat(hoursInputs[v.volunteerId])) ||
+                            parseFloat(hoursInputs[v.volunteerId]) <= 0
+                        )
+                          ? 'border-brand-error'
+                          : 'border-brand-border'
+                      }`}
                       placeholder="Hours"
                     />
+                    {hoursInputs[v.volunteerId] !== undefined &&
+                      hoursInputs[v.volunteerId] !== '' &&
+                      (Number.isNaN(parseFloat(hoursInputs[v.volunteerId])) ||
+                        parseFloat(hoursInputs[v.volunteerId]) <= 0) && (
+                        <p
+                          id={`hours-error-${v.volunteerId}`}
+                          className="text-xs text-brand-error mt-1"
+                        >
+                          Must be greater than 0
+                        </p>
+                      )}
                   </div>
 
                   {/* Rating stars */}
@@ -278,7 +325,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                     </label>
                     <div className="flex gap-0.5">
                       {[1, 2, 3, 4, 5].map((star) => (
-                          <button
+                        <button
                           key={star}
                           type="button"
                           onClick={() => {

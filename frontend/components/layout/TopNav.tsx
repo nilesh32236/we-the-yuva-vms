@@ -117,7 +117,9 @@ export function TopNav() {
       Sentry.captureException(err);
       toast({
         title: 'Error',
-        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to mark notification as read',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ??
+          'Failed to mark notification as read',
         variant: 'destructive',
       });
     },
@@ -133,7 +135,9 @@ export function TopNav() {
       Sentry.captureException(err);
       toast({
         title: 'Error',
-        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to mark all as read',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ??
+          'Failed to mark all as read',
         variant: 'destructive',
       });
     },

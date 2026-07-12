@@ -11,6 +11,14 @@ import { Button } from '../../../../../components/ui/Button';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const alertSchema = z.object({
+  categories: z.array(z.string()),
+  skills: z.array(z.string()),
+});
 
 const CATEGORIES = [
   'EDUCATION',
@@ -40,9 +48,15 @@ export default function AlertSubscriptionsPage() {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
-  const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
-  const [skills, setSkills] = useState<string[]>([]);
+
+  const { watch, setValue, reset } = useForm<z.infer<typeof alertSchema>>({
+    resolver: zodResolver(alertSchema),
+    defaultValues: { categories: [], skills: [] },
+  });
+
+  const selectedCats = watch('categories');
+  const skills = watch('skills');
 
   const { data: subs, isLoading } = useQuery({
     queryKey: ['alert-subscriptions'],
@@ -56,8 +70,13 @@ export default function AlertSubscriptionsPage() {
       qc.invalidateQueries({ queryKey: ['alert-subscriptions'] });
       toast({ title: 'Alert created' });
       setShowForm(false);
-      setSelectedCats([]);
-      setSkills([]);
+      reset();
+    },
+    onError: (err: unknown) => {
+      const message =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        'Could not create alert';
+      toast({ title: 'Failed', description: message, variant: 'destructive' });
     },
   });
 
@@ -70,9 +89,10 @@ export default function AlertSubscriptionsPage() {
   });
 
   const toggleCat = (cat: string) => {
-    setSelectedCats((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-    );
+    const next = selectedCats.includes(cat)
+      ? selectedCats.filter((c) => c !== cat)
+      : [...selectedCats, cat];
+    setValue('categories', next);
   };
 
   return (
@@ -126,8 +146,7 @@ export default function AlertSubscriptionsPage() {
                   aria-label="Close form"
                   onClick={() => {
                     setShowForm(false);
-                    setSelectedCats([]);
-                    setSkills([]);
+                    reset();
                   }}
                   className="min-w-11 min-h-11 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-surface cursor-pointer transition-colors"
                 >
@@ -145,6 +164,7 @@ export default function AlertSubscriptionsPage() {
                       type="button"
                       key={cat}
                       onClick={() => toggleCat(cat)}
+                      disabled={createMut.isPending}
                       aria-pressed={selectedCats.includes(cat)}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer
                         ${
@@ -180,9 +200,15 @@ export default function AlertSubscriptionsPage() {
                       {s}
                       <button
                         type="button"
-                        onClick={() => setSkills((prev) => prev.filter((x) => x !== s))}
+                        onClick={() =>
+                          setValue(
+                            'skills',
+                            skills.filter((x) => x !== s)
+                          )
+                        }
                         className="cursor-pointer text-brand-muted hover:text-brand-text"
                         aria-label={`Remove ${s}`}
+                        disabled={createMut.isPending}
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -196,10 +222,11 @@ export default function AlertSubscriptionsPage() {
                       id="alert-skills"
                       value={skillInput}
                       onChange={(e) => setSkillInput(e.target.value)}
+                      disabled={createMut.isPending}
                       onKeyDown={(e) => {
                         if ((e.key === 'Enter' || e.key === ',') && skillInput.trim()) {
                           e.preventDefault();
-                          setSkills((prev) => [...prev, skillInput.trim()]);
+                          setValue('skills', [...skills, skillInput.trim()]);
                           setSkillInput('');
                         }
                       }}
@@ -211,7 +238,12 @@ export default function AlertSubscriptionsPage() {
               </div>
 
               <div className="flex gap-2 pt-1">
-                <Button variant="outline" size="sm" onClick={() => setShowForm(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowForm(false)}
+                  disabled={createMut.isPending}
+                >
                   Cancel
                 </Button>
                 <Button

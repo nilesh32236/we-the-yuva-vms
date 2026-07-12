@@ -20,7 +20,7 @@ interface TrainingCourse {
 
 export default function TrainingPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['training-courses', page],
     queryFn: () => api.get('/training', { params: { page, limit: 20 } }).then((r) => r.data),
     staleTime: 60_000,
@@ -29,6 +29,12 @@ export default function TrainingPage() {
   const courses: TrainingCourse[] = data?.data ?? [];
   const completedCount = courses.filter((c: TrainingCourse) => c.progress?.completed).length;
 
+  if (isError)
+    return (
+      <div role="alert" className="text-center py-8 text-destructive max-w-2xl">
+        Failed to load training courses. Please try again later.
+      </div>
+    );
   if (isLoading)
     return (
       <div className="space-y-4 max-w-2xl">
@@ -124,7 +130,11 @@ export default function TrainingPage() {
                     </p>
                   </div>
                   {!isLocked && (
-                    <Link href={`/volunteer/training/${course.id}`} className="flex-shrink-0" aria-label={`View ${course.title}`}>
+                    <Link
+                      href={`/volunteer/training/${course.id}`}
+                      className="flex-shrink-0"
+                      aria-label={`View ${course.title}`}
+                    >
                       <ChevronRight className="w-5 h-5 text-brand-muted hover:text-brand-primary transition-colors cursor-pointer" />
                     </Link>
                   )}

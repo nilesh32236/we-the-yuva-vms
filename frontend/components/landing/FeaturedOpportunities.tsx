@@ -31,13 +31,14 @@ async function getFeaturedOpportunities(): Promise<Opportunity[]> {
 export async function FeaturedOpportunities() {
   const opportunities = await getFeaturedOpportunities();
 
-  if (opportunities.length === 0) return (
-    <section className="bg-brand-bg/50 py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-6 text-center">
-        <p className="text-brand-muted">Unable to load opportunities. Please try again later.</p>
-      </div>
-    </section>
-  );
+  if (opportunities.length === 0)
+    return (
+      <section className="bg-brand-bg/50 py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-6 text-center">
+          <p className="text-brand-muted">Unable to load opportunities. Please try again later.</p>
+        </div>
+      </section>
+    );
 
   return (
     <section className="bg-brand-bg/50 py-20 sm:py-28">

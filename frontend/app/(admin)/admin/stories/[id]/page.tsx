@@ -27,6 +27,7 @@ export default function AdminStoryDetailPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showModerateConfirm, setShowModerateConfirm] = useState(false);
 
   const {
     data: story,
@@ -46,7 +47,12 @@ export default function AdminStoryDetailPage() {
       qc.invalidateQueries({ queryKey: ['admin-stories'] });
       toast({ title: 'Story updated' });
     },
-    onError: () => toast({ title: 'Error', variant: 'destructive' }),
+    onError: (err: { normalizedMessage?: string }) =>
+      toast({
+        title: 'Error',
+        description: err.normalizedMessage ?? 'Something went wrong',
+        variant: 'destructive',
+      }),
   });
 
   const deleteMut = useMutation({
@@ -55,7 +61,12 @@ export default function AdminStoryDetailPage() {
       toast({ title: 'Story deleted' });
       router.push('/admin/stories');
     },
-    onError: () => toast({ title: 'Error', variant: 'destructive' }),
+    onError: (err: { normalizedMessage?: string }) =>
+      toast({
+        title: 'Error',
+        description: err.normalizedMessage ?? 'Something went wrong',
+        variant: 'destructive',
+      }),
   });
 
   if (isLoading) {
@@ -168,7 +179,7 @@ export default function AdminStoryDetailPage() {
         <div className="flex flex-wrap gap-3">
           <Button
             type="button"
-            onClick={() => moderateMut.mutate(!story.published)}
+            onClick={() => setShowModerateConfirm(true)}
             loading={moderateMut.isPending}
           >
             {story.published ? (
@@ -189,6 +200,19 @@ export default function AdminStoryDetailPage() {
           </Button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showModerateConfirm}
+        title={story.published ? 'Unpublish Story' : 'Approve & Publish Story'}
+        message={`${story.published ? 'Unpublish' : 'Publish'} "${story.title}"?`}
+        confirmLabel={story.published ? 'Unpublish' : 'Publish'}
+        loading={moderateMut.isPending}
+        onConfirm={() => {
+          moderateMut.mutate(!story.published);
+          setShowModerateConfirm(false);
+        }}
+        onCancel={() => setShowModerateConfirm(false)}
+      />
 
       <ConfirmDialog
         open={showDeleteConfirm}

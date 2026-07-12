@@ -48,10 +48,12 @@ function ToggleSwitch({
   checked,
   onChange,
   id,
+  disabled,
 }: {
   checked: boolean;
   onChange: () => void;
   id: string;
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -60,14 +62,16 @@ function ToggleSwitch({
       role="switch"
       aria-checked={checked}
       onClick={onChange}
-       className={`w-11 h-7 rounded-full transition-colors duration-200 relative flex-shrink-0 cursor-pointer ${
-         checked ? 'bg-brand-primary' : 'bg-brand-border'
-       }`}
-     >
-       <div
-         className={`absolute top-1 left-0.5 w-5 h-5 bg-background rounded-full shadow transition-transform duration-200 ${
-           checked ? 'translate-x-5' : 'translate-x-0'
-         }`}
+      disabled={disabled}
+      aria-disabled={disabled}
+      className={`w-11 h-7 rounded-full transition-colors duration-200 relative flex-shrink-0 ${
+        disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+      } ${checked ? 'bg-brand-primary' : 'bg-brand-border'}`}
+    >
+      <div
+        className={`absolute top-1 left-0.5 w-5 h-5 bg-background rounded-full shadow transition-transform duration-200 ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
       />
     </button>
   );
@@ -166,6 +170,7 @@ export default function NotificationPrefsPage() {
                       <ToggleSwitch
                         id={`notif-${p.type}-email`}
                         checked={p.email}
+                        disabled={updateMut.isPending}
                         onChange={() => {
                           haptic.light();
                           updateMut.mutate({ type: p.type, email: !p.email });
@@ -184,6 +189,7 @@ export default function NotificationPrefsPage() {
                       <ToggleSwitch
                         id={`notif-${p.type}-push`}
                         checked={p.push}
+                        disabled={updateMut.isPending}
                         onChange={() => {
                           haptic.light();
                           updateMut.mutate({ type: p.type, push: !p.push });

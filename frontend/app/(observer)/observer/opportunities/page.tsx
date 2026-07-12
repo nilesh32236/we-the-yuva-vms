@@ -115,7 +115,7 @@ export default function ObserverOpportunitiesPage() {
               <OpportunityCard key={opp.id} opportunity={opp} showApply={false} />
             ))}
           </div>
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
         </>
       )}
     </div>

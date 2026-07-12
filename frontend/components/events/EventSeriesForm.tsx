@@ -118,7 +118,7 @@ function calculatePreviewDates(data: EventSeriesFormData): string[] {
       default:
         next = new Date(start);
         next.setDate(next.getDate() + i * data.interval);
-      }
+    }
 
     if (
       (data.endType === 'after' && i >= (data.maxOccurrences ?? Infinity)) ||

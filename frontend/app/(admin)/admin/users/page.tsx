@@ -3,6 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, X } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Pagination from '@/components/shared/Pagination';
 import { UserTable } from '../../../../components/admin/UserTable';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -18,33 +21,58 @@ const CREATE_ROLES = ['VOLUNTEER', 'COORDINATOR', 'ADMIN', 'OBSERVER'];
 function CreateUserModal({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const { toast } = useToast();
-  const [form, setForm] = useState({ name: '', email: '', role: 'VOLUNTEER', locationName: '' });
-  const [touched, setTouched] = useState(false);
   const dialogRef = useFocusTrap(true);
 
+  const userSchema = z.object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().min(1, 'Email is required').email('Invalid email format'),
+    role: z.enum(['VOLUNTEER', 'COORDINATOR', 'ADMIN', 'OBSERVER']),
+    locationName: z.string().optional(),
+  });
+  type UserFormData = z.infer<typeof userSchema>;
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    setError,
+  } = useForm<UserFormData>({
+    resolver: zodResolver(userSchema),
+    defaultValues: { name: '', email: '', role: 'VOLUNTEER', locationName: '' },
+  });
+
   const create = useMutation({
-    mutationFn: () =>
+    mutationFn: (data: UserFormData) =>
       api.post('/admin/users', {
-        name: form.name,
-        email: form.email,
-        role: form.role,
-        locationName: form.locationName || undefined,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        locationName: data.locationName || undefined,
       }),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['admin-users'] });
       toast({
         title: 'User created',
-        description: `${form.name} can now log in with ${form.email}`,
+        description: `${variables.name} can now log in with ${variables.email}`,
       });
       onClose();
     },
-    onError: (e: { response?: { data?: { error?: string } } }) =>
-      toast({
-        title: 'Failed',
-        description: e?.response?.data?.error ?? 'Try again',
-        variant: 'destructive',
-      }),
+    onError: (e: { response?: { data?: { error?: string } } }) => {
+      const serverError = e?.response?.data?.error;
+      if (serverError?.toLowerCase().includes('email')) {
+        setError('email', { message: serverError });
+      } else {
+        toast({
+          title: 'Failed',
+          description: serverError ?? 'Try again',
+          variant: 'destructive',
+        });
+      }
+    },
   });
+
+  const onSubmit = (data: UserFormData) => create.mutate(data);
 
   return (
     <div
@@ -72,105 +100,106 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div>
-            <label
-              htmlFor="create-name"
-              className="block text-xs font-semibold text-brand-text mb-1.5"
-            >
-              Full Name *
-            </label>
-            <input
-              id="create-name"
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="e.g. Priya Sharma"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-            />
-            {touched && !form.name && <p role="alert" className="text-xs text-brand-error mt-1">Name is required</p>}
-          </div>
-
-          <div>
-            <label
-              htmlFor="create-email"
-              className="block text-xs font-semibold text-brand-text mb-1.5"
-            >
-              Email *
-            </label>
-            <input
-              id="create-email"
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              placeholder="e.g. priya@example.com"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-            />
-            {touched && !form.email && <p role="alert" className="text-xs text-brand-error mt-1">Email is required</p>}
-          </div>
-
-          <div>
-            <label
-              htmlFor="create-role"
-              className="block text-xs font-semibold text-brand-text mb-1.5"
-            >
-              Role *
-            </label>
-            <select
-              id="create-role"
-              value={form.role}
-              onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
-            >
-              {CREATE_ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {r.charAt(0) + r.slice(1).toLowerCase()}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {form.role !== 'VOLUNTEER' && (
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="p-6 space-y-4">
             <div>
               <label
-                htmlFor="create-location"
+                htmlFor="create-name"
                 className="block text-xs font-semibold text-brand-text mb-1.5"
               >
-                Location (optional)
+                Full Name *
               </label>
               <input
-                id="create-location"
-                value={form.locationName}
-                onChange={(e) => setForm((f) => ({ ...f, locationName: e.target.value }))}
-                placeholder="e.g. Mumbai"
+                id="create-name"
+                {...register('name')}
+                placeholder="e.g. Priya Sharma"
                 className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
+              {errors.name && (
+                <p role="alert" className="text-xs text-brand-error mt-1">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
-          )}
 
-          <p className="text-xs text-brand-muted bg-brand-bg rounded-xl px-3 py-2.5">
-            The user will log in using OTP sent to their email. Their account is created as{' '}
-            <strong>Active</strong> with consent pre-accepted.
-          </p>
-        </div>
+            <div>
+              <label
+                htmlFor="create-email"
+                className="block text-xs font-semibold text-brand-text mb-1.5"
+              >
+                Email *
+              </label>
+              <input
+                id="create-email"
+                type="email"
+                {...register('email')}
+                placeholder="e.g. priya@example.com"
+                className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              />
+              {errors.email && (
+                <p role="alert" className="text-xs text-brand-error mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
 
-        <div className="flex gap-3 px-6 pb-6">
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={() => {
-              setTouched(true);
-              if (!form.name || !form.email) return;
-              create.mutate();
-            }}
-            disabled={create.isPending}
-            loading={create.isPending}
-            className="flex-1"
-          >
-            Create User
-          </Button>
-        </div>
+            <div>
+              <label
+                htmlFor="create-role"
+                className="block text-xs font-semibold text-brand-text mb-1.5"
+              >
+                Role *
+              </label>
+              <select
+                id="create-role"
+                {...register('role')}
+                className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-brand-surface focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                {CREATE_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r.charAt(0) + r.slice(1).toLowerCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {watch('role') !== 'VOLUNTEER' && (
+              <div>
+                <label
+                  htmlFor="create-location"
+                  className="block text-xs font-semibold text-brand-text mb-1.5"
+                >
+                  Location (optional)
+                </label>
+                <input
+                  id="create-location"
+                  {...register('locationName')}
+                  placeholder="e.g. Mumbai"
+                  className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                />
+              </div>
+            )}
+
+            <p className="text-xs text-brand-muted bg-brand-bg rounded-xl px-3 py-2.5">
+              The user will log in using OTP sent to their email. Their account is created as{' '}
+              <strong>Active</strong> with consent pre-accepted.
+            </p>
+          </div>
+
+          <div className="flex gap-3 px-6 pb-6">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={create.isPending}
+              loading={create.isPending}
+              className="flex-1"
+            >
+              Create User
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -213,7 +242,10 @@ export default function AdminUsersPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+            aria-hidden="true"
+          />
           <input
             value={search}
             onChange={(e) => {

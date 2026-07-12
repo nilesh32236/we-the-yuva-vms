@@ -17,16 +17,25 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
 
   const addCertification = () => {
     if (certInput.trim()) {
-      setValue('step4.certifications', [...certifications, certInput.trim()], { shouldValidate: true });
+      setValue('step4.certifications', [...certifications, certInput.trim()], {
+        shouldValidate: true,
+      });
       setCertInput('');
     }
   };
 
-  const field = (label: string, fieldName: 'education' | 'occupation' | 'experience', error?: string, opts?: { placeholder?: string; textarea?: boolean; rows?: number }) => {
+  const field = (
+    label: string,
+    fieldName: 'education' | 'occupation' | 'experience',
+    error?: string,
+    opts?: { placeholder?: string; textarea?: boolean; rows?: number }
+  ) => {
     const id = `input-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
       <div className="space-y-1.5">
-        <label htmlFor={id} className="text-sm font-medium text-brand-text">{label}</label>
+        <label htmlFor={id} className="text-sm font-medium text-brand-text">
+          {label}
+        </label>
         {opts?.textarea ? (
           <textarea
             id={id}
@@ -51,7 +60,9 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
           />
         )}
         {error && (
-          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">{error}</p>
+          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">
+            {error}
+          </p>
         )}
       </div>
     );
@@ -63,9 +74,17 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
       <p className="text-brand-muted text-sm -mt-3">Tell us about your background</p>
 
       <div className="space-y-5">
-        {field('Education *', 'education', errors.step4?.education?.message, { placeholder: 'e.g. B.Tech Computer Science' })}
-        {field('Occupation *', 'occupation', errors.step4?.occupation?.message, { placeholder: 'e.g. Software Engineer, Student' })}
-        {field('Experience *', 'experience', errors.step4?.experience?.message, { placeholder: 'Tell us about your relevant experience...', textarea: true, rows: 3 })}
+        {field('Education *', 'education', errors.step4?.education?.message, {
+          placeholder: 'e.g. B.Tech Computer Science',
+        })}
+        {field('Occupation *', 'occupation', errors.step4?.occupation?.message, {
+          placeholder: 'e.g. Software Engineer, Student',
+        })}
+        {field('Experience *', 'experience', errors.step4?.experience?.message, {
+          placeholder: 'Tell us about your relevant experience...',
+          textarea: true,
+          rows: 3,
+        })}
 
         <div className="space-y-3">
           <span className="text-sm font-medium text-brand-text">Certifications (Optional)</span>
@@ -73,12 +92,18 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
 
           {certifications.map((cert) => (
             <div key={cert} className="flex items-center gap-2 text-sm">
-              <span className="bg-brand-primary/10 text-brand-primary px-3 py-1 rounded-full">{cert}</span>
+              <span className="bg-brand-primary/10 text-brand-primary px-3 py-1 rounded-full">
+                {cert}
+              </span>
               <button
                 type="button"
                 onClick={() => {
                   const idx = certifications.indexOf(cert);
-                  setValue('step4.certifications', certifications.filter((_, j) => j !== idx), { shouldValidate: true });
+                  setValue(
+                    'step4.certifications',
+                    certifications.filter((_, j) => j !== idx),
+                    { shouldValidate: true }
+                  );
                 }}
                 className="text-brand-muted hover:text-red-500 text-xs cursor-pointer px-3 py-2 min-h-11"
               >
@@ -92,7 +117,12 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
               type="text"
               value={certInput}
               onChange={(e) => setCertInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCertification(); } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addCertification();
+                }
+              }}
               placeholder="Type a certification and press Enter or Add"
               className="flex-1 px-3 py-2 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
