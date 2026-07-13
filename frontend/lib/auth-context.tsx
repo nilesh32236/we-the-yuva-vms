@@ -77,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return;
     }
+    setIsLoading(true);
     fetchUser();
   }, [fetchUser, pathname]);
 
