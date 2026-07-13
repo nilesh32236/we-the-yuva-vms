@@ -3,15 +3,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { Activity, ArrowRight, Calendar, Clock, Star } from 'lucide-react';
 import Link from 'next/link';
-import { StatsCard } from '../../../../components/charts/StatsCard';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { PointsCard } from '../../../../components/shared/PointsCard';
-import { PointsHistory } from '../../../../components/shared/PointsHistory';
-import { LevelProgressCard } from '../../../../components/levels/LevelProgressCard';
-import { PWAInstallBanner } from '../../../../components/shared/PWAInstallBanner';
-import { ProfileCompletionBanner } from '../../../../components/dashboard/ProfileCompletionBanner';
-import { useAuth } from '../../../../hooks/useAuth';
-import { api } from '../../../../lib/api';
+import { StatsCard } from '@/components/charts/StatsCard';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { PointsCard } from '@/components/shared/PointsCard';
+import { PointsHistory } from '@/components/shared/PointsHistory';
+import { LevelProgressCard } from '@/components/levels/LevelProgressCard';
+import { PWAInstallBanner } from '@/components/shared/PWAInstallBanner';
+import { ProfileCompletionBanner } from '@/components/dashboard/ProfileCompletionBanner';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
@@ -51,17 +51,17 @@ export default function VolunteerDashboardPage() {
 
       {/* Hero */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary p-6 md:p-8">
-        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10" />
-        <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-white/10" />
+        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-brand-bg/10" />
+        <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-brand-bg/10" />
         <div className="relative z-10 flex items-start justify-between gap-4">
           <div>
-            <p className="text-white/70 dark:text-brand-bg/70 text-sm font-medium mb-1">
+            <p className="text-brand-bg/70 text-sm font-medium mb-1">
               {greeting}
             </p>
-            <h1 className="font-heading font-bold text-2xl md:text-3xl text-white dark:text-brand-bg">
+            <h1 className="font-heading font-bold text-2xl md:text-3xl text-brand-bg">
               {user?.name?.split(' ')?.[0]}!
             </h1>
-            <span className="inline-block mt-2 text-xs font-semibold bg-white/20 text-white dark:text-brand-bg px-3 py-1 rounded-full">
+            <span className="inline-block mt-2 text-xs font-semibold bg-brand-bg/20 text-brand-bg px-3 py-1 rounded-full">
               Volunteer
               {user?.volunteerType
                 ? ` • ${VOLUNTEER_TYPE_LABELS[user.volunteerType] ?? user.volunteerType}`
@@ -71,8 +71,8 @@ export default function VolunteerDashboardPage() {
               Welcome to WeTheYuva VMS. Here&apos;s your overview for today.
             </p>
           </div>
-          <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center border-2 border-white/30">
-            <span className="font-heading font-bold text-xl text-white dark:text-brand-bg">
+          <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-brand-bg/20 flex items-center justify-center border-2 border-brand-bg/30">
+            <span className="font-heading font-bold text-xl text-brand-bg">
               {user?.name
                 ?.split(' ')
                 ?.map((n: string) => n[0])
@@ -125,8 +125,8 @@ export default function VolunteerDashboardPage() {
             label="Avg Rating"
             value={stats?.avgRating != null ? `${stats.avgRating.toFixed(1)} ★` : '—'}
             icon={Star}
-            accent="text-amber-500 dark:text-amber-400"
-            accentBg="bg-amber-50 dark:bg-amber-900/20"
+            accent="text-brand-accent"
+            accentBg="bg-brand-accent/10"
           />
         </div>
       )}
@@ -143,7 +143,7 @@ export default function VolunteerDashboardPage() {
           <Link
             href="/volunteer/opportunities"
             onClick={() => haptic.light()}
-            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white dark:text-brand-bg hover:bg-brand-secondary transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
+            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-brand-bg hover:bg-brand-secondary transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
           >
             <p className="text-sm font-semibold">Browse Opportunities</p>
             <ArrowRight

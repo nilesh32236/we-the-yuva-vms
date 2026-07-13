@@ -26,6 +26,7 @@ export default function AdminEditEventPage() {
     try {
       await api.put(`/events/${id}`, data);
       queryClient.invalidateQueries({ queryKey: ['event', id] });
+      queryClient.invalidateQueries({ queryKey: ['admin-events'] });
       toast({ title: 'Event updated!' });
       router.push('/admin/events');
     } catch (err) {

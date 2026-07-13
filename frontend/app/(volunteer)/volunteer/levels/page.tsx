@@ -143,6 +143,11 @@ export default function VolunteerLevelsPage() {
   const [showRequestDialog, setShowRequestDialog] = useState(false);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
+  const handleOpenRequestDialog = () => {
+    haptic.medium();
+    setShowRequestDialog(true);
+  };
+
   const {
     register: registerNotes,
     handleSubmit: handleNotesSubmit,
@@ -329,8 +334,8 @@ export default function VolunteerLevelsPage() {
       )}
 
       {isMaxLevel && (
-        <div className="bg-brand-surface rounded-2xl border border-amber-200 dark:border-amber-800 p-5 text-center">
-          <Award className="w-10 h-10 text-amber-500 dark:text-amber-400 mx-auto mb-2" />
+        <div className="bg-brand-surface rounded-2xl border border-brand-cta/30 dark:border-brand-cta/30 p-5 text-center">
+          <Award className="w-10 h-10 text-brand-cta mx-auto mb-2" />
           <p className="font-heading font-semibold text-brand-text">Maximum Level Reached!</p>
           <p className="text-sm text-brand-muted mt-1">
             You&apos;ve reached the highest tier. Keep up the great work!
@@ -348,10 +353,7 @@ export default function VolunteerLevelsPage() {
             {allRequirementsMet && !hasPendingRequest && (
               <Button
                 size="sm"
-                onClick={() => {
-                  haptic.medium();
-                  setShowRequestDialog(true);
-                }}
+                onClick={handleOpenRequestDialog}
               >
                 <ArrowUp className="w-4 h-4" /> Request Level-Up
               </Button>
@@ -371,7 +373,7 @@ export default function VolunteerLevelsPage() {
           )}
 
           {allRequirementsMet && hasPendingRequest && (
-            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-xl px-4 py-2.5">
+            <div className="flex items-center gap-2 text-sm text-brand-cta dark:text-brand-cta bg-brand-cta/10 dark:bg-brand-cta/10 rounded-xl px-4 py-2.5">
               <Clock className="w-4 h-4" />
               <span className="font-medium">
                 You already have a pending request. Wait for it to be reviewed.
@@ -506,11 +508,11 @@ export default function VolunteerLevelsPage() {
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="flex-shrink-0">
                     {req.status === 'APPROVED' ? (
-                      <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400" />
+                      <CheckCircle className="w-5 h-5 text-brand-primary" />
                     ) : req.status === 'REJECTED' ? (
                       <XCircle className="w-5 h-5 text-brand-error" />
                     ) : (
-                      <Clock className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+                      <Clock className="w-5 h-5 text-brand-cta" />
                     )}
                   </div>
                   <div className="min-w-0">
@@ -550,10 +552,10 @@ export default function VolunteerLevelsPage() {
                   <span
                     className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                       req.status === 'APPROVED'
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        ? 'bg-brand-primary/10 text-brand-primary'
                         : req.status === 'REJECTED'
-                          ? 'bg-red-100 dark:bg-red-900/30 text-brand-error'
-                          : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                          ? 'bg-brand-error/10 text-brand-error'
+                          : 'bg-brand-cta/10 text-brand-cta'
                     }`}
                   >
                     {req.status}

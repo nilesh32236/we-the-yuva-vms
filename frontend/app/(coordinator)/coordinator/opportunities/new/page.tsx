@@ -4,9 +4,9 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { OpportunityInput } from '@/lib/shared';
-import { OpportunityForm } from '../../../../../components/opportunities/OpportunityForm';
-import { useToast } from '../../../../../hooks/use-toast';
-import { api } from '../../../../../lib/api';
+import { OpportunityForm } from '@/components/opportunities/OpportunityForm';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 export default function NewOpportunityPage() {
   const router = useRouter();

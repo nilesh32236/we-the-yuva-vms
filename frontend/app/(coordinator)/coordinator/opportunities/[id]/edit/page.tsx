@@ -5,10 +5,10 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import type { OpportunityInput } from '@/lib/shared';
-import { OpportunityForm } from '../../../../../../components/opportunities/OpportunityForm';
-import { haptic } from '../../../../../../lib/haptic';
-import { useToast } from '../../../../../../hooks/use-toast';
-import { api } from '../../../../../../lib/api';
+import { OpportunityForm } from '@/components/opportunities/OpportunityForm';
+import { haptic } from '@/lib/haptic';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 export default function EditOpportunityPage() {
   const { id } = useParams<{ id: string }>();

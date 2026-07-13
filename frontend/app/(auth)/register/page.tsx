@@ -234,7 +234,6 @@ export default function RegisterPage() {
     defaultValues: { role: 'VOLUNTEER' },
   });
 
-  const _selectedRole = watch('role');
   const watchWhyVoluntary = watch('whyVoluntary');
 
   useEffect(() => {

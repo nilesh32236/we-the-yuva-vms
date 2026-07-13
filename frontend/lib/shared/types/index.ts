@@ -121,6 +121,8 @@ export interface AuthUser {
   volunteerType?: string | null;
 }
 
+export type ApiError = { normalizedMessage?: string; response?: { data?: { error?: string } } };
+
 export type UserRole =
   | 'VOLUNTEER'
   | 'COORDINATOR'

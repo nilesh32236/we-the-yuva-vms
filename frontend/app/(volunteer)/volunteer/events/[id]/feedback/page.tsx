@@ -8,9 +8,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '../../../../../../components/ui/Button';
-import { useToast } from '../../../../../../hooks/use-toast';
-import { api } from '../../../../../../lib/api';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const feedbackSchema = z.object({
@@ -52,7 +52,7 @@ export default function EventFeedbackPage() {
     enabled: !!id,
   });
 
-  const onSubmit = async (data: z.infer<typeof feedbackSchema>) => {
+  const handleFormSubmit = async (data: z.infer<typeof feedbackSchema>) => {
     haptic.medium();
     setSubmitting(true);
     try {
@@ -94,7 +94,7 @@ export default function EventFeedbackPage() {
           {event?.title ? `How was "${event.title}"?` : 'How was this event?'}
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {/* Rating */}
           <div className="space-y-2">
             <label

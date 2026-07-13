@@ -4,17 +4,17 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClipboardList, Download, Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { useFocusTrap } from '../../../../hooks/useFocusTrap';
-import { api, downloadCsv } from '../../../../lib/api';
-import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
+import Pagination from '@/components/shared/Pagination';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api, downloadCsv } from '@/lib/api';
+import { AddToCalendarButton } from '@/components/events/AddToCalendarButton';
 
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-  COMPLETED: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+  SCHEDULED: 'bg-brand-cta/10 text-brand-cta',
+  COMPLETED: 'bg-brand-primary/10 text-brand-primary',
+  CANCELLED: 'bg-brand-error/10 text-brand-error',
 };
 
 export default function CoordinatorEventsPage() {
@@ -35,7 +35,7 @@ export default function CoordinatorEventsPage() {
     setConfirmAction({ id, title });
   };
 
-  const executeCancel = async () => {
+  const handleCancelConfirm = async () => {
     if (!confirmAction) return;
     const { id } = confirmAction;
     setConfirmAction(null);
@@ -240,7 +240,7 @@ export default function CoordinatorEventsPage() {
               </button>
               <button
                 type="button"
-                onClick={executeCancel}
+                onClick={handleCancelConfirm}
                 className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors active-bounce"
               >
                 Cancel Event

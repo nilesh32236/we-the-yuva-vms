@@ -7,12 +7,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Pagination from '@/components/shared/Pagination';
-import { UserTable } from '../../../../components/admin/UserTable';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { UserTable } from '@/components/admin/UserTable';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
-import { useToast } from '../../../../hooks/use-toast';
-import { useFocusTrap } from '../../../../hooks/useFocusTrap';
-import { api } from '../../../../lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api } from '@/lib/api';
 
 const ROLES = ['ALL', 'VOLUNTEER', 'COORDINATOR', 'ADMIN', 'OBSERVER'];
 const STATUSES = ['ALL', 'ACTIVE', 'PENDING', 'INACTIVE', 'SUSPENDED'];
@@ -72,7 +72,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
     },
   });
 
-  const onSubmit = (data: UserFormData) => create.mutate(data);
+  const handleCreateUser = (data: UserFormData) => create.mutate(data);
 
   return (
     <div
@@ -100,7 +100,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(handleCreateUser)}>
           <div className="p-6 space-y-4">
             <div>
               <label
@@ -303,7 +303,7 @@ export default function AdminUsersPage() {
             users={data?.data ?? []}
             onUpdated={() => qc.invalidateQueries({ queryKey: ['admin-users'] })}
           />
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
           {data?.total && (
             <p className="text-sm text-brand-muted text-center mt-2">{data.total} total users</p>
           )}

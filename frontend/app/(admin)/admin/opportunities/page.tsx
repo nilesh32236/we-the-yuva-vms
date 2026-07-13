@@ -4,11 +4,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Pagination from '@/components/shared/Pagination';
-import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useState } from 'react';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { api } from '../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-brand-primary/10 text-brand-primary',
@@ -185,7 +185,7 @@ export default function AdminOpportunitiesPage() {
               </table>
             </div>
           </div>
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
         </>
       )}
 

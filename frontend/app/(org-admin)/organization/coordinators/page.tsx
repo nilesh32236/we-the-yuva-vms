@@ -6,12 +6,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '../../../../hooks/useAuth';
-import { useFocusTrap } from '../../../../hooks/useFocusTrap';
-import { api } from '../../../../lib/api';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { Button } from '../../../../components/ui/Button';
+import { useAuth } from '@/hooks/useAuth';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api } from '@/lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/Button';
 import type { AxiosError } from 'axios';
 
 interface Coordinator {
@@ -88,6 +88,8 @@ export default function OrganizationCoordinatorsPage() {
     },
   });
 
+  const handleAddCoordinator = handleSubmit((data) => addMut.mutate(data));
+
   if (!orgId) {
     return (
       <div className="flex flex-col items-center justify-center h-64 bg-brand-surface rounded-2xl border border-brand-border p-6 text-center card-hover">
@@ -117,7 +119,7 @@ export default function OrganizationCoordinatorsPage() {
             Add New Coordinator
           </h2>
           <form
-            onSubmit={handleSubmit((data) => addMut.mutate(data))}
+            onSubmit={handleAddCoordinator}
             className="grid gap-4 sm:grid-cols-2"
           >
             <div className="space-y-1.5">
@@ -211,7 +213,7 @@ export default function OrganizationCoordinatorsPage() {
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-brand-border flex items-center justify-between">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-primary/10 text-brand-primary">
                   {c.status}
                 </span>
                 <Button

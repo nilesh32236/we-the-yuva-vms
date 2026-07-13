@@ -4,11 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Clock, LogIn, LogOut, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
-import { AttendanceChecklist } from '../../../../../../components/events/AttendanceChecklist';
-import { SkeletonCard } from '../../../../../../components/shared/SkeletonCard';
-import { haptic } from '../../../../../../lib/haptic';
-import { useToast } from '../../../../../../hooks/use-toast';
-import { api } from '../../../../../../lib/api';
+import { AttendanceChecklist } from '@/components/events/AttendanceChecklist';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { haptic } from '@/lib/haptic';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 interface AttendanceRecord {
   volunteerId: string;
@@ -171,7 +171,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
               <p className="text-xs text-brand-muted">Checked In</p>
             </div>
             <div className="text-center">
-              <p className="font-heading font-bold text-2xl text-emerald-600 dark:text-emerald-400">
+              <p className="font-heading font-bold text-2xl text-brand-primary">
                 {checkedOutCount}
               </p>
               <p className="text-xs text-brand-muted">Checked Out</p>
@@ -223,7 +223,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-xs text-brand-muted">
                         <span className="flex items-center gap-1">
                           <LogIn
-                            className="w-3 h-3 text-emerald-600 dark:text-emerald-400"
+                            className="w-3 h-3 text-brand-success"
                             aria-hidden="true"
                           />
                           {new Date(a.checkedInAt!).toLocaleTimeString('en-IN', {
@@ -264,7 +264,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                       </div>
                     )}
                     {!a.checkedOutAt && (
-                      <span className="text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span className="text-xs font-semibold bg-brand-accent/10 text-brand-accent px-2 py-0.5 rounded-full flex-shrink-0">
                         Active
                       </span>
                     )}

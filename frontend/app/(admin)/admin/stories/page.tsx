@@ -3,12 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CheckCircle, ExternalLink, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { ConfirmDialog } from '../../../../components/admin/ConfirmDialog';
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useState } from 'react';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { api } from '../../../../lib/api';
+import Pagination from '@/components/shared/Pagination';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 export default function AdminStoriesPage() {
   const qc = useQueryClient();

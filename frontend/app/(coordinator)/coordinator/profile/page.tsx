@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Mail, MapPin, User } from 'lucide-react';
-import { api } from '../../../../lib/api';
+import { api } from '@/lib/api';
 
 export default function CoordinatorProfilePage() {
   const { data: user, isLoading } = useQuery({
@@ -41,7 +41,7 @@ export default function CoordinatorProfilePage() {
             <Mail className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{user?.email}</span>
           </div>
-          <span className="inline-block mt-2 text-xs font-semibold bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 px-2.5 py-0.5 rounded-full">
+          <span className="inline-block mt-2 text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-0.5 rounded-full">
             Coordinator
           </span>
         </div>

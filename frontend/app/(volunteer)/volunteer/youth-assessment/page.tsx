@@ -1,12 +1,14 @@
 'use client';
 
 import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
+import type { ApiError } from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ASPIRATIONS } from '@/lib/shared';
+import { ROLE_ROUTES } from '@/lib/shared/permissions';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -305,20 +307,11 @@ export default function YouthAssessmentPage() {
       });
       await refetch();
       toast({ title: 'Assessment saved!' });
-      const roleRoutes: Record<string, string> = {
-        VOLUNTEER: '/volunteer/dashboard',
-        COORDINATOR: '/coordinator/dashboard',
-        ADMIN: '/admin/dashboard',
-        PLATFORM_MANAGER: '/admin/dashboard',
-        OBSERVER: '/observer/dashboard',
-        ORGANIZATION_ADMIN: '/organization/dashboard',
-      };
-      router.push(roleRoutes[user?.role ?? ''] ?? '/login');
+      router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
     } catch (err) {
       const message =
-        (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })
-          ?.normalizedMessage ??
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        (err as ApiError)?.normalizedMessage ??
+        (err as ApiError)?.response?.data?.error ??
         'Failed to save assessment';
       toast({ title: message, variant: 'destructive' });
     } finally {

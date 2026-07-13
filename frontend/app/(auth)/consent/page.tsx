@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowRight, Camera, Shield } from 'lucide-react';
+import { ArrowRight, Camera, Check, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
@@ -135,16 +135,7 @@ export default function ConsentPage() {
                       }`}
                   >
                     {field.value && (
-                      <svg
-                        aria-hidden="true"
-                        className="w-3 h-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
+                      <Check className="w-3 h-3 text-white" aria-hidden="true" />
                     )}
                   </div>
                 </div>
@@ -192,16 +183,7 @@ export default function ConsentPage() {
                       }`}
                   >
                     {field.value && (
-                      <svg
-                        aria-hidden="true"
-                        className="w-3 h-3 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
+                      <Check className="w-3 h-3 text-white" aria-hidden="true" />
                     )}
                   </div>
                 </div>

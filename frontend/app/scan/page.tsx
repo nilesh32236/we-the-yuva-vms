@@ -178,7 +178,7 @@ function ScanInner() {
   return (
     <main id="main" className="max-w-md mx-auto mt-8 space-y-6 px-4">
       <div className="text-center space-y-2">
-        <QrCode className="w-10 h-10 text-brand mx-auto" />
+        <QrCode className="w-10 h-10 text-brand-text mx-auto" />
         <h1 className="font-heading font-bold text-xl text-brand-text">Event Check-in</h1>
         <p className="text-sm text-brand-muted">
           {mode === 'camera'
@@ -189,7 +189,7 @@ function ScanInner() {
 
       {errorMsg && (
         <div
-          className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-4 text-sm text-red-600 dark:text-red-400"
+          className="bg-brand-error/10 border-brand-error/20 rounded-xl p-4 text-sm text-brand-error"
           role="alert"
         >
           {errorMsg}
@@ -204,7 +204,7 @@ function ScanInner() {
       ) : (
         <>
           {/* Mode toggle */}
-          <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-1" role="tablist">
+          <div className="flex gap-2 bg-brand-muted/10 dark:bg-brand-muted/20 rounded-xl p-1" role="tablist">
             <button
               type="button"
               role="tab"
@@ -217,7 +217,7 @@ function ScanInner() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'camera'
                   ? 'bg-brand-surface shadow-sm text-brand-primary'
-                  : 'text-gray-500 dark:text-gray-400'
+                  : 'text-brand-muted'
               }`}
             >
               <Camera className="w-4 h-4" /> Camera
@@ -234,7 +234,7 @@ function ScanInner() {
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 mode === 'manual'
                   ? 'bg-brand-surface shadow-sm text-brand-primary'
-                  : 'text-gray-500 dark:text-gray-400'
+                  : 'text-brand-muted'
               }`}
             >
               <Keyboard className="w-4 h-4" /> Manual

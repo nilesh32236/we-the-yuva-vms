@@ -4,10 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Download, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { api, downloadCsv } from '../../../../lib/api';
+import Pagination from '@/components/shared/Pagination';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { api, downloadCsv } from '@/lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
@@ -48,7 +48,7 @@ export default function AdminEventsPage() {
       </div>
 
       {isLoading ? (
-        <div aria-busy={isLoading} role="status" className="space-y-3">
+        <div aria-busy="true" role="status" className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />
           ))}

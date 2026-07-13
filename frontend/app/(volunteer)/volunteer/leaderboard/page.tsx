@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { LeaderboardRow } from '@/components/leaderboard/LeaderboardRow';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -164,7 +165,7 @@ export default function VolunteerLeaderboardPage() {
       {/* Empty State */}
       {!isLoading && !isError && top10.length === 0 && (
         <div className="text-center py-16">
-          <p className="text-4xl mb-3">🏆</p>
+          <Trophy className="w-10 h-10 mx-auto mb-3 text-brand-muted opacity-50" />
           <h3 className="text-sm font-semibold text-brand-text">No rankings yet</h3>
           <p className="text-xs text-brand-muted mt-1">
             Start volunteering to appear on the leaderboard!

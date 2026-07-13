@@ -12,6 +12,7 @@ import {
   Heart,
   Clock,
   BookOpen,
+  X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -287,7 +288,7 @@ export default function SetupProfilePage() {
 
         {formError && (
           <div
-            className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-400"
+            className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error"
             role="alert"
           >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
@@ -295,10 +296,10 @@ export default function SetupProfilePage() {
             <button
               type="button"
               onClick={() => setFormError(null)}
-              className="text-red-500 hover:text-red-700 cursor-pointer shrink-0 p-2 min-w-11 min-h-11"
+              className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0 p-2 min-w-11 min-h-11"
               aria-label="Dismiss error"
             >
-              <span aria-hidden>&times;</span>
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         )}

@@ -4,9 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
 import Pagination from '@/components/shared/Pagination';
 import { useState } from 'react';
-import { OrganizationTable } from '../../../../components/admin/OrganizationTable';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
+import { OrganizationTable } from '@/components/admin/OrganizationTable';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
 const STATUSES = ['ALL', 'PENDING', 'ACTIVE', 'SUSPENDED'];
 
@@ -28,6 +28,8 @@ export default function AdminOrganizationsPage() {
         .then((r) => r.data),
     staleTime: 30_000,
   });
+
+  const handleStatusChange = (s: string) => { setStatus(s); setPage(1); };
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -51,10 +53,7 @@ export default function AdminOrganizationsPage() {
               <button
                 key={s}
                 type="button"
-                onClick={() => {
-                  setStatus(s);
-                  setPage(1);
-                }}
+                onClick={() => handleStatusChange(s)}
                 aria-pressed={status === s}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer
                   ${status === s ? 'bg-brand-primary text-white shadow-md' : 'text-brand-muted hover:text-brand-text'}`}
@@ -82,7 +81,7 @@ export default function AdminOrganizationsPage() {
         <>
           <OrganizationTable orgs={data.orgs} />
 
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
         </>
       )}
     </div>

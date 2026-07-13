@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import type { CreateBlogPostInput } from '@/lib/shared';
 
-const statusBadge: Record<string, string> = {
+const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
   PUBLISHED: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
   ARCHIVED: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
@@ -142,7 +142,7 @@ export default function EditBlogPostPage() {
         <div className="flex items-center justify-between mb-5">
           <h1 className="font-heading font-bold text-xl text-brand-text">Edit Post</h1>
           <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusBadge[post.status] ?? ''}`}
+            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_BADGE[post.status] ?? ''}`}
           >
             {post.status}
           </span>

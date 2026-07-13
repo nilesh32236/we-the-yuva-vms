@@ -16,11 +16,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { use, useState } from 'react';
-import { ProfileCompletionModal } from '../../../../../components/profile/ProfileCompletionModal';
-import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../../hooks/use-toast';
-import { useAuth } from '../../../../../hooks/useAuth';
-import { api } from '../../../../../lib/api';
+import { ProfileCompletionModal } from '@/components/profile/ProfileCompletionModal';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const CATEGORY_COLORS: Record<string, string> = {

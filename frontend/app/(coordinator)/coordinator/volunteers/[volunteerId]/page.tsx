@@ -4,9 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
-import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
-import { haptic } from '../../../../../lib/haptic';
-import { api } from '../../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { haptic } from '@/lib/haptic';
+import { api } from '@/lib/api';
 
 export default function VolunteerDetailPage({
   params,
@@ -94,7 +94,7 @@ export default function VolunteerDetailPage({
               {profile.profile.interests.map((i: string) => (
                 <span
                   key={i}
-                  className="text-sm bg-cyan-50 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-800 text-cyan-700 dark:text-cyan-400 px-3 py-1 rounded-full"
+                  className="text-sm bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-3 py-1 rounded-full"
                 >
                   {i}
                 </span>
@@ -121,7 +121,7 @@ export default function VolunteerDetailPage({
               {profile.profile.availability.timeSlots?.map((t: string) => (
                 <span
                   key={t}
-                  className="text-xs bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full"
+                  className="text-xs bg-brand-primary/10 border border-brand-primary/20 text-brand-primary px-2.5 py-1 rounded-full"
                 >
                   {t}
                 </span>

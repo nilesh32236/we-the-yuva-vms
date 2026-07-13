@@ -4,16 +4,16 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { useFocusTrap } from '../../../../hooks/useFocusTrap';
-import { api } from '../../../../lib/api';
+import Pagination from '@/components/shared/Pagination';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api } from '@/lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-  CLOSED: 'bg-muted text-muted-foreground',
-  DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+  ACTIVE: 'bg-brand-primary/10 text-brand-primary',
+  CLOSED: 'bg-brand-muted/10 text-brand-muted',
+  DRAFT: 'bg-brand-cta/10 text-brand-cta',
 };
 
 export default function CoordinatorOpportunitiesPage() {

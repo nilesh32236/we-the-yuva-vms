@@ -3,9 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
-import { useAuth } from '../../../../lib/auth-context';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function MyStoriesPage() {
   const { user } = useAuth();

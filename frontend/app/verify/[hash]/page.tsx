@@ -52,21 +52,17 @@ export default function VerifyCertificatePage() {
     <main id="main" className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div
-          className={`rounded-2xl border p-8 text-center space-y-5 ${
-            isValid
-              ? 'bg-brand-surface border-brand-border'
-              : 'bg-brand-surface border-brand-border'
-          }`}
+          className="rounded-2xl border p-8 text-center space-y-5 bg-brand-surface border-brand-border"
         >
           <div
             className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center ${
-              isValid ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-red-100 dark:bg-red-900/30'
+              isValid ? 'bg-brand-primary/10' : 'bg-brand-error/10'
             }`}
           >
             {isValid ? (
-              <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+              <CheckCircle2 className="w-8 h-8 text-brand-primary" />
             ) : (
-              <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+              <XCircle className="w-8 h-8 text-brand-error" />
             )}
           </div>
 

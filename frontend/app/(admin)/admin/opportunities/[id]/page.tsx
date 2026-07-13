@@ -268,7 +268,7 @@ export default function AdminOpportunityDetailPage() {
               type="button"
               onClick={() => setShowCloseConfirm(true)}
               disabled={closeMut.isPending}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer transition-colors disabled:opacity-60"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
             >
               <Trash2 className="w-4 h-4" />
               Close Opportunity

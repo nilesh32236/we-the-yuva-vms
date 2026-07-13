@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Mail, MapPin, Shield, User } from 'lucide-react';
-import { api } from '../../../../lib/api';
+import { api } from '@/lib/api';
 
 export default function AdminProfilePage() {
   const { data: user, isLoading } = useQuery({

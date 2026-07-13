@@ -5,9 +5,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import Pagination from '@/components/shared/Pagination';
-import { EventCard } from '../../../../components/events/EventCard';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
+import { EventCard } from '@/components/events/EventCard';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
 interface ObserverEvent {
   id: string;
@@ -28,6 +28,7 @@ interface ObserverEvent {
 export default function ObserverEventsPage() {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
   const [page, setPage] = useState(1);
+  const handleTabChange = (t: 'upcoming' | 'past') => setTab(t);
 
   const { data, isLoading } = useQuery({
     queryKey: ['events', 'observer', page],
@@ -52,7 +53,7 @@ export default function ObserverEventsPage() {
             key={t}
             role="tab"
             aria-selected={tab === t}
-            onClick={() => setTab(t)}
+            onClick={() => handleTabChange(t)}
             className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer active-bounce
               ${tab === t ? 'bg-brand-surface text-brand-text shadow-sm' : 'text-brand-muted hover:text-brand-text'}`}
           >

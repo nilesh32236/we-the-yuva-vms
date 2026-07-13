@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeApprovalQueue } from '../../../../components/badges/BadgeApprovalQueue';
+import { BadgeApprovalQueue } from '@/components/badges/BadgeApprovalQueue';
 
 export default function AdminBadgesPage() {
   return (
