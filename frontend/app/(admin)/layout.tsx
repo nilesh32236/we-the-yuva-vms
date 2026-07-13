@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth-context';
+import { ROLE_ROUTES } from '@/lib/shared/permissions';
 import { redirect } from 'next/navigation';
 import { useEffect } from 'react';
 import { BottomNav } from '../../components/layout/BottomNav';
@@ -31,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       redirect('/login');
     }
     if (!isLoading && user && user.role !== 'ADMIN' && user.role !== 'PLATFORM_MANAGER') {
-      redirect('/login');
+      redirect(ROLE_ROUTES[user.role] ?? '/login');
     }
   }, [user, isLoading]);
 

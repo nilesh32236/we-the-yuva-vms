@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const fetchUser = useCallback(async () => {
+    setIsLoading(true);
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
       sessionStorage.removeItem('logged_out');
     }
