@@ -113,28 +113,26 @@ describe('notifications.service', () => {
 
   describe('deleteNotification', () => {
     it('should throw 404 when not found', async () => {
-      vi.mocked(prisma.notification.findFirst).mockResolvedValue(null);
+      vi.mocked(prisma.notification.delete).mockRejectedValue({ code: 'P2025' });
       await expect(deleteNotification('user-1', 'bad-id')).rejects.toThrow(
         'Notification not found'
       );
     });
 
     it('should delete notification', async () => {
-      vi.mocked(prisma.notification.findFirst).mockResolvedValue({ id: 'n1' } as never);
-      vi.mocked(prisma.notification.delete).mockResolvedValue({} as never);
+      vi.mocked(prisma.notification.delete).mockResolvedValue({ id: 'n1' } as never);
       await expect(deleteNotification('user-1', 'n1')).resolves.toBeDefined();
     });
   });
 
   describe('markRead', () => {
     it('should throw 404 when not found', async () => {
-      vi.mocked(prisma.notification.findFirst).mockResolvedValue(null);
+      vi.mocked(prisma.notification.updateMany).mockResolvedValue({ count: 0 } as never);
       await expect(markRead('user-1', 'bad-id')).rejects.toThrow('Notification not found');
     });
 
     it('should mark as read', async () => {
-      vi.mocked(prisma.notification.findFirst).mockResolvedValue({ id: 'n1' } as never);
-      vi.mocked(prisma.notification.update).mockResolvedValue({ id: 'n1', read: true } as never);
+      vi.mocked(prisma.notification.updateMany).mockResolvedValue({ count: 1 } as never);
       const result = await markRead('user-1', 'n1');
       expect(result.read).toBe(true);
     });

@@ -11,6 +11,8 @@ vi.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       delete: vi.fn(),
       count: vi.fn(),
+      aggregate: vi.fn(),
+      groupBy: vi.fn(),
     },
   },
 }));
@@ -106,10 +108,13 @@ describe('feedback.service', () => {
         id: 'evt-1',
         opportunity: { createdById: 'user-1', organizationId: null },
       } as never);
-      vi.mocked(prisma.eventFeedback.findMany).mockResolvedValue([
-        { rating: 5 },
-        { rating: 4 },
-        { rating: 5 },
+      vi.mocked(prisma.eventFeedback.aggregate).mockResolvedValue({
+        _avg: { rating: 4.666666666666667 },
+        _count: 3,
+      } as never);
+      vi.mocked(prisma.eventFeedback.groupBy).mockResolvedValue([
+        { rating: 5, _count: 2 },
+        { rating: 4, _count: 1 },
       ] as never);
 
       const result = await getEventFeedbackSummary('evt-1', 'user-1', 'ADMIN', null);
@@ -123,7 +128,11 @@ describe('feedback.service', () => {
         id: 'evt-1',
         opportunity: { createdById: 'user-1', organizationId: null },
       } as never);
-      vi.mocked(prisma.eventFeedback.findMany).mockResolvedValue([]);
+      vi.mocked(prisma.eventFeedback.aggregate).mockResolvedValue({
+        _avg: { rating: null },
+        _count: 0,
+      } as never);
+      vi.mocked(prisma.eventFeedback.groupBy).mockResolvedValue([]);
       const result = await getEventFeedbackSummary('evt-1', 'user-1', 'ADMIN', null);
       expect(result.average).toBe(0);
       expect(result.count).toBe(0);

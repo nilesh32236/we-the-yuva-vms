@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     organization: { findUnique: vi.fn() },
-    user: { findUnique: vi.fn(), upsert: vi.fn(), findMany: vi.fn(), update: vi.fn() },
+    user: { findUnique: vi.fn(), upsert: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn() },
     role: { findUnique: vi.fn() },
   },
 }));

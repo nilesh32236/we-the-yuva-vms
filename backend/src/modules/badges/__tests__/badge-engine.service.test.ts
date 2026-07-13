@@ -126,7 +126,7 @@ describe('badge-engine.service', () => {
 
       const result = await checkAndAwardBadges(userId);
       expect(result).toHaveLength(1);
-      expect(result[0].badge.id).toBe(badgeId);
+      expect(result[0].id).toBe(badgeId);
     });
 
     it('should not award badge when referral count is below threshold', async () => {
@@ -213,7 +213,7 @@ describe('badge-engine.service', () => {
 
       const result = await checkAndAwardBadges(userId);
       expect(result).toHaveLength(1);
-      expect(result[0].badge.id).toBe(badgeId);
+      expect(result[0].id).toBe(badgeId);
     });
 
     it('should not award when only events and hours are met but referrals is not', async () => {
