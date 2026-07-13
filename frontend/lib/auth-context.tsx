@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { api, setAccessToken } from './api';
 import { clearQueue } from './offline-queue';
@@ -68,12 +68,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const initialCheckDone = useRef(false);
+
   useEffect(() => {
-    if (isPublicRoute(pathname)) {
-      setIsLoading(false);
+    if (isPublicRoute(pathname) && initialCheckDone.current) {
       return;
     }
-    setIsLoading(true);
+
+    if (initialCheckDone.current) {
+      setIsLoading(true);
+    }
+    initialCheckDone.current = true;
+
     fetchUser();
   }, [fetchUser, pathname]);
 
