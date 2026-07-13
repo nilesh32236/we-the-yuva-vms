@@ -68,7 +68,7 @@ describe('training.service', () => {
         id: 'course-1',
         title: 'Test',
         lessons: [
-          { id: 'l1', title: 'L1', content: 'C', type: 'TEXT', order: 1, courseId: 'course-1' },
+          { id: 'l1', title: 'L1', content: 'C', type: 'TEXT', order: 1, courseId: 'course-1', completions: [{ lessonId: 'l1' }] },
         ],
         progress: [],
       } as never);
@@ -120,7 +120,7 @@ describe('training.service', () => {
 
   describe('updateCourse', () => {
     it('should throw 404 when course not found', async () => {
-      vi.mocked(prisma.course.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.course.update).mockRejectedValue({ code: 'P2025' });
       await expect(updateCourse('bad-id', 'user-1', { title: 'New' })).rejects.toThrow(
         'Course not found'
       );
@@ -136,7 +136,7 @@ describe('training.service', () => {
 
   describe('deleteCourse', () => {
     it('should throw 404 when course not found', async () => {
-      vi.mocked(prisma.course.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.course.delete).mockRejectedValue({ code: 'P2025' });
       await expect(deleteCourse('bad-id', 'user-1')).rejects.toThrow('Course not found');
     });
 
@@ -149,7 +149,7 @@ describe('training.service', () => {
 
   describe('createLesson', () => {
     it('should throw 404 when course not found', async () => {
-      vi.mocked(prisma.course.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.lesson.create).mockRejectedValue({ code: 'P2025' });
       await expect(
         createLesson('bad-id', 'user-1', { title: 'L', content: 'C', type: 'TEXT' })
       ).rejects.toThrow('Course not found');

@@ -15,7 +15,7 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }));
+vi.mock('@/lib/audit', () => ({ logAudit: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
@@ -176,6 +176,7 @@ describe('admin.service', () => {
         id: 'user-1',
         roleId: 'old-role-id',
         status: 'ACTIVE',
+        roleRef: { name: 'VOLUNTEER' },
       } as never);
       // First call: lookup new role by name (COORDINATOR), second: lookup existing role by id
       vi.mocked(prisma.role.findUnique)

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    user: { findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn() },
+    user: { findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn() },
     volunteerProfile: { upsert: vi.fn(), findUnique: vi.fn() },
     staffProfile: { upsert: vi.fn() },
     location: { upsert: vi.fn() },
@@ -152,13 +152,14 @@ describe('users.service', () => {
   describe('getCoordinatorVolunteers', () => {
     it('should return filtered paginated volunteers', async () => {
       vi.mocked(prisma.user.findMany).mockResolvedValue([]);
+      vi.mocked(prisma.user.count).mockResolvedValue(0);
       const result = await getCoordinatorVolunteers('coord-1', null, {}, { page: 1, limit: 20 });
       expect(result.data).toEqual([]);
       expect(result.total).toBe(0);
     });
 
     it('should filter by search query', async () => {
-      vi.mocked(prisma.user.findMany).mockResolvedValue([
+      const users = [
         {
           id: 'v-1',
           name: 'John Doe',
@@ -175,7 +176,29 @@ describe('users.service', () => {
           profile: null,
           _count: { applications: 0 },
         },
-      ] as never);
+      ] as never;
+      vi.mocked(prisma.user.findMany).mockImplementation(async ({ where }: any) => {
+        if (where?.OR) {
+          return users.filter((u: any) =>
+            where.OR.some((c: any) => {
+              const field = Object.keys(c)[0];
+              return field && u[field]?.toLowerCase().includes(c[field].contains.toLowerCase());
+            })
+          );
+        }
+        return users;
+      });
+      vi.mocked(prisma.user.count).mockImplementation(async ({ where }: any) => {
+        if (where?.OR) {
+          return users.filter((u: any) =>
+            where.OR.some((c: any) => {
+              const field = Object.keys(c)[0];
+              return field && u[field]?.toLowerCase().includes(c[field].contains.toLowerCase());
+            })
+          ).length;
+        }
+        return users.length;
+      });
       const result = await getCoordinatorVolunteers(
         'coord-1',
         'org-1',
@@ -187,7 +210,7 @@ describe('users.service', () => {
     });
 
     it('should filter by skills', async () => {
-      vi.mocked(prisma.user.findMany).mockResolvedValue([
+      const users = [
         {
           id: 'v-1',
           name: 'A',
@@ -204,7 +227,23 @@ describe('users.service', () => {
           profile: { skills: ['Cooking'] },
           _count: { applications: 1 },
         },
-      ] as never);
+      ] as never;
+      vi.mocked(prisma.user.findMany).mockImplementation(async ({ where }: any) => {
+        if (where?.profile?.skills?.hasSome) {
+          return users.filter((u: any) =>
+            where.profile.skills.hasSome.some((s: string) => u.profile.skills.includes(s))
+          );
+        }
+        return users;
+      });
+      vi.mocked(prisma.user.count).mockImplementation(async ({ where }: any) => {
+        if (where?.profile?.skills?.hasSome) {
+          return users.filter((u: any) =>
+            where.profile.skills.hasSome.some((s: string) => u.profile.skills.includes(s))
+          ).length;
+        }
+        return users.length;
+      });
       const result = await getCoordinatorVolunteers(
         'coord-1',
         'org-1',
