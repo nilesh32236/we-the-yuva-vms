@@ -226,7 +226,7 @@ model User {
   name       String
   phone      String?       @unique
   dateOfBirth DateTime?
-  address    Json?         // { street, city, state, pincode, country }
+  address    Json?         // { city, state }
   roleId     String
   roleRef    Role           @relation(fields: [roleId], references: [id])
   status     UserStatus    @default(PENDING)
@@ -244,7 +244,7 @@ model User {
   profileComplete Boolean @default(false)
 
   // Call availability & motivation
-  callAvailability Json?  // { preference, afterTime, days, slots }
+  callAvailability Json?  // { preference, days, startTime, endTime, slots }
   whyVoluntary   String?  // Max 500 chars
 
   // Organization

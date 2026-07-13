@@ -1,11 +1,8 @@
 import { z } from 'zod';
 
 const AddressSchema = z.object({
-  street: z.string().optional(),
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
-  pincode: z.string().optional(),
-  country: z.string().optional(),
 });
 
 const CallAvailabilitySlotSchema = z.object({
@@ -15,12 +12,16 @@ const CallAvailabilitySlotSchema = z.object({
 });
 
 const CallAvailabilitySchema = z.object({
-  preference: z.enum(['anytime', 'anyday_after', 'specific_days', 'weekends', 'custom']),
-  afterTime: z
+  preference: z.enum(['anytime', 'specific_days', 'custom']),
+  days: z.array(z.number().min(0).max(6)).optional(),
+  startTime: z
     .string()
     .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
     .optional(),
-  days: z.array(z.number().min(0).max(6)).optional(),
+  endTime: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
+    .optional(),
   slots: z.array(CallAvailabilitySlotSchema).optional(),
 });
 

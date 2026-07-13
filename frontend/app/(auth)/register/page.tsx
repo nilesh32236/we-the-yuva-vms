@@ -14,7 +14,7 @@ import { api, setAccessToken } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
-type AvailabilityPref = 'anytime' | 'anyday_after' | 'specific_days' | 'weekends' | 'custom';
+type AvailabilityPref = 'anytime' | 'specific_days' | 'custom';
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -26,8 +26,9 @@ function CallAvailabilityInput({
   value:
     | {
         preference: AvailabilityPref;
-        afterTime?: string;
         days?: number[];
+        startTime?: string;
+        endTime?: string;
         slots?: Array<{ day: number; startTime: string; endTime: string }>;
       }
     | undefined;
@@ -73,9 +74,7 @@ function CallAvailabilityInput({
       <div className="flex flex-wrap gap-2">
         {[
           { value: 'anytime' as const, label: 'Anytime' },
-          { value: 'anyday_after' as const, label: 'Any day after...' },
           { value: 'specific_days' as const, label: 'Specific days' },
-          { value: 'weekends' as const, label: 'Weekends' },
           { value: 'custom' as const, label: 'Custom schedule' },
         ].map((opt) => (
           <button
@@ -93,40 +92,47 @@ function CallAvailabilityInput({
         ))}
       </div>
 
-      {pref === 'anyday_after' && (
-        <div>
-          <label htmlFor="availability-after-time" className="text-xs text-brand-muted mb-1 block">
-            Available after
-          </label>
-          <input
-            id="availability-after-time"
-            type="time"
-            value={value?.afterTime ?? ''}
-            onChange={(e) =>
-              onChange({ ...value, preference: 'anyday_after' as const, afterTime: e.target.value })
-            }
-            className="w-40 px-3 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-          />
-        </div>
-      )}
-
       {pref === 'specific_days' && (
-        <div className="flex flex-wrap gap-1.5">
-          {DAY_LABELS.map((label, i) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => toggleDay(i)}
-              className={`w-10 h-10 text-xs rounded-full border transition-colors cursor-pointer ${
-                (value?.days ?? []).includes(i)
-                  ? 'bg-brand-primary text-white border-brand-primary'
-                  : 'bg-background text-brand-muted border-brand-border hover:border-brand-primary'
-              }`}
-              aria-pressed={(value?.days ?? []).includes(i)}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-1.5">
+            {DAY_LABELS.map((label, i) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => toggleDay(i)}
+                className={`w-10 h-10 text-xs rounded-full border transition-colors cursor-pointer ${
+                  (value?.days ?? []).includes(i)
+                    ? 'bg-brand-primary text-white border-brand-primary'
+                    : 'bg-background text-brand-muted border-brand-border hover:border-brand-primary'
+                }`}
+                aria-pressed={(value?.days ?? []).includes(i)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="specific-days-start" className="text-xs text-brand-muted">From</label>
+            <input
+              id="specific-days-start"
+              type="time"
+              value={value?.startTime ?? ''}
+              onChange={(e) =>
+                onChange({ ...value, preference: 'specific_days' as const, startTime: e.target.value })
+              }
+              className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            />
+            <label htmlFor="specific-days-end" className="text-xs text-brand-muted">to</label>
+            <input
+              id="specific-days-end"
+              type="time"
+              value={value?.endTime ?? ''}
+              onChange={(e) =>
+                onChange({ ...value, preference: 'specific_days' as const, endTime: e.target.value })
+              }
+              className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            />
+          </div>
         </div>
       )}
 
@@ -449,18 +455,6 @@ export default function RegisterPage() {
               Address <span className="text-brand-error">*</span>
             </legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5 sm:col-span-2">
-                <label htmlFor="address.street" className="text-xs text-brand-muted">
-                  Street
-                </label>
-                <input
-                  id="address.street"
-                  type="text"
-                  placeholder="Street address (optional)"
-                  className="w-full px-3 py-2 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                  {...register('address.street')}
-                />
-              </div>
               <div className="space-y-1.5">
                 <label htmlFor="address.city" className="text-xs text-brand-muted">
                   City <span className="text-brand-error">*</span>
@@ -500,31 +494,6 @@ export default function RegisterPage() {
                     {errors.address.state.message}
                   </p>
                 )}
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="address.pincode" className="text-xs text-brand-muted">
-                  Pincode
-                </label>
-                <input
-                  id="address.pincode"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="400001 (optional)"
-                  className="w-full px-3 py-2 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                  {...register('address.pincode')}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="address.country" className="text-xs text-brand-muted">
-                  Country
-                </label>
-                <input
-                  id="address.country"
-                  type="text"
-                  placeholder="India (optional)"
-                  className="w-full px-3 py-2 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                  {...register('address.country')}
-                />
               </div>
             </div>
           </fieldset>

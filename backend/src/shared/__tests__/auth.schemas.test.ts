@@ -75,20 +75,6 @@ describe('auth.schemas', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should accept address with all optional fields', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        address: {
-          street: '123 Main St',
-          city: 'Mumbai',
-          state: 'Maharashtra',
-          pincode: '400001',
-          country: 'India',
-        },
-      });
-      expect(result.success).toBe(true);
-    });
-
     it('should accept valid reference', () => {
       const result = RegisterSchema.safeParse({ ...validPayload, reference: '+919876543210' });
       expect(result.success).toBe(true);
@@ -108,22 +94,6 @@ describe('auth.schemas', () => {
         callAvailability: { preference: 'specific_days', days: [1, 3, 5] },
       });
       expect(result.success).toBe(true);
-    });
-
-    it('should accept callAvailability with anyday_after and time', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        callAvailability: { preference: 'anyday_after', afterTime: '14:00' },
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should reject callAvailability with invalid afterTime format', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        callAvailability: { preference: 'anyday_after', afterTime: '2pm' },
-      });
-      expect(result.success).toBe(false);
     });
 
     it('should accept callAvailability with custom slots', () => {
