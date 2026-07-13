@@ -5,11 +5,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Activity, Clock, Users } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { StatsCard } from '../../../../components/charts/StatsCard';
+import { StatsCard } from '@/components/charts/StatsCard';
 
 const CategoryPieChart = dynamic(
   () =>
-    import('../../../../components/charts/CategoryPieChart').then((mod) => mod.CategoryPieChart),
+    import('@/components/charts/CategoryPieChart').then((mod) => mod.CategoryPieChart),
   { ssr: false }
 );
 const HoursBarChart = dynamic(
@@ -17,8 +17,8 @@ const HoursBarChart = dynamic(
   { ssr: false }
 );
 
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
 export default function ObserverReportsPage() {
   const { data: stats, isLoading } = useQuery({

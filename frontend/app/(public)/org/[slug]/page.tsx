@@ -119,7 +119,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                     <p className="text-3xl font-bold text-brand-primary">
                       {org._count.opportunities}
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-sm text-brand-muted mt-1">
                       Opportunities posted
                     </p>
                   </div>
@@ -128,7 +128,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                       <span aria-hidden="true">--</span>
                       <span className="sr-only">Data not yet available</span>
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Events held</p>
+                    <p className="text-sm text-brand-muted mt-1">Events held</p>
                   </div>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                         href={org.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
+                        className="flex items-center gap-3 text-brand-muted hover:text-brand-primary transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <Globe className="w-5 h-5 shrink-0" aria-hidden="true" />
                         <span className="text-sm truncate">{org.website}</span>

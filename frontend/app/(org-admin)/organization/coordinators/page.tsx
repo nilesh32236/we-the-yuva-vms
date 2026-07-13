@@ -7,11 +7,11 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/hooks/useAuth';
-import { useFocusTrap } from '../../../../hooks/useFocusTrap';
-import { api } from '../../../../lib/api';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { Button } from '../../../../components/ui/Button';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api } from '@/lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/Button';
 import type { AxiosError } from 'axios';
 
 interface Coordinator {

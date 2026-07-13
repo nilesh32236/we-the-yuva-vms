@@ -106,11 +106,11 @@ export default function AboutPage() {
                 volunteers effectively.
               </p>
             </div>
-            <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl p-8">
-              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center mb-5">
+            <div className="bg-brand-bg rounded-2xl p-8">
+              <div className="w-12 h-12 rounded-xl bg-brand-secondary flex items-center justify-center mb-5">
                 <Eye className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
-              <h2 className="font-heading text-2xl font-bold text-slate-900 dark:text-white mb-3">
+              <h2 className="font-heading text-2xl font-bold text-brand-text mb-3">
                 Our Vision
               </h2>
               <p className="text-brand-muted leading-relaxed">
@@ -125,10 +125,10 @@ export default function AboutPage() {
 
       <section className="bg-brand-bg py-20 sm:py-28">
         <div className={containerClass}>
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-text text-center">
             Our story
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-center mt-3 max-w-lg mx-auto">
+          <p className="text-brand-muted text-center mt-3 max-w-lg mx-auto">
             How a small idea became a national movement.
           </p>
           <div className="max-w-2xl mx-auto mt-14">
@@ -143,10 +143,10 @@ export default function AboutPage() {
                     {!isLast && <div className="w-px flex-1 bg-brand-border" />}
                   </div>
                   <div className={isLast ? '' : 'pb-12'}>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-brand-text">
                       {item.title}
                     </h3>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                    <p className="text-brand-muted mt-1.5 leading-relaxed">
                       {item.desc}
                     </p>
                   </div>
@@ -157,12 +157,12 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-white dark:bg-slate-900 py-20 sm:py-28">
+      <section className="bg-brand-surface py-20 sm:py-28">
         <div className={containerClass}>
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-text text-center">
             What we stand for
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 text-center mt-3 max-w-lg mx-auto">
+          <p className="text-brand-muted text-center mt-3 max-w-lg mx-auto">
             Four values that guide everything we do.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-14">
@@ -177,10 +177,10 @@ export default function AboutPage() {
                     aria-hidden="true"
                   />
                 </div>
-                <h3 className="font-heading text-xl font-bold text-slate-900 dark:text-white mb-2">
+                <h3 className="font-heading text-xl font-bold text-brand-text mb-2">
                   {val.title}
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{val.desc}</p>
+                <p className="text-brand-muted leading-relaxed">{val.desc}</p>
               </div>
             ))}
           </div>
