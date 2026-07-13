@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { getLeaderboardHandler } from './leaderboard.controller';
 import { requireAuth } from '../../middleware/auth.middleware';
+import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
+import { Permissions } from '../../shared/permissions';
 
 const LeaderboardQuerySchema = z.object({
   query: z.object({
@@ -14,4 +16,4 @@ const LeaderboardQuerySchema = z.object({
 });
 
 export const leaderboardRouter: Router = Router();
-leaderboardRouter.get('/', requireAuth, validate(LeaderboardQuerySchema), getLeaderboardHandler);
+leaderboardRouter.get('/', requireAuth, requirePermission(Permissions.LEVEL_VIEW), validate(LeaderboardQuerySchema), getLeaderboardHandler);

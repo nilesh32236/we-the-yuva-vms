@@ -1,6 +1,4 @@
 export const Permissions = {
-  SYSTEM_CONFIG: 'system:config',
-
   USER_MANAGE: 'user:manage',
   USER_PROFILE_MANAGE: 'user:profile:manage',
   USER_PROFILE_VIEW: 'user:profile:view',
@@ -14,11 +12,13 @@ export const Permissions = {
   OPPORTUNITY_MANAGE: 'opportunity:manage',
 
   EVENT_CREATE: 'event:create',
+  EVENT_VIEW: 'event:view',
   EVENT_EDIT: 'event:edit',
   EVENT_MANAGE: 'event:manage',
   EVENT_CHECKIN: 'event:checkin',
 
   STATS_VIEW_OWN: 'stats:view:own',
+  STATS_VIEW_COORDINATOR: 'stats:view:coordinator',
   STATS_VIEW_OBSERVER: 'stats:view:observer',
 
   STORY_CREATE: 'story:create',
@@ -57,7 +57,6 @@ export const Permissions = {
 
   // Youth Profiling
   YOUTH_PROFILE_MANAGE: 'youth:profile:manage',
-  YOUTH_PROFILE_VIEW: 'youth:profile:view',
 
   // Upload
   FILE_UPLOAD: 'file:upload',
