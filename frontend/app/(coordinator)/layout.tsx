@@ -1,3 +1,6 @@
+'use client';
+
+import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
 import { BottomNav } from '../../components/layout/BottomNav';
 import type { NavItem } from '../../components/layout/Sidebar';
 import { Sidebar } from '../../components/layout/Sidebar';
@@ -14,19 +17,21 @@ const navItems: NavItem[] = [
 
 export default function CoordinatorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-dvh bg-brand-bg flex flex-col overflow-hidden">
-      <TopNav />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar navItems={navItems} />
-        <main
-          id="main"
-          className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6"
-          data-scroll
-        >
-          {children}
-        </main>
+    <ProtectedRoute allowedRoles={['COORDINATOR']}>
+      <div className="h-dvh bg-brand-bg flex flex-col overflow-hidden">
+        <TopNav />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar navItems={navItems} />
+          <main
+            id="main"
+            className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6"
+            data-scroll
+          >
+            {children}
+          </main>
+        </div>
+        <BottomNav navItems={navItems} />
       </div>
-      <BottomNav navItems={navItems} />
-    </div>
+    </ProtectedRoute>
   );
 }

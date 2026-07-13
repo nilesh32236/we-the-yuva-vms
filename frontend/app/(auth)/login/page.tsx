@@ -61,6 +61,7 @@ export default function LoginPage() {
       if (res.data?.devOtp) {
         sessionStorage.setItem('devOtp', res.data.devOtp);
       }
+      sessionStorage.setItem('verifyEmail', data.email);
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error) {
       const message =

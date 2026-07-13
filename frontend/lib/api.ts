@@ -60,15 +60,26 @@ api.interceptors.request.use(async (config) => {
         const data = await refreshPromise;
         if (data.accessToken) {
           setAccessToken(data.accessToken);
+          if (typeof document !== 'undefined') {
+            const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+            // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
+            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
+          }
           config.headers.Authorization = `Bearer ${data.accessToken}`;
         } else {
-          config.headers.Authorization = `Bearer ${token}`;
+          const freshToken = getAccessToken();
+          if (freshToken) {
+            config.headers.Authorization = `Bearer ${freshToken}`;
+          }
         }
       } else {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch {
-      config.headers.Authorization = `Bearer ${token}`;
+      const freshToken = getAccessToken();
+      if (freshToken) {
+        config.headers.Authorization = `Bearer ${freshToken}`;
+      }
     }
   }
   return config;
@@ -111,7 +122,6 @@ api.interceptors.response.use(
           !isAuthEndpoint &&
           !isPublicRoute(window.location.pathname)
         ) {
-          sessionStorage.setItem('logged_out', 'true');
           window.location.href = '/login';
         }
         return Promise.reject(error);

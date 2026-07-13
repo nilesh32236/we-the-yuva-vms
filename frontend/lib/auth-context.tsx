@@ -1,43 +1,13 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { api, setAccessToken } from './api';
 import { clearQueue } from './offline-queue';
 import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
 import { ROLE_ROUTES, ROLE_ROUTE_PREFIXES, ONBOARDING_ROUTES } from './shared/permissions';
-
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string | null;
-  role:
-    | 'VOLUNTEER'
-    | 'COORDINATOR'
-    | 'ORGANIZATION_ADMIN'
-    | 'PLATFORM_MANAGER'
-    | 'ADMIN'
-    | 'OBSERVER';
-  permissions?: string[];
-  organizationId?: string | null;
-  status: string;
-  profile?: {
-    skills: string[];
-    interests: string[];
-    availability: { days: string[]; timeSlots: string[] };
-    bio?: string | null;
-    avatarUrl?: string | null;
-    totalHours: number;
-  } | null;
-  consent?: {
-    privacyPolicyAccepted: boolean;
-    mediaConsentAccepted: boolean;
-    acceptedAt: string;
-  } | null;
-  locationId?: string | null;
-  volunteerType?: string | null;
-}
+import type { AuthUser } from './shared/types';
 
 export interface ProfileStatus {
   isComplete: boolean;
@@ -49,7 +19,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   profileStatus: ProfileStatus | null;
-  refetch: () => Promise<void>;
+  refetch: () => Promise<AuthUser | null>;
   logout: () => Promise<void>;
 }
 
@@ -63,13 +33,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const fetchUser = useCallback(async () => {
-    // Skip if user just logged out (sessionStorage flag set during logout)
+    setIsLoading(true);
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
       sessionStorage.removeItem('logged_out');
-      setUser(null);
-      setProfileStatus(null);
-      setIsLoading(false);
-      return;
     }
     try {
       const [userRes, statusRes] = await Promise.allSettled([
@@ -77,8 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         api.get<ProfileStatus>('/users/me/profile-status'),
       ]);
 
+      let freshUser: AuthUser | null = null;
       if (userRes.status === 'fulfilled') {
-        setUser(userRes.value.data);
+        freshUser = userRes.value.data;
+        setUser(freshUser);
       } else {
         const err = userRes.reason;
         if (err && typeof err === 'object' && 'response' in err) {
@@ -93,21 +61,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (statusRes.status === 'fulfilled') {
         setProfileStatus(statusRes.value.data);
       }
-    } catch {
-      setUser(null);
+
+      return freshUser;
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  const initialCheckDone = useRef(false);
+
   useEffect(() => {
-    if (typeof window !== 'undefined' && isPublicRoute(window.location.pathname)) {
-      setUser(null);
-      setIsLoading(false);
+    if (isPublicRoute(pathname) && initialCheckDone.current) {
       return;
     }
+
+    if (initialCheckDone.current) {
+      setIsLoading(true);
+    }
+    initialCheckDone.current = true;
+
     fetchUser();
-  }, [fetchUser]);
+  }, [fetchUser, pathname]);
 
   useEffect(() => {
     if (isLoading || !user) return;

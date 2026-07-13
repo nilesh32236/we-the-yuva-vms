@@ -61,14 +61,13 @@ export default function ConsentPage() {
   }, [user, isAuthLoading, router]);
 
   const onSubmit = async (data: ConsentInput) => {
-    const role = user?.role;
     try {
       await api.post('/auth/consent', {
         privacyPolicyAccepted: true,
         mediaConsentAccepted: data.mediaConsentAccepted,
       });
-      await refetch();
-      router.push(ROLE_ROUTES[role ?? ''] ?? '/login');
+      const freshUser = await refetch();
+      router.push(ROLE_ROUTES[freshUser?.role ?? ''] ?? '/login');
     } catch (error) {
       const axiosError = error as {
         response?: { status?: number; data?: { error?: string; message?: string } };
@@ -76,8 +75,8 @@ export default function ConsentPage() {
       const status = axiosError?.response?.status;
       if (status === 409) {
         // Already consented — move on
-        await refetch();
-        router.push(ROLE_ROUTES[role ?? ''] ?? '/login');
+        const freshUser = await refetch();
+        router.push(ROLE_ROUTES[freshUser?.role ?? ''] ?? '/login');
       } else {
         const message =
           axiosError?.response?.data?.error ??

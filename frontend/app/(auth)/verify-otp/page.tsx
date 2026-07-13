@@ -22,7 +22,7 @@ function VerifyOtpContent() {
   const { toast } = useToast();
   const { user: authUser, isLoading: isAuthLoading, refetch } = useAuth();
 
-  const email = searchParams.get('email') ?? '';
+  const email = (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('verifyEmail') : '') ?? searchParams.get('email') ?? '';
   const [isVerifying, setIsVerifying] = useState(false);
   const [devOtp, setDevOtp] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(300);
@@ -102,7 +102,14 @@ function VerifyOtpContent() {
         }
 
         // Store in memory for immediate API calls (cross-domain Bearer)
-        if (accessToken) setAccessToken(accessToken);
+        if (accessToken) {
+          setAccessToken(accessToken);
+          if (typeof document !== 'undefined') {
+            const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
+            // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
+            document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
+          }
+        }
 
         // Populate auth context via refetch — the navigation effect above
         // will route based on the FULL user from /users/me
@@ -172,17 +179,13 @@ function VerifyOtpContent() {
           <p className="font-medium text-brand-text text-sm">{email}</p>
         </div>
 
-        {devOtp && (
+        {process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
               <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP
-              (temporary — remove before production)
             </p>
             <p className="text-yellow-900 dark:text-yellow-100 text-2xl font-mono font-bold tracking-widest mt-1">
               {devOtp}
-            </p>
-            <p className="text-yellow-700 text-xs mt-1">
-              Or use bypass code <span className="font-mono font-bold">000000</span>
             </p>
           </div>
         )}
@@ -220,7 +223,7 @@ function VerifyOtpContent() {
           )}
         </div>
 
-        {countdown > 0 && (
+        {countdown > 0 ? (
           <div className="text-center">
             <p className="text-brand-muted text-xs">
               Code expires in{' '}
@@ -231,6 +234,12 @@ function VerifyOtpContent() {
               >
                 {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
               </span>
+            </p>
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-brand-error text-xs font-medium">
+              Code expired. Please request a new one.
             </p>
           </div>
         )}
