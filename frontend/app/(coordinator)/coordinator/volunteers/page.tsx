@@ -5,8 +5,8 @@ import { Download, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import Pagination from '@/components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api, downloadCsv } from '../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api, downloadCsv } from '@/lib/api';
 
 export default function CoordinatorVolunteersPage() {
   const [search, setSearch] = useState('');

@@ -12,10 +12,10 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useFocusTrap } from '../../../../hooks/useFocusTrap';
-import { useToast } from '../../../../hooks/use-toast';
-import { api } from '../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 interface LevelRequest {
   id: string;

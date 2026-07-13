@@ -35,6 +35,17 @@ const ALL_SKILLS = [
   'Healthcare',
 ];
 
+type ApiError = { normalizedMessage?: string; response?: { data?: { error?: string } } };
+
+const ROLE_ROUTES: Record<string, string> = {
+  VOLUNTEER: '/volunteer/dashboard',
+  COORDINATOR: '/coordinator/dashboard',
+  ADMIN: '/admin/dashboard',
+  PLATFORM_MANAGER: '/admin/dashboard',
+  OBSERVER: '/observer/dashboard',
+  ORGANIZATION_ADMIN: '/organization/dashboard',
+};
+
 const ALL_INTERESTS = [
   'Education',
   'Health',
@@ -305,20 +316,11 @@ export default function YouthAssessmentPage() {
       });
       await refetch();
       toast({ title: 'Assessment saved!' });
-      const roleRoutes: Record<string, string> = {
-        VOLUNTEER: '/volunteer/dashboard',
-        COORDINATOR: '/coordinator/dashboard',
-        ADMIN: '/admin/dashboard',
-        PLATFORM_MANAGER: '/admin/dashboard',
-        OBSERVER: '/observer/dashboard',
-        ORGANIZATION_ADMIN: '/organization/dashboard',
-      };
-      router.push(roleRoutes[user?.role ?? ''] ?? '/login');
+      router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
     } catch (err) {
       const message =
-        (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })
-          ?.normalizedMessage ??
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        (err as ApiError)?.normalizedMessage ??
+        (err as ApiError)?.response?.data?.error ??
         'Failed to save assessment';
       toast({ title: message, variant: 'destructive' });
     } finally {

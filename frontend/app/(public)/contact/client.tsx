@@ -36,7 +36,7 @@ export function ContactForm() {
       });
       reset();
     } catch (err) {
-      console.error('Contact form error:', err);
+      if (process.env.NODE_ENV !== 'production') { console.error('Contact form error:', err); }
       toast({
         title: 'Something went wrong',
         description: 'Could not send your message. Please try again.',

@@ -3,14 +3,16 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FileUpload } from '../../../../../components/shared/FileUpload';
-import { Button } from '../../../../../components/ui/Button';
-import { useToast } from '../../../../../hooks/use-toast';
-import { api } from '../../../../../lib/api';
+import { FileUpload } from '@/components/shared/FileUpload';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+
+type ApiError = { normalizedMessage?: string; response?: { data?: { error?: string } } };
 
 const storySchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -44,9 +46,8 @@ export default function NewStoryPage() {
       router.push('/volunteer/stories');
     } catch (err) {
       const message =
-        (err as { normalizedMessage?: string; response?: { data?: { error?: string } } })
-          ?.normalizedMessage ??
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        (err as ApiError)?.normalizedMessage ??
+        (err as ApiError)?.response?.data?.error ??
         'Could not submit story.';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     }

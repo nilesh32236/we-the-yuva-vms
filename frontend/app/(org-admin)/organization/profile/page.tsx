@@ -21,6 +21,24 @@ import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 
+const InfoRow = ({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value?: string | null;
+}) => (
+  <div className="flex items-start gap-3 text-sm">
+    <Icon className="w-4 h-4 text-brand-muted mt-0.5 shrink-0" aria-hidden="true" />
+    <div>
+      <p className="text-xs text-brand-muted">{label}</p>
+      <p className="text-brand-text">{value || '—'}</p>
+    </div>
+  </div>
+);
+
 export default function OrgAdminOrgProfilePage() {
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
@@ -70,24 +88,6 @@ export default function OrgAdminOrgProfilePage() {
   }
 
   if (!org) return null;
-
-  const InfoRow = ({
-    icon: Icon,
-    label,
-    value,
-  }: {
-    icon: LucideIcon;
-    label: string;
-    value?: string | null;
-  }) => (
-    <div className="flex items-start gap-3 text-sm">
-      <Icon className="w-4 h-4 text-brand-muted mt-0.5 shrink-0" aria-hidden="true" />
-      <div>
-        <p className="text-xs text-brand-muted">{label}</p>
-        <p className="text-brand-text">{value || '—'}</p>
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-5 max-w-3xl">

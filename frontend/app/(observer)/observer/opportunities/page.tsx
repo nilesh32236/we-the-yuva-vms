@@ -6,9 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import Pagination from '@/components/shared/Pagination';
-import { OpportunityCard } from '../../../../components/opportunities/OpportunityCard';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
+import { OpportunityCard } from '@/components/opportunities/OpportunityCard';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
 const CATEGORIES = [
   'ALL',
@@ -43,6 +43,10 @@ export default function ObserverOpportunitiesPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
   const [page, setPage] = useState(1);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setPage(1);
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['opportunities', 'observer', search, category, page],
@@ -72,10 +76,7 @@ export default function ObserverOpportunitiesPage() {
           />
           <input
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={handleSearchChange}
             placeholder="Search…"
             aria-label="Search opportunities"
             className="w-full pl-9 pr-4 py-3.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"

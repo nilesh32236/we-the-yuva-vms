@@ -171,7 +171,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
               <p className="text-xs text-brand-muted">Checked In</p>
             </div>
             <div className="text-center">
-              <p className="font-heading font-bold text-2xl text-emerald-600 dark:text-emerald-400">
+              <p className="font-heading font-bold text-2xl text-brand-success">
                 {checkedOutCount}
               </p>
               <p className="text-xs text-brand-muted">Checked Out</p>
@@ -264,7 +264,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                       </div>
                     )}
                     {!a.checkedOutAt && (
-                      <span className="text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span className="text-xs font-semibold bg-brand-warning text-brand-warning px-2 py-0.5 rounded-full flex-shrink-0">
                         Active
                       </span>
                     )}

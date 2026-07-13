@@ -35,7 +35,7 @@ export default function CoordinatorEventsPage() {
     setConfirmAction({ id, title });
   };
 
-  const executeCancel = async () => {
+  const handleCancelConfirm = async () => {
     if (!confirmAction) return;
     const { id } = confirmAction;
     setConfirmAction(null);
@@ -240,7 +240,7 @@ export default function CoordinatorEventsPage() {
               </button>
               <button
                 type="button"
-                onClick={executeCancel}
+                onClick={handleCancelConfirm}
                 className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors active-bounce"
               >
                 Cancel Event

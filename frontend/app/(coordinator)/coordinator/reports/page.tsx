@@ -4,9 +4,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Activity, CalendarDays, Clock, Users } from 'lucide-react';
-import { StatsCard } from '../../../../components/charts/StatsCard';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
+import { StatsCard } from '@/components/charts/StatsCard';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
 export default function CoordinatorReportsPage() {
   const { data: stats, isLoading } = useQuery({

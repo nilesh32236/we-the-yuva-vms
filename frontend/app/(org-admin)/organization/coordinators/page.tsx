@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from '../../../../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api } from '../../../../lib/api';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
@@ -88,6 +88,8 @@ export default function OrganizationCoordinatorsPage() {
     },
   });
 
+  const handleAddCoordinator = handleSubmit((data) => addMut.mutate(data));
+
   if (!orgId) {
     return (
       <div className="flex flex-col items-center justify-center h-64 bg-brand-surface rounded-2xl border border-brand-border p-6 text-center card-hover">
@@ -117,7 +119,7 @@ export default function OrganizationCoordinatorsPage() {
             Add New Coordinator
           </h2>
           <form
-            onSubmit={handleSubmit((data) => addMut.mutate(data))}
+            onSubmit={handleAddCoordinator}
             className="grid gap-4 sm:grid-cols-2"
           >
             <div className="space-y-1.5">

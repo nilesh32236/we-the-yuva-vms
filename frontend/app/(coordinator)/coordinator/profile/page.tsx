@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Mail, MapPin, User } from 'lucide-react';
-import { api } from '../../../../lib/api';
+import { api } from '@/lib/api';
 
 export default function CoordinatorProfilePage() {
   const { data: user, isLoading } = useQuery({

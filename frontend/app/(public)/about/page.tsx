@@ -89,17 +89,17 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-white dark:bg-slate-900 py-20 sm:py-28">
+      <section className="bg-brand-surface py-20 sm:py-28">
         <div className={containerClass}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl p-8">
-              <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center mb-5">
+            <div className="bg-brand-bg rounded-2xl p-8">
+              <div className="w-12 h-12 rounded-xl bg-brand-secondary flex items-center justify-center mb-5">
                 <Target className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
-              <h2 className="font-heading text-2xl font-bold text-slate-900 dark:text-white mb-3">
+              <h2 className="font-heading text-2xl font-bold text-brand-text mb-3">
                 Our Mission
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+              <p className="text-brand-muted leading-relaxed">
                 To build the largest, most trusted volunteer network in India — connecting every
                 young citizen with meaningful opportunities to serve, learn, and lead in their
                 communities, while equipping organisations with tools to mobilise and manage
@@ -113,7 +113,7 @@ export default function AboutPage() {
               <h2 className="font-heading text-2xl font-bold text-slate-900 dark:text-white mb-3">
                 Our Vision
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+              <p className="text-brand-muted leading-relaxed">
                 A India where every young person is an active citizen — where volunteerism is a
                 norm, not an exception, and where youth-led civic change is the driving force behind
                 stronger, more resilient communities across the nation.
@@ -123,7 +123,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-slate-50 dark:bg-slate-800/50 py-20 sm:py-28">
+      <section className="bg-brand-bg py-20 sm:py-28">
         <div className={containerClass}>
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white text-center">
             Our story
@@ -137,10 +137,10 @@ export default function AboutPage() {
               return (
                 <div key={item.year} className="flex gap-6 items-start">
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-emerald-600 text-white font-bold text-sm flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-brand-secondary text-white font-bold text-sm flex items-center justify-center shrink-0">
                       {item.year}
                     </div>
-                    {!isLast && <div className="w-px flex-1 bg-slate-200 dark:bg-slate-700" />}
+                    {!isLast && <div className="w-px flex-1 bg-brand-border" />}
                   </div>
                   <div className={isLast ? '' : 'pb-12'}>
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -169,11 +169,11 @@ export default function AboutPage() {
             {values.map((val) => (
               <div
                 key={val.title}
-                className="rounded-2xl border border-emerald-100 dark:border-slate-700 p-8 transition-shadow hover:shadow-lg card-hover"
+                className="rounded-2xl border border-brand-border p-8 transition-shadow hover:shadow-lg card-hover"
               >
-                <div className="w-11 h-11 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mb-4">
+                <div className="w-11 h-11 rounded-lg bg-brand-bg flex items-center justify-center mb-4">
                   <val.icon
-                    className="w-5 h-5 text-emerald-700 dark:text-emerald-400"
+                    className="w-5 h-5 text-brand-primary"
                     aria-hidden="true"
                   />
                 </div>

@@ -1,10 +1,10 @@
 'use client';
 
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
-import { BottomNav } from '../../components/layout/BottomNav';
-import type { NavItem } from '../../components/layout/Sidebar';
-import { Sidebar } from '../../components/layout/Sidebar';
-import { TopNav } from '../../components/layout/TopNav';
+import { BottomNav } from '@/components/layout/BottomNav';
+import type { NavItem } from '@/components/layout/Sidebar';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { TopNav } from '@/components/layout/TopNav';
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/observer/dashboard', icon: 'LayoutDashboard' },

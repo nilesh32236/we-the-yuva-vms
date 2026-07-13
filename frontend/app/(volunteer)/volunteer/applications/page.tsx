@@ -106,7 +106,7 @@ export default function MyApplicationsPage() {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <span
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[app.status] ?? 'bg-gray-100 text-gray-600'}`}
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[app.status] ?? 'bg-brand-muted/10 text-brand-muted'}`}
               >
                 {STATUS_LABELS[app.status] ?? app.status}
               </span>

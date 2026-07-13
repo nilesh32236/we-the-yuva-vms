@@ -4,9 +4,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, CheckCircle, Circle, FileText, Video } from 'lucide-react';
 import Link from 'next/link';
 import { use, useState } from 'react';
-import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../../hooks/use-toast';
-import { api } from '../../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -123,12 +123,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     {currentLesson.title}
                   </h3>
                   {currentLesson.type === 'VIDEO' && (
-                    <span className="flex items-center gap-1 text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 px-2.5 py-0.5 rounded-full flex-shrink-0">
+                    <span className="flex items-center gap-1 text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-0.5 rounded-full flex-shrink-0">
                       <Video className="w-3 h-3" /> Video
                     </span>
                   )}
                   {currentLesson.type === 'PDF' && (
-                    <span className="flex items-center gap-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2.5 py-0.5 rounded-full flex-shrink-0">
+                    <span className="flex items-center gap-1 text-xs font-semibold bg-brand-cta/10 text-brand-cta px-2.5 py-0.5 rounded-full flex-shrink-0">
                       <FileText className="w-3 h-3" /> PDF
                     </span>
                   )}

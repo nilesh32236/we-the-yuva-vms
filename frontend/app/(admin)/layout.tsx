@@ -1,12 +1,12 @@
 'use client';
 
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
-import { BottomNav } from '../../components/layout/BottomNav';
-import type { NavItem } from '../../components/layout/Sidebar';
-import { Sidebar } from '../../components/layout/Sidebar';
-import { TopNav } from '../../components/layout/TopNav';
+import { BottomNav } from '@/components/layout/BottomNav';
+import type { NavItem } from '@/components/layout/Sidebar';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { TopNav } from '@/components/layout/TopNav';
 
-const navItems: NavItem[] = [
+const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: 'LayoutDashboard' },
   { label: 'My Profile', href: '/admin/profile', icon: 'User' },
   { label: 'Users', href: '/admin/users', icon: 'Users' },
@@ -27,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="h-dvh bg-brand-bg flex flex-col overflow-hidden">
         <TopNav />
         <div className="flex flex-1 overflow-hidden">
-          <Sidebar navItems={navItems} />
+          <Sidebar navItems={NAV_ITEMS} />
           <main
             id="main"
             className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6"
@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {children}
           </main>
         </div>
-        <BottomNav navItems={navItems} />
+        <BottomNav navItems={NAV_ITEMS} />
       </div>
     </ProtectedRoute>
   );

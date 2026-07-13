@@ -4,9 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
-import { SkeletonCard } from '../../../../../components/shared/SkeletonCard';
-import { haptic } from '../../../../../lib/haptic';
-import { api } from '../../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { haptic } from '@/lib/haptic';
+import { api } from '@/lib/api';
 
 export default function VolunteerDetailPage({
   params,

@@ -5,10 +5,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { Activity, ArrowRight, Clock, Users } from 'lucide-react';
 import Link from 'next/link';
-import { StatsCard } from '../../../../components/charts/StatsCard';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useAuth } from '../../../../hooks/useAuth';
-import { api } from '../../../../lib/api';
+import { StatsCard } from '@/components/charts/StatsCard';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 
 export default function ObserverDashboardPage() {
   const { user } = useAuth();

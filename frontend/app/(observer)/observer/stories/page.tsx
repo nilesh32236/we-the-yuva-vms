@@ -3,9 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { BookOpen } from 'lucide-react';
 import { useState } from 'react';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
+import Pagination from '@/components/shared/Pagination';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
 export default function ObserverStoriesPage() {
   const [page, setPage] = useState(1);

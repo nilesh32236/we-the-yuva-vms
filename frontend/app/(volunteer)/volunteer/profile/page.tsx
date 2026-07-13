@@ -23,12 +23,12 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
-import { Button } from '../../../../components/ui/Button';
-import { useToast } from '../../../../hooks/use-toast';
-import { LevelBadge } from '../../../../components/levels/LevelBadge';
-import { StreakBadge } from '../../../../components/levels/StreakBadge';
-import { useAuth } from '../../../../hooks/useAuth';
-import { api } from '../../../../lib/api';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
+import { LevelBadge } from '@/components/levels/LevelBadge';
+import { StreakBadge } from '@/components/levels/StreakBadge';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const profileSchema = z
@@ -52,7 +52,6 @@ const profileSchema = z
   );
 
 export default function VolunteerProfilePage() {
-  const { user: _authUser } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
@@ -336,7 +335,7 @@ export default function VolunteerProfilePage() {
           htmlFor="interests"
           className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2"
         >
-          <Tag className="w-4 h-4 text-brand-cta" /> Interests
+          <Tag className="w-4 h-4 text-brand-primary" /> Interests
         </label>
         <input
           id="interests"
@@ -658,7 +657,7 @@ export default function VolunteerProfilePage() {
           {/* Interests (view mode) */}
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
             <h2 className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
-              <Tag className="w-4 h-4 text-brand-cta" /> Interests
+              <Tag className="w-4 h-4 text-brand-primary" /> Interests
             </h2>
             <div className="flex flex-wrap gap-2">
               {(user?.profile?.interests ?? []).length > 0 ? (

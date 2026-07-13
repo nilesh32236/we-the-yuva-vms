@@ -21,7 +21,7 @@ export default function ErrorPage({
       <div className="max-w-md text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center mx-auto border border-red-100 dark:border-red-900/50">
           <svg
-            className="w-8 h-8 text-red-500 dark:text-red-400"
+            className="w-8 h-8 text-destructive"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}

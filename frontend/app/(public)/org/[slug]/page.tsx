@@ -96,35 +96,35 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
-      <section className="bg-background dark:bg-slate-900 py-16 sm:py-20">
+      <section className="bg-background dark:bg-brand-surface py-16 sm:py-20">
         <div className={containerClass}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-8">
-              <div className="bg-brand-surface dark:bg-emerald-900/30 rounded-2xl p-8">
-                <h2 className="font-heading text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <div className="bg-brand-surface dark:bg-brand-primary/10 rounded-2xl p-8">
+                <h2 className="font-heading text-2xl font-bold text-brand-text mb-4 flex items-center gap-2">
                   <Sparkles className="w-6 h-6 text-brand-primary" aria-hidden="true" />
                   About
                 </h2>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                <p className="text-brand-muted leading-relaxed">
                   {org.description ?? 'No description provided.'}
                 </p>
               </div>
 
-              <div className="bg-brand-surface dark:bg-emerald-900/30 rounded-2xl p-8">
-                <h2 className="font-heading text-2xl font-bold text-slate-900 dark:text-white mb-4">
+              <div className="bg-brand-surface dark:bg-brand-primary/10 rounded-2xl p-8">
+                <h2 className="font-heading text-2xl font-bold text-brand-text mb-4">
                   Stats
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-xl bg-white dark:bg-slate-800 p-5 text-center">
-                    <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">
+                  <div className="rounded-xl bg-brand-surface p-5 text-center">
+                    <p className="text-3xl font-bold text-brand-primary">
                       {org._count.opportunities}
                     </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                       Opportunities posted
                     </p>
                   </div>
-                  <div className="rounded-xl bg-white dark:bg-slate-800 p-5 text-center">
-                    <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">
+                  <div className="rounded-xl bg-brand-surface p-5 text-center">
+                    <p className="text-3xl font-bold text-brand-primary">
                       <span aria-hidden="true">--</span>
                       <span className="sr-only">Data not yet available</span>
                     </p>
@@ -135,8 +135,8 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
             </div>
 
             <div className="space-y-6">
-              <div className="bg-brand-surface dark:bg-slate-800/50 rounded-2xl p-6">
-                <h3 className="font-heading text-lg font-bold text-slate-900 dark:text-white mb-4">
+              <div className="bg-brand-surface dark:bg-brand-surface rounded-2xl p-6">
+                <h3 className="font-heading text-lg font-bold text-brand-text mb-4">
                   Contact
                 </h3>
                 <ul className="space-y-3">
@@ -144,7 +144,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                     <li>
                       <a
                         href={`mailto:${org.email}`}
-                        className="flex items-center gap-3 text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
+                        className="flex items-center gap-3 text-brand-muted hover:text-brand-primary transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <Mail className="w-5 h-5 shrink-0" aria-hidden="true" />
                         <span className="text-sm break-all">{org.email}</span>
@@ -155,7 +155,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                     <li>
                       <a
                         href={`tel:${org.phone}`}
-                        className="flex items-center gap-3 text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
+                        className="flex items-center gap-3 text-brand-muted hover:text-brand-primary transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <Phone className="w-5 h-5 shrink-0" aria-hidden="true" />
                         <span className="text-sm">{org.phone}</span>
@@ -180,8 +180,8 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
               </div>
 
               {socialLinks.length > 0 && (
-                <div className="bg-brand-surface dark:bg-slate-800/50 rounded-2xl p-6">
-                  <h3 className="font-heading text-lg font-bold text-slate-900 dark:text-white mb-4">
+                <div className="bg-brand-surface dark:bg-brand-surface rounded-2xl p-6">
+                  <h3 className="font-heading text-lg font-bold text-brand-text mb-4">
                     Social
                   </h3>
                   <ul className="space-y-3">
@@ -191,7 +191,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
+                          className="flex items-center gap-3 text-brand-muted hover:text-brand-primary transition-colors min-h-11 py-2.5 focus-visible:ring-2 focus-visible:ring-ring"
                         >
                           <span className="text-sm capitalize">{platform}</span>
                           <ExternalLink className="w-3 h-3 ml-auto shrink-0" aria-hidden="true" />
