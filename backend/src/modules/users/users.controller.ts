@@ -132,10 +132,11 @@ export async function getCoordinatorVolunteersHandler(
 }
 
 function sanitizeCsvCell(value: string): string {
-  if (/^[=+\-@]/.test(value)) {
-    return `'${value}`;
+  const escaped = value.replace(/"/g, '""');
+  if (/^[=+\-@]/.test(escaped)) {
+    return `'${escaped}`;
   }
-  return value;
+  return escaped;
 }
 
 export async function exportVolunteersHandler(

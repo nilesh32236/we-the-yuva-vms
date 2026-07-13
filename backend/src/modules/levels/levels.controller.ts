@@ -118,13 +118,15 @@ export async function reviewLevelRequestHandler(
 }
 
 export async function listPendingRequestsHandler(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const search = _req.query.search as string | undefined;
-    const result = await listPendingRequests(search);
+    const search = req.query.search as string | undefined;
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const result = await listPendingRequests(search, page, limit);
     res.status(200).json(result);
   } catch (err) {
     next(err);

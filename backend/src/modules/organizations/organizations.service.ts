@@ -3,24 +3,16 @@ import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
-let coordinatorRoleId: string | null = null;
-
 async function getCoordinatorRoleId(): Promise<string> {
-  if (coordinatorRoleId) return coordinatorRoleId;
   const role = await prisma.role.findUnique({ where: { name: 'COORDINATOR' } });
   if (!role) throw new AppError('COORDINATOR role not found', 500);
-  coordinatorRoleId = role.id;
-  return coordinatorRoleId;
+  return role.id;
 }
 
-let volunteerRoleId: string | null = null;
-
 async function getVolunteerRoleId(): Promise<string> {
-  if (volunteerRoleId) return volunteerRoleId;
   const role = await prisma.role.findUnique({ where: { name: 'VOLUNTEER' } });
   if (!role) throw new AppError('VOLUNTEER role not found', 500);
-  volunteerRoleId = role.id;
-  return volunteerRoleId;
+  return role.id;
 }
 
 export interface RegisterOrgInput {
@@ -48,7 +40,11 @@ async function generateUniqueSlug(name: string): Promise<string> {
   const base = slugify(name, { lower: true, strict: true });
   let slug = base;
   let counter = 1;
+  const MAX_RETRIES = 100;
   while (await prisma.organization.findUnique({ where: { slug } })) {
+    if (counter > MAX_RETRIES) {
+      throw new AppError('Unable to generate unique slug after maximum retries', 500);
+    }
     slug = `${base}-${counter}`;
     counter++;
   }
@@ -56,49 +52,51 @@ async function generateUniqueSlug(name: string): Promise<string> {
 }
 
 export async function registerOrganization(adminUserId: string, data: RegisterOrgInput) {
-  const adminUser = await prisma.user.findUnique({
-    where: { id: adminUserId },
-    select: { organizationId: true, roleRef: { select: { name: true } } },
+  return prisma.$transaction(async (tx) => {
+    const adminUser = await tx.user.findUnique({
+      where: { id: adminUserId },
+      select: { organizationId: true, roleRef: { select: { name: true } } },
+    });
+
+    if (!adminUser) {
+      throw new AppError('User not found', 404);
+    }
+
+    if (adminUser.organizationId) {
+      throw new AppError('User already belongs to an organization', 409);
+    }
+
+    if (adminUser.roleRef.name !== 'ORGANIZATION_ADMIN') {
+      throw new AppError('Only organization admins can register an organization', 403);
+    }
+
+    const existing = await tx.organization.findFirst({
+      where: { name: data.name },
+    });
+
+    if (existing) {
+      throw new AppError('Organization with this name already exists', 409);
+    }
+
+    const slug = data.slug ?? await generateUniqueSlug(data.name);
+
+    const org = await tx.organization.create({
+      data: {
+        name: data.name,
+        slug,
+        description: data.description,
+        address: data.address,
+        phone: data.phone,
+        email: data.email,
+        website: data.website,
+        status: 'PENDING',
+        users: { connect: { id: adminUserId } },
+      },
+      include: { users: { select: { id: true, name: true, email: true } } },
+    });
+
+    return org;
   });
-
-  if (!adminUser) {
-    throw new AppError('User not found', 404);
-  }
-
-  if (adminUser.organizationId) {
-    throw new AppError('User already belongs to an organization', 409);
-  }
-
-  if (adminUser.roleRef.name !== 'ORGANIZATION_ADMIN') {
-    throw new AppError('Only organization admins can register an organization', 403);
-  }
-
-  const existing = await prisma.organization.findFirst({
-    where: { name: data.name },
-  });
-
-  if (existing) {
-    throw new AppError('Organization with this name already exists', 409);
-  }
-
-  const slug = data.slug ?? await generateUniqueSlug(data.name);
-
-  const org = await prisma.organization.create({
-    data: {
-      name: data.name,
-      slug,
-      description: data.description,
-      address: data.address,
-      phone: data.phone,
-      email: data.email,
-      website: data.website,
-      status: 'PENDING',
-      users: { connect: { id: adminUserId } },
-    },
-    include: { users: { select: { id: true, name: true, email: true } } },
-  });
-
-  return org;
 }
 
 export async function getOrganization(orgId: string) {
@@ -121,6 +119,10 @@ export async function updateOrganization(orgId: string, userId: string, data: Up
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
   if (!org) {
     throw new AppError('Organization not found', 404);
+  }
+
+  if (org.status === 'SUSPENDED') {
+    throw new AppError('Cannot update a suspended organization', 400);
   }
 
   const user = await prisma.user.findUnique({
@@ -364,21 +366,18 @@ export async function listCoordinators(orgId: string, page = 1, limit = 20) {
     organizationId: orgId,
     roleRef: { name: 'COORDINATOR' },
   };
-  const [data, total] = await Promise.all([
-    prisma.user.findMany({
-      where,
-      skip,
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        status: true,
-        createdAt: true,
-      },
-    }),
-    prisma.user.count({ where }),
-  ]);
+  const data = await prisma.user.findMany({
+    where,
+    skip,
+    take: limit,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      status: true,
+      createdAt: true,
+    },
+  });
   return data;
 }
 

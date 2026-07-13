@@ -69,15 +69,22 @@ export async function updateLesson(
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId)
     throw new AppError('Lesson does not belong to this course', 400);
-  const updated = await prisma.lesson.update({ where: { id }, data });
-  await logAudit({
-    userId,
-    action: 'LESSON_UPDATE',
-    targetId: id,
-    targetType: 'Lesson',
-    metadata: { courseId },
-  });
-  return updated;
+  try {
+    const updated = await prisma.lesson.update({ where: { id }, data });
+    await logAudit({
+      userId,
+      action: 'LESSON_UPDATE',
+      targetId: id,
+      targetType: 'Lesson',
+      metadata: { courseId },
+    });
+    return updated;
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === 'P2025') {
+      throw new AppError('Lesson not found', 404);
+    }
+    throw err;
+  }
 }
 
 export async function deleteLesson(courseId: string, id: string, userId: string) {
@@ -85,14 +92,21 @@ export async function deleteLesson(courseId: string, id: string, userId: string)
   if (!lesson) throw new AppError('Lesson not found', 404);
   if (lesson.courseId !== courseId)
     throw new AppError('Lesson does not belong to this course', 400);
-  await prisma.lesson.delete({ where: { id } });
-  await logAudit({
-    userId,
-    action: 'LESSON_DELETE',
-    targetId: id,
-    targetType: 'Lesson',
-    metadata: { courseId },
-  });
+  try {
+    await prisma.lesson.delete({ where: { id } });
+    await logAudit({
+      userId,
+      action: 'LESSON_DELETE',
+      targetId: id,
+      targetType: 'Lesson',
+      metadata: { courseId },
+    });
+  } catch (err: unknown) {
+    if ((err as { code?: string })?.code === 'P2025') {
+      throw new AppError('Lesson not found', 404);
+    }
+    throw err;
+  }
 }
 
 export async function listCourses(userId: string, pagination?: { page: number; limit: number }) {
@@ -164,7 +178,10 @@ export async function getCourse(courseId: string, userId: string) {
 }
 
 export async function completeLesson(lessonId: string, userId: string) {
-  const lesson = await prisma.lesson.findUnique({ where: { id: lessonId } });
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    include: { course: true },
+  });
   if (!lesson) throw new AppError('Lesson not found', 404);
 
   // Mark lesson complete (idempotent)
@@ -189,15 +206,14 @@ export async function completeLesson(lessonId: string, userId: string) {
       update: { completed: true, completedAt: new Date() },
     });
 
-    const course = await prisma.course.findUnique({ where: { id: lesson.courseId } });
-    if (course && notificationsQueue) {
-      await notificationsQueue
+    if (notificationsQueue) {
+      notificationsQueue
         .add('training-completion', {
           userId,
-          courseTitle: course.title,
-          courseId: course.id,
+          courseTitle: lesson.course.title,
+          courseId: lesson.course.id,
         })
-        .catch(() => {});
+        .catch((err) => logger.warn('Failed to enqueue training notification', { error: (err as Error).message }));
     }
   } else {
     await prisma.courseProgress.upsert({

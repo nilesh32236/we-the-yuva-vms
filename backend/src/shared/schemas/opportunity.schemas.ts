@@ -12,20 +12,27 @@ export const OPPORTUNITY_CATEGORIES = [
   'OTHER',
 ] as const;
 
+const opportunityBaseFields = {
+  title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
+  description: z
+    .string()
+    .min(20, 'Description must be at least 20 characters')
+    .max(2000, 'Description too long'),
+  skills: z
+    .array(z.string().min(1, 'Skill cannot be empty'))
+    .min(1, 'Please add at least one skill')
+    .max(10, 'Maximum 10 skills allowed'),
+  category: z.enum(OPPORTUNITY_CATEGORIES),
+  locationId: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
+  endDate: z.string().datetime(),
+  hoursPerSession: z.number().positive('Hours per session must be positive'),
+  totalSlots: z.number().int().positive('Total slots must be a positive integer'),
+  isRemote: z.boolean(),
+};
+
 export const OpportunitySchema = z
   .object({
-    title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
-    description: z
-      .string()
-      .min(20, 'Description must be at least 20 characters')
-      .max(2000, 'Description too long'),
-    skills: z
-      .array(z.string().min(1, 'Skill cannot be empty'))
-      .min(1, 'Please add at least one skill')
-      .max(10, 'Maximum 10 skills allowed'),
-    category: z.enum(OPPORTUNITY_CATEGORIES),
-    locationId: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
-    // TODO: relax for UPDATE operations (existing records have past dates)
+    ...opportunityBaseFields,
     startDate: z
       .string()
       .datetime()
@@ -36,15 +43,28 @@ export const OpportunitySchema = z
         },
         { message: 'Start date must be in the future' }
       ),
-    endDate: z.string().datetime(),
-    hoursPerSession: z.number().positive('Hours per session must be positive'),
-    totalSlots: z.number().int().positive('Total slots must be a positive integer'),
-    isRemote: z.boolean(),
   })
   .refine((data) => new Date(data.endDate) > new Date(data.startDate), {
     message: 'End date must be after start date',
     path: ['endDate'],
   });
+
+export const UpdateOpportunitySchema = z
+  .object({
+    ...Object.fromEntries(
+      Object.entries(opportunityBaseFields).map(([key, schema]) => [key, schema.optional()])
+    ),
+    startDate: z.string().datetime().optional(),
+  } as Record<string, z.ZodTypeAny>)
+  .refine(
+    (data) => {
+      if (data.startDate && data.endDate) {
+        return new Date(data.endDate) > new Date(data.startDate);
+      }
+      return true;
+    },
+    { message: 'End date must be after start date', path: ['endDate'] }
+  );
 
 export const EventSchema = z
   .object({
@@ -79,7 +99,7 @@ export const AttendanceSchema = z.object({
   attendances: z
     .array(
       z.object({
-        volunteerId: z.string(),
+        volunteerId: z.string().min(1, 'Volunteer ID is required'),
         attended: z.boolean(),
       })
     )
@@ -111,7 +131,7 @@ const EventSeriesBaseSchema = z.object({
   capacity: z.number().int().positive('Capacity must be a positive integer'),
   endDate: z.string().datetime().optional(),
   maxOccurrences: z.number().int().positive().optional(),
-  customRule: z.any().optional(),
+  customRule: z.unknown().optional(),
   firstEventDate: z.string().datetime().optional(),
 });
 

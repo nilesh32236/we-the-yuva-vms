@@ -1,5 +1,5 @@
-import type { User } from '@prisma/client';
-import { z } from 'zod';
+import { type Prisma, type User } from '@prisma/client';
+import type { AdminUserUpdateInput } from '@/shared';
 import { logAudit } from '../../lib/audit';
 import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
@@ -86,7 +86,7 @@ export async function listUsers(filters: ListUsersFilters, pagination: Paginatio
   const skip = (page - 1) * limit;
 
   // Build where clause
-  const where: Record<string, unknown> = {};
+  const where: Prisma.UserWhereInput = {};
   if (role) where.roleRef = { name: role };
   if (status) where.status = status;
   if (search) {
@@ -128,7 +128,7 @@ export async function listUsers(filters: ListUsersFilters, pagination: Paginatio
 
 export async function updateUser(
   id: string,
-  data: { status?: string; role?: string },
+  data: AdminUserUpdateInput,
   adminId?: string
 ) {
   // Verify user exists
@@ -149,15 +149,24 @@ export async function updateUser(
     updateRoleId = roleRecord.id;
   }
 
-  const user = await prisma.user.update({
-    where: { id },
-    data: {
-      ...(data.status && {
-        status: z.enum(['ACTIVE', 'PENDING', 'SUSPENDED', 'INACTIVE']).parse(data.status),
-      }),
-      ...(updateRoleId && { roleId: updateRoleId }),
-    },
-    select: { id: true, name: true, email: true, status: true },
+  const user = await prisma.$transaction(async (tx) => {
+    const updatedUser = await tx.user.update({
+      where: { id },
+      data: {
+        ...(data.status && { status: data.status }),
+        ...(updateRoleId && { roleId: updateRoleId }),
+      },
+      select: { id: true, name: true, email: true, status: true },
+    });
+
+    if (data.status === 'SUSPENDED') {
+      await tx.refreshToken.updateMany({
+        where: { userId: id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+    }
+
+    return updatedUser;
   });
 
   if (adminId) {
@@ -174,7 +183,7 @@ export async function updateUser(
         targetId: id,
         targetType: 'User',
         metadata: changes,
-      }).catch(() => {});
+      }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
     } else if (data.role && existing.roleRef && data.role !== existing.roleRef.name) {
       logAudit({
         userId: adminId,
@@ -182,7 +191,7 @@ export async function updateUser(
         targetId: id,
         targetType: 'User',
         metadata: changes,
-      }).catch(() => {});
+      }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
     } else if (Object.keys(changes).length > 0) {
       logAudit({
         userId: adminId,
@@ -190,17 +199,11 @@ export async function updateUser(
         targetId: id,
         targetType: 'User',
         metadata: changes,
-      }).catch(() => {});
+      }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
     }
   }
 
   if (data.status === 'SUSPENDED') {
-    // Revoke all active refresh tokens
-    await prisma.refreshToken.updateMany({
-      where: { userId: id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
-
     if (notificationsQueue) {
       try {
         await notificationsQueue.add('account-suspended', {

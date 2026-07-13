@@ -16,8 +16,8 @@ export async function requestMentorshipHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { menteeId, message } = req.body;
-    const mentorship = await requestMentorship(req.user!.id, menteeId, message);
+    const { menteeId } = req.body;
+    const mentorship = await requestMentorship(req.user!.id, menteeId);
     res.status(201).json(mentorship);
   } catch (err) {
     next(err);
@@ -30,7 +30,9 @@ export async function listPendingRequestsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const requests = await listPendingRequests(req.user!.id);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const requests = await listPendingRequests(req.user!.id, page, limit);
     res.status(200).json(requests);
   } catch (err) {
     next(err);
@@ -43,7 +45,9 @@ export async function listMyRequestsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const requests = await listMyRequests(req.user!.id);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const requests = await listMyRequests(req.user!.id, page, limit);
     res.status(200).json(requests);
   } catch (err) {
     next(err);
@@ -70,7 +74,9 @@ export async function listMyMentorsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const mentors = await listMyMentors(req.user!.id);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const mentors = await listMyMentors(req.user!.id, page, limit);
     res.status(200).json(mentors);
   } catch (err) {
     next(err);
@@ -83,7 +89,9 @@ export async function listMyMenteesHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const mentees = await listMyMentees(req.user!.id);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const mentees = await listMyMentees(req.user!.id, page, limit);
     res.status(200).json(mentees);
   } catch (err) {
     next(err);

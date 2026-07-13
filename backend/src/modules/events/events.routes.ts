@@ -98,7 +98,12 @@ opportunityEventsRouter.post(
  *       200:
  *         description: List of events
  */
-opportunityEventsRouter.get('/', requireAuth, listEventsByOpportunityHandler);
+opportunityEventsRouter.get(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.EVENT_VIEW),
+  listEventsByOpportunityHandler
+);
 
 // ─── Router: /events/* and /users/me/events ───────────────────────
 // Mount at: /api/v1/events  (for /events/* routes)

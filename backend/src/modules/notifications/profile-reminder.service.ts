@@ -7,7 +7,7 @@ const BATCH_SIZE = 100;
 export async function sendProfileReminders() {
   let sent = 0;
   let total = 0;
-  let skip = 0;
+  let cursor: string | undefined;
 
   for (;;) {
     const batch = await prisma.user.findMany({
@@ -17,8 +17,9 @@ export async function sendProfileReminders() {
         pushSubscriptions: { some: {} },
       },
       select: { id: true, name: true },
-      skip,
       take: BATCH_SIZE,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      orderBy: { id: 'asc' },
     });
 
     if (batch.length === 0) break;
@@ -44,7 +45,7 @@ export async function sendProfileReminders() {
       }
     }
 
-    skip += BATCH_SIZE;
+    cursor = batch[batch.length - 1].id;
   }
 
   logger.info(`Sent profile reminders to ${sent} of ${total} users`);

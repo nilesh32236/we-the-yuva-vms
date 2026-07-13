@@ -4,7 +4,7 @@ const AddressSchema = z.object({
   street: z.string().min(1, 'Street cannot be empty').max(255).optional(),
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
-  pincode: z.string().optional(),
+  pincode: z.string().regex(/^\d{6}$/, 'Pincode must be exactly 6 digits').optional(),
   country: z.string().optional(),
 });
 
@@ -49,8 +49,9 @@ export const RegisterSchema = z.object({
     { message: 'You must be at least 14 years old' }
   ),
   address: AddressSchema,
-  reference: z.string().optional(),
+  reference: z.string().max(500, 'Reference must be 500 characters or less').optional(),
   callAvailability: CallAvailabilitySchema.optional(),
+  /** @deprecated Field name is a typo of "whyVolunteer". Exposed to external API clients — cannot rename without migration. */
   whyVoluntary: z
     .string()
     .max(500, 'Must be 500 characters or less')

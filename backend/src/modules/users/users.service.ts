@@ -278,59 +278,62 @@ export async function updateUser(
   userId: string,
   data: { name?: string; email?: string; volunteerType?: string }
 ) {
-  if (data.email) {
-    const existing = await prisma.user.findUnique({ where: { email: data.email } });
-    if (existing && existing.id !== userId) {
-      throw new AppError('Email already in use', 409);
-    }
-  }
   const updateData: Record<string, unknown> = {};
   if (data.name !== undefined) updateData.name = data.name;
   if (data.email !== undefined) updateData.email = data.email;
   if (data.volunteerType !== undefined) updateData.volunteerType = data.volunteerType;
 
-  return prisma.user.update({
-    where: { id: userId },
-    data: updateData,
-    include: { profile: true, location: true },
-  });
+  try {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      include: { profile: true, location: true },
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2002') {
+      throw new AppError('Email already in use', 409);
+    }
+    throw err;
+  }
 }
 
 export async function upsertStaffProfile(userId: string, data: StaffProfileInput) {
-  const location = await prisma.location.upsert({
-    where: {
-      id: `loc-${data.locationName.toLowerCase().replace(/\s+/g, '-')}-${(data.district ?? '').toLowerCase()}-${(data.state ?? '').toLowerCase()}`,
-    },
-    update: {},
-    create: {
-      id: `loc-${data.locationName.toLowerCase().replace(/\s+/g, '-')}-${(data.district ?? '').toLowerCase()}-${(data.state ?? '').toLowerCase()}`,
-      name: data.locationName,
-      district: data.district,
-      state: data.state,
-    },
-  });
+  return prisma.$transaction(async (tx) => {
+    const location = await tx.location.upsert({
+      where: {
+        id: `loc-${data.locationName.toLowerCase().replace(/\s+/g, '-')}-${(data.district ?? '').toLowerCase()}-${(data.state ?? '').toLowerCase()}`,
+      },
+      update: {},
+      create: {
+        id: `loc-${data.locationName.toLowerCase().replace(/\s+/g, '-')}-${(data.district ?? '').toLowerCase()}-${(data.state ?? '').toLowerCase()}`,
+        name: data.locationName,
+        district: data.district,
+        state: data.state,
+      },
+    });
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: { locationId: location.id },
-  });
+    await tx.user.update({
+      where: { id: userId },
+      data: { locationId: location.id },
+    });
 
-  await prisma.staffProfile.upsert({
-    where: { userId },
-    create: {
-      userId,
-      department: data.department,
-      designation: data.designation,
-    },
-    update: {
-      department: data.department,
-      designation: data.designation,
-    },
-  });
+    await tx.staffProfile.upsert({
+      where: { userId },
+      create: {
+        userId,
+        department: data.department,
+        designation: data.designation,
+      },
+      update: {
+        department: data.department,
+        designation: data.designation,
+      },
+    });
 
-  return prisma.user.findUnique({
-    where: { id: userId },
-    include: { location: true, staffProfile: true },
+    return tx.user.findUnique({
+      where: { id: userId },
+      include: { location: true, staffProfile: true },
+    });
   });
 }
 

@@ -44,7 +44,7 @@ usersRouter.use(requireAuth);
  */
 usersRouter.get('/me', getMeHandler);
 
-usersRouter.get('/me/profile-status', requireAuth, getProfileStatusHandler);
+usersRouter.get('/me/profile-status', getProfileStatusHandler);
 
 /**
  * @openapi
@@ -57,7 +57,7 @@ usersRouter.get('/me/profile-status', requireAuth, getProfileStatusHandler);
  *       200:
  *         description: User updated
  */
-usersRouter.patch('/me', requireAuth, validate(UpdateMeSchema), updateMeHandler);
+usersRouter.patch('/me', validate(UpdateMeSchema), updateMeHandler);
 
 const VolunteerTypeSchema = z.object({
   volunteerType: z.enum(VOLUNTEER_TYPES, {
@@ -66,7 +66,6 @@ const VolunteerTypeSchema = z.object({
 });
 usersRouter.patch(
   '/me/volunteer-type',
-  requireAuth,
   requirePermission(Permissions.USER_PROFILE_MANAGE),
   validate(VolunteerTypeSchema),
   updateMeHandler

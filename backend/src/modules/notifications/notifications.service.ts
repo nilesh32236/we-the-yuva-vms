@@ -50,7 +50,7 @@ export async function sendPushToUser(
     const pref = await prisma.notificationPreference.findUnique({
       where: { userId_type: { userId, type: prefType } },
     });
-    if (pref && !pref.push) return;
+    if (pref?.push === false) return;
   }
 
   const subs = await prisma.pushSubscription.findMany({ where: { userId } });
@@ -94,7 +94,7 @@ export async function sendEmailToUser(
       const pref = await prisma.notificationPreference.findUnique({
         where: { userId_type: { userId, type: prefType } },
       });
-      if (pref && !pref.email) return;
+      if (pref?.email === false) return;
     }
 
     const user = await prisma.user.findUnique({
@@ -130,11 +130,9 @@ export async function getNotification(userId: string, notificationId: string) {
 }
 
 export async function deleteNotification(userId: string, notificationId: string) {
-  try {
-    return await prisma.notification.delete({ where: { id: notificationId, userId } });
-  } catch {
-    throw new AppError('Notification not found', 404);
-  }
+  const existing = await prisma.notification.findFirst({ where: { id: notificationId, userId } });
+  if (!existing) throw new AppError('Notification not found', 404);
+  return prisma.notification.delete({ where: { id: notificationId } });
 }
 
 export async function markRead(userId: string, notificationId: string) {

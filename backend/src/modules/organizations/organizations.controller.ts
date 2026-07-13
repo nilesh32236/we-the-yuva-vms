@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from 'express';
-import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import {
   addCoordinatorToOrg,
@@ -46,10 +45,6 @@ export async function uploadDocumentHandler(req: Request, res: Response, next: N
     const { id } = req.params;
     const { fileName, fileUrl, type } = req.body;
 
-    if (!fileName || !fileUrl || !type) {
-      throw new AppError('fileName, fileUrl, and type are required', 400);
-    }
-
     const doc = await addOrganizationDocument(id, fileName, fileUrl, type);
     res.status(201).json(doc);
   } catch (err) {
@@ -61,35 +56,6 @@ export async function getDocumentsHandler(req: Request, res: Response, next: Nex
   try {
     const docs = await getOrganizationDocuments(req.params.id);
     res.status(200).json(docs);
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function listOrgsHandler(req: Request, res: Response, next: NextFunction) {
-  try {
-    const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
-    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
-
-    const result = await prisma.organization.findMany({
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * limit,
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        email: true,
-        status: true,
-        verifiedAt: true,
-        createdAt: true,
-        _count: { select: { users: true, documents: true } },
-      },
-    });
-
-    const total = await prisma.organization.count();
-
-    res.status(200).json({ orgs: result, total, page, limit });
   } catch (err) {
     next(err);
   }

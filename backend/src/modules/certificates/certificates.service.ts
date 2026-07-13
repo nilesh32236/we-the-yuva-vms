@@ -3,6 +3,16 @@ import { prisma } from '../../lib/prisma';
 import { logger } from '../../lib/logger';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
+import { env } from '../../config/env';
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 export async function generateCertificate(userId: string, levelId: string) {
   const verificationHash = crypto.randomUUID();
@@ -13,13 +23,14 @@ export async function generateCertificate(userId: string, levelId: string) {
         userId,
         levelId,
         verificationHash,
-        certificateUrl: '',
       },
     });
 
+    const certificateUrl = `/api/v1/certificates/${cert.id}/view`;
+
     return tx.certificate.update({
       where: { id: cert.id },
-      data: { certificateUrl: `/api/v1/certificates/${cert.id}/view` },
+      data: { certificateUrl },
       include: { level: true },
     });
   });
@@ -98,7 +109,7 @@ export function generateCertificateHtml(cert: {
     month: 'long',
     day: 'numeric',
   });
-  const verificationUrl = `${process.env.FRONTEND_URL || ''}/verify/${cert.verificationHash}`;
+  const verificationUrl = `${env.FRONTEND_URL}/verify/${cert.verificationHash}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -309,7 +320,7 @@ export function generateCertificateHtml(cert: {
     <div class="subtitle">Volunteer Management System</div>
 
     <div class="presented-to">Presented to</div>
-    <div class="volunteer-name">${volunteerName}</div>
+    <div class="volunteer-name">${escapeHtml(volunteerName)}</div>
 
     <div class="achievement-text">
       In recognition of their dedication and contribution to community service,<br>
@@ -317,7 +328,7 @@ export function generateCertificateHtml(cert: {
     </div>
 
     <div class="level-name-container">
-      <div class="level-name">${levelName}</div>
+      <div class="level-name">${escapeHtml(levelName)}</div>
     </div>
 
     <div class="details">

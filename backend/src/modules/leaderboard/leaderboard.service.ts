@@ -5,11 +5,58 @@ interface CacheEntry {
   expiresAt: number;
 }
 
-const cache = new Map<string, CacheEntry>();
+class LRUCache {
+  private max: number;
+  private cache: Map<string, CacheEntry>;
+
+  constructor(max: number) {
+    this.max = max;
+    this.cache = new Map();
+  }
+
+  get(key: string): CacheEntry | undefined {
+    const entry = this.cache.get(key);
+    if (entry) {
+      this.cache.delete(key);
+      this.cache.set(key, entry);
+    }
+    return entry;
+  }
+
+  set(key: string, entry: CacheEntry): void {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.max) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, entry);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  delete(key: string): void {
+    this.cache.delete(key);
+  }
+}
+
+const cache = new LRUCache(100);
 const CACHE_TTL = 120_000; // 2 minutes
 
 function getCacheKey(params: Record<string, unknown>): string {
   return `leaderboard:${JSON.stringify(params)}`;
+}
+
+export function invalidateCache(params?: Record<string, unknown>): void {
+  if (params) {
+    cache.delete(getCacheKey(params));
+  } else {
+    cache.clear();
+  }
 }
 
 export async function getLeaderboard(params: {
@@ -20,7 +67,7 @@ export async function getLeaderboard(params: {
 }) {
   const cacheKey = getCacheKey(params);
   const cached = cache.get(cacheKey);
-  if (cached && cached.expiresAt > Date.now()) {
+  if (cached?.expiresAt > Date.now()) {
     return cached.data;
   }
 
@@ -57,6 +104,7 @@ export async function getLeaderboard(params: {
         },
       },
     },
+    // TODO: Add composite index on (points, profile.totalHours) for performance — current JOIN is slow at scale
     orderBy: sortBy === 'points' ? { points: 'desc' } : { profile: { totalHours: 'desc' } },
     take: 50,
   });

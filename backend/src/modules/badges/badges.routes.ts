@@ -7,7 +7,13 @@ import { Permissions } from '../../shared/permissions';
 import { listBadgesHandler, getMyBadgesHandler, listPendingApprovalsHandler, approveBadgeHandler, rejectBadgeHandler } from './badges.controller';
 
 const BadgeReviewSchema = z.object({
-  reviewNote: z.string().max(500).optional(),
+  params: z.object({
+    userId: z.string().uuid(),
+    badgeId: z.string().uuid(),
+  }),
+  body: z.object({
+    reviewNote: z.string().max(500).optional(),
+  }),
 });
 
 export const badgesRouter: Router = Router();

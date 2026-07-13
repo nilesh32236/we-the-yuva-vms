@@ -4,13 +4,13 @@ import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
-export async function requestMentorship(mentorId: string, menteeId: string, _message?: string) {
+export async function requestMentorship(mentorId: string, menteeId: string) {
   if (mentorId === menteeId) {
     throw new AppError('You cannot request mentorship with yourself', 400);
   }
 
   const [mentor, mentee] = await Promise.all([
-    prisma.user.findUnique({ where: { id: mentorId }, include: { roleRef: true } }),
+    prisma.user.findUnique({ where: { id: mentorId } }),
     prisma.user.findUnique({ where: { id: menteeId } }),
   ]);
 
@@ -40,10 +40,10 @@ export async function requestMentorship(mentorId: string, menteeId: string, _mes
   if (notificationsQueue) {
     notificationsQueue
       .add('mentorship-update', {
-        userId: mentorId,
+        userId: menteeId,
         title: 'New Mentorship Request',
-        body: `${mentorship.mentee.name} wants you as their mentor`,
-        link: '/coordinator/mentorship',
+        body: `${mentorship.mentor.name} wants you as their mentee`,
+        link: '/volunteer/mentorship',
       })
       .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
   }
@@ -212,5 +212,5 @@ export async function cancelMentorshipRequest(requestId: string, userId: string)
     throw new AppError('Only the mentee can cancel a request', 403);
   if (mentorship.status !== 'PENDING') throw new AppError('Can only cancel pending requests', 400);
 
-  await prisma.mentorship.delete({ where: { id: requestId } });
+  await prisma.mentorship.update({ where: { id: requestId }, data: { status: 'CANCELLED' } });
 }

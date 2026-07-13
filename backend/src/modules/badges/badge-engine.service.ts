@@ -35,8 +35,51 @@ export async function awardPoints(
   ]);
 }
 
+interface BatchData {
+  profile: { bio: string | null; totalHours: number; currentStreak: number } | null;
+  attendanceCount: number;
+  referralCount: number;
+  menteeCount: number;
+  storyPublishedCount: number;
+  user: { createdAt: Date; currentLevel: { tier: number } | null } | null;
+  courseProgressCount: number;
+  afterHoursCount: number;
+}
+
+async function getBatchData(userId: string): Promise<BatchData> {
+  const [profile, attendanceCount, referralCount, menteeCount, storyPublishedCount, user, courseProgressCount] =
+    await Promise.all([
+      prisma.volunteerProfile.findUnique({
+        where: { userId },
+        select: { bio: true, totalHours: true, currentStreak: true },
+      }),
+      prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
+      prisma.user.count({ where: { referredById: userId } }),
+      prisma.mentorship.count({ where: { mentorId: userId, status: 'ACTIVE' } }),
+      prisma.story.count({ where: { userId, published: true } }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { createdAt: true, currentLevel: { select: { tier: true } } },
+      }),
+      prisma.courseProgress.count({
+        where: { userId, completed: true, course: { category: 'ORIENTATION' } },
+      }),
+    ]);
+
+  const afterHoursCount = await prisma.$queryRaw<{ count: bigint }[]>`
+    SELECT COUNT(*)::bigint as count FROM "Attendance" a
+    JOIN "Event" e ON a."eventId" = e.id
+    WHERE a."volunteerId" = ${userId} AND a.attended = true
+    AND (EXTRACT(HOUR FROM e."startTime"::time) >= 17 OR EXTRACT(DOW FROM e."eventDate") IN (0, 6))
+  `.then((r) => Number(r[0]?.count ?? 0));
+
+  return { profile, attendanceCount, referralCount, menteeCount, storyPublishedCount, user, courseProgressCount, afterHoursCount };
+}
+
 export async function checkAndAwardBadges(userId: string) {
-  const allBadges = await prisma.badge.findMany();
+  const allBadges = await prisma.badge.findMany({
+    select: { id: true, name: true, criteria: true, requiresApproval: true },
+  });
   const earnedBadgeIds = new Set(
     (await prisma.userBadge.findMany({ where: { userId }, select: { badgeId: true } })).map(
       (b) => b.badgeId
@@ -49,10 +92,9 @@ export async function checkAndAwardBadges(userId: string) {
     })).map((b) => b.badgeId)
   );
 
-  const eligibleBadges = allBadges.filter((b) => !earnedBadgeIds.has(b.id));
-  const criteriaResults = await Promise.all(
-    eligibleBadges.map((badge) => evaluateCriteria(userId, badge.criteria as BadgeCriteria))
-  );
+  const eligibleBadges = allBadges.filter((b) => !earnedBadgeIds.has(b.id) && !pendingApprovalBadgeIds.has(b.id));
+  const batchData = await getBatchData(userId);
+  const criteriaResults = eligibleBadges.map((badge) => evaluateCriteria(batchData, badge.criteria as BadgeCriteria));
 
   const awardOps: Promise<unknown>[] = [];
   for (let i = 0; i < eligibleBadges.length; i++) {
@@ -88,134 +130,76 @@ export async function checkAndAwardBadges(userId: string) {
       awardOps.push(op);
     }
   }
-  await Promise.all(awardOps);
+  const settled = await Promise.allSettled(awardOps);
+  for (const result of settled) {
+    if (result.status === 'rejected') {
+      logger.warn('Badge award operation failed', { error: (result.reason as Error)?.message });
+    }
+  }
 
   return eligibleBadges.filter((_, i) => criteriaResults[i]);
 }
 
-async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promise<boolean> {
+async function evaluateCriteria(data: BatchData, criteria: BadgeCriteria): Promise<boolean> {
   switch (criteria.type) {
     case 'ONBOARDING_COMPLETE': {
-      const [profile, courseProgress] = await Promise.all([
-        prisma.volunteerProfile.findUnique({ where: { userId } }),
-        prisma.courseProgress.count({
-          where: { userId, completed: true, course: { category: 'ORIENTATION' } },
-        }),
-      ]);
-      return !!profile && profile.bio !== null && courseProgress >= 1;
+      return !!data.profile && data.profile.bio !== null && data.courseProgressCount >= 1;
     }
 
     case 'EVENTS_ATTENDED': {
-      const count = await prisma.attendance.count({
-        where: { volunteerId: userId, attended: true },
-      });
-      return count >= (criteria.count ?? 1);
+      return data.attendanceCount >= (criteria.count ?? 1);
     }
 
     case 'HOURS_LOGGED': {
-      const profile = await prisma.volunteerProfile.findUnique({
-        where: { userId },
-        select: { totalHours: true },
-      });
-      return (profile?.totalHours ?? 0) >= (criteria.count ?? 100);
+      return (data.profile?.totalHours ?? 0) >= (criteria.count ?? 100);
     }
 
     case 'REFERRALS': {
-      const count = await prisma.user.count({
-        where: { referredById: userId },
-      });
-      return count >= (criteria.count ?? 3);
+      return data.referralCount >= (criteria.count ?? 3);
     }
 
     case 'GRIEVANCES_RESOLVED': {
-      // TODO: Implement grievance resolution tracking
-      // This criteria requires a Grievance model (report + resolution status).
-      // Once that exists, query: prisma.grievance.count({ where: { reportedById: userId, status: 'RESOLVED' } })
-      // and compare against criteria.count. For now this badge is unobtainable — fix when grievance system lands.
       return false;
     }
 
     case 'MENTEES': {
-      const count = await prisma.mentorship.count({
-        where: { mentorId: userId, status: 'ACTIVE' },
-      });
-      return count >= (criteria.count ?? 5);
+      return data.menteeCount >= (criteria.count ?? 5);
     }
 
     case 'LEVEL_2_IN_30_DAYS': {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { createdAt: true, currentLevel: { select: { tier: true } } },
-      });
-      if (!user?.currentLevel || user.currentLevel.tier < 2) return false;
+      if (!data.user?.currentLevel || data.user.currentLevel.tier < 2) return false;
       const daysSinceSignup = Math.floor(
-        (Date.now() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24)
+        (Date.now() - data.user.createdAt.getTime()) / (1000 * 60 * 60 * 24)
       );
       return daysSinceSignup <= 30;
     }
 
     case 'STREAK': {
-      const profile = await prisma.volunteerProfile.findUnique({
-        where: { userId },
-        select: { currentStreak: true },
-      });
-      return (profile?.currentStreak ?? 0) >= (criteria.count ?? 30);
+      return (data.profile?.currentStreak ?? 0) >= (criteria.count ?? 30);
     }
 
     case 'STORIES_PUBLISHED': {
-      const count = await prisma.story.count({
-        where: { userId, published: true },
-      });
-      return count >= (criteria.count ?? 5);
+      return data.storyPublishedCount >= (criteria.count ?? 5);
     }
 
     case 'EVENTS_AFTER_HOURS': {
-      const attendances = await prisma.attendance.findMany({
-        where: { volunteerId: userId, attended: true },
-        select: {
-          event: { select: { startTime: true, eventDate: true } },
-        },
-      });
-      const eveningWeekendCount = attendances.filter((a) => {
-        if (!a.event.startTime) return false;
-        const hour = Number.parseInt(a.event.startTime.split(':')[0] ?? '0', 10);
-        const day = a.event.eventDate.getDay();
-        return hour >= 17 || day === 0 || day === 6;
-      }).length;
-      return eveningWeekendCount >= (criteria.count ?? 3);
+      return data.afterHoursCount >= (criteria.count ?? 3);
     }
 
     case 'FIRST_EVENT': {
-      const count = await prisma.attendance.count({
-        where: { volunteerId: userId, attended: true },
-      });
-      return count >= 1;
+      return data.attendanceCount >= 1;
     }
 
     case 'INDUCTION': {
-      const [attendedCount, profile] = await Promise.all([
-        prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
-        prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
-      ]);
-      return attendedCount >= criteria.eventsCount && (profile?.totalHours ?? 0) >= criteria.hoursCount;
+      return data.attendanceCount >= criteria.eventsCount && (data.profile?.totalHours ?? 0) >= criteria.hoursCount;
     }
 
     case 'MOBILIZER': {
-      const [attendedCount, profile, referralsCount] = await Promise.all([
-        prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
-        prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
-        prisma.user.count({ where: { referredById: userId } }),
-      ]);
-      return attendedCount >= criteria.eventsCount && (profile?.totalHours ?? 0) >= criteria.hoursCount && referralsCount >= criteria.referralsCount;
+      return data.attendanceCount >= criteria.eventsCount && (data.profile?.totalHours ?? 0) >= criteria.hoursCount && data.referralCount >= criteria.referralsCount;
     }
 
     case 'LEADER': {
-      const [attendedCount, profile, menteesCount] = await Promise.all([
-        prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
-        prisma.volunteerProfile.findUnique({ where: { userId }, select: { totalHours: true } }),
-        prisma.mentorship.count({ where: { mentorId: userId, status: 'ACTIVE' } }),
-      ]);
-      return attendedCount >= criteria.eventsCount && (profile?.totalHours ?? 0) >= criteria.hoursCount && menteesCount >= criteria.menteesCount;
+      return data.attendanceCount >= criteria.eventsCount && (data.profile?.totalHours ?? 0) >= criteria.hoursCount && data.menteeCount >= criteria.menteesCount;
     }
 
     default:
@@ -225,7 +209,11 @@ async function evaluateCriteria(userId: string, criteria: BadgeCriteria): Promis
 
 export async function onEventCheckIn(userId: string, eventId: string) {
   await awardPoints(userId, 10, 'EVENT_CHECKIN', eventId);
-  await checkAndAwardBadges(userId);
+  try {
+    await checkAndAwardBadges(userId);
+  } catch (err) {
+    logger.warn('Badge evaluation failed on event check-in', { userId, error: (err as Error).message });
+  }
 }
 
 export async function onEventCheckOut(userId: string, eventId: string, hours: number) {
@@ -233,15 +221,27 @@ export async function onEventCheckOut(userId: string, eventId: string, hours: nu
   if (points > 0) {
     await awardPoints(userId, points, 'EVENT_HOURS', eventId);
   }
-  await checkAndAwardBadges(userId);
+  try {
+    await checkAndAwardBadges(userId);
+  } catch (err) {
+    logger.warn('Badge evaluation failed on event check-out', { userId, error: (err as Error).message });
+  }
 }
 
 export async function onFeedbackSubmitted(userId: string, eventId: string) {
   await awardPoints(userId, 15, 'FEEDBACK_SUBMITTED', eventId);
-  await checkAndAwardBadges(userId);
+  try {
+    await checkAndAwardBadges(userId);
+  } catch (err) {
+    logger.warn('Badge evaluation failed on feedback submission', { userId, error: (err as Error).message });
+  }
 }
 
 export async function onApplicationAccepted(userId: string, opportunityId: string) {
   await awardPoints(userId, 20, 'OPPORTUNITY_ACCEPTED', opportunityId);
-  await checkAndAwardBadges(userId);
+  try {
+    await checkAndAwardBadges(userId);
+  } catch (err) {
+    logger.warn('Badge evaluation failed on application accepted', { userId, error: (err as Error).message });
+  }
 }

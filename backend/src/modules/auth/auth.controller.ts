@@ -121,7 +121,11 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     logAudit({ userId: user.id, action: 'OTP_SENT' }).catch(() => {});
 
     // TEMPORARY: return OTP for testing until SMTP is configured
-    res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
+    if (process.env.NODE_ENV !== 'production') {
+      res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
+    } else {
+      res.status(200).json({ message: 'Verification code sent to your email.' });
+    }
   } catch (err) {
     next(err);
   }
