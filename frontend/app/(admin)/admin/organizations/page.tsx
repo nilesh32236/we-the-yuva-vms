@@ -5,8 +5,8 @@ import { Building2 } from 'lucide-react';
 import Pagination from '@/components/shared/Pagination';
 import { useState } from 'react';
 import { OrganizationTable } from '@/components/admin/OrganizationTable';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { api } from '../../../../lib/api';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { api } from '@/lib/api';
 
 const STATUSES = ['ALL', 'PENDING', 'ACTIVE', 'SUSPENDED'];
 

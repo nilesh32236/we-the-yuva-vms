@@ -96,7 +96,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
         </div>
       </section>
 
-      <section className="bg-background dark:bg-brand-surface py-16 sm:py-20">
+      <section className="bg-background py-16 sm:py-20">
         <div className={containerClass}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-8">
