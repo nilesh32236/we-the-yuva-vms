@@ -40,7 +40,7 @@ For privacy-related queries, contact us at privacy@wetheyuva.org
 export default function ConsentPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading, refetch } = useAuth();
 
   const {
     control,
@@ -66,6 +66,7 @@ export default function ConsentPage() {
         privacyPolicyAccepted: true,
         mediaConsentAccepted: data.mediaConsentAccepted,
       });
+      await refetch();
       router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
     } catch (error) {
       const axiosError = error as {
@@ -74,6 +75,7 @@ export default function ConsentPage() {
       const status = axiosError?.response?.status;
       if (status === 409) {
         // Already consented — move on
+        await refetch();
         router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
       } else {
         const message =
