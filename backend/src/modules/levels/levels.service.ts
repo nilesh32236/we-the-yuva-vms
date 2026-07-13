@@ -227,7 +227,7 @@ export async function reviewLevelRequest(
 
   const updateData: Prisma.UserLevelUpdateInput = {
     status: data.status,
-    reviewerId,
+    reviewer: { connect: { id: reviewerId } },
     reviewNote: data.reviewNote,
     reviewedAt: new Date(),
   };

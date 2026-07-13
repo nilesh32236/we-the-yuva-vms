@@ -114,7 +114,7 @@ export async function listOpportunities(
   const where: Prisma.OpportunityWhereInput = { status: 'ACTIVE' };
 
   if (filters.category) {
-    where.category = filters.category;
+    where.category = filters.category as Prisma.EnumOpportunityCategoryFilter<'Opportunity'>;
   }
   if (filters.skills && filters.skills.length > 0) {
     where.skills = { hasSome: filters.skills };
