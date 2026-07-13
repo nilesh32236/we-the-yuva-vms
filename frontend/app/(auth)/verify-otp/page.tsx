@@ -75,15 +75,6 @@ function VerifyOtpContent() {
       setNavHandled(true);
       if (!authUser.consent) {
         router.replace('/consent');
-      } else if (authUser.role === 'VOLUNTEER' && !authUser.profile) {
-        router.replace('/setup-profile');
-      } else if (
-        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
-          authUser.role
-        ) &&
-        !authUser.locationId
-      ) {
-        router.replace('/setup-profile');
       } else {
         router.replace(ROLE_ROUTES[authUser.role] ?? '/login');
       }

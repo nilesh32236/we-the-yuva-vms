@@ -205,15 +205,6 @@ export default function RegisterPage() {
       if (user) {
         if (!user.consent) {
           router.replace('/consent');
-        } else if (user.role === 'VOLUNTEER' && !user.profile) {
-          router.replace('/setup-profile');
-        } else if (
-          ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
-            user.role
-          ) &&
-          !user.locationId
-        ) {
-          router.replace('/setup-profile');
         } else {
           const route = ROLE_ROUTES[user.role] ?? '/login';
           router.replace(route);
