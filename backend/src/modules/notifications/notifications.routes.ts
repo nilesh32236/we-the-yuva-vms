@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import {
   NotificationPreferenceSchema,
   PushSubscriptionSchema,
@@ -6,6 +7,12 @@ import {
 } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
+
+const TestPushSchema = z.object({
+  title: z.string().max(100).optional(),
+  body: z.string().max(500).optional(),
+  link: z.string().max(500).optional(),
+});
 import {
   deleteNotificationHandler,
   getNotificationHandler,
@@ -133,7 +140,7 @@ notificationsRouter.put(
  *       200:
  *         description: Test push sent
  */
-notificationsRouter.post('/test-push', requireAuth, sendTestPushHandler);
+notificationsRouter.post('/test-push', requireAuth, validate(TestPushSchema), sendTestPushHandler);
 
 // IMPORTANT: /read-all must be registered BEFORE /:id routes to avoid Express capturing "read-all" as an :id
 /**

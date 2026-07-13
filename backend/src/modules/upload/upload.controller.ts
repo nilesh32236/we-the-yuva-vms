@@ -12,7 +12,7 @@ export async function uploadFileHandler(
       return;
     }
     const url = await processUpload(req.file);
-    const fullUrl = url.startsWith('http') ? url : `${req.protocol}://${req.get('host')}${url}`;
+    const fullUrl = url.startsWith('http') ? url : `${req.protocol}://${req.get('host') ?? 'localhost'}${url}`;
     res.status(201).json({ url: fullUrl, filename: req.file.filename });
   } catch (err) {
     next(err);

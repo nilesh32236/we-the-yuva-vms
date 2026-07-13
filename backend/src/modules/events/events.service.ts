@@ -269,7 +269,7 @@ export async function getIcalEvent(eventId: string): Promise<string> {
     location,
     startDate,
     endDate,
-    organizerName: event.opportunity.createdBy.name ?? 'WeTheYuva',
+    organizerName: event.opportunity.createdBy?.name ?? 'WeTheYuva',
   });
 }
 

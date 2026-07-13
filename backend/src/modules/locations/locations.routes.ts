@@ -12,5 +12,5 @@ const CreateLocationSchema = z.object({
 
 export const locationsRouter: IRouter = Router();
 
-locationsRouter.get('/', listLocationsHandler);
+locationsRouter.get('/', requireAuth, listLocationsHandler);
 locationsRouter.post('/', requireAuth, validate(CreateLocationSchema), createLocationHandler);

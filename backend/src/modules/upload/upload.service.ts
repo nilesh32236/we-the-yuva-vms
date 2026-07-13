@@ -3,6 +3,7 @@ import path from 'node:path';
 import multer from 'multer';
 import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
+import { AppError } from '../../middleware/error.middleware';
 
 // TODO: use S3/cloud storage for production - local disk is not persistent
 // HF Spaces has read-only filesystem; use /tmp/uploads or cloud storage
@@ -53,7 +54,7 @@ const fileFilter = (
   );
   const mimeAllowed = ALLOWED_MIMES.has(file.mimetype);
   if (extAllowed && mimeAllowed) return cb(null, true);
-  cb(new Error('Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed'));
+  cb(new AppError('Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed', 400));
 };
 
 export const upload = multer({

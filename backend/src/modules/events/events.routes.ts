@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import {
   AttendanceSchema,
   CheckInSchema,
@@ -33,6 +34,11 @@ import {
   updateEventHandler,
   updateEventSeriesHandler,
 } from './events.controller';
+
+const ApproveAttendanceSchema = z.object({
+  approvedHours: z.number().positive('Hours must be positive').max(24, 'Hours cannot exceed 24'),
+  rating: z.number().min(1, 'Rating must be at least 1').max(5, 'Rating cannot exceed 5'),
+});
 
 // ─── Router: /opportunities/:opportunityId/events ─────────────────
 // Mount at: /api/v1/opportunities/:opportunityId/events
@@ -354,6 +360,7 @@ eventsRouter.post(
   '/:id/attendance/:volunteerId/approve',
   requireAuth,
   requirePermission(Permissions.EVENT_MANAGE),
+  validate(ApproveAttendanceSchema),
   approveAttendanceHandler
 );
 

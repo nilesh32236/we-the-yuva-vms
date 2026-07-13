@@ -24,10 +24,7 @@ export function errorMiddleware(
 ): void {
   if (err instanceof ZodError) {
     const fieldErrors = err.flatten().fieldErrors;
-    const firstError = Object.values(fieldErrors).flat()[0];
-    res.status(422).json({
-      error: firstError ?? 'Validation failed',
-    });
+    res.status(422).json({ errors: fieldErrors });
     return;
   }
 
@@ -150,7 +147,7 @@ export function errorMiddleware(
   if (multerErr.name === 'MulterError') {
     Sentry.captureException(err);
     const messages: Record<string, string> = {
-      LIMIT_FILE_SIZE: 'File too large. Maximum size is 5MB.',
+      LIMIT_FILE_SIZE: 'File too large. Maximum size is 10MB.',
       LIMIT_PART_COUNT: 'Too many files',
       LIMIT_FILE_COUNT: 'Too many files',
       LIMIT_FIELD_KEY: 'Field name too long',

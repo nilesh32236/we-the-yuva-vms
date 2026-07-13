@@ -225,9 +225,9 @@ export async function reviewLevelRequest(
   if (!request) throw new AppError('Request not found', 404);
   if (request.status !== 'PENDING') throw new AppError('Request already reviewed', 400);
 
-  const updateData: Record<string, unknown> = {
+  const updateData: Prisma.UserLevelUpdateInput = {
     status: data.status,
-    reviewerId,
+    reviewer: { connect: { id: reviewerId } },
     reviewNote: data.reviewNote,
     reviewedAt: new Date(),
   };

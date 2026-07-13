@@ -1,4 +1,6 @@
+import type { Prisma } from '@prisma/client';
 import type { OpportunityInput } from '@/shared';
+import { z } from 'zod';
 import { hasSystemRole } from '../../shared/helpers';
 import { onApplicationAccepted } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
@@ -87,20 +89,32 @@ export async function listOpportunities(
 ) {
   const cacheKey = `opportunities:list:${JSON.stringify({ filters, pagination })}`;
 
+  const CachedOpportunitySchema = z.object({
+    data: z.array(z.object({ id: z.string(), title: z.string() }).passthrough()),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+  });
+
   if (redis && !userId) {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      return JSON.parse(cached);
+      try {
+        return CachedOpportunitySchema.parse(JSON.parse(cached));
+      } catch {
+        logger.warn('Cache parse failed for opportunities list, falling back to DB');
+      }
     }
   }
 
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
 
-  const where: Record<string, unknown> = { status: 'ACTIVE' };
+  const where: Prisma.OpportunityWhereInput = { status: 'ACTIVE' };
 
   if (filters.category) {
-    where.category = filters.category;
+    where.category = filters.category as Prisma.EnumOpportunityCategoryFilter<'Opportunity'>;
   }
   if (filters.skills && filters.skills.length > 0) {
     where.skills = { hasSome: filters.skills };
