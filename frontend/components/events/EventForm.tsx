@@ -166,10 +166,13 @@ export function EventForm({
           id="description"
           {...register('description')}
           rows={3}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.description}
+          aria-describedby={errors.description ? 'description-error' : undefined}
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.description && (
-          <p className="text-xs text-brand-error">{errors.description.message as string}</p>
+          <p id="description-error" className="text-xs text-brand-error">{errors.description.message as string}</p>
         )}
       </div>
 
@@ -181,10 +184,13 @@ export function EventForm({
           id="eventDate"
           type="datetime-local"
           {...register('eventDate')}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.eventDate}
+          aria-describedby={errors.eventDate ? 'eventDate-error' : undefined}
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.eventDate ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.eventDate && (
-          <p className="text-xs text-brand-error">{errors.eventDate.message as string}</p>
+          <p id="eventDate-error" className="text-xs text-brand-error">{errors.eventDate.message as string}</p>
         )}
       </div>
 
@@ -203,9 +209,12 @@ export function EventForm({
           min="1"
           placeholder="30"
           {...register('capacity', { valueAsNumber: true })}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.capacity}
+          aria-describedby={errors.capacity ? 'capacity-error' : undefined}
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.capacity ? 'border-brand-error' : 'border-brand-border'}`}
         />
-        {errors.capacity && <p className="text-xs text-brand-error">{errors.capacity.message}</p>}
+        {errors.capacity && <p id="capacity-error" className="text-xs text-brand-error">{errors.capacity.message}</p>}
       </div>
 
       {/* Virtual toggle */}

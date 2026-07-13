@@ -129,7 +129,17 @@ export default function YouthReflectionPage() {
     );
 
   return (
-    <div className="max-w-xl mx-auto py-8 px-4 space-y-8">
+    <form
+      onSubmit={handleSubmit((data) =>
+        mutation.mutate({
+          skillsDeveloped: data.skillsDeveloped,
+          growthAreas: data.growthAreas,
+          confidenceLevel: data.confidenceLevel,
+          impactDescription: data.impactDescription || undefined,
+        })
+      )}
+      className="max-w-xl mx-auto py-8 px-4 space-y-8"
+    >
       {/* Header */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-primary/10 mb-2">
@@ -295,14 +305,7 @@ export default function YouthReflectionPage() {
       </div>
 
       <Button
-        onClick={handleSubmit((data) =>
-          mutation.mutate({
-            skillsDeveloped: data.skillsDeveloped,
-            growthAreas: data.growthAreas,
-            confidenceLevel: data.confidenceLevel,
-            impactDescription: data.impactDescription || undefined,
-          })
-        )}
+        type="submit"
         loading={mutation.isPending}
         disabled={!canSubmit}
         className="w-full"
@@ -310,6 +313,6 @@ export default function YouthReflectionPage() {
         {alreadyReflected ? 'Update Reflection' : 'Submit Reflection'}{' '}
         <ArrowRight className="w-4 h-4 ml-1" />
       </Button>
-    </div>
+    </form>
   );
 }

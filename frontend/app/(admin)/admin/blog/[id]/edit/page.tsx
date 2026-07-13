@@ -84,7 +84,11 @@ export default function EditBlogPostPage() {
   });
 
   const handleSubmit = async (data: CreateBlogPostInput) => {
-    await updateMutation.mutateAsync(data);
+    try {
+      await updateMutation.mutateAsync(data);
+    } catch {
+      // Handled by onError
+    }
   };
 
   if (isLoading) {

@@ -29,7 +29,11 @@ export default function NewBlogPostPage() {
   });
 
   const handleSubmit = async (data: CreateBlogPostInput) => {
-    await createMutation.mutateAsync(data);
+    try {
+      await createMutation.mutateAsync(data);
+    } catch {
+      // Handled by onError
+    }
   };
 
   return (

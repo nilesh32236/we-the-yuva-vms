@@ -90,7 +90,7 @@ export default function ConsentPage() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
         <div>
           <h1 className="font-heading font-bold text-2xl text-brand-text">Before you begin</h1>
           <p className="text-brand-muted text-sm mt-1">Please review and accept our policies</p>
@@ -220,16 +220,16 @@ export default function ConsentPage() {
         </div>
 
         <Button
+          type="submit"
           variant="cta"
           fullWidth
-          onClick={handleSubmit(onSubmit)}
           disabled={isSubmitting}
           loading={isSubmitting}
         >
           Continue
           <ArrowRight className="w-4 h-4" />
         </Button>
-      </div>
+      </form>
     </div>
   );
 }

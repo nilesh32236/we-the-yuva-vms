@@ -379,6 +379,7 @@ function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
+      noValidate
       className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5"
     >
       <h2 className="font-heading font-semibold text-xl text-brand-text">Set up your profile</h2>
