@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import {
   AttendanceSchema,
   CheckInSchema,
@@ -7,6 +8,11 @@ import {
   EventSeriesSchema,
   EventSeriesUpdateSchema,
 } from '@/shared';
+
+const ApproveAttendanceSchema = z.object({
+  approvedHours: z.number().positive('Hours must be positive').max(24, 'Hours cannot exceed 24'),
+  rating: z.number().min(1, 'Rating must be at least 1').max(5, 'Rating cannot exceed 5'),
+});
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -354,6 +360,7 @@ eventsRouter.post(
   '/:id/attendance/:volunteerId/approve',
   requireAuth,
   requirePermission(Permissions.EVENT_MANAGE),
+  validate(ApproveAttendanceSchema),
   approveAttendanceHandler
 );
 

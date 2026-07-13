@@ -17,8 +17,7 @@ export function validate(schema: ZodSchema) {
 
       if (!result.success) {
         const fieldErrors = result.error.flatten().fieldErrors;
-        const firstError = Object.values(fieldErrors).flat()[0];
-        res.status(422).json({ error: firstError ?? 'Validation failed' });
+        res.status(422).json({ errors: fieldErrors });
         return;
       }
 
@@ -33,8 +32,7 @@ export function validate(schema: ZodSchema) {
 
       if (!result.success) {
         const fieldErrors = result.error.flatten().fieldErrors;
-        const firstError = Object.values(fieldErrors).flat()[0];
-        res.status(422).json({ error: firstError ?? 'Validation failed' });
+        res.status(422).json({ errors: fieldErrors });
         return;
       }
 

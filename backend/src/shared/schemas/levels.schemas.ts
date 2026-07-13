@@ -3,9 +3,9 @@ import { z } from 'zod';
 export const CreateLevelRequestSchema = z.object({
   proofUrls: z.array(z.string().url()).optional(),
   videoUrl: z.string().url().optional(),
-  proofData: z.record(z.unknown()).optional(),
+  proofData: z.record(z.unknown()).max(100).optional(),
   notes: z.string().max(1000).optional(),
-  peerEndorsements: z.record(z.unknown()).optional(),
+  peerEndorsements: z.record(z.unknown()).max(100).optional(),
 });
 
 export const ReviewLevelRequestSchema = z.object({

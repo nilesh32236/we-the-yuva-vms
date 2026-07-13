@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { AppError } from '../../middleware/error.middleware';
 import * as service from './chat.service';
 
 export async function getMessagesHandler(req: Request, res: Response, next: NextFunction) {
@@ -14,8 +15,9 @@ export async function getMessagesHandler(req: Request, res: Response, next: Next
 
 export async function sendMessageHandler(req: Request, res: Response, next: NextFunction) {
   try {
+    if (!req.user) return next(new AppError('Unauthorized', 401));
     const { content } = req.body;
-    const message = await service.sendMessage(req.params.opportunityId, req.user!.id, content);
+    const message = await service.sendMessage(req.params.opportunityId, req.user.id, content);
     res.status(201).json(message);
   } catch (err) {
     next(err);

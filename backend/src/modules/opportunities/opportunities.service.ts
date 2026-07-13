@@ -1,4 +1,6 @@
+import type { Prisma } from '@prisma/client';
 import type { OpportunityInput } from '@/shared';
+import { z } from 'zod';
 import { hasSystemRole } from '../../shared/helpers';
 import { onApplicationAccepted } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
@@ -87,17 +89,21 @@ export async function listOpportunities(
 ) {
   const cacheKey = `opportunities:list:${JSON.stringify({ filters, pagination })}`;
 
+  const CachedOpportunitySchema = z.array(
+    z.object({ id: z.string(), title: z.string() }).passthrough()
+  );
+
   if (redis && !userId) {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      return JSON.parse(cached);
+      return CachedOpportunitySchema.parse(JSON.parse(cached));
     }
   }
 
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;
 
-  const where: Record<string, unknown> = { status: 'ACTIVE' };
+  const where: Prisma.OpportunityWhereInput = { status: 'ACTIVE' };
 
   if (filters.category) {
     where.category = filters.category;

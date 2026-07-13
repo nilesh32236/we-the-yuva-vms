@@ -49,7 +49,20 @@ export async function adminGetOpportunityHandler(
   try {
     const opportunity = await prisma.opportunity.findUnique({
       where: { id: req.params.id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        skills: true,
+        category: true,
+        locationId: true,
+        isRemote: true,
+        startDate: true,
+        endDate: true,
+        hoursPerSession: true,
+        totalSlots: true,
+        status: true,
+        createdAt: true,
         createdBy: { select: { name: true, email: true } },
         organization: { select: { name: true, id: true } },
         location: true,

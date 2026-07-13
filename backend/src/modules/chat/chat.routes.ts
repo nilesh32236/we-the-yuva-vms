@@ -12,10 +12,18 @@ const SendMessageSchema = z.object({
   content: z.string().min(1, 'Message cannot be empty').max(2000, 'Message too long'),
 });
 
+const ChatQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  }),
+});
+
 chatRouter.get(
   '/:opportunityId',
   requireAuth,
   requirePermission(Permissions.CHAT_READ),
+  validate(ChatQuerySchema),
   getMessagesHandler
 );
 

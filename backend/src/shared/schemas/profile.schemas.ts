@@ -35,10 +35,10 @@ export const VolunteerProfileSchema = z.object({
 
 export const StaffProfileSchema = z.object({
   locationName: z.string().min(1, 'Location name is required').max(100, 'Location name too long'),
-  district: z.string().max(100, 'District name too long').optional(),
-  state: z.string().max(100, 'State name too long').optional(),
-  department: z.string().max(100, 'Department name too long').optional(),
-  designation: z.string().max(100, 'Designation too long').optional(),
+  district: z.string().min(1, 'District is required').max(100, 'District name too long').optional(),
+  state: z.string().min(1, 'State is required').max(100, 'State name too long').optional(),
+  department: z.string().min(1, 'Department is required').max(100, 'Department name too long').optional(),
+  designation: z.string().min(1, 'Designation is required').max(100, 'Designation too long').optional(),
 });
 
 export const UpdateMeSchema = z.object({
@@ -52,7 +52,7 @@ export const MISSING_FIELD_KEYS = ['skills', 'interests', 'volunteerType', 'avai
 export const ProfileStatusSchema = z.object({
   isComplete: z.boolean(),
   missingFields: z.array(z.enum(MISSING_FIELD_KEYS)),
-  completionPercentage: z.number().min(0).max(100),
+  completionPercentage: z.number().int().min(0).max(100),
 });
 
 export type ProfileStatus = z.infer<typeof ProfileStatusSchema>;

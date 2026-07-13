@@ -1,3 +1,4 @@
+import { AppError } from '../../middleware/error.middleware';
 import { prisma } from '../../lib/prisma';
 import { awardPoints } from './badge-engine.service';
 
@@ -55,6 +56,11 @@ export async function listPendingApprovals() {
 }
 
 export async function approveBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
+  const existing = await prisma.badgeApproval.findUnique({
+    where: { userId_badgeId: { userId, badgeId } },
+  });
+  if (!existing) throw new AppError('Approval request not found', 404);
+
   return prisma.$transaction(async () => {
     const approval = await prisma.badgeApproval.update({
       where: { userId_badgeId: { userId, badgeId } },
@@ -72,6 +78,11 @@ export async function approveBadge(userId: string, badgeId: string, reviewedBy: 
 }
 
 export async function rejectBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
+  const existing = await prisma.badgeApproval.findUnique({
+    where: { userId_badgeId: { userId, badgeId } },
+  });
+  if (!existing) throw new AppError('Approval request not found', 404);
+
   return prisma.badgeApproval.update({
     where: { userId_badgeId: { userId, badgeId } },
     data: { status: 'REJECTED', reviewedAt: new Date(), reviewedBy, reviewNote },

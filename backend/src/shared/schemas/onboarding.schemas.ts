@@ -37,7 +37,7 @@ export const SocialLinksSchema = z.object({
 
 export const OnboardingSchema = z.object({
   step1: z.object({
-    skills: z.array(z.string()).min(1, 'Select at least one skill'),
+    skills: z.array(z.string().max(100)).min(1, 'Select at least one skill'),
     expertise: z.array(z.enum(EXPERTISE_OPTIONS)).default([]),
     languages: z.array(z.enum(LANGUAGES)).default([]),
   }),
@@ -56,7 +56,7 @@ export const OnboardingSchema = z.object({
     education: z.string().min(1, 'Education is required').max(200),
     occupation: z.string().min(1, 'Occupation is required').max(200),
     experience: z.string().min(1, 'Experience is required').max(500),
-    certifications: z.array(z.string()).default([]),
+    certifications: z.array(z.string().max(100)).max(20).default([]),
   }),
   step5: z.object({
     bio: z.string().max(300, 'Bio must be 300 characters or less'),

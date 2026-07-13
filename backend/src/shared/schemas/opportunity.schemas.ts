@@ -69,7 +69,7 @@ export const EventSchema = z
     path: ['endTime'],
   });
 
-export const ApplySchema = z.object({}).optional();
+export const ApplySchema = z.object({}).strict().optional();
 
 export const ApplicationStatusSchema = z.object({
   status: z.enum(['ACCEPTED', 'REJECTED']),

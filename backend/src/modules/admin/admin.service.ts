@@ -1,4 +1,5 @@
 import type { User } from '@prisma/client';
+import { z } from 'zod';
 import { logAudit } from '../../lib/audit';
 import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
@@ -152,7 +153,7 @@ export async function updateUser(
     where: { id },
     data: {
       ...(data.status && {
-        status: data.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'INACTIVE',
+        status: z.enum(['ACTIVE', 'PENDING', 'SUSPENDED', 'INACTIVE']).parse(data.status),
       }),
       ...(updateRoleId && { roleId: updateRoleId }),
     },
