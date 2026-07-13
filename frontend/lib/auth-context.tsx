@@ -63,9 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       return freshUser;
-    } catch {
-      setUser(null);
-      return null;
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +70,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isPublicRoute(pathname)) {
-      setUser(null);
       setIsLoading(false);
       return;
     }

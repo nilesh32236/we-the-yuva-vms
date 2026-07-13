@@ -1,9 +1,6 @@
 'use client';
 
-import { useAuth } from '@/lib/auth-context';
-import { ROLE_ROUTES } from '@/lib/shared/permissions';
-import { redirect } from 'next/navigation';
-import { useEffect } from 'react';
+import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
 import { BottomNav } from '../../components/layout/BottomNav';
 import type { NavItem } from '../../components/layout/Sidebar';
 import { Sidebar } from '../../components/layout/Sidebar';
@@ -25,39 +22,22 @@ const navItems: NavItem[] = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      redirect('/login');
-    }
-    if (!isLoading && user && user.role !== 'ADMIN' && user.role !== 'PLATFORM_MANAGER') {
-      redirect(ROLE_ROUTES[user.role] ?? '/login');
-    }
-  }, [user, isLoading]);
-
-  if (isLoading || !user || (user.role !== 'ADMIN' && user.role !== 'PLATFORM_MANAGER')) {
-    return (
-      <div className="flex items-center justify-center h-dvh">
-        <div className="w-8 h-8 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="h-dvh bg-brand-bg flex flex-col overflow-hidden">
-      <TopNav />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar navItems={navItems} />
-        <main
-          id="main"
-          className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6"
-          data-scroll
-        >
-          {children}
-        </main>
+    <ProtectedRoute allowedRoles={['ADMIN', 'PLATFORM_MANAGER']}>
+      <div className="h-dvh bg-brand-bg flex flex-col overflow-hidden">
+        <TopNav />
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar navItems={navItems} />
+          <main
+            id="main"
+            className="flex-1 overflow-y-auto p-4 md:p-6 pb-nav-safe md:pb-6"
+            data-scroll
+          >
+            {children}
+          </main>
+        </div>
+        <BottomNav navItems={navItems} />
       </div>
-      <BottomNav navItems={navItems} />
-    </div>
+    </ProtectedRoute>
   );
 }
