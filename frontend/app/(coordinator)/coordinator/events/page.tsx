@@ -186,7 +186,7 @@ export default function CoordinatorEventsPage() {
                               type="button"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               disabled={cancelling === ev.id}
-                              className="p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
+                              className="p-3 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer active-bounce"
                               title="Cancel event"
                               aria-label="Cancel event"
                             >
