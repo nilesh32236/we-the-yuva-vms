@@ -9,7 +9,7 @@ const LeaderboardQuerySchema = z.object({
     scope: z.enum(['global', 'location']).optional(),
     timeframe: z.enum(['weekly', 'monthly', 'alltime']).optional(),
     sortBy: z.enum(['points', 'hours']).optional(),
-    locationId: z.string().optional(),
+    locationId: z.string().min(1).optional(),
   }),
 });
 

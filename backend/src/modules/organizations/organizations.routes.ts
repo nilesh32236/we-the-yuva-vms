@@ -24,7 +24,7 @@ const UpdateOrganizationSchema = z.object({
   phone: z.string().min(10).max(15).optional(),
   email: z.string().email().optional().or(z.literal('')),
   website: z.string().url().optional().or(z.literal('')),
-  isVerified: z.boolean().optional(),
+  // isVerified is intentionally excluded — handled via a separate admin-only endpoint
 });
 
 const CoordinatorInviteSchema = z.object({

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const AddressSchema = z.object({
-  street: z.string().max(255).optional(),
+  street: z.string().min(1, 'Street cannot be empty').max(255).optional(),
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
   pincode: z.string().optional(),

@@ -24,10 +24,7 @@ export function errorMiddleware(
 ): void {
   if (err instanceof ZodError) {
     const fieldErrors = err.flatten().fieldErrors;
-    const firstError = Object.values(fieldErrors).flat()[0];
-    res.status(422).json({
-      error: firstError ?? 'Validation failed',
-    });
+    res.status(422).json({ errors: fieldErrors });
     return;
   }
 

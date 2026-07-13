@@ -89,14 +89,22 @@ export async function listOpportunities(
 ) {
   const cacheKey = `opportunities:list:${JSON.stringify({ filters, pagination })}`;
 
-  const CachedOpportunitySchema = z.array(
-    z.object({ id: z.string(), title: z.string() }).passthrough()
-  );
+  const CachedOpportunitySchema = z.object({
+    data: z.array(z.object({ id: z.string(), title: z.string() }).passthrough()),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+  });
 
   if (redis && !userId) {
     const cached = await redis.get(cacheKey);
     if (cached) {
-      return CachedOpportunitySchema.parse(JSON.parse(cached));
+      try {
+        return CachedOpportunitySchema.parse(JSON.parse(cached));
+      } catch {
+        logger.warn('Cache parse failed for opportunities list, falling back to DB');
+      }
     }
   }
 

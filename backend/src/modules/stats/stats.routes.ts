@@ -1,8 +1,6 @@
 import { type IRouter, Router } from 'express';
-import { z } from 'zod';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
-import { validate } from '../../middleware/validate.middleware';
 import { Permissions } from '../../shared/permissions';
 import {
   coordinatorStatsHandler,
@@ -28,7 +26,6 @@ statsRouter.get(
   '/volunteer',
   requireAuth,
   requirePermission(Permissions.STATS_VIEW_OWN),
-  validate(z.object({})),
   volunteerStatsHandler
 );
 
@@ -47,7 +44,6 @@ statsRouter.get(
   '/volunteer/impact',
   requireAuth,
   requirePermission(Permissions.STATS_VIEW_OWN),
-  validate(z.object({})),
   volunteerImpactHandler
 );
 
@@ -66,7 +62,6 @@ statsRouter.get(
   '/coordinator',
   requireAuth,
   requirePermission(Permissions.STATS_VIEW_OWN),
-  validate(z.object({})),
   coordinatorStatsHandler
 );
 
@@ -85,6 +80,5 @@ statsRouter.get(
   '/observer',
   requireAuth,
   requirePermission(Permissions.STATS_VIEW_OBSERVER),
-  validate(z.object({})),
   observerStatsHandler
 );
