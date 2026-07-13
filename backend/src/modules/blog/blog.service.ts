@@ -81,7 +81,7 @@ export async function getPostBySlug(slug: string) {
 
 export async function getPostById(id: string) {
   const post = await prisma.blogPost.findUnique({
-    where: { id },
+    where: { id, status: 'PUBLISHED' },
     include: { author: { select: { name: true } } },
   });
   if (!post) throw new AppError('Post not found', 404);

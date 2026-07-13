@@ -21,7 +21,7 @@ export async function listPublishedHandler(req: Request, res: Response, next: Ne
   }
 }
 
-export async function getPublishedBySlugHandler(req: Request, res: Response, next: NextFunction) {
+export async function getPublishedByParamHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const param = req.params.param;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param);

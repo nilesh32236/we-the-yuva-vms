@@ -1,6 +1,7 @@
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
+import { invalidateCache } from '../leaderboard/leaderboard.service';
 
 type BadgeCriteria =
   | { type: 'ONBOARDING_COMPLETE' }
@@ -33,6 +34,7 @@ export async function awardPoints(
       data: { points: { increment: amount } },
     }),
   ]);
+  invalidateCache();
 }
 
 interface BatchData {

@@ -9,7 +9,7 @@ import {
   archiveHandler,
   createHandler,
   deleteHandler,
-  getPublishedBySlugHandler,
+  getPublishedByParamHandler,
   listAllHandler,
   listPublishedHandler,
   publishHandler,
@@ -27,7 +27,7 @@ blogRouter.get(
 );
 
 // Single param route handles both slug and ID lookups
-blogRouter.get('/:param', getPublishedBySlugHandler);
+blogRouter.get('/:param', getPublishedByParamHandler);
 blogRouter.post(
   '/',
   requireAuth,

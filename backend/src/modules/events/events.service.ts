@@ -3,6 +3,7 @@ import type { RecurrenceFrequency } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import type { EventInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
+import { invalidateCache } from '../leaderboard/leaderboard.service';
 import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
 import { sendEmail } from '../../lib/email';
@@ -481,6 +482,7 @@ export async function markAttendance(
     prisma.attendance.count({ where: { eventId, attended: true } }),
   ]);
 
+  invalidateCache();
   return txResults[txResults.length - 1] as number;
 }
 
@@ -610,6 +612,8 @@ export async function approveAttendance(
 
     return updated;
   });
+
+  invalidateCache();
 
   if (notificationsQueue) {
     await notificationsQueue
