@@ -781,7 +781,7 @@ if (redis && notificationsQueue) {
           );
         }
 
-        logger.info('Account suspended email sent', { email, jobId: job.id });
+        logger.info('Account suspended email sent', { email: email.substring(0, 3) + '***', jobId: job.id });
       }
 
       if (job.name === 'match-alert-subscriptions') {

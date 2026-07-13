@@ -152,7 +152,7 @@ export async function exportVolunteersHandler(
       'name,email,type,skills,totalHours,applicationCount',
       ...rows.map(
         (r) =>
-          `"${sanitizeCsvCell(r.name)}","${sanitizeCsvCell(r.email)}","${sanitizeCsvCell(r.type)}","${sanitizeCsvCell(r.skills.join(';'))}",${r.totalHours},${r.applicationCount}`
+          `"${sanitizeCsvCell(r.name)}","${sanitizeCsvCell(r.email)}","${sanitizeCsvCell(r.type)}","${sanitizeCsvCell(r.skills.join(';'))}","${r.totalHours}","${r.applicationCount}"`
       ),
     ].join('\n');
     res.send(csv);

@@ -215,16 +215,20 @@ export async function listPendingRequests(search?: string, page = 1, limit = 20)
       }
     : { status: 'PENDING' as const };
   const skip = (page - 1) * limit;
-  return prisma.userLevel.findMany({
-    where,
-    skip,
-    take: limit,
-    include: {
-      user: { select: { id: true, name: true, currentLevel: true } },
-      level: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const [data, total] = await Promise.all([
+    prisma.userLevel.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        user: { select: { id: true, name: true, currentLevel: true } },
+        level: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.userLevel.count({ where }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function reviewLevelRequest(

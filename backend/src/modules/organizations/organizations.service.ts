@@ -366,19 +366,22 @@ export async function listCoordinators(orgId: string, page = 1, limit = 20) {
     organizationId: orgId,
     roleRef: { name: 'COORDINATOR' },
   };
-  const data = await prisma.user.findMany({
-    where,
-    skip,
-    take: limit,
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      status: true,
-      createdAt: true,
-    },
-  });
-  return data;
+  const [data, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        createdAt: true,
+      },
+    }),
+    prisma.user.count({ where }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function getPublicOrganizationBySlug(slug: string) {

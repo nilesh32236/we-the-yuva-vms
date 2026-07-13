@@ -581,17 +581,22 @@ export async function approveAttendance(
   if (!attendance.checkedInAt) throw new AppError('Volunteer has not checked in', 400);
   if (attendance.approvedAt) throw new AppError('Hours already approved', 400);
 
-  const rawHours = attendance.checkedOutAt
-    ? Math.min(
-        Math.max(
-          0,
-          (attendance.checkedOutAt.getTime() - attendance.checkedInAt.getTime()) / 3_600_000
-        ),
-        16
-      )
-    : 0;
-
   const result = await prisma.$transaction(async (tx) => {
+    const current = await tx.attendance.findUnique({
+      where: { eventId_volunteerId: { eventId, volunteerId } },
+    });
+    if (!current) throw new AppError('Attendance record not found', 404);
+
+    const rawHours = current.checkedOutAt
+      ? Math.min(
+          Math.max(
+            0,
+            (current.checkedOutAt.getTime() - current.checkedInAt!.getTime()) / 3_600_000
+          ),
+          16
+        )
+      : 0;
+
     const updated = await tx.attendance.update({
       where: { eventId_volunteerId: { eventId, volunteerId } },
       data: {
@@ -961,6 +966,7 @@ export async function updateEventSeries(
   if (data.capacity !== undefined) updateData.capacity = data.capacity;
   if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
   if (data.maxOccurrences !== undefined) updateData.maxOccurrences = data.maxOccurrences;
+  if (data.firstEventDate !== undefined) updateData.startDate = new Date(data.firstEventDate);
   if (data.isActive !== undefined) updateData.isActive = data.isActive;
   if (data.customRule !== undefined) updateData.customRule = data.customRule ?? Prisma.DbNull;
 

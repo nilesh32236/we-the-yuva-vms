@@ -67,19 +67,19 @@ export async function listPendingApprovals() {
 }
 
 export async function approveBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
-  return prisma.$transaction(async () => {
-    const existing = await prisma.badgeApproval.findUnique({
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.badgeApproval.findUnique({
       where: { userId_badgeId: { userId, badgeId } },
     });
     if (!existing) throw new AppError('Approval request not found', 404);
     if (existing.status !== 'PENDING') throw new AppError('Approval request is not pending', 400);
 
-    const approval = await prisma.badgeApproval.update({
+    const approval = await tx.badgeApproval.update({
       where: { userId_badgeId: { userId, badgeId } },
       data: { status: 'APPROVED', reviewedAt: new Date(), reviewedBy, reviewNote },
     });
 
-    await prisma.userBadge.create({
+    await tx.userBadge.create({
       data: { userId, badgeId },
     });
 

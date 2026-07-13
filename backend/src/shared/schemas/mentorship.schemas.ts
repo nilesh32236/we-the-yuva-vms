@@ -6,7 +6,7 @@ export const CreateMentorshipSchema = z.object({
 });
 
 export const ReviewMentorshipSchema = z.object({
-  status: z.enum(['ACTIVE', 'COMPLETED', 'REJECTED']),
+  status: z.enum(['ACTIVE', 'COMPLETED']),
 });
 
 export type CreateMentorshipInput = z.infer<typeof CreateMentorshipSchema>;

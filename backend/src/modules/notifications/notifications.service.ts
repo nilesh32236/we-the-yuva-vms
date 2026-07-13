@@ -130,9 +130,11 @@ export async function getNotification(userId: string, notificationId: string) {
 }
 
 export async function deleteNotification(userId: string, notificationId: string) {
-  const existing = await prisma.notification.findFirst({ where: { id: notificationId, userId } });
-  if (!existing) throw new AppError('Notification not found', 404);
-  return prisma.notification.delete({ where: { id: notificationId } });
+  const { count } = await prisma.notification.deleteMany({
+    where: { id: notificationId, userId },
+  });
+  if (count === 0) throw new AppError('Notification not found', 404);
+  return { id: notificationId };
 }
 
 export async function markRead(userId: string, notificationId: string) {

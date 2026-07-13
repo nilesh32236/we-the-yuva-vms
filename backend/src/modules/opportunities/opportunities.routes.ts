@@ -1,5 +1,5 @@
 import { type IRouter, Router } from 'express';
-import { ApplicationStatusSchema, ApplySchema, OpportunitySchema } from '@/shared';
+import { ApplicationStatusSchema, ApplySchema, OpportunitySchema, UpdateOpportunitySchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -87,7 +87,7 @@ opportunitiesRouter.put(
   '/:id',
   requireAuth,
   requirePermission(Permissions.OPPORTUNITY_EDIT),
-  validate(OpportunitySchema),
+  validate(UpdateOpportunitySchema),
   updateOpportunityHandler
 );
 

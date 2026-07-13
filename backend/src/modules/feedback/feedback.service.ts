@@ -102,15 +102,8 @@ export async function getEventFeedback(
 ) {
   await assertEventAccess(eventId, callerId, callerRole, callerOrgId);
 
-  if (!pagination) {
-    return prisma.eventFeedback.findMany({
-      where: { eventId },
-      take: 100,
-      orderBy: { createdAt: 'desc' },
-      include: { volunteer: { select: { name: true } } },
-    });
-  }
-  const { page, limit } = pagination;
+  const page = pagination?.page ?? 1;
+  const limit = pagination?.limit ?? 100;
   const skip = (page - 1) * limit;
   const [data, total] = await Promise.all([
     prisma.eventFeedback.findMany({

@@ -96,7 +96,7 @@ export async function checkAndAwardBadges(userId: string) {
 
   const eligibleBadges = allBadges.filter((b) => !earnedBadgeIds.has(b.id) && !pendingApprovalBadgeIds.has(b.id));
   const batchData = await getBatchData(userId);
-  const criteriaResults = eligibleBadges.map((badge) => evaluateCriteria(batchData, badge.criteria as BadgeCriteria));
+  const criteriaResults = await Promise.all(eligibleBadges.map((badge) => evaluateCriteria(batchData, badge.criteria as BadgeCriteria)));
 
   const awardOps: Promise<unknown>[] = [];
   for (let i = 0; i < eligibleBadges.length; i++) {
@@ -139,7 +139,7 @@ export async function checkAndAwardBadges(userId: string) {
     }
   }
 
-  return eligibleBadges.filter((_, i) => criteriaResults[i]);
+  return eligibleBadges.filter((_, i) => criteriaResults[i] === true);
 }
 
 async function evaluateCriteria(data: BatchData, criteria: BadgeCriteria): Promise<boolean> {

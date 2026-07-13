@@ -26,7 +26,7 @@ export async function createLocationHandler(
   try {
     const { name, district, state } = req.body;
 
-    const existing = await prisma.location.findUnique({ where: { name } });
+    const existing = await prisma.location.findFirst({ where: { name } });
     if (existing) {
       throw new AppError('Location with this name already exists', 409);
     }

@@ -111,7 +111,8 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
       // Construct direct URL (S3 standard structure or custom S3 endpoint mapping)
       const endpoint = process.env.S3_ENDPOINT || 'https://s3.hf.co';
       const namespace = process.env.S3_NAMESPACE;
-      if (endpoint.includes('s3.hf.co') && namespace) {
+      const provider = process.env.S3_PROVIDER;
+      if (provider === 'hf' && namespace) {
         return `https://huggingface.co/api/buckets/${namespace}/${process.env.S3_BUCKET_NAME}/${file.filename}`;
       }
       return `${endpoint}/${process.env.S3_BUCKET_NAME}/${file.filename}`;
