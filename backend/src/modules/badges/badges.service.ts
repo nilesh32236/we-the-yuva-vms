@@ -1,6 +1,6 @@
 import { AppError } from '../../middleware/error.middleware';
 import { prisma } from '../../lib/prisma';
-import { awardPoints } from './badge-engine.service';
+import { invalidateCache as invalidateBadgeCache } from '../leaderboard/leaderboard.service';
 
 export async function listBadges() {
   return prisma.badge.findMany({
@@ -67,7 +67,7 @@ export async function listPendingApprovals() {
 }
 
 export async function approveBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const existing = await tx.badgeApproval.findUnique({
       where: { userId_badgeId: { userId, badgeId } },
     });
@@ -83,20 +83,31 @@ export async function approveBadge(userId: string, badgeId: string, reviewedBy: 
       data: { userId, badgeId },
     });
 
-    await awardPoints(userId, 50, `BADGE_APPROVED_${badgeId}`, badgeId);
+    await tx.pointTransaction.create({
+      data: { userId, amount: 50, reason: `BADGE_APPROVED_${badgeId}`, reference: badgeId },
+    });
+    await tx.user.update({
+      where: { id: userId },
+      data: { points: { increment: 50 } },
+    });
 
     return approval;
   });
+  invalidateBadgeCache();
+  return result;
 }
 
 export async function rejectBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
-  const existing = await prisma.badgeApproval.findUnique({
-    where: { userId_badgeId: { userId, badgeId } },
-  });
-  if (!existing) throw new AppError('Approval request not found', 404);
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.badgeApproval.findUnique({
+      where: { userId_badgeId: { userId, badgeId } },
+    });
+    if (!existing) throw new AppError('Approval request not found', 404);
+    if (existing.status !== 'PENDING') throw new AppError('Approval request is not pending', 400);
 
-  return prisma.badgeApproval.update({
-    where: { userId_badgeId: { userId, badgeId } },
-    data: { status: 'REJECTED', reviewedAt: new Date(), reviewedBy, reviewNote },
+    return tx.badgeApproval.update({
+      where: { userId_badgeId: { userId, badgeId } },
+      data: { status: 'REJECTED', reviewedAt: new Date(), reviewedBy, reviewNote },
+    });
   });
 }

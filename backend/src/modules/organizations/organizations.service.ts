@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import slugify from 'slugify';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
@@ -36,12 +37,13 @@ export interface UpdateOrgInput {
   logo?: string;
 }
 
-async function generateUniqueSlug(name: string): Promise<string> {
+async function generateUniqueSlug(name: string, client?: Prisma.TransactionClient): Promise<string> {
   const base = slugify(name, { lower: true, strict: true });
   let slug = base;
   let counter = 1;
   const MAX_RETRIES = 100;
-  while (await prisma.organization.findUnique({ where: { slug } })) {
+  const db = client ?? prisma;
+  while (await db.organization.findUnique({ where: { slug } })) {
     if (counter > MAX_RETRIES) {
       throw new AppError('Unable to generate unique slug after maximum retries', 500);
     }
@@ -78,7 +80,7 @@ export async function registerOrganization(adminUserId: string, data: RegisterOr
       throw new AppError('Organization with this name already exists', 409);
     }
 
-    const slug = data.slug ?? await generateUniqueSlug(data.name);
+    const slug = data.slug ?? await generateUniqueSlug(data.name, tx);
 
     const org = await tx.organization.create({
       data: {

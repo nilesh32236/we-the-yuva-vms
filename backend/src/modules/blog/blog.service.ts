@@ -107,7 +107,19 @@ export async function updatePost(
 
   const updateData: Record<string, unknown> = { ...data };
   if (data.title) {
-    updateData.slug = await generateUniqueSlug(data.title);
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      updateData.slug = await generateUniqueSlug(data.title);
+      try {
+        const updated = await prisma.blogPost.update({ where: { id }, data: updateData });
+        await logAudit({ userId, action: 'BLOG_UPDATE', targetId: id, targetType: 'BlogPost' });
+        return updated;
+      } catch (err: unknown) {
+        if ((err as { code?: string })?.code !== 'P2002' || attempt === maxRetries - 1) {
+          throw err;
+        }
+      }
+    }
   }
 
   const updated = await prisma.blogPost.update({ where: { id }, data: updateData });

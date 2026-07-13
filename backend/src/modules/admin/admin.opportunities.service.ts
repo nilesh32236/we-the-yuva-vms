@@ -1,9 +1,10 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma';
 
 export async function listOpportunities(page: number, limit: number, search?: string) {
   const skip = (page - 1) * limit;
 
-  const where: Record<string, unknown> = {};
+  const where: Prisma.OpportunityWhereInput = {};
   if (search) {
     where.OR = [
       { title: { contains: search, mode: 'insensitive' } },

@@ -586,12 +586,13 @@ export async function approveAttendance(
       where: { eventId_volunteerId: { eventId, volunteerId } },
     });
     if (!current) throw new AppError('Attendance record not found', 404);
+    if (!current.checkedInAt) throw new AppError('Volunteer has not checked in', 400);
 
     const rawHours = current.checkedOutAt
       ? Math.min(
           Math.max(
             0,
-            (current.checkedOutAt.getTime() - current.checkedInAt!.getTime()) / 3_600_000
+            (current.checkedOutAt.getTime() - current.checkedInAt.getTime()) / 3_600_000
           ),
           16
         )

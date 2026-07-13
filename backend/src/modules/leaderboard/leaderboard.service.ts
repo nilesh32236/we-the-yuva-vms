@@ -91,7 +91,6 @@ export async function getLeaderboard(params: {
     select: {
       id: true,
       name: true,
-      email: true,
       points: true,
       currentLevel: { select: { name: true, badgeIcon: true, color: true } },
       location: { select: { name: true, district: true } },
@@ -113,7 +112,6 @@ export async function getLeaderboard(params: {
     rank: i + 1,
     id: u.id,
     name: u.name,
-    email: u.email,
     points: u.points,
     hours: u.profile?.totalHours ?? 0,
     level: u.currentLevel,

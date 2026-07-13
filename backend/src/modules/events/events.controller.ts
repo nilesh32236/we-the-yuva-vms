@@ -1,7 +1,4 @@
 import type { NextFunction, Request, Response } from 'express';
-import { AppError } from '../../middleware/error.middleware';
-import { prisma } from '../../lib/prisma';
-import { hasSystemRole } from '../../shared/helpers';
 import {
   approveAttendance,
   cancelEvent,

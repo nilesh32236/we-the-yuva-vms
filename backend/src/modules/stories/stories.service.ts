@@ -42,12 +42,12 @@ function decodeEntities(value: string): string {
 }
 
 function stripHtml(value: string): string {
-  const stripped = value
+  const decoded = decodeEntities(value);
+  return decoded
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
     .replace(/<[^>]*>/g, '')
     .replace(/[<>\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
     .trim();
-  return decodeEntities(stripped);
 }
 
 export async function createStory(
