@@ -11,6 +11,7 @@ import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../lib/api';
+import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 const PRIVACY_POLICY_TEXT = `
 WeTheYuva Volunteer Management System — Privacy Policy
@@ -65,7 +66,7 @@ export default function ConsentPage() {
         privacyPolicyAccepted: true,
         mediaConsentAccepted: data.mediaConsentAccepted,
       });
-      router.push('/setup-profile');
+      router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
     } catch (error) {
       const axiosError = error as {
         response?: { status?: number; data?: { error?: string; message?: string } };
@@ -73,7 +74,7 @@ export default function ConsentPage() {
       const status = axiosError?.response?.status;
       if (status === 409) {
         // Already consented — move on
-        router.push('/setup-profile');
+        router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
       } else {
         const message =
           axiosError?.response?.data?.error ??

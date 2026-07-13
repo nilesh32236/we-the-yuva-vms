@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isLoading || !user) return;
 
     const isPublic = isPublicRoute(pathname);
-    const isOnboarding = ['/consent', '/setup-profile'].includes(pathname);
+    const isOnboarding = ONBOARDING_ROUTES.includes(pathname);
 
     if (!isPublic && !isOnboarding) {
       if (!user.consent) {
