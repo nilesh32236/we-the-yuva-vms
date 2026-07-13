@@ -627,7 +627,7 @@ export async function approveAttendance(
         eventTitle: event.title,
         eventId,
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue attendance confirmation notification', { error: (err as Error).message }));
   }
 
   return result;

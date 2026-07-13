@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
 import { logAudit } from '../../lib/audit';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import {
@@ -91,7 +92,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       action: 'USER_CREATE',
       targetId: user.id,
       targetType: 'User',
-    }).catch(() => {});
+    }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
 
     res
       .status(201)
@@ -118,7 +119,7 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
 
     const otp = await generateAndStoreOtp(email);
     await enqueueOtpEmail(email, otp);
-    logAudit({ userId: user.id, action: 'OTP_SENT' }).catch(() => {});
+    logAudit({ userId: user.id, action: 'OTP_SENT' }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
 
     // TEMPORARY: return OTP for testing until SMTP is configured
     if (process.env.NODE_ENV !== 'production') {

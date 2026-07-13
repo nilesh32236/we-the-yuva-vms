@@ -204,7 +204,7 @@ export async function cancelLevelRequest(requestId: string, userId: string) {
   const request = await prisma.userLevel.findUnique({ where: { id: requestId } });
   if (!request || request.userId !== userId) throw new AppError('Request not found', 404);
   if (request.status !== 'PENDING') throw new AppError('Can only cancel pending requests', 400);
-  return prisma.userLevel.delete({ where: { id: requestId } });
+  return prisma.userLevel.update({ where: { id: requestId }, data: { status: 'CANCELLED' } });
 }
 
 export async function listPendingRequests(search?: string, page = 1, limit = 20) {
