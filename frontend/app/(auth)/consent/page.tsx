@@ -40,7 +40,7 @@ For privacy-related queries, contact us at privacy@wetheyuva.org
 export default function ConsentPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading, refetch } = useAuth();
 
   const {
     control,
@@ -61,12 +61,14 @@ export default function ConsentPage() {
   }, [user, isAuthLoading, router]);
 
   const onSubmit = async (data: ConsentInput) => {
+    const role = user?.role;
     try {
       await api.post('/auth/consent', {
         privacyPolicyAccepted: true,
         mediaConsentAccepted: data.mediaConsentAccepted,
       });
-      router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
+      await refetch();
+      router.push(ROLE_ROUTES[role ?? ''] ?? '/login');
     } catch (error) {
       const axiosError = error as {
         response?: { status?: number; data?: { error?: string; message?: string } };
@@ -74,7 +76,8 @@ export default function ConsentPage() {
       const status = axiosError?.response?.status;
       if (status === 409) {
         // Already consented — move on
-        router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
+        await refetch();
+        router.push(ROLE_ROUTES[role ?? ''] ?? '/login');
       } else {
         const message =
           axiosError?.response?.data?.error ??
