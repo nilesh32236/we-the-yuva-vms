@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
@@ -45,11 +45,20 @@ export function OpportunityForm({
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<OpportunityInput>({
     resolver: zodResolver(OpportunitySchema),
     defaultValues: { isRemote: false, skills: [], ...defaultValues },
   });
+
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!mounted.current) {
+      reset(defaultValues);
+      mounted.current = true;
+    }
+  }, [reset, defaultValues]);
 
   const [skillInput, setSkillInput] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
@@ -89,12 +98,19 @@ export function OpportunityForm({
       </label>
       <input
         id={id}
+        disabled={isSubmitting}
+        aria-invalid={!!errors[id]}
+        aria-describedby={errors[id] ? `${id}-error` : undefined}
         {...register(id)}
         {...extra}
         className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary
           ${errors[id] ? 'border-brand-error' : 'border-brand-border'}`}
       />
-      {errors[id] && <p className="text-xs text-brand-error">{errors[id]?.message as string}</p>}
+      {errors[id] && (
+        <p id={`${id}-error`} className="text-xs text-brand-error">
+          {errors[id]?.message as string}
+        </p>
+      )}
     </div>
   );
 
@@ -116,12 +132,15 @@ export function OpportunityForm({
           id="description"
           {...register('description')}
           rows={4}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.description}
+          aria-describedby={errors.description ? 'description-error' : undefined}
           placeholder="Describe the opportunity…"
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none
             ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.description && (
-          <p className="text-xs text-brand-error">{errors.description.message}</p>
+          <p id="description-error" className="text-xs text-brand-error">{errors.description.message}</p>
         )}
       </div>
 
@@ -133,6 +152,9 @@ export function OpportunityForm({
           <select
             id="category"
             {...register('category')}
+            disabled={isSubmitting}
+            aria-invalid={!!errors.category}
+            aria-describedby={errors.category ? 'category-error' : undefined}
             className={`w-full px-3 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background
               ${errors.category ? 'border-brand-error' : 'border-brand-border'}`}
           >
@@ -143,7 +165,7 @@ export function OpportunityForm({
               </option>
             ))}
           </select>
-          {errors.category && <p className="text-xs text-brand-error">{errors.category.message}</p>}
+          {errors.category && <p id="category-error" className="text-xs text-brand-error">{errors.category.message}</p>}
         </div>
         <div className="space-y-1.5">
           <label htmlFor="hoursPerSession" className="text-sm font-medium text-brand-text">
@@ -155,11 +177,14 @@ export function OpportunityForm({
             step="0.5"
             min="0.5"
             placeholder="2"
+            disabled={isSubmitting}
+            aria-invalid={!!errors.hoursPerSession}
+            aria-describedby={errors.hoursPerSession ? 'hoursPerSession-error' : undefined}
             {...register('hoursPerSession', { valueAsNumber: true })}
             className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.hoursPerSession ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.hoursPerSession && (
-            <p className="text-xs text-brand-error">{errors.hoursPerSession.message}</p>
+            <p id="hoursPerSession-error" className="text-xs text-brand-error">{errors.hoursPerSession.message}</p>
           )}
         </div>
       </div>
@@ -172,13 +197,16 @@ export function OpportunityForm({
           <input
             id="startDate"
             type="datetime-local"
+            disabled={isSubmitting}
+            aria-invalid={!!errors.startDate}
+            aria-describedby={errors.startDate ? 'startDate-error' : undefined}
             {...register('startDate', {
               setValueAs: (v: string) => (v ? new Date(v).toISOString() : v),
             })}
             className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.startDate ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.startDate && (
-            <p className="text-xs text-brand-error">{errors.startDate.message as string}</p>
+            <p id="startDate-error" className="text-xs text-brand-error">{errors.startDate.message as string}</p>
           )}
         </div>
         <div className="space-y-1.5">
@@ -188,13 +216,16 @@ export function OpportunityForm({
           <input
             id="endDate"
             type="datetime-local"
+            disabled={isSubmitting}
+            aria-invalid={!!errors.endDate}
+            aria-describedby={errors.endDate ? 'endDate-error' : undefined}
             {...register('endDate', {
               setValueAs: (v: string) => (v ? new Date(v).toISOString() : v),
             })}
             className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.endDate ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.endDate && (
-            <p className="text-xs text-brand-error">{errors.endDate.message as string}</p>
+            <p id="endDate-error" className="text-xs text-brand-error">{errors.endDate.message as string}</p>
           )}
         </div>
       </div>
@@ -208,11 +239,14 @@ export function OpportunityForm({
           type="number"
           min="1"
           placeholder="20"
+          disabled={isSubmitting}
+          aria-invalid={!!errors.totalSlots}
+          aria-describedby={errors.totalSlots ? 'totalSlots-error' : undefined}
           {...register('totalSlots', { valueAsNumber: true })}
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.totalSlots ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.totalSlots && (
-          <p className="text-xs text-brand-error">{errors.totalSlots.message}</p>
+          <p id="totalSlots-error" className="text-xs text-brand-error">{errors.totalSlots.message}</p>
         )}
       </div>
 

@@ -49,7 +49,11 @@ export default function AdminDashboardPage() {
                 Full system overview and management.
               </p>
             </div>
-            <div role="img" aria-label={user?.name ?? 'User avatar initials'} className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center border-2 border-white/30">
+            <div
+              role="img"
+              aria-label={user?.name ?? 'User avatar initials'}
+              className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center border-2 border-white/30"
+            >
               <span aria-hidden="true" className="font-heading font-bold text-xl text-white">
                 {user?.name
                   ?.split(' ')

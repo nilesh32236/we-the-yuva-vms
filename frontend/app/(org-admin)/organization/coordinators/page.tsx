@@ -3,6 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useFocusTrap } from '../../../../hooks/useFocusTrap';
 import { api } from '../../../../lib/api';
@@ -23,9 +26,24 @@ export default function OrganizationCoordinatorsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAdding, setIsAdding] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '' });
-  const [formErrors, setFormErrors] = useState<{ name?: string; email?: string }>({});
-  const [confirmingRemove, setConfirmingRemove] = useState<{ id: string; name: string } | null>(null);
+  const coordinatorSchema = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    email: z.string().email('Invalid email format'),
+  });
+  type CoordinatorFormData = z.infer<typeof coordinatorSchema>;
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CoordinatorFormData>({
+    resolver: zodResolver(coordinatorSchema),
+  });
+
+  const [confirmingRemove, setConfirmingRemove] = useState<{ id: string; name: string } | null>(
+    null
+  );
   const removeDialogRef = useFocusTrap(!!confirmingRemove);
 
   const orgId = user?.organizationId;
@@ -43,7 +61,7 @@ export default function OrganizationCoordinatorsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['org-coordinators', orgId] });
       setIsAdding(false);
-      setFormData({ name: '', email: '' });
+      reset();
       toast({ title: 'Success', description: 'Coordinator added successfully' });
     },
     onError: (err: AxiosError<{ error: string }>) => {
@@ -88,10 +106,7 @@ export default function OrganizationCoordinatorsPage() {
     <div className="space-y-6 max-w-5xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-2xl text-brand-text">Coordinators</h1>
-        <Button
-          onClick={() => setIsAdding(true)}
-          className="rounded-xl shadow-sm"
-        >
+        <Button onClick={() => setIsAdding(true)} className="rounded-xl shadow-sm">
           <UserPlus className="w-4 h-4" aria-hidden="true" /> Add Coordinator
         </Button>
       </div>
@@ -102,17 +117,7 @@ export default function OrganizationCoordinatorsPage() {
             Add New Coordinator
           </h2>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const errors: { name?: string; email?: string } = {};
-              if (!formData.name.trim()) errors.name = 'Name is required';
-              if (!formData.email.trim()) errors.email = 'Email is required';
-              else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-                errors.email = 'Invalid email format';
-              setFormErrors(errors);
-              if (Object.keys(errors).length > 0) return;
-              addMut.mutate(formData);
-            }}
+            onSubmit={handleSubmit((data) => addMut.mutate(data))}
             className="grid gap-4 sm:grid-cols-2"
           >
             <div className="space-y-1.5">
@@ -121,17 +126,17 @@ export default function OrganizationCoordinatorsPage() {
               </label>
               <input
                 id="name"
-                required
-                value={formData.name}
-                onChange={(e) => {
-                  setFormData({ ...formData, name: e.target.value });
-                  setFormErrors((prev) => ({ ...prev, name: undefined }));
-                }}
+                {...register('name')}
                 placeholder="Full Name"
+                disabled={addMut.isPending}
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? 'name-error' : undefined}
                 className="w-full px-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
-              {formErrors.name && (
-                <p role="alert" className="text-sm text-red-500 mt-1">{formErrors.name}</p>
+              {errors.name && (
+                <p id="name-error" role="alert" className="text-sm text-red-500 mt-1">
+                  {errors.name.message}
+                </p>
               )}
             </div>
             <div className="space-y-1.5">
@@ -141,29 +146,27 @@ export default function OrganizationCoordinatorsPage() {
               <input
                 id="email"
                 type="email"
-                required
-                value={formData.email}
-                onChange={(e) => {
-                  setFormData({ ...formData, email: e.target.value });
-                  setFormErrors((prev) => ({ ...prev, email: undefined }));
-                }}
+                {...register('email')}
                 placeholder="email@example.com"
+                disabled={addMut.isPending}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'email-error' : undefined}
                 className="w-full px-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
-              {formErrors.email && (
-                <p role="alert" className="text-sm text-red-500 mt-1">{formErrors.email}</p>
+              {errors.email && (
+                <p id="email-error" role="alert" className="text-sm text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
             <div className="sm:col-span-2 flex justify-end gap-3 mt-2">
-              <Button
-                variant="ghost"
-                onClick={() => setIsAdding(false)}
-              >
+              <Button variant="ghost" onClick={() => setIsAdding(false)}>
                 Cancel
               </Button>
               <Button
                 type="submit"
                 loading={addMut.isPending}
+                disabled={addMut.isPending}
                 className="rounded-xl shadow-sm"
               >
                 Save Coordinator
@@ -235,12 +238,19 @@ export default function OrganizationCoordinatorsPage() {
             if (e.key === 'Escape') setConfirmingRemove(null);
           }}
         >
-          <div ref={removeDialogRef} className="bg-brand-surface rounded-2xl border border-brand-border p-6 shadow-xl max-w-sm w-full mx-4">
-            <h2 id="confirm-dialog-title" className="font-heading font-bold text-lg text-brand-text mb-2">
+          <div
+            ref={removeDialogRef}
+            className="bg-brand-surface rounded-2xl border border-brand-border p-6 shadow-xl max-w-sm w-full mx-4"
+          >
+            <h2
+              id="confirm-dialog-title"
+              className="font-heading font-bold text-lg text-brand-text mb-2"
+            >
               Remove Coordinator
             </h2>
             <p className="text-sm text-brand-muted mb-6">
-              Are you sure you want to remove <strong>{confirmingRemove.name}</strong>? This action cannot be undone.
+              Are you sure you want to remove <strong>{confirmingRemove.name}</strong>? This action
+              cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <Button variant="ghost" onClick={() => setConfirmingRemove(null)}>

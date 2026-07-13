@@ -63,8 +63,6 @@ export default function AdminOrgDetailPage() {
   const verifyMut = useMutation({
     mutationFn: (approved: boolean) => api.patch(`/admin/organizations/${id}/verify`, { approved }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin-org-detail', id] });
-      qc.invalidateQueries({ queryKey: ['admin-orgs'] });
       toast({ title: 'Organization status updated' });
     },
     onError: (err: { normalizedMessage?: string }) => {
@@ -73,6 +71,10 @@ export default function AdminOrgDetailPage() {
         description: err.normalizedMessage ?? 'Could not update organization.',
         variant: 'destructive',
       });
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['admin-org-detail', id] });
+      qc.invalidateQueries({ queryKey: ['admin-orgs'] });
     },
   });
 

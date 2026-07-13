@@ -124,7 +124,10 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
                     </p>
                   </div>
                   <div className="rounded-xl bg-white dark:bg-slate-800 p-5 text-center">
-                    <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400"><span aria-hidden="true">--</span><span className="sr-only">Data not yet available</span></p>
+                    <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">
+                      <span aria-hidden="true">--</span>
+                      <span className="sr-only">Data not yet available</span>
+                    </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Events held</p>
                   </div>
                 </div>

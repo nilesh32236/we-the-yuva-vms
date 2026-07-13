@@ -16,21 +16,37 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
 
   const socialLinkField = (
     label: string,
-    field: 'linkedin' | 'instagram' | 'twitter' | 'facebook',
+    field: 'linkedin' | 'instagram' | 'twitter' | 'facebook'
   ) => {
     const id = `social-${field}`;
     const val = socialLinks?.[field] ?? '';
+    const fieldError = errors.step5?.socialLinks?.[field];
     return (
       <div className="space-y-1.5">
-        <label htmlFor={id} className="text-sm font-medium text-brand-text">{label}</label>
+        <label htmlFor={id} className="text-sm font-medium text-brand-text">
+          {label}
+        </label>
         <input
           id={id}
           type="url"
           value={val}
-          onChange={(e) => setValue('step5.socialLinks', { ...socialLinks, [field]: e.target.value }, { shouldValidate: true })}
+          onChange={(e) =>
+            setValue(
+              'step5.socialLinks',
+              { ...socialLinks, [field]: e.target.value },
+              { shouldValidate: true }
+            )
+          }
           placeholder={`https://${field}.com/...`}
-          className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+          aria-invalid={!!fieldError}
+          aria-describedby={fieldError ? `${id}-error` : undefined}
+          className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+            fieldError ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+          }`}
         />
+        {fieldError && (
+          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">{fieldError.message}</p>
+        )}
       </div>
     );
   };
@@ -42,8 +58,12 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
 
       <div className="space-y-5">
         <div className="space-y-1.5">
-          <label htmlFor="bio" className="text-sm font-medium text-brand-text">Bio</label>
-          <p className="text-xs text-brand-muted">Tell us a bit about yourself (max 300 characters)</p>
+          <label htmlFor="bio" className="text-sm font-medium text-brand-text">
+            Bio
+          </label>
+          <p className="text-xs text-brand-muted">
+            Tell us a bit about yourself (max 300 characters)
+          </p>
           <textarea
             id="bio"
             rows={4}
@@ -51,31 +71,47 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
             placeholder="Share your story, what drives you, and what you hope to achieve as a volunteer..."
             aria-describedby={errors.step5?.bio ? 'bio-error' : 'bio-count'}
             className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-              errors.step5?.bio ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+              errors.step5?.bio
+                ? 'border-brand-error focus:ring-brand-error'
+                : 'border-brand-border'
             }`}
             {...register('step5.bio')}
           />
           <div className="flex justify-between items-center">
             {errors.step5?.bio ? (
-              <p id="bio-error" className="text-brand-error text-xs" role="alert">{errors.step5.bio.message}</p>
+              <p id="bio-error" className="text-brand-error text-xs" role="alert">
+                {errors.step5.bio.message}
+              </p>
             ) : (
               <span />
             )}
-            <p id="bio-count" className={`text-xs ${bio.length > 300 ? 'text-brand-error' : 'text-brand-muted'}`}>
+            <p
+              id="bio-count"
+              className={`text-xs ${bio.length > 300 ? 'text-brand-error' : 'text-brand-muted'}`}
+            >
               {bio.length}/300
             </p>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="avatarUrl" className="text-sm font-medium text-brand-text">Profile Photo URL (Optional)</label>
+          <label htmlFor="avatarUrl" className="text-sm font-medium text-brand-text">
+            Profile Photo URL (Optional)
+          </label>
           <input
             id="avatarUrl"
             type="url"
             placeholder="https://example.com/photo.jpg"
-            className="w-full px-4 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+            aria-invalid={!!errors.step5?.avatarUrl}
+            aria-describedby={errors.step5?.avatarUrl ? 'avatarUrl-error' : undefined}
+            className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+              errors.step5?.avatarUrl ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+            }`}
             {...register('step5.avatarUrl')}
           />
+          {errors.step5?.avatarUrl && (
+            <p id="avatarUrl-error" className="text-brand-error text-xs" role="alert">{errors.step5.avatarUrl.message}</p>
+          )}
         </div>
 
         <div className="border border-brand-border rounded-xl p-4 space-y-4">

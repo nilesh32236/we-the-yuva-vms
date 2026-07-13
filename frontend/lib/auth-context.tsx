@@ -129,10 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.replace('/setup-profile');
       } else if (!ONBOARDING_ROUTES.some((r) => pathname.startsWith(r))) {
         const allowedPrefixes = ROLE_ROUTE_PREFIXES[user.role];
-        if (
-          allowedPrefixes &&
-          !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))
-        ) {
+        if (allowedPrefixes && !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
           router.replace(ROLE_ROUTES[user.role] ?? '/login');
         }
       }

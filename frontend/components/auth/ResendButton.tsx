@@ -34,7 +34,8 @@ export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonPro
       await onResend();
       setCountdown(cooldownSeconds);
     } catch (err) {
-      const msg = (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to resend code';
+      const msg =
+        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to resend code';
       toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);

@@ -38,6 +38,7 @@ export default function ApplicationsPage() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
+  const [pendingApps, setPendingApps] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useQuery<ApplicationsResponse>({
     queryKey: ['opportunity-applications', id, page],
@@ -51,9 +52,11 @@ export default function ApplicationsPage() {
   const updateMut = useMutation({
     mutationFn: ({ appId, status }: { appId: string; status: string }) =>
       api.patch(`/opportunities/${id}/applications/${appId}`, { status }),
+    onMutate: ({ appId }) => {
+      setPendingApps((prev) => new Set(prev).add(appId));
+    },
     onSuccess: () => {
       toast({ title: 'Application updated' });
-      qc.invalidateQueries({ queryKey: ['opportunity-applications', id] });
     },
     onError: () => {
       toast({
@@ -61,6 +64,14 @@ export default function ApplicationsPage() {
         description: 'Could not update application.',
         variant: 'destructive',
       });
+    },
+    onSettled: (_data, _error, { appId }) => {
+      setPendingApps((prev) => {
+        const next = new Set(prev);
+        next.delete(appId);
+        return next;
+      });
+      qc.invalidateQueries({ queryKey: ['opportunity-applications', id] });
     },
   });
 
@@ -144,7 +155,7 @@ export default function ApplicationsPage() {
                             <Button
                               size="sm"
                               variant="primary"
-                              loading={updateMut.isPending}
+                              loading={pendingApps.has(app.id)}
                               onClick={() => {
                                 haptic.medium();
                                 updateMut.mutate({ appId: app.id, status: 'ACCEPTED' });
@@ -155,7 +166,7 @@ export default function ApplicationsPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              loading={updateMut.isPending}
+                              loading={pendingApps.has(app.id)}
                               onClick={() => {
                                 haptic.medium();
                                 updateMut.mutate({ appId: app.id, status: 'REJECTED' });

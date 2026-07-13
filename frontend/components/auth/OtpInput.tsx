@@ -6,9 +6,10 @@ interface OtpInputProps {
   value: string[];
   onChange: (value: string[]) => void;
   disabled?: boolean;
+  error?: boolean;
 }
 
-export function OtpInput({ value, onChange, disabled = false }: OtpInputProps) {
+export function OtpInput({ value, onChange, disabled = false, error = false }: OtpInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
@@ -80,13 +81,16 @@ export function OtpInput({ value, onChange, disabled = false }: OtpInputProps) {
           onFocus={(e) => e.target.select()}
           disabled={disabled}
           aria-label={`Digit ${index + 1} of 6`}
+          aria-invalid={error && !value[index] ? true : undefined}
           className={`w-11 h-12 text-center text-xl font-bold rounded-lg border-2 transition-colors duration-200
             focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary
             disabled:opacity-50 disabled:cursor-not-allowed
             ${
-              value[index]
-                ? 'border-brand-primary bg-brand-bg text-brand-text'
-                : 'border-brand-border bg-brand-surface text-brand-text'
+              error && !value[index]
+                ? 'border-brand-error focus:ring-brand-error focus:border-brand-error'
+                : value[index]
+                  ? 'border-brand-primary bg-brand-bg text-brand-text'
+                  : 'border-brand-border bg-brand-surface text-brand-text'
             }`}
         />
       ))}

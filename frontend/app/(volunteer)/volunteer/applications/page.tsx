@@ -33,16 +33,26 @@ interface Application {
 
 export default function MyApplicationsPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['my-applications', page],
     queryFn: () =>
       api
         .get('/opportunities/my-applications', { params: { page, limit: 20 } })
-        .then((r) => r.data)
-        .catch(() => []),
+        .then((r) => r.data),
   });
 
   const applications: Application[] = Array.isArray(data) ? data : (data?.data ?? []);
+
+  if (isError)
+    return (
+      <div className="max-w-2xl">
+        <div className="bg-brand-surface rounded-2xl border border-brand-border p-8 text-center">
+          <p role="alert" className="text-destructive text-sm">
+            Failed to load applications. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
 
   if (isLoading)
     return (

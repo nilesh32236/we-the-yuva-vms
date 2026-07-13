@@ -17,7 +17,7 @@ interface Certificate {
 }
 
 export default function CertificatesPage() {
-  const { data, isLoading } = useQuery<{ data: Certificate[] }>({
+  const { data, isLoading, isError } = useQuery<{ data: Certificate[] }>({
     queryKey: ['certificates'],
     queryFn: () => api.get('/certificates').then((r) => r.data),
     staleTime: 30_000,
@@ -44,7 +44,14 @@ export default function CertificatesPage() {
         </p>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <div
+          role="alert"
+          className="text-center py-16 bg-brand-surface rounded-2xl border border-brand-border"
+        >
+          <p className="text-destructive">Failed to load certificates. Please try again later.</p>
+        </div>
+      ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array
@@ -105,7 +112,12 @@ export default function CertificatesPage() {
                     <ExternalLink className="w-3.5 h-3.5" /> View
                   </Button>
                 </Link>
-                <Button variant="outline" size="sm" onClick={() => handleShare(cert)} aria-label="Share certificate">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShare(cert)}
+                  aria-label="Share certificate"
+                >
                   <Share2 className="w-3.5 h-3.5" />
                 </Button>
               </div>

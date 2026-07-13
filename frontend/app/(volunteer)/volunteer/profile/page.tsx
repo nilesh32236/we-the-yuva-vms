@@ -19,6 +19,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
 import { Button } from '../../../../components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
@@ -28,21 +31,61 @@ import { useAuth } from '../../../../hooks/useAuth';
 import { api } from '../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 
+const profileSchema = z
+  .object({
+    volunteerType: z.string().min(1, 'Please select a volunteer type'),
+    bio: z.string().optional(),
+    skills: z.string().optional(),
+    interests: z.string().optional(),
+    education: z.string().optional(),
+    days: z.array(z.string()).min(1, 'Please select at least one day'),
+    timeSlots: z.array(z.string()).min(1, 'Please select at least one time slot'),
+  })
+  .refine(
+    (data) => {
+      if (data.volunteerType === 'STUDENT' && !data.education) {
+        return false;
+      }
+      return true;
+    },
+    { message: 'Education is required for student volunteers', path: ['education'] }
+  );
+
 export default function VolunteerProfilePage() {
   const { user: _authUser } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
-  const [bio, setBio] = useState('');
-  const [volunteerType, setVolunteerType] = useState('');
-  const [skills, setSkills] = useState('');
-  const [interests, setInterests] = useState('');
-  const [education, setEducation] = useState('');
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [dirty, setDirty] = useState(false);
   const cancelRef = useRef(false);
+  const form = useForm({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      volunteerType: '',
+      bio: '',
+      skills: '',
+      interests: '',
+      education: '',
+      days: [] as string[],
+      timeSlots: [] as string[],
+    },
+  });
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+    setError,
+    watch,
+  } = form;
+  const bio = watch('bio');
+  const volunteerType = watch('volunteerType');
+  const skills = watch('skills');
+  const interests = watch('interests');
+  const education = watch('education');
+  const selectedDays = watch('days');
+  const selectedSlots = watch('timeSlots');
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['me'],
@@ -68,7 +111,6 @@ export default function VolunteerProfilePage() {
       qc.invalidateQueries({ queryKey: ['me'] });
       setEditing(false);
       setDirty(false);
-      setFieldErrors({});
       toast({ title: 'Profile updated successfully' });
     },
     onError: (err: {
@@ -78,11 +120,10 @@ export default function VolunteerProfilePage() {
     }) => {
       const details = err?.response?.data?.details;
       if (details?.fieldErrors) {
-        const flat: Record<string, string> = {};
         for (const [key, msgs] of Object.entries(details.fieldErrors)) {
-          if (msgs.length > 0) flat[key] = msgs[0];
+          if (msgs.length > 0)
+            setError(key as Parameters<typeof setError>[0], { message: msgs.join(', ') });
         }
-        setFieldErrors(flat);
       }
       toast({
         title: 'Error',
@@ -93,15 +134,15 @@ export default function VolunteerProfilePage() {
   });
 
   function startEdit() {
-    setBio(user?.profile?.bio ?? '');
-    setVolunteerType(user?.volunteerType ?? '');
-    setSkills((user?.profile?.skills ?? []).join(', '));
-    setInterests((user?.profile?.interests ?? []).join(', '));
-    setEducation(user?.profile?.education ?? '');
-    const avail = user?.profile?.availability;
-    setSelectedDays(avail?.days ?? []);
-    setSelectedSlots(avail?.timeSlots ?? []);
-    setFieldErrors({});
+    reset({
+      volunteerType: user?.volunteerType ?? '',
+      bio: user?.profile?.bio ?? '',
+      skills: (user?.profile?.skills ?? []).join(', '),
+      interests: (user?.profile?.interests ?? []).join(', '),
+      education: user?.profile?.education ?? '',
+      days: user?.profile?.availability?.days ?? [],
+      timeSlots: user?.profile?.availability?.timeSlots ?? [],
+    });
     setDirty(false);
     cancelRef.current = false;
     setEditing(true);
@@ -109,7 +150,6 @@ export default function VolunteerProfilePage() {
 
   const cancelEdit = useCallback(function cancelEdit() {
     setEditing(false);
-    setFieldErrors({});
     setDirty(false);
   }, []);
 
@@ -129,30 +169,23 @@ export default function VolunteerProfilePage() {
     [bio, volunteerType, skills, interests, education, selectedDays, selectedSlots, user]
   );
 
-  function save() {
+  const save = handleSubmit((data) => {
     haptic.medium();
-    const errs: Record<string, string> = {};
-    if (!volunteerType) errs.volunteerType = 'Please select a volunteer type';
-    if (selectedDays.length === 0) errs.days = 'Please select at least one day';
-    if (selectedSlots.length === 0) errs.timeSlots = 'Please select at least one time slot';
-    setFieldErrors(errs);
-    if (Object.keys(errs).length > 0) return;
-
     mutation.mutate({
-      volunteerType,
-      bio,
-      skills: skills
+      volunteerType: data.volunteerType,
+      bio: data.bio,
+      skills: (data.skills ?? '')
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean),
-      interests: interests
+      interests: (data.interests ?? '')
         .split(',')
         .map((s: string) => s.trim())
         .filter(Boolean),
-      education: education || undefined,
-      availability: { days: selectedDays, timeSlots: selectedSlots },
+      education: data.education || undefined,
+      availability: { days: data.days, timeSlots: data.timeSlots },
     });
-  }
+  });
 
   // Unsaved changes warning
   useEffect(() => {
@@ -192,16 +225,6 @@ export default function VolunteerProfilePage() {
     return () => window.removeEventListener('beforeunload', handler);
   }, [editing, dirty]);
 
-  const toggleDay = (day: string) =>
-    setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-
-  const toggleSlot = (slot: string) =>
-    setSelectedSlots((prev) =>
-      prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot]
-    );
-
   const initials =
     user?.name
       ?.split(' ')
@@ -212,32 +235,43 @@ export default function VolunteerProfilePage() {
 
   const inputCls = (field: string) =>
     `w-full text-base border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
-      fieldErrors[field]
+      (errors as Record<string, unknown>)[field]
         ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'
     }`;
 
   const selectCls = (field: string) =>
     `w-full text-base border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
-      fieldErrors[field]
+      (errors as Record<string, unknown>)[field]
         ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'
     }`;
 
   if (isLoading)
     return (
-      <div role="status" aria-live="polite" className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex items-center justify-center h-40 text-brand-muted text-sm"
+      >
+        Loading…
+      </div>
     );
 
   const editorContent = (
     <div data-profile-editor>
       {/* Volunteer Type */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <label htmlFor="volunteerType" className="font-heading font-semibold text-sm text-brand-text">Volunteer Type</label>
+        <label
+          htmlFor="volunteerType"
+          className="font-heading font-semibold text-sm text-brand-text"
+        >
+          Volunteer Type
+        </label>
         <select
           id="volunteerType"
-          value={volunteerType}
-          onChange={(e) => setVolunteerType(e.target.value)}
+          {...register('volunteerType')}
+          disabled={mutation.isPending}
           className={selectCls('volunteerType')}
         >
           <option value="">Select Type</option>
@@ -247,71 +281,96 @@ export default function VolunteerProfilePage() {
             </option>
           ))}
         </select>
-        {fieldErrors.volunteerType && (
-          <p role="alert" className="text-xs text-brand-error">{fieldErrors.volunteerType}</p>
+        {errors.volunteerType && (
+          <p role="alert" className="text-xs text-brand-error">
+            {errors.volunteerType.message}
+          </p>
         )}
       </div>
 
       {/* Bio */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
-        <label htmlFor="bio" className="font-heading font-semibold text-sm text-brand-text">About</label>
+        <label htmlFor="bio" className="font-heading font-semibold text-sm text-brand-text">
+          About
+        </label>
         <textarea
           id="bio"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
+          {...register('bio')}
           rows={3}
+          disabled={mutation.isPending}
           placeholder="Tell us about yourself…"
           className={inputCls('bio')}
         />
-        {fieldErrors.bio && <p role="alert" className="text-xs text-brand-error">{fieldErrors.bio}</p>}
+        {errors.bio && (
+          <p role="alert" className="text-xs text-brand-error">
+            {errors.bio.message}
+          </p>
+        )}
       </div>
 
       {/* Skills */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <label htmlFor="skills" className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+        <label
+          htmlFor="skills"
+          className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2"
+        >
           <Tag className="w-4 h-4 text-brand-primary" /> Skills
         </label>
         <input
           id="skills"
-          value={skills}
-          onChange={(e) => setSkills(e.target.value)}
+          {...register('skills')}
+          disabled={mutation.isPending}
           placeholder="e.g. Teaching, Design, Coding"
           className={inputCls('skills')}
         />
-        {fieldErrors.skills && <p role="alert" className="text-xs text-brand-error">{fieldErrors.skills}</p>}
+        {errors.skills && (
+          <p role="alert" className="text-xs text-brand-error">
+            {errors.skills.message}
+          </p>
+        )}
       </div>
 
       {/* Interests */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <label htmlFor="interests" className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+        <label
+          htmlFor="interests"
+          className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2"
+        >
           <Tag className="w-4 h-4 text-brand-cta" /> Interests
         </label>
         <input
           id="interests"
-          value={interests}
-          onChange={(e) => setInterests(e.target.value)}
+          {...register('interests')}
+          disabled={mutation.isPending}
           placeholder="e.g. Environment, Education, Health"
           className={inputCls('interests')}
         />
-        {fieldErrors.interests && (
-          <p role="alert" className="text-xs text-brand-error">{fieldErrors.interests}</p>
+        {errors.interests && (
+          <p role="alert" className="text-xs text-brand-error">
+            {errors.interests.message}
+          </p>
         )}
       </div>
 
       {/* Education */}
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-2">
-        <label htmlFor="education" className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2">
+        <label
+          htmlFor="education"
+          className="font-heading font-semibold text-sm text-brand-text flex items-center gap-2"
+        >
           <GraduationCap className="w-4 h-4 text-brand-primary" /> Education
         </label>
         <input
           id="education"
-          value={education}
-          onChange={(e) => setEducation(e.target.value)}
+          {...register('education')}
+          disabled={mutation.isPending}
           placeholder="e.g., B.Com, MBA, 12th Pass"
           className={inputCls('education')}
         />
-        {fieldErrors.education && (
-          <p role="alert" className="text-xs text-brand-error">{fieldErrors.education}</p>
+        {errors.education && (
+          <p role="alert" className="text-xs text-brand-error">
+            {errors.education.message}
+          </p>
         )}
       </div>
 
@@ -321,41 +380,71 @@ export default function VolunteerProfilePage() {
 
         <div className="space-y-2">
           <p className="text-xs text-brand-muted font-medium">Days</p>
-          <div className="flex flex-wrap gap-2">
-            {DAYS.map((day) => (
-              <button
-                key={day}
-                type="button"
-                aria-pressed={selectedDays.includes(day)}
-                onClick={() => toggleDay(day)}
-                className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary
-                  ${selectedDays.includes(day) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
-              >
-                {day}
-              </button>
-            ))}
-          </div>
-          {fieldErrors.days && <p role="alert" className="text-xs text-brand-error">{fieldErrors.days}</p>}
+          <Controller
+            control={control}
+            name="days"
+            render={({ field }) => (
+              <div className="flex flex-wrap gap-2">
+                {DAYS.map((day) => (
+                  <button
+                    key={day}
+                    type="button"
+                    aria-pressed={field.value.includes(day)}
+                    onClick={() => {
+                      const updated = field.value.includes(day)
+                        ? field.value.filter((d: string) => d !== day)
+                        : [...field.value, day];
+                      field.onChange(updated);
+                    }}
+                    disabled={mutation.isPending}
+                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary
+                      ${field.value.includes(day) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
+                  >
+                    {day}
+                  </button>
+                ))}
+              </div>
+            )}
+          />
+          {errors.days && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.days.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
           <p className="text-xs text-brand-muted font-medium">Time Slots</p>
-          <div className="flex flex-wrap gap-2">
-            {TIME_SLOTS.map((slot) => (
-              <button
-                key={slot}
-                type="button"
-                aria-pressed={selectedSlots.includes(slot)}
-                onClick={() => toggleSlot(slot)}
-                className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary
-                  ${selectedSlots.includes(slot) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
-              >
-                {slot}
-              </button>
-            ))}
-          </div>
-          {fieldErrors.timeSlots && (
-            <p role="alert" className="text-xs text-brand-error">{fieldErrors.timeSlots}</p>
+          <Controller
+            control={control}
+            name="timeSlots"
+            render={({ field }) => (
+              <div className="flex flex-wrap gap-2">
+                {TIME_SLOTS.map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    aria-pressed={field.value.includes(slot)}
+                    onClick={() => {
+                      const updated = field.value.includes(slot)
+                        ? field.value.filter((s: string) => s !== slot)
+                        : [...field.value, slot];
+                      field.onChange(updated);
+                    }}
+                    disabled={mutation.isPending}
+                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary
+                      ${field.value.includes(slot) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
+            )}
+          />
+          {errors.timeSlots && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.timeSlots.message}
+            </p>
           )}
         </div>
       </div>
@@ -519,15 +608,17 @@ export default function VolunteerProfilePage() {
           <div className="flex flex-wrap gap-2">
             {pendingBadges
               .filter((b: { pending: boolean }) => b.pending)
-              .map((badge: { name: string; title: string; description: string; imageUrl: string }) => (
-                <div
-                  key={badge.name}
-                  className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-full text-sm"
-                >
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  {badge.title}
-                </div>
-              ))}
+              .map(
+                (badge: { name: string; title: string; description: string; imageUrl: string }) => (
+                  <div
+                    key={badge.name}
+                    className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-full text-sm"
+                  >
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    {badge.title}
+                  </div>
+                )
+              )}
           </div>
         </div>
       )}
@@ -597,7 +688,7 @@ export default function VolunteerProfilePage() {
 
           {/* Availability (view mode) */}
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
-        <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
+            <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
             {user?.profile?.availability ? (
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-1.5">
@@ -658,7 +749,6 @@ export default function VolunteerProfilePage() {
           </Link>
         </div>
       </div>
-
     </div>
   );
 }
@@ -685,7 +775,13 @@ function ProfileCompletionInline() {
           <span className="text-xs font-medium text-brand-muted">{completionPercentage}%</span>
         </div>
 
-        <div className="w-full h-2 rounded-full bg-brand-border overflow-hidden" role="progressbar" aria-valuenow={completionPercentage} aria-valuemin={0} aria-valuemax={100}>
+        <div
+          className="w-full h-2 rounded-full bg-brand-border overflow-hidden"
+          role="progressbar"
+          aria-valuenow={completionPercentage}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div
             className="h-full rounded-full bg-brand-primary transition-all duration-500"
             style={{ width: `${completionPercentage}%` }}

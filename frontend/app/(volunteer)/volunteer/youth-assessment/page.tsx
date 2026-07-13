@@ -3,6 +3,9 @@
 import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { ASPIRATIONS } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
@@ -72,13 +75,13 @@ function PillSelector({
           const isSelected = selected.includes(opt);
           const atLimit = selected.length >= max && !isSelected;
           return (
-              <button
-                  key={opt}
-                  type="button"
-                  disabled={atLimit}
-                  aria-pressed={isSelected}
-                  onClick={() => onToggle(opt)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+            <button
+              key={opt}
+              type="button"
+              disabled={atLimit}
+              aria-pressed={isSelected}
+              onClick={() => onToggle(opt)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
                 ${
                   isSelected
                     ? 'bg-brand-bg border-2 border-brand-primary text-brand-primary shadow-sm'
@@ -97,6 +100,13 @@ function PillSelector({
   );
 }
 
+const assessmentSchema = z.object({
+  aspirations: z.array(z.string()).min(1, 'Please select at least one aspiration'),
+  learningGoals: z.string().optional(),
+  skills: z.array(z.string()).min(1, 'Please select at least one skill'),
+  interests: z.array(z.string()).min(1, 'Please select at least one interest'),
+});
+
 export default function YouthAssessmentPage() {
   const router = useRouter();
   const { user, refetch } = useAuth();
@@ -105,10 +115,26 @@ export default function YouthAssessmentPage() {
   const [loading, setLoading] = useState(false);
 
   const [checking, setChecking] = useState(true);
-  const [aspirations, setAspirations] = useState<string[]>([]);
-  const [learningGoals, setLearningGoals] = useState('');
-  const [skills, setSkills] = useState<string[]>([]);
-  const [interests, setInterests] = useState<string[]>([]);
+  const form = useForm({
+    resolver: zodResolver(assessmentSchema),
+    defaultValues: {
+      aspirations: [] as string[],
+      learningGoals: '',
+      skills: [] as string[],
+      interests: [] as string[],
+    },
+  });
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = form;
+  const aspirations = watch('aspirations');
+  const learningGoals = watch('learningGoals');
+  const skills = watch('skills');
+  const interests = watch('interests');
 
   useEffect(() => {
     api
@@ -125,24 +151,63 @@ export default function YouthAssessmentPage() {
       .finally(() => setChecking(false));
   }, [router, toast]);
 
+  useEffect(() => {
+    if (form.formState.isDirty) {
+      const handler = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+      };
+      window.addEventListener('beforeunload', handler);
+      return () => window.removeEventListener('beforeunload', handler);
+    }
+  }, [form.formState.isDirty]);
+
   if (checking) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-brand-primary animate-spin" role="status" aria-label="Checking status" />
+        <Loader2
+          className="w-6 h-6 text-brand-primary animate-spin"
+          role="status"
+          aria-label="Checking status"
+        />
       </div>
     );
   }
 
-  const toggleAspiration = (v: string) =>
-    setAspirations((p) =>
-      p.includes(v) ? p.filter((x) => x !== v) : p.length < 5 ? [...p, v] : p
-    );
+  const toggleAspiration = (v: string) => {
+    const current = form.getValues('aspirations');
+    if (current.includes(v)) {
+      setValue(
+        'aspirations',
+        current.filter((x: string) => x !== v)
+      );
+    } else if (current.length < 5) {
+      setValue('aspirations', [...current, v]);
+    }
+  };
 
-  const toggleSkill = (v: string) =>
-    setSkills((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p));
+  const toggleSkill = (v: string) => {
+    const current = form.getValues('skills');
+    if (current.includes(v)) {
+      setValue(
+        'skills',
+        current.filter((x: string) => x !== v)
+      );
+    } else if (current.length < 10) {
+      setValue('skills', [...current, v]);
+    }
+  };
 
-  const toggleInterest = (v: string) =>
-    setInterests((p) => (p.includes(v) ? p.filter((x) => x !== v) : p.length < 10 ? [...p, v] : p));
+  const toggleInterest = (v: string) => {
+    const current = form.getValues('interests');
+    if (current.includes(v)) {
+      setValue(
+        'interests',
+        current.filter((x: string) => x !== v)
+      );
+    } else if (current.length < 10) {
+      setValue('interests', [...current, v]);
+    }
+  };
 
   const steps = [
     {
@@ -158,12 +223,19 @@ export default function YouthAssessmentPage() {
             onToggle={toggleAspiration}
             max={5}
           />
+          {errors.aspirations && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.aspirations.message}
+            </p>
+          )}
           <div className="space-y-2">
-            <label htmlFor="learning-goals" className="text-sm font-medium text-brand-muted">Learning goals (optional)</label>
+            <label htmlFor="learning-goals" className="text-sm font-medium text-brand-muted">
+              Learning goals (optional)
+            </label>
             <textarea
               id="learning-goals"
-              value={learningGoals}
-              onChange={(e) => setLearningGoals(e.target.value)}
+              {...register('learningGoals')}
+              disabled={loading}
               placeholder="What do you hope to gain from your volunteering journey?"
               rows={3}
               maxLength={500}
@@ -181,13 +253,20 @@ export default function YouthAssessmentPage() {
       title: 'What skills can you bring?',
       subtitle: 'Select the skills you already have',
       content: (
-        <PillSelector
-          label="Skills"
-          options={ALL_SKILLS}
-          selected={skills}
-          onToggle={toggleSkill}
-          max={10}
-        />
+        <div className="space-y-2">
+          <PillSelector
+            label="Skills"
+            options={ALL_SKILLS}
+            selected={skills}
+            onToggle={toggleSkill}
+            max={10}
+          />
+          {errors.skills && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.skills.message}
+            </p>
+          )}
+        </div>
       ),
       canProceed: skills.length > 0,
     },
@@ -196,26 +275,33 @@ export default function YouthAssessmentPage() {
       title: 'What are you passionate about?',
       subtitle: 'Select the causes that matter most to you',
       content: (
-        <PillSelector
-          label="Interests"
-          options={ALL_INTERESTS}
-          selected={interests}
-          onToggle={toggleInterest}
-          max={10}
-        />
+        <div className="space-y-2">
+          <PillSelector
+            label="Interests"
+            options={ALL_INTERESTS}
+            selected={interests}
+            onToggle={toggleInterest}
+            max={10}
+          />
+          {errors.interests && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.interests.message}
+            </p>
+          )}
+        </div>
       ),
       canProceed: interests.length > 0,
     },
   ];
 
-  const handleSubmit = async () => {
+  const onSubmit = async (data: z.infer<typeof assessmentSchema>) => {
     setLoading(true);
     try {
       await api.post('/youth-profiles/me/initial', {
-        aspirations,
-        learningGoals: learningGoals || undefined,
-        skills,
-        interests,
+        aspirations: data.aspirations,
+        learningGoals: data.learningGoals || undefined,
+        skills: data.skills,
+        interests: data.interests,
       });
       await refetch();
       toast({ title: 'Assessment saved!' });
@@ -243,11 +329,11 @@ export default function YouthAssessmentPage() {
   const current = steps[step];
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
+    <form onSubmit={rhfHandleSubmit(onSubmit)} className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-xl space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-bg mb-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-brand-bg mb-2">
             <Sparkles className="w-6 h-6 text-brand-primary" />
           </div>
           <h1 className="font-heading font-bold text-2xl text-brand-text">{current.title}</h1>
@@ -271,12 +357,13 @@ export default function YouthAssessmentPage() {
         {/* Actions */}
         <div className="flex gap-3 pt-2">
           {step > 0 && (
-            <Button variant="outline" onClick={() => setStep((s) => s - 1)} className="flex-1">
+            <Button type="button" variant="outline" onClick={() => setStep((s) => s - 1)} className="flex-1">
               Back
             </Button>
           )}
           {step < steps.length - 1 ? (
             <Button
+              type="button"
               onClick={() => setStep((s) => s + 1)}
               disabled={!current.canProceed}
               className="flex-1"
@@ -285,7 +372,7 @@ export default function YouthAssessmentPage() {
             </Button>
           ) : (
             <Button
-              onClick={handleSubmit}
+              type="submit"
               loading={loading}
               disabled={!current.canProceed}
               className="flex-1"
@@ -295,6 +382,6 @@ export default function YouthAssessmentPage() {
           )}
         </div>
       </div>
-    </div>
+    </form>
   );
 }

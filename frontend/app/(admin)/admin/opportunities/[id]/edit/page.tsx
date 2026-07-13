@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -13,6 +13,7 @@ export default function AdminEditOpportunityPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: opp, isLoading } = useQuery({
     queryKey: ['opportunity', id],
@@ -20,18 +21,24 @@ export default function AdminEditOpportunityPage() {
     enabled: !!id,
   });
 
-  const handleSubmit = async (data: OpportunityInput) => {
-    try {
-      await api.put(`/opportunities/${id}`, data);
+  const updateMutation = useMutation({
+    mutationFn: (data: OpportunityInput) => api.put(`/opportunities/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-opportunities'] });
       toast({ title: 'Opportunity updated!' });
       router.push('/admin/opportunities');
-    } catch (err) {
+    },
+    onError: (err) => {
       toast({
         title: 'Error',
         description: err instanceof Error ? err.message : 'Something went wrong',
         variant: 'destructive',
       });
-    }
+    },
+  });
+
+  const handleSubmit = async (data: OpportunityInput) => {
+    updateMutation.mutate(data);
   };
 
   if (isLoading) {

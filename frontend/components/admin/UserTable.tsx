@@ -43,7 +43,8 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: object }) => api.patch(`/admin/users/${id}`, data),
+    mutationFn: ({ id, data }: { id: string; data: object }) =>
+      api.patch(`/admin/users/${id}`, data),
     onSuccess: (_data, variables) => {
       const msg = (variables.data as { status?: string; role?: string }).status
         ? `User ${(variables.data as { status?: string }).status?.toLowerCase()}`
@@ -56,7 +57,8 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
       Sentry.captureException(err);
       toast({
         title: 'Error',
-        description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not update user.',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not update user.',
         variant: 'destructive',
       });
     },
@@ -91,7 +93,9 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
     setOpenMenu(id);
   }
 
-  const pendingId = updateMutation.isPending ? (updateMutation.variables as { id?: string })?.id : null;
+  const pendingId = updateMutation.isPending
+    ? (updateMutation.variables as { id?: string })?.id
+    : null;
 
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -145,55 +149,57 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                   No users found
                 </td>
               </tr>
-            ) : users.map((u) => (
-              <tr key={u.id} className="hover:bg-brand-bg/50 transition-colors">
-                <td className="px-4 py-3 font-medium text-brand-text">{u.name}</td>
-                <td className="px-4 py-3 hidden md:table-cell">
-                  {u.volunteerType ? (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-muted/70">
-                      {u.volunteerType}
+            ) : (
+              users.map((u) => (
+                <tr key={u.id} className="hover:bg-brand-bg/50 transition-colors">
+                  <td className="px-4 py-3 font-medium text-brand-text">{u.name}</td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    {u.volunteerType ? (
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-brand-muted/70">
+                        {u.volunteerType}
+                      </span>
+                    ) : (
+                      <span className="text-brand-muted/30">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
+                    {u.email ?? '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ROLE_COLORS[u.roleRef.name] ?? ''}`}
+                    >
+                      {u.roleRef.name}
                     </span>
-                  ) : (
-                    <span className="text-brand-muted/30">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-brand-muted hidden sm:table-cell">
-                  {u.email ?? '—'}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${ROLE_COLORS[u.roleRef.name] ?? ''}`}
-                  >
-                    {u.roleRef.name}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[u.status] ?? ''}`}
-                  >
-                    {u.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-brand-muted hidden lg:table-cell">
-                  {new Date(u.createdAt).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                </td>
-                <td className="px-4 py-3 relative">
-                  <button
-                    type="button"
-                    onClick={(e) => handleMenuClick(u.id, e)}
-                    className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer"
-                    disabled={pendingId === u.id}
-                    aria-label={`Actions for ${u.name}`}
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${STATUS_COLORS[u.status] ?? ''}`}
+                    >
+                      {u.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-brand-muted hidden lg:table-cell">
+                    {new Date(u.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </td>
+                  <td className="px-4 py-3 relative">
+                    <button
+                      type="button"
+                      onClick={(e) => handleMenuClick(u.id, e)}
+                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer"
+                      disabled={pendingId === u.id}
+                      aria-label={`Actions for ${u.name}`}
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -223,7 +229,9 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                   {user.status !== 'ACTIVE' && (
                     <button
                       type="button"
-                      onClick={() => updateMutation.mutate({ id: user.id, data: { status: 'ACTIVE' } })}
+                      onClick={() =>
+                        updateMutation.mutate({ id: user.id, data: { status: 'ACTIVE' } })
+                      }
                       className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
                       aria-label={`Activate ${user.name}`}
                       role="menuitem"
@@ -235,7 +243,9 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                   {user.status !== 'SUSPENDED' && (
                     <button
                       type="button"
-                      onClick={() => updateMutation.mutate({ id: user.id, data: { status: 'SUSPENDED' } })}
+                      onClick={() =>
+                        updateMutation.mutate({ id: user.id, data: { status: 'SUSPENDED' } })
+                      }
                       className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
                       aria-label={`Suspend ${user.name}`}
                       role="menuitem"

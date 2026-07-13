@@ -1,8 +1,12 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Camera, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { ConsentSchema } from '@/lib/shared';
+import type { ConsentInput } from '@/lib/shared';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
@@ -35,10 +39,19 @@ For privacy-related queries, contact us at privacy@wetheyuva.org
 export default function ConsentPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  const [mediaAccepted, setMediaAccepted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { user, isLoading: isAuthLoading } = useAuth();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ConsentInput>({
+    resolver: zodResolver(ConsentSchema),
+    defaultValues: {
+      privacyPolicyAccepted: false as never,
+      mediaConsentAccepted: false,
+    },
+  });
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -46,14 +59,11 @@ export default function ConsentPage() {
     }
   }, [user, isAuthLoading, router]);
 
-  const handleSubmit = async () => {
-    if (!privacyAccepted) return;
-
-    setIsLoading(true);
+  const onSubmit = async (data: ConsentInput) => {
     try {
       await api.post('/auth/consent', {
         privacyPolicyAccepted: true,
-        mediaConsentAccepted: mediaAccepted,
+        mediaConsentAccepted: data.mediaConsentAccepted,
       });
       router.push('/setup-profile');
     } catch (error) {
@@ -75,14 +85,12 @@ export default function ConsentPage() {
           variant: 'destructive',
         });
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <div className="space-y-5">
-      <div className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
         <div>
           <h1 className="font-heading font-bold text-2xl text-brand-text">Before you begin</h1>
           <p className="text-brand-muted text-sm mt-1">Please review and accept our policies</p>
@@ -99,109 +107,129 @@ export default function ConsentPage() {
         {/* Checkboxes */}
         <div className="space-y-3">
           {/* Privacy policy — required */}
-          <label className="flex items-start gap-3 cursor-pointer group has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary rounded-lg">
-            <div className="relative mt-0.5">
-              <input
-                type="checkbox"
-                checked={privacyAccepted}
-                onChange={(e) => setPrivacyAccepted(e.target.checked)}
-                className="sr-only"
-                aria-describedby="privacy-desc"
-              />
-              <div
-                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200
-                  ${
-                    privacyAccepted
-                      ? 'bg-brand-primary border-brand-primary'
-                      : 'border-brand-border group-hover:border-brand-primary'
-                  }`}
-              >
-                {privacyAccepted && (
-                  <svg
-                    aria-hidden="true"
-                    className="w-3 h-3 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
+          <Controller
+            name="privacyPolicyAccepted"
+            control={control}
+            render={({ field }) => (
+              <label className="flex items-start gap-3 cursor-pointer group has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary rounded-lg">
+                <div className="relative mt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={field.value as unknown as boolean}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                    className="sr-only"
+                    aria-describedby="privacy-desc"
+                    aria-invalid={!!errors.privacyPolicyAccepted}
+                  />
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200
+                      ${
+                        field.value
+                          ? 'bg-brand-primary border-brand-primary'
+                          : errors.privacyPolicyAccepted
+                            ? 'border-brand-error group-hover:border-brand-primary'
+                            : 'border-brand-border group-hover:border-brand-primary'
+                      }`}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-brand-primary" />
-                <span className="text-sm font-medium text-brand-text">
-                  I have read and accept the Privacy Policy
-                </span>
-                <span className="text-brand-error text-xs font-medium">(required)</span>
-              </div>
-              <p id="privacy-desc" className="text-xs text-brand-muted mt-0.5">
-                Required to use the WeTheYuva platform
-              </p>
-            </div>
-          </label>
+                    {field.value && (
+                      <svg
+                        aria-hidden="true"
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <Shield className="w-4 h-4 text-brand-primary" />
+                    <span className="text-sm font-medium text-brand-text">
+                      I have read and accept the Privacy Policy
+                    </span>
+                    <span className="text-brand-error text-xs font-medium">(required)</span>
+                  </div>
+                  <p id="privacy-desc" className="text-xs text-brand-muted mt-0.5">
+                    Required to use the WeTheYuva platform
+                  </p>
+                  {errors.privacyPolicyAccepted && (
+                    <p className="text-brand-error text-xs mt-1" role="alert">
+                      {errors.privacyPolicyAccepted.message}
+                    </p>
+                  )}
+                </div>
+              </label>
+            )}
+          />
 
           {/* Media consent — optional */}
-          <label className="flex items-start gap-3 cursor-pointer group has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary rounded-lg">
-            <div className="relative mt-0.5">
-              <input
-                type="checkbox"
-                checked={mediaAccepted}
-                onChange={(e) => setMediaAccepted(e.target.checked)}
-                className="sr-only"
-                aria-describedby="media-desc"
-              />
-              <div
-                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200
-                  ${
-                    mediaAccepted
-                      ? 'bg-brand-primary border-brand-primary'
-                      : 'border-brand-border group-hover:border-brand-primary'
-                  }`}
-              >
-                {mediaAccepted && (
-                  <svg
-                    aria-hidden="true"
-                    className="w-3 h-3 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
+          <Controller
+            name="mediaConsentAccepted"
+            control={control}
+            render={({ field }) => (
+              <label className="flex items-start gap-3 cursor-pointer group has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-primary rounded-lg">
+                <div className="relative mt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                    className="sr-only"
+                    aria-describedby="media-desc"
+                  />
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors duration-200
+                      ${
+                        field.value
+                          ? 'bg-brand-primary border-brand-primary'
+                          : 'border-brand-border group-hover:border-brand-primary'
+                      }`}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <Camera className="w-4 h-4 text-brand-muted" />
-                <span className="text-sm font-medium text-brand-text">
-                  I consent to media usage
-                </span>
-                <span className="text-brand-muted text-xs">(optional)</span>
-              </div>
-              <p id="media-desc" className="text-xs text-brand-muted mt-0.5">
-                Allow WeTheYuva to use photos/videos from events you participate in
-              </p>
-            </div>
-          </label>
+                    {field.value && (
+                      <svg
+                        aria-hidden="true"
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-brand-muted" />
+                    <span className="text-sm font-medium text-brand-text">
+                      I consent to media usage
+                    </span>
+                    <span className="text-brand-muted text-xs">(optional)</span>
+                  </div>
+                  <p id="media-desc" className="text-xs text-brand-muted mt-0.5">
+                    Allow WeTheYuva to use photos/videos from events you participate in
+                  </p>
+                </div>
+              </label>
+            )}
+          />
         </div>
 
         <Button
+          type="submit"
           variant="cta"
           fullWidth
-          onClick={handleSubmit}
-          disabled={!privacyAccepted}
-          loading={isLoading}
+          disabled={isSubmitting}
+          loading={isSubmitting}
         >
           Continue
           <ArrowRight className="w-4 h-4" />
         </Button>
-      </div>
+      </form>
     </div>
   );
 }

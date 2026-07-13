@@ -17,7 +17,7 @@ export default function AdminError({
   return (
     <div role="alert" className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
       <h1 className="font-heading font-bold text-xl text-brand-text">Something went wrong</h1>
-      <p className="text-sm text-brand-muted">{error.message}</p>
+      <p className="text-sm text-brand-muted">An unexpected error occurred.</p>
       <Button onClick={reset} variant="primary">
         Try again
       </Button>

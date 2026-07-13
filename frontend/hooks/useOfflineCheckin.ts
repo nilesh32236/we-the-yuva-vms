@@ -126,8 +126,8 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
         const message =
           err instanceof Error
             ? err.message
-            : (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-              'Check-in failed';
+            : ((err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+              'Check-in failed');
         onError(message);
       }
     },

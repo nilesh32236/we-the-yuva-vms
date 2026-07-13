@@ -91,10 +91,10 @@ export default function TermsPage() {
           <h2 className="font-heading text-xl font-semibold text-brand-text mb-3">7. Contact</h2>
           <p className="text-brand-muted leading-relaxed">
             For questions about these terms, please contact us at{' '}
-              <a
-                href="mailto:hello@wetheyuva.org"
-                className="text-brand-primary font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring inline-block py-2.5"
-              >
+            <a
+              href="mailto:hello@wetheyuva.org"
+              className="text-brand-primary font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring inline-block py-2.5"
+            >
               hello@wetheyuva.org
             </a>
             .

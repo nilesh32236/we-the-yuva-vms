@@ -21,7 +21,13 @@ export default function AdminProfilePage() {
 
   if (isLoading)
     return (
-      <div role="status" aria-busy="true" className="flex items-center justify-center h-40 text-brand-muted text-sm">Loading…</div>
+      <div
+        role="status"
+        aria-busy="true"
+        className="flex items-center justify-center h-40 text-brand-muted text-sm"
+      >
+        Loading…
+      </div>
     );
 
   return (

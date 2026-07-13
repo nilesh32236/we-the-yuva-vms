@@ -19,7 +19,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: isAuthLoading } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const [ready, setReady] = useState(false);
 
   // Redirect to dashboard or onboarding if already authenticated
@@ -50,13 +49,12 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SendOtpInput>({
     resolver: zodResolver(SendOtpSchema),
   });
 
   const onSubmit = async (data: SendOtpInput) => {
-    setIsLoading(true);
     try {
       const res = await api.post('/auth/send-otp', data);
       // TEMPORARY: store dev OTP so verify page can display it
@@ -71,8 +69,6 @@ export default function LoginPage() {
         (error as { response?: { data?: { error?: string } } })?.response?.data?.error ??
         'Something went wrong. Please try again.';
       toast({ title: 'Error', description: message, variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -121,6 +117,8 @@ export default function LoginPage() {
                 inputMode="email"
                 autoComplete="email"
                 placeholder="you@example.com"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -143,7 +141,7 @@ export default function LoginPage() {
             type="submit"
             variant="cta"
             fullWidth
-            loading={isLoading}
+            loading={isSubmitting}
             className="active-bounce"
           >
             Continue

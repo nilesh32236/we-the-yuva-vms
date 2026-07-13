@@ -35,7 +35,11 @@ export function AddToCalendarButton({
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch {
-      toast({ title: 'Download failed', description: 'Could not download calendar file.', variant: 'destructive' });
+      toast({
+        title: 'Download failed',
+        description: 'Could not download calendar file.',
+        variant: 'destructive',
+      });
     } finally {
       setDownloading(false);
     }

@@ -67,10 +67,16 @@ export default function EditEventPage() {
     );
   }
 
+  const toDatetimeLocal = (date: Date) => {
+    if (Number.isNaN(date.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
+
   const defaultValues: Partial<EventInput> = {
     title: event.title,
     description: event.description ?? undefined,
-    eventDate: new Date(event.eventDate).toISOString(),
+    eventDate: toDatetimeLocal(new Date(event.eventDate)),
     startTime: event.startTime,
     endTime: event.endTime,
     venue: event.venue ?? undefined,

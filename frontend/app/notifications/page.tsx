@@ -78,11 +78,17 @@ export default function NotificationsPage() {
   const markReadMut = useMutation({
     mutationFn: (id: string) => api.post(`/notifications/${id}/read`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onError: () => {
+      toast({ title: 'Failed to mark as read', variant: 'destructive' });
+    },
   });
 
   const markAllReadMut = useMutation({
     mutationFn: () => api.post('/notifications/read-all'),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+    onError: () => {
+      toast({ title: 'Failed to mark all as read', variant: 'destructive' });
+    },
   });
 
   const deleteMut = useMutation({
@@ -101,16 +107,16 @@ export default function NotificationsPage() {
     <main id="main" className="min-h-dvh bg-brand-bg">
       {/* Header */}
       <header className="h-16 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              haptic.light();
-              router.back();
-            }}
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="w-4 h-4" />
+        <button
+          type="button"
+          onClick={() => {
+            haptic.light();
+            router.back();
+          }}
+          className="w-11 h-11 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-4 h-4" />
         </button>
         <h1 className="font-heading font-bold text-lg text-brand-text flex-1">Notifications</h1>
         {unreadCount > 0 && (

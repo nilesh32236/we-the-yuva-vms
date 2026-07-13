@@ -1,18 +1,32 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, CheckCircle, Keyboard, QrCode, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { Button } from '@/components/ui/Button';
 
+const ManualTokenSchema = z.object({
+  token: z.string().min(1, 'Please enter a check-in code'),
+});
+type ManualTokenInput = z.infer<typeof ManualTokenSchema>;
+
 function ScanInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [manualToken, setManualToken] = useState('');
+  const {
+    register: registerToken,
+    handleSubmit: handleTokenSubmit,
+    formState: { errors: tokenErrors },
+  } = useForm<ManualTokenInput>({
+    resolver: zodResolver(ManualTokenSchema),
+  });
   const [result, setResult] = useState<'success' | 'error' | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [mode, setMode] = useState<'camera' | 'manual'>('camera');
@@ -116,18 +130,14 @@ function ScanInner() {
     };
   }, [mode, result, doCheckin, eventId]);
 
-  const handleManualSubmit = () => {
+  const onManualSubmit = (data: ManualTokenInput) => {
     if (!eventId) {
       setErrorMsg('Missing event ID. Scan the QR code from your event page.');
       return;
     }
-    if (!manualToken.trim()) {
-      setErrorMsg('Please enter a check-in code');
-      return;
-    }
     setErrorMsg('');
     haptic.medium();
-    doCheckin(manualToken.trim());
+    doCheckin(data.token.trim());
   };
 
   // Auto-redirect from URL params
@@ -142,7 +152,7 @@ function ScanInner() {
             </div>
           ) : result === 'success' ? (
             <div className="space-y-4">
-          <CheckCircle className="w-16 h-16 text-brand-primary mx-auto" />
+              <CheckCircle className="w-16 h-16 text-brand-primary mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
               <p className="text-brand-muted">Redirecting to your events...</p>
             </div>
@@ -178,7 +188,10 @@ function ScanInner() {
       </div>
 
       {errorMsg && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-4 text-sm text-red-600 dark:text-red-400" role="alert">
+        <div
+          className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-xl p-4 text-sm text-red-600 dark:text-red-400"
+          role="alert"
+        >
           {errorMsg}
         </div>
       )}
@@ -230,44 +243,55 @@ function ScanInner() {
 
           {/* Camera scanner */}
           {mode === 'camera' && (
-            <div id="scan-camera-panel" role="tabpanel" className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
+            <div
+              id="scan-camera-panel"
+              role="tabpanel"
+              className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden"
+            >
               <div
                 id="qr-scanner-container"
                 ref={scannerContainer}
                 className="w-full aspect-square bg-black"
               />
               {!scannerReady && (
-                <div className="text-center py-4 text-sm text-brand-muted" aria-live="polite">Starting camera...</div>
+                <div className="text-center py-4 text-sm text-brand-muted" aria-live="polite">
+                  Starting camera...
+                </div>
               )}
             </div>
           )}
 
           {/* Manual entry */}
           {mode === 'manual' && (
-            <div id="scan-manual-panel" role="tabpanel" className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4">
-              <div className="space-y-1.5">
-                <label htmlFor="token" className="text-sm font-medium text-brand-text">
-                  Check-in Code
-                </label>
-                <input
-                  id="token"
-                  type="text"
-                  value={manualToken}
-                  onChange={(e) => setManualToken(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleManualSubmit();
-                  }}
-                  placeholder="Paste or type the check-in code"
-                  className="w-full px-4 py-3 rounded-xl bg-background border border-brand-border text-base focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-                />
-              </div>
-              <Button
-                onClick={handleManualSubmit}
-                loading={checkinMutation.isPending}
-                className="w-full"
-              >
-                Check In
-              </Button>
+            <div
+              id="scan-manual-panel"
+              role="tabpanel"
+              className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4"
+            >
+              <form onSubmit={handleTokenSubmit(onManualSubmit)} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="token" className="text-sm font-medium text-brand-text">
+                    Check-in Code
+                  </label>
+                  <input
+                    id="token"
+                    type="text"
+                    {...registerToken('token')}
+                    disabled={checkinMutation.isPending}
+                    aria-invalid={!!tokenErrors.token}
+                    placeholder="Paste or type the check-in code"
+                    className={`w-full px-4 py-3 rounded-xl bg-background border text-base focus:outline-none focus:ring-2 focus:ring-brand-primary/40 ${tokenErrors.token ? 'border-brand-error' : 'border-brand-border'}`}
+                  />
+                  {tokenErrors.token && (
+                    <p className="text-xs text-brand-error" role="alert">
+                      {tokenErrors.token.message}
+                    </p>
+                  )}
+                </div>
+                <Button type="submit" loading={checkinMutation.isPending} className="w-full">
+                  Check In
+                </Button>
+              </form>
             </div>
           )}
         </>

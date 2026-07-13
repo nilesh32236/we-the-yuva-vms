@@ -1,9 +1,11 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { OtpInput } from '../../../components/auth/OtpInput';
 import { ResendButton } from '../../../components/auth/ResendButton';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
@@ -11,6 +13,7 @@ import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api, setAccessToken } from '../../../lib/api';
 import { VerifyOtpSchema } from '../../../lib/shared';
+import type { VerifyOtpInput } from '../../../lib/shared';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 function VerifyOtpContent() {
@@ -20,11 +23,21 @@ function VerifyOtpContent() {
   const { user: authUser, isLoading: isAuthLoading, refetch } = useAuth();
 
   const email = searchParams.get('email') ?? '';
-  const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
   const [isVerifying, setIsVerifying] = useState(false);
   const [devOtp, setDevOtp] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(300);
   const submitted = useRef(false);
+
+  const {
+    control,
+    watch,
+    setValue,
+    trigger,
+    formState: { errors },
+  } = useForm<VerifyOtpInput>({
+    resolver: zodResolver(VerifyOtpSchema),
+    defaultValues: { email, otp: '' },
+  });
 
   // TEMPORARY: read dev OTP from sessionStorage
   useEffect(() => {
@@ -80,14 +93,6 @@ function VerifyOtpContent() {
   const handleVerify = useCallback(
     async (digits: string[]) => {
       const code = digits.join('');
-      // Validate with Zod schema before sending
-      const parsed = VerifyOtpSchema.safeParse({ email, otp: code });
-      if (!parsed.success) {
-        const message = parsed.error.errors[0]?.message ?? 'Invalid OTP format';
-        toast({ title: 'Validation error', description: message, variant: 'destructive' });
-        submitted.current = false;
-        return;
-      }
       // Guard against double-submission (strict mode, concurrent renders)
       if (submitted.current) return;
       submitted.current = true;
@@ -117,20 +122,24 @@ function VerifyOtpContent() {
           'Invalid or expired code. Please try again.';
         toast({ title: 'Verification failed', description: message, variant: 'destructive' });
         submitted.current = false;
-        setOtp(Array(6).fill(''));
+        setValue('otp', '', { shouldValidate: true });
       } finally {
         setIsVerifying(false);
       }
     },
-    [email, refetch, toast]
+    [email, refetch, toast, setValue]
   );
+
+  const otpValue = watch('otp');
 
   // Auto-submit when all 6 digits are entered
   useEffect(() => {
-    if (otp.every((d) => d !== '') && !isVerifying && !navHandled) {
-      handleVerify(otp);
+    if (otpValue.length === 6 && !isVerifying && !navHandled) {
+      trigger('otp').then((valid) => {
+        if (valid) handleVerify(otpValue.split(''));
+      });
     }
-  }, [otp, isVerifying, handleVerify, navHandled]);
+  }, [otpValue, isVerifying, handleVerify, navHandled, trigger]);
 
   const handleResend = async () => {
     try {
@@ -175,7 +184,8 @@ function VerifyOtpContent() {
         {devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
-              <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP (temporary — remove before production)
+              <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP
+              (temporary — remove before production)
             </p>
             <p className="text-yellow-900 dark:text-yellow-100 text-2xl font-mono font-bold tracking-widest mt-1">
               {devOtp}
@@ -187,10 +197,32 @@ function VerifyOtpContent() {
         )}
 
         <div className="space-y-4">
-          <OtpInput value={otp} onChange={setOtp} disabled={isVerifying} />
+          <Controller
+            name="otp"
+            control={control}
+            render={({ field }) => (
+              <OtpInput
+                value={field.value ? field.value.split('') : Array(6).fill('')}
+                onChange={(digits) => {
+                  field.onChange(digits.join(''));
+                  submitted.current = false;
+                }}
+                disabled={isVerifying}
+                error={!!errors.otp}
+              />
+            )}
+          />
+          {errors.otp && (
+            <p className="text-brand-error text-xs text-center" role="alert">
+              {errors.otp.message}
+            </p>
+          )}
 
           {isVerifying && (
-            <div className="flex items-center justify-center gap-2 text-brand-muted text-sm" role="status">
+            <div
+              className="flex items-center justify-center gap-2 text-brand-muted text-sm"
+              role="status"
+            >
               <span className="w-4 h-4 border-2 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
               Verifying...
             </div>
@@ -201,7 +233,11 @@ function VerifyOtpContent() {
           <div className="text-center">
             <p className="text-brand-muted text-xs">
               Code expires in{' '}
-              <span className={countdown < 60 ? 'text-brand-error font-medium' : 'font-medium text-brand-text'}>
+              <span
+                className={
+                  countdown < 60 ? 'text-brand-error font-medium' : 'font-medium text-brand-text'
+                }
+              >
                 {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
               </span>
             </p>

@@ -81,30 +81,13 @@ const OpportunityCard = memo(function OpportunityCard({
         exact: true,
       });
 
-      qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'], exact: true }, (oldData) => {
-        if (!oldData) return oldData;
+      qc.setQueriesData<OpportunityCacheData>(
+        { queryKey: ['opportunities'], exact: true },
+        (oldData) => {
+          if (!oldData) return oldData;
 
-        if (Array.isArray(oldData)) {
-          return oldData.map((item) => {
-            if (item.id === opp.id) {
-              return {
-                ...item,
-                userApplication: { status: 'PENDING' },
-                acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
-                _count: {
-                  ...item._count,
-                  applications: (item._count?.applications ?? 0) + 1,
-                },
-              };
-            }
-            return item;
-          });
-        }
-
-        if (oldData && Array.isArray(oldData.data)) {
-          return {
-            ...oldData,
-            data: oldData.data.map((item) => {
+          if (Array.isArray(oldData)) {
+            return oldData.map((item) => {
               if (item.id === opp.id) {
                 return {
                   ...item,
@@ -117,12 +100,32 @@ const OpportunityCard = memo(function OpportunityCard({
                 };
               }
               return item;
-            }),
-          };
-        }
+            });
+          }
 
-        return oldData;
-      });
+          if (oldData && Array.isArray(oldData.data)) {
+            return {
+              ...oldData,
+              data: oldData.data.map((item) => {
+                if (item.id === opp.id) {
+                  return {
+                    ...item,
+                    userApplication: { status: 'PENDING' },
+                    acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
+                    _count: {
+                      ...item._count,
+                      applications: (item._count?.applications ?? 0) + 1,
+                    },
+                  };
+                }
+                return item;
+              }),
+            };
+          }
+
+          return oldData;
+        }
+      );
 
       return { previousQueries };
     },
@@ -144,7 +147,9 @@ const OpportunityCard = memo(function OpportunityCard({
       } else {
         toast({
           title: 'Error',
-          description: (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not submit application.',
+          description:
+            (err as { normalizedMessage?: string })?.normalizedMessage ??
+            'Could not submit application.',
           variant: 'destructive',
         });
       }

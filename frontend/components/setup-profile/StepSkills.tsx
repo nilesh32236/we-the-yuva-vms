@@ -12,10 +12,26 @@ interface StepSkillsProps {
 }
 
 const SKILLS_LIST = [
-  'TEACHING', 'PUBLIC_SPEAKING', 'EVENT_MANAGEMENT', 'PHOTOGRAPHY', 'GRAPHIC_DESIGN',
-  'SOCIAL_MEDIA', 'CONTENT_WRITING', 'FUNDRAISING', 'COUNSELLING', 'LEADERSHIP',
-  'PROJECT_MANAGEMENT', 'WEB_DEVELOPMENT', 'SOFTWARE_DEVELOPMENT', 'VIDEO_EDITING',
-  'TRANSLATION', 'FIRST_AID', 'ACCOUNTING', 'LEGAL_SUPPORT', 'DATA_ENTRY', 'ADMINISTRATION',
+  'TEACHING',
+  'PUBLIC_SPEAKING',
+  'EVENT_MANAGEMENT',
+  'PHOTOGRAPHY',
+  'GRAPHIC_DESIGN',
+  'SOCIAL_MEDIA',
+  'CONTENT_WRITING',
+  'FUNDRAISING',
+  'COUNSELLING',
+  'LEADERSHIP',
+  'PROJECT_MANAGEMENT',
+  'WEB_DEVELOPMENT',
+  'SOFTWARE_DEVELOPMENT',
+  'VIDEO_EDITING',
+  'TRANSLATION',
+  'FIRST_AID',
+  'ACCOUNTING',
+  'LEGAL_SUPPORT',
+  'DATA_ENTRY',
+  'ADMINISTRATION',
 ] as const;
 
 export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
@@ -41,7 +57,9 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
   return (
     <>
       <h2 className="font-heading font-semibold text-xl text-brand-text">Skills & Languages</h2>
-      <p className="text-brand-muted text-sm -mt-3">Tell us about your skills and languages you speak</p>
+      <p className="text-brand-muted text-sm -mt-3">
+        Tell us about your skills and languages you speak
+      </p>
 
       <div className="space-y-5">
         <div className="space-y-2">
@@ -52,16 +70,26 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
             selected={skills}
             toggle={toggleSkills}
             labelMap={{
-              TEACHING: 'Teaching', PUBLIC_SPEAKING: 'Public Speaking',
-              EVENT_MANAGEMENT: 'Event Management', PHOTOGRAPHY: 'Photography',
-              GRAPHIC_DESIGN: 'Graphic Design', SOCIAL_MEDIA: 'Social Media',
-              CONTENT_WRITING: 'Content Writing', FUNDRAISING: 'Fundraising',
-              COUNSELLING: 'Counselling', LEADERSHIP: 'Leadership',
-              PROJECT_MANAGEMENT: 'Project Management', WEB_DEVELOPMENT: 'Web Development',
-              SOFTWARE_DEVELOPMENT: 'Software Development', VIDEO_EDITING: 'Video Editing',
-              TRANSLATION: 'Translation', FIRST_AID: 'First Aid',
-              ACCOUNTING: 'Accounting', LEGAL_SUPPORT: 'Legal Support',
-              DATA_ENTRY: 'Data Entry', ADMINISTRATION: 'Administration',
+              TEACHING: 'Teaching',
+              PUBLIC_SPEAKING: 'Public Speaking',
+              EVENT_MANAGEMENT: 'Event Management',
+              PHOTOGRAPHY: 'Photography',
+              GRAPHIC_DESIGN: 'Graphic Design',
+              SOCIAL_MEDIA: 'Social Media',
+              CONTENT_WRITING: 'Content Writing',
+              FUNDRAISING: 'Fundraising',
+              COUNSELLING: 'Counselling',
+              LEADERSHIP: 'Leadership',
+              PROJECT_MANAGEMENT: 'Project Management',
+              WEB_DEVELOPMENT: 'Web Development',
+              SOFTWARE_DEVELOPMENT: 'Software Development',
+              VIDEO_EDITING: 'Video Editing',
+              TRANSLATION: 'Translation',
+              FIRST_AID: 'First Aid',
+              ACCOUNTING: 'Accounting',
+              LEGAL_SUPPORT: 'Legal Support',
+              DATA_ENTRY: 'Data Entry',
+              ADMINISTRATION: 'Administration',
             }}
             error={errors.step1?.skills?.message}
           />
@@ -75,16 +103,26 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
             selected={expertise}
             toggle={toggleExpertise}
             labelMap={{
-              TEACHING: 'Teaching', PUBLIC_SPEAKING: 'Public Speaking',
-              EVENT_MANAGEMENT: 'Event Management', PHOTOGRAPHY: 'Photography',
-              GRAPHIC_DESIGN: 'Graphic Design', SOCIAL_MEDIA: 'Social Media',
-              CONTENT_WRITING: 'Content Writing', FUNDRAISING: 'Fundraising',
-              COUNSELLING: 'Counselling', LEADERSHIP: 'Leadership',
-              PROJECT_MANAGEMENT: 'Project Management', WEB_DEVELOPMENT: 'Web Development',
-              SOFTWARE_DEVELOPMENT: 'Software Development', VIDEO_EDITING: 'Video Editing',
-              TRANSLATION: 'Translation', FIRST_AID: 'First Aid',
-              ACCOUNTING: 'Accounting', LEGAL_SUPPORT: 'Legal Support',
-              DATA_ENTRY: 'Data Entry', ADMINISTRATION: 'Administration',
+              TEACHING: 'Teaching',
+              PUBLIC_SPEAKING: 'Public Speaking',
+              EVENT_MANAGEMENT: 'Event Management',
+              PHOTOGRAPHY: 'Photography',
+              GRAPHIC_DESIGN: 'Graphic Design',
+              SOCIAL_MEDIA: 'Social Media',
+              CONTENT_WRITING: 'Content Writing',
+              FUNDRAISING: 'Fundraising',
+              COUNSELLING: 'Counselling',
+              LEADERSHIP: 'Leadership',
+              PROJECT_MANAGEMENT: 'Project Management',
+              WEB_DEVELOPMENT: 'Web Development',
+              SOFTWARE_DEVELOPMENT: 'Software Development',
+              VIDEO_EDITING: 'Video Editing',
+              TRANSLATION: 'Translation',
+              FIRST_AID: 'First Aid',
+              ACCOUNTING: 'Accounting',
+              LEGAL_SUPPORT: 'Legal Support',
+              DATA_ENTRY: 'Data Entry',
+              ADMINISTRATION: 'Administration',
             }}
           />
         </div>
@@ -97,8 +135,13 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
             selected={languages}
             toggle={toggleLanguage}
             labelMap={{
-              HINDI: 'Hindi', ENGLISH: 'English', GUJARATI: 'Gujarati',
-              MARATHI: 'Marathi', TAMIL: 'Tamil', TELUGU: 'Telugu', OTHER: 'Other',
+              HINDI: 'Hindi',
+              ENGLISH: 'English',
+              GUJARATI: 'Gujarati',
+              MARATHI: 'Marathi',
+              TAMIL: 'Tamil',
+              TELUGU: 'Telugu',
+              OTHER: 'Other',
             }}
           />
         </div>

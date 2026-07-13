@@ -5,23 +5,46 @@ import { ArrowLeft, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '../../../../../../components/ui/Button';
 import { useToast } from '../../../../../../hooks/use-toast';
 import { api } from '../../../../../../lib/api';
 import { haptic } from '@/lib/haptic';
+
+const feedbackSchema = z.object({
+  rating: z.number().min(1, 'Please select a rating').max(5),
+  comments: z.string().optional(),
+  learnings: z.string().optional(),
+  confidence: z.number().min(0).max(5),
+});
 
 export default function EventFeedbackPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();
 
-  const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
-  const [ratingTouched, setRatingTouched] = useState(false);
-  const [comments, setComments] = useState('');
-  const [learnings, setLearnings] = useState('');
-  const [confidence, setConfidence] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const form = useForm({
+    resolver: zodResolver(feedbackSchema),
+    defaultValues: {
+      rating: 0,
+      comments: '',
+      learnings: '',
+      confidence: 0,
+    },
+  });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = form;
+  const rating = watch('rating');
+  const confidence = watch('confidence');
 
   const { data: event } = useQuery({
     queryKey: ['event', id],
@@ -29,17 +52,15 @@ export default function EventFeedbackPage() {
     enabled: !!id,
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (rating === 0) return;
+  const onSubmit = async (data: z.infer<typeof feedbackSchema>) => {
     haptic.medium();
     setSubmitting(true);
     try {
       await api.post(`/feedback/events/${id}`, {
-        rating,
-        comments: comments.trim() || undefined,
-        learnings: learnings.trim() || undefined,
-        confidenceLevel: confidence || undefined,
+        rating: data.rating,
+        comments: data.comments?.trim() || undefined,
+        learnings: data.learnings?.trim() || undefined,
+        confidenceLevel: data.confidence || undefined,
       });
       toast({
         title: 'Feedback submitted!',
@@ -73,23 +94,28 @@ export default function EventFeedbackPage() {
           {event?.title ? `How was "${event.title}"?` : 'How was this event?'}
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Rating */}
           <div className="space-y-2">
-            <label htmlFor="rating" id="rating-label" className="text-sm font-medium text-brand-text">
+            <label
+              htmlFor="rating"
+              id="rating-label"
+              className="text-sm font-medium text-brand-text"
+            >
               Rating
             </label>
-            <div className="flex items-center gap-1" role="radiogroup" aria-labelledby="rating-label">
+            <div
+              className="flex items-center gap-1"
+              role="radiogroup"
+              aria-labelledby="rating-label"
+            >
               <input type="hidden" id="rating" value={rating} readOnly />
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
                   type="button"
                   aria-label={`Rate ${n} star${n > 1 ? 's' : ''}`}
-                  onClick={() => {
-                    setRating(n);
-                    setRatingTouched(true);
-                  }}
+                  onClick={() => setValue('rating', n)}
                   onMouseEnter={() => setHover(n)}
                   onMouseLeave={() => setHover(0)}
                   className="p-1.5 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary rounded-lg"
@@ -100,9 +126,9 @@ export default function EventFeedbackPage() {
                 </button>
               ))}
             </div>
-            {ratingTouched && rating === 0 && (
+            {errors.rating && (
               <p id="rating-error" className="text-xs text-destructive mt-1" role="alert">
-                Please select a rating.
+                {errors.rating.message}
               </p>
             )}
           </div>
@@ -114,12 +140,22 @@ export default function EventFeedbackPage() {
             </label>
             <textarea
               id="comments"
-              value={comments}
-              onChange={(e) => setComments(e.target.value)}
+              {...register('comments')}
               rows={3}
+              disabled={submitting}
+              aria-invalid={!!errors.comments}
               placeholder="What did you enjoy? Any suggestions for improvement?"
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+              className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 resize-none ${
+                errors.comments
+                  ? 'border-brand-error focus:ring-brand-error/30'
+                  : 'border-brand-border focus:ring-brand-primary'
+              }`}
             />
+            {errors.comments && (
+              <p role="alert" className="text-xs text-brand-error">
+                {errors.comments.message}
+              </p>
+            )}
           </div>
 
           {/* Learnings / Reflection */}
@@ -129,12 +165,22 @@ export default function EventFeedbackPage() {
             </label>
             <textarea
               id="learnings"
-              value={learnings}
-              onChange={(e) => setLearnings(e.target.value)}
+              {...register('learnings')}
               rows={3}
+              disabled={submitting}
+              aria-invalid={!!errors.learnings}
               placeholder="Share something new you learned or experienced..."
-              className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+              className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 resize-none ${
+                errors.learnings
+                  ? 'border-brand-error focus:ring-brand-error/30'
+                  : 'border-brand-border focus:ring-brand-primary'
+              }`}
             />
+            {errors.learnings && (
+              <p role="alert" className="text-xs text-brand-error">
+                {errors.learnings.message}
+              </p>
+            )}
           </div>
 
           {/* Confidence level */}
@@ -143,12 +189,13 @@ export default function EventFeedbackPage() {
               Confidence level after this event (optional)
             </label>
             <div className="flex items-center gap-3">
-              <input type="hidden" id="confidence" value={confidence} readOnly />
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
                   type="button"
-                  onClick={() => setConfidence(n === confidence ? 0 : n)}
+                  onClick={() => setValue('confidence', n === confidence ? 0 : n)}
+                  disabled={submitting}
+                  aria-invalid={!!errors.confidence}
                   className={`w-11 h-11 rounded-xl text-sm font-semibold border transition-colors cursor-pointer
                     ${n <= confidence ? 'bg-brand-primary text-white border-brand-primary' : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary'}`}
                 >
@@ -156,6 +203,11 @@ export default function EventFeedbackPage() {
                 </button>
               ))}
             </div>
+            {errors.confidence && (
+              <p role="alert" className="text-xs text-brand-error">
+                {errors.confidence.message}
+              </p>
+            )}
             <p className="text-xs text-brand-muted">1 = Low confidence · 5 = Very confident</p>
           </div>
 
@@ -164,7 +216,7 @@ export default function EventFeedbackPage() {
             variant="primary"
             fullWidth
             loading={submitting}
-            disabled={rating === 0}
+            disabled={submitting}
           >
             Submit Feedback
           </Button>

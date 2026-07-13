@@ -17,31 +17,33 @@ export function AppUpdatePrompt() {
     }
 
     // Grab the active Service Worker registration
-    navigator.serviceWorker.ready.then((reg) => {
-      setRegistration(reg);
+    navigator.serviceWorker.ready
+      .then((reg) => {
+        setRegistration(reg);
 
-      // 1. If there's already a waiting worker, prompt immediately
-      if (reg.waiting) {
-        setUpdateAvailable(true);
-      }
-
-      // 2. Listen for new workers being installed
-      const handleUpdateFound = () => {
-        const newWorker = reg.installing;
-        if (newWorker) {
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              haptic.success();
-              setUpdateAvailable(true);
-            }
-          });
+        // 1. If there's already a waiting worker, prompt immediately
+        if (reg.waiting) {
+          setUpdateAvailable(true);
         }
-      };
 
-      reg.addEventListener('updatefound', handleUpdateFound);
-    }).catch((err) => {
-      console.error('SW registration failed:', err);
-    });
+        // 2. Listen for new workers being installed
+        const handleUpdateFound = () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                haptic.success();
+                setUpdateAvailable(true);
+              }
+            });
+          }
+        };
+
+        reg.addEventListener('updatefound', handleUpdateFound);
+      })
+      .catch((err) => {
+        console.error('SW registration failed:', err);
+      });
 
     // 3. Listen for controlling worker change (after skipWaiting is invoked)
     const handleControllerChange = () => {

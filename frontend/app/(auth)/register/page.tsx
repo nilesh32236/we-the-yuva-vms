@@ -23,7 +23,14 @@ function CallAvailabilityInput({
   onChange,
   error,
 }: {
-  value: { preference: AvailabilityPref; afterTime?: string; days?: number[]; slots?: Array<{ day: number; startTime: string; endTime: string }> } | undefined;
+  value:
+    | {
+        preference: AvailabilityPref;
+        afterTime?: string;
+        days?: number[];
+        slots?: Array<{ day: number; startTime: string; endTime: string }>;
+      }
+    | undefined;
   onChange: (val: typeof value) => void;
   error?: string;
 }) {
@@ -35,7 +42,9 @@ function CallAvailabilityInput({
 
   const toggleDay = (day: number) => {
     const current = value?.days ?? [];
-    const next = current.includes(day) ? current.filter((d) => d !== day) : [...current, day].sort();
+    const next = current.includes(day)
+      ? current.filter((d) => d !== day)
+      : [...current, day].sort();
     onChange({ ...value, preference: 'specific_days' as const, days: next });
   };
 
@@ -62,13 +71,13 @@ function CallAvailabilityInput({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
-        {([
+        {[
           { value: 'anytime' as const, label: 'Anytime' },
           { value: 'anyday_after' as const, label: 'Any day after...' },
           { value: 'specific_days' as const, label: 'Specific days' },
           { value: 'weekends' as const, label: 'Weekends' },
           { value: 'custom' as const, label: 'Custom schedule' },
-        ]).map((opt) => (
+        ].map((opt) => (
           <button
             key={opt.value}
             type="button"
@@ -86,12 +95,16 @@ function CallAvailabilityInput({
 
       {pref === 'anyday_after' && (
         <div>
-          <label htmlFor="availability-after-time" className="text-xs text-brand-muted mb-1 block">Available after</label>
+          <label htmlFor="availability-after-time" className="text-xs text-brand-muted mb-1 block">
+            Available after
+          </label>
           <input
             id="availability-after-time"
             type="time"
             value={value?.afterTime ?? ''}
-            onChange={(e) => onChange({ ...value, preference: 'anyday_after' as const, afterTime: e.target.value })}
+            onChange={(e) =>
+              onChange({ ...value, preference: 'anyday_after' as const, afterTime: e.target.value })
+            }
             className="w-40 px-3 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
@@ -131,7 +144,9 @@ function CallAvailabilityInput({
                 className="px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               >
                 {DAY_LABELS.map((label) => (
-                  <option key={label} value={DAY_LABELS.indexOf(label)}>{label}</option>
+                  <option key={label} value={DAY_LABELS.indexOf(label)}>
+                    {label}
+                  </option>
                 ))}
               </select>
               <input
@@ -168,7 +183,9 @@ function CallAvailabilityInput({
       )}
 
       {error && (
-        <p className="text-brand-error text-xs" role="alert">{error}</p>
+        <p className="text-brand-error text-xs" role="alert">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -178,7 +195,6 @@ export default function RegisterPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: isAuthLoading } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [whyVoluntaryCount, setWhyVoluntaryCount] = useState(0);
@@ -217,7 +233,7 @@ export default function RegisterPage() {
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: { role: 'VOLUNTEER' },
@@ -231,7 +247,6 @@ export default function RegisterPage() {
   }, [watchWhyVoluntary]);
 
   const onSubmit = async (data: RegisterInput) => {
-    setIsLoading(true);
     setFormError(null);
     try {
       await api.post('/auth/register', data);
@@ -263,8 +278,6 @@ export default function RegisterPage() {
         setFormError(message);
         toast({ title: 'Error', description: message, variant: 'destructive' });
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -292,7 +305,10 @@ export default function RegisterPage() {
 
         {/* Inline API error banner */}
         {formError && (
-          <div className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error" role="alert">
+          <div
+            className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error"
+            role="alert"
+          >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{formError}</p>
             <button
@@ -313,12 +329,17 @@ export default function RegisterPage() {
               Full name <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
+              <User
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+                aria-hidden="true"
+              />
               <input
                 id="name"
                 type="text"
                 autoComplete="name"
                 placeholder="Your full name"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.name}
                 aria-describedby={errors.name ? 'name-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -339,13 +360,18 @@ export default function RegisterPage() {
               Email address <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
+              <Mail
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+                aria-hidden="true"
+              />
               <input
                 id="email"
                 type="email"
                 inputMode="email"
                 autoComplete="email"
                 placeholder="you@example.com"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.email}
                 aria-describedby={errors.email ? 'email-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -366,13 +392,18 @@ export default function RegisterPage() {
               Phone number <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
+              <Phone
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+                aria-hidden="true"
+              />
               <input
                 id="phone"
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
                 placeholder="+91 98765 43210"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.phone}
                 aria-describedby={errors.phone ? 'phone-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -393,11 +424,16 @@ export default function RegisterPage() {
               Date of birth <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" aria-hidden="true" />
+              <Calendar
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+                aria-hidden="true"
+              />
               <input
                 id="dateOfBirth"
                 type="date"
                 autoComplete="bday"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.dateOfBirth}
                 aria-describedby={errors.dateOfBirth ? 'dob-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -504,21 +540,21 @@ export default function RegisterPage() {
               Referred by (optional)
             </label>
             <input
-                  id="reference"
-                  type="text"
-                  placeholder="Phone number or referral code of the person who referred you"
-                  aria-describedby={errors.reference ? 'reference-error' : undefined}
-                  className={`w-full px-3 py-2.5 rounded-lg border transition-colors duration-200 bg-background
+              id="reference"
+              type="text"
+              placeholder="Phone number or referral code of the person who referred you"
+              aria-describedby={errors.reference ? 'reference-error' : undefined}
+              className={`w-full px-3 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                     focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
                     ${errors.reference ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-                  {...register('reference')}
-                />
-                {errors.reference && (
-                  <p id="reference-error" className="text-brand-error text-xs" role="alert">
-                    {errors.reference.message}
-                  </p>
-                )}
-              </div>
+              {...register('reference')}
+            />
+            {errors.reference && (
+              <p id="reference-error" className="text-brand-error text-xs" role="alert">
+                {errors.reference.message}
+              </p>
+            )}
+          </div>
 
           {/* Call Availability field */}
           <fieldset className="space-y-3 border border-brand-border rounded-lg p-4">
@@ -571,7 +607,7 @@ export default function RegisterPage() {
 
           <input type="hidden" {...register('role')} />
 
-          <Button type="submit" variant="cta" fullWidth loading={isLoading}>
+          <Button type="submit" variant="cta" fullWidth loading={isSubmitting}>
             Create Account
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Button>

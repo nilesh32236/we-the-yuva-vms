@@ -21,12 +21,14 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
     onChange: (v: string) => void,
     placeholder = '',
     type = 'text',
-    error?: string,
+    error?: string
   ) => {
     const id = `input-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     return (
       <div className="space-y-1.5">
-        <label htmlFor={id} className="text-sm font-medium text-brand-text">{label}</label>
+        <label htmlFor={id} className="text-sm font-medium text-brand-text">
+          {label}
+        </label>
         <input
           id={id}
           type={type}
@@ -39,7 +41,9 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           }`}
         />
         {error && (
-          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">{error}</p>
+          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">
+            {error}
+          </p>
         )}
       </div>
     );
@@ -57,10 +61,16 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           <ChipSelect
             options={VOLUNTEER_TYPES}
             selected={volunteerType ? [volunteerType] : []}
-            toggle={(val) => setValue('step3.volunteerType', val as never, { shouldValidate: true })}
+            toggle={(val) =>
+              setValue('step3.volunteerType', val as never, { shouldValidate: true })
+            }
             labelMap={{
-              STUDENT: 'Student', PROFESSIONAL: 'Professional', EVENT: 'Event Based',
-              RECURRING: 'Recurring / Regular', REMOTE: 'Remote', EMERGENCY: 'Emergency Response',
+              STUDENT: 'Student',
+              PROFESSIONAL: 'Professional',
+              EVENT: 'Event Based',
+              RECURRING: 'Recurring / Regular',
+              REMOTE: 'Remote',
+              EMERGENCY: 'Emergency Response',
             }}
             error={errors.step3?.volunteerType?.message}
           />
@@ -72,9 +82,14 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           <ChipSelect
             options={AVAILABILITY_PATTERNS}
             selected={availabilityPattern ? [availabilityPattern] : []}
-            toggle={(val) => setValue('step3.availabilityPattern', val as never, { shouldValidate: true })}
+            toggle={(val) =>
+              setValue('step3.availabilityPattern', val as never, { shouldValidate: true })
+            }
             labelMap={{
-              WEEKDAYS: 'Weekdays', WEEKENDS: 'Weekends', BOTH: 'Both Weekdays & Weekends', FLEXIBLE: 'Flexible',
+              WEEKDAYS: 'Weekdays',
+              WEEKENDS: 'Weekends',
+              BOTH: 'Both Weekdays & Weekends',
+              FLEXIBLE: 'Flexible',
             }}
             error={errors.step3?.availabilityPattern?.message}
           />
@@ -87,7 +102,7 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
             (v) => setValue('step3.hoursPerWeek', Number(v), { shouldValidate: true }),
             'e.g. 5',
             'number',
-            errors.step3?.hoursPerWeek?.message,
+            errors.step3?.hoursPerWeek?.message
           )}
           {commonInput(
             'Session Duration (hrs) *',
@@ -95,7 +110,7 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
             (v) => setValue('step3.sessionDuration', Number(v), { shouldValidate: true }),
             'e.g. 2',
             'number',
-            errors.step3?.sessionDuration?.message,
+            errors.step3?.sessionDuration?.message
           )}
         </div>
       </div>

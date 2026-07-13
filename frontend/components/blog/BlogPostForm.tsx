@@ -39,10 +39,17 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
           id="title"
           type="text"
           placeholder="Enter post title"
-           className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.title ? 'border-brand-error' : 'border-brand-border'}`}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.title}
+          aria-describedby={errors.title ? 'title-error' : undefined}
+          className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.title ? 'border-brand-error' : 'border-brand-border'}`}
           {...register('title')}
         />
-        {errors.title && <p className="text-xs text-brand-error">{errors.title.message}</p>}
+        {errors.title && (
+          <p id="title-error" className="text-xs text-brand-error">
+            {errors.title.message}
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">
@@ -53,22 +60,32 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
           id="excerpt"
           rows={2}
           placeholder="Brief summary for card previews"
-          className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+          disabled={isSubmitting}
+          aria-invalid={!!errors.excerpt}
+          aria-describedby={errors.excerpt ? 'excerpt-error' : undefined}
+          className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${errors.excerpt ? 'border-brand-error' : 'border-brand-border'}`}
           {...register('excerpt')}
         />
+        {errors.excerpt && (
+          <p id="excerpt-error" className="text-xs text-brand-error">{errors.excerpt.message}</p>
+        )}
       </div>
 
       <div className="space-y-1.5">
         <label htmlFor="content" className="text-sm font-medium text-brand-text">
           Content *
         </label>
-        <RichTextEditor
-          content={contentValue}
-          onChange={(html) => {
-            setValue('content', html, { shouldValidate: true });
-            trigger('content');
-          }}
-        />
+        <div
+          className={`rounded-xl border ${errors.content ? 'border-brand-error' : 'border-brand-border'} ${isSubmitting ? 'pointer-events-none opacity-70' : ''}`}
+        >
+          <RichTextEditor
+            content={contentValue}
+            onChange={(html) => {
+              setValue('content', html, { shouldValidate: true });
+              trigger('content');
+            }}
+          />
+        </div>
         {errors.content && (
           <p className="text-xs text-brand-error mt-1">{errors.content.message}</p>
         )}
@@ -82,9 +99,15 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
           id="featuredImage"
           type="text"
           placeholder="https://example.com/image.jpg"
-          className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          disabled={isSubmitting}
+          aria-invalid={!!errors.featuredImage}
+          aria-describedby={errors.featuredImage ? 'featuredImage-error' : undefined}
+          className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.featuredImage ? 'border-brand-error' : 'border-brand-border'}`}
           {...register('featuredImage')}
         />
+        {errors.featuredImage && (
+          <p id="featuredImage-error" className="text-xs text-brand-error">{errors.featuredImage.message}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -96,6 +119,7 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
             id="tags"
             type="text"
             placeholder="e.g. tech, community, leadership"
+            disabled={isSubmitting}
             value={tagsString}
             onChange={(e) =>
               setValue(
@@ -106,8 +130,13 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
                   .filter(Boolean)
               )
             }
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            aria-invalid={!!errors.tags}
+            aria-describedby={errors.tags ? 'tags-error' : undefined}
+            className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.tags ? 'border-brand-error' : 'border-brand-border'}`}
           />
+          {errors.tags && (
+            <p id="tags-error" className="text-xs text-brand-error">{errors.tags.message}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <label htmlFor="category" className="text-sm font-medium text-brand-text">
@@ -117,9 +146,15 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
             id="category"
             type="text"
             placeholder="e.g. Stories, Updates"
-            className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            disabled={isSubmitting}
+            aria-invalid={!!errors.category}
+            aria-describedby={errors.category ? 'category-error' : undefined}
+            className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.category ? 'border-brand-error' : 'border-brand-border'}`}
             {...register('category')}
           />
+          {errors.category && (
+            <p id="category-error" className="text-xs text-brand-error">{errors.category.message}</p>
+          )}
         </div>
       </div>
 

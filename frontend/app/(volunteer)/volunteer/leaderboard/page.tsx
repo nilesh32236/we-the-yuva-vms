@@ -95,7 +95,7 @@ export default function VolunteerLeaderboardPage() {
         {/* Timeframe + Sort */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex gap-1 bg-brand-surface rounded-lg p-0.5 border border-brand-border">
-              {(['weekly', 'monthly', 'all_time'] as Timeframe[]).map((tf) => (
+            {(['weekly', 'monthly', 'all_time'] as Timeframe[]).map((tf) => (
               <button
                 key={tf}
                 type="button"

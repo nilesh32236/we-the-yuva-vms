@@ -3,8 +3,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { Award, CheckCircle2, XCircle } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface VerifiedCertificate {
   volunteerName: string;
@@ -15,6 +17,7 @@ interface VerifiedCertificate {
 
 export default function VerifyCertificatePage() {
   const { hash } = useParams<{ hash: string }>();
+  const { toast } = useToast();
 
   const { data, isLoading, isError } = useQuery<VerifiedCertificate>({
     queryKey: ['verify-certificate', hash],
@@ -22,6 +25,16 @@ export default function VerifyCertificatePage() {
     enabled: !!hash,
     retry: false,
   });
+
+  useEffect(() => {
+    if (isError) {
+      toast({
+        title: 'Verification failed',
+        description: 'Unable to verify this certificate. The link may be invalid or expired.',
+        variant: 'destructive',
+      });
+    }
+  }, [isError, toast]);
 
   if (isLoading) {
     return (

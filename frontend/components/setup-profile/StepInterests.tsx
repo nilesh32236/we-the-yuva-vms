@@ -27,7 +27,9 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
   };
 
   const toggleActivities = (val: string) => {
-    const next = preferredActivities.includes(val) ? preferredActivities.filter((v) => v !== val) : [...preferredActivities, val];
+    const next = preferredActivities.includes(val)
+      ? preferredActivities.filter((v) => v !== val)
+      : [...preferredActivities, val];
     setValue('step2.preferredActivities', next as never, { shouldValidate: true });
   };
 
@@ -45,9 +47,15 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
             selected={causes}
             toggle={toggleCauses}
             labelMap={{
-              EDUCATION: 'Education', HEALTH: 'Health', ENVIRONMENT: 'Environment',
-              COMMUNITY: 'Community', ARTS: 'Arts & Culture', SPORTS: 'Sports',
-              TECHNOLOGY: 'Technology', ACTIVE_CITIZENSHIP: 'Active Citizenship', OTHER: 'Other',
+              EDUCATION: 'Education',
+              HEALTH: 'Health',
+              ENVIRONMENT: 'Environment',
+              COMMUNITY: 'Community',
+              ARTS: 'Arts & Culture',
+              SPORTS: 'Sports',
+              TECHNOLOGY: 'Technology',
+              ACTIVE_CITIZENSHIP: 'Active Citizenship',
+              OTHER: 'Other',
             }}
             error={errors.step2?.causes?.message}
           />
@@ -61,28 +69,43 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
             selected={interests}
             toggle={toggleInterests}
             labelMap={{
-              TEACHING_MENTORING: 'Teaching & Mentoring', HEALTHCARE: 'Healthcare',
-              ENVIRONMENT_CONSERVATION: 'Environment Conservation', COMMUNITY_SERVICE: 'Community Service',
-              ARTS_CULTURE: 'Arts & Culture', SPORTS_COACHING: 'Sports Coaching',
-              DIGITAL_LITERACY: 'Digital Literacy', WOMEN_EMPOWERMENT: "Women's Empowerment",
-              YOUTH_DEVELOPMENT: 'Youth Development', DISASTER_RELIEF: 'Disaster Relief',
-              ANIMAL_WELFARE: 'Animal Welfare', RURAL_DEVELOPMENT: 'Rural Development',
+              TEACHING_MENTORING: 'Teaching & Mentoring',
+              HEALTHCARE: 'Healthcare',
+              ENVIRONMENT_CONSERVATION: 'Environment Conservation',
+              COMMUNITY_SERVICE: 'Community Service',
+              ARTS_CULTURE: 'Arts & Culture',
+              SPORTS_COACHING: 'Sports Coaching',
+              DIGITAL_LITERACY: 'Digital Literacy',
+              WOMEN_EMPOWERMENT: "Women's Empowerment",
+              YOUTH_DEVELOPMENT: 'Youth Development',
+              DISASTER_RELIEF: 'Disaster Relief',
+              ANIMAL_WELFARE: 'Animal Welfare',
+              RURAL_DEVELOPMENT: 'Rural Development',
             }}
           />
         </div>
 
         <div className="space-y-2">
           <span className="text-sm font-medium text-brand-text">Preferred Activities</span>
-          <p className="text-xs text-brand-muted">What kind of activities do you enjoy? (optional)</p>
+          <p className="text-xs text-brand-muted">
+            What kind of activities do you enjoy? (optional)
+          </p>
           <ChipSelect
             options={PREFERRED_ACTIVITIES}
             selected={preferredActivities}
             toggle={toggleActivities}
             labelMap={{
-              FIELD_WORK: 'Field Work', OFFICE_SUPPORT: 'Office Support', TEACHING: 'Teaching',
-              EVENT_MANAGEMENT: 'Event Management', CONTENT_CREATION: 'Content Creation',
-              PHOTOGRAPHY: 'Photography', SOCIAL_MEDIA: 'Social Media', FUNDRAISING: 'Fundraising',
-              DATA_ENTRY: 'Data Entry', COUNSELLING: 'Counselling', MENTORING: 'Mentoring',
+              FIELD_WORK: 'Field Work',
+              OFFICE_SUPPORT: 'Office Support',
+              TEACHING: 'Teaching',
+              EVENT_MANAGEMENT: 'Event Management',
+              CONTENT_CREATION: 'Content Creation',
+              PHOTOGRAPHY: 'Photography',
+              SOCIAL_MEDIA: 'Social Media',
+              FUNDRAISING: 'Fundraising',
+              DATA_ENTRY: 'Data Entry',
+              COUNSELLING: 'Counselling',
+              MENTORING: 'Mentoring',
               RESEARCH: 'Research',
             }}
           />
