@@ -117,7 +117,7 @@ export const eventsRouter: IRouter = Router();
  *       200:
  *         description: List of events
  */
-eventsRouter.get('/', requireAuth, listAllEventsHandler);
+eventsRouter.get('/', requireAuth, requirePermission(Permissions.EVENT_VIEW), listAllEventsHandler);
 
 /**
  * @openapi
@@ -155,7 +155,7 @@ eventsRouter.get(
  *       200:
  *         description: Event details
  */
-eventsRouter.get('/:id/ical', requireAuth, downloadIcalHandler);
+eventsRouter.get('/:id/ical', requireAuth, requirePermission(Permissions.EVENT_VIEW), downloadIcalHandler);
 
 eventsRouter.get('/:id', requireAuth, getEventHandler);
 
@@ -377,14 +377,14 @@ opportunityEventSeriesRouter.post(
   createEventSeriesHandler
 );
 
-opportunityEventSeriesRouter.get('/', requireAuth, listEventSeriesHandler);
+opportunityEventSeriesRouter.get('/', requireAuth, requirePermission(Permissions.EVENT_VIEW), listEventSeriesHandler);
 
 // ─── Router: /event-series/:id ───────────────────────────────────
 // Mount at: /api/v1/event-series
 
 export const eventSeriesRouter: IRouter = Router();
 
-eventSeriesRouter.get('/:id', requireAuth, getEventSeriesByIdHandler);
+eventSeriesRouter.get('/:id', requireAuth, requirePermission(Permissions.EVENT_VIEW), getEventSeriesByIdHandler);
 
 eventSeriesRouter.put(
   '/:id',

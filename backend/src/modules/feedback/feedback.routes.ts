@@ -139,4 +139,4 @@ feedbackRouter.get(
  *       200:
  *         description: Feedback summary
  */
-feedbackRouter.get('/events/:eventId/summary', requireAuth, getEventFeedbackSummaryHandler);
+feedbackRouter.get('/events/:eventId/summary', requireAuth, requirePermission(Permissions.FEEDBACK_MANAGE), getEventFeedbackSummaryHandler);

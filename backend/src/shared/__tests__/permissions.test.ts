@@ -3,10 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { Permissions } from '../permissions';
 
 describe('permissions', () => {
-  it('should have SYSTEM_CONFIG permission', () => {
-    expect(Permissions.SYSTEM_CONFIG).toBe('system:config');
-  });
-
   it('should have user permissions', () => {
     expect(Permissions.USER_MANAGE).toBe('user:manage');
     expect(Permissions.USER_PROFILE_MANAGE).toBe('user:profile:manage');
@@ -25,6 +21,7 @@ describe('permissions', () => {
 
   it('should have event permissions', () => {
     expect(Permissions.EVENT_CREATE).toBe('event:create');
+    expect(Permissions.EVENT_VIEW).toBe('event:view');
     expect(Permissions.EVENT_EDIT).toBe('event:edit');
     expect(Permissions.EVENT_MANAGE).toBe('event:manage');
     expect(Permissions.EVENT_CHECKIN).toBe('event:checkin');
@@ -32,6 +29,7 @@ describe('permissions', () => {
 
   it('should have stats permissions', () => {
     expect(Permissions.STATS_VIEW_OWN).toBe('stats:view:own');
+    expect(Permissions.STATS_VIEW_COORDINATOR).toBe('stats:view:coordinator');
     expect(Permissions.STATS_VIEW_OBSERVER).toBe('stats:view:observer');
   });
 

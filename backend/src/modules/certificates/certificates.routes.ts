@@ -26,7 +26,7 @@ router.get(
 router.get(
   '/:id/view',
   requireAuth,
-  requirePermission(Permissions.CERTIFICATE_VIEW),
+  requirePermission(Permissions.CERTIFICATE_DOWNLOAD),
   viewCertificateHandler
 );
 router.get('/verify/:hash', verifyCertificateHandler);

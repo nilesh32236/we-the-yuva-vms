@@ -61,7 +61,7 @@ statsRouter.get(
 statsRouter.get(
   '/coordinator',
   requireAuth,
-  requirePermission(Permissions.STATS_VIEW_OWN),
+  requirePermission(Permissions.STATS_VIEW_COORDINATOR),
   coordinatorStatsHandler
 );
 

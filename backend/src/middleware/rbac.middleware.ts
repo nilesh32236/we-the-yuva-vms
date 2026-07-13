@@ -1,8 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { Permission } from '../shared/permissions';
+import type { UserRole } from '../shared/types';
 import { logger } from '../lib/logger';
 
-type Role = 'VOLUNTEER' | 'COORDINATOR' | 'ORGANIZATION_ADMIN' | 'ADMIN' | 'OBSERVER';
+type Role = UserRole;
 
 export function requireRole(...roles: Role[]) {
   return (req: Request, res: Response, next: NextFunction): void => {

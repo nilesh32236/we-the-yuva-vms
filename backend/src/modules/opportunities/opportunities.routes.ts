@@ -81,7 +81,7 @@ opportunitiesRouter.delete(
   withdrawApplicationHandler
 );
 
-opportunitiesRouter.get('/:id', requireAuth, getOpportunityHandler);
+opportunitiesRouter.get('/:id', requireAuth, requirePermission(Permissions.OPPORTUNITY_VIEW), getOpportunityHandler);
 
 opportunitiesRouter.put(
   '/:id',
