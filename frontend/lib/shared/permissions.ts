@@ -87,3 +87,22 @@ export const ROLE_ROUTE_PREFIXES: Record<string, string[]> = {
 };
 
 export const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
+
+export const ROLE_HIERARCHY: Record<string, number> = {
+  OBSERVER: 0,
+  VOLUNTEER: 1,
+  COORDINATOR: 2,
+  ORGANIZATION_ADMIN: 3,
+  ADMIN: 4,
+  PLATFORM_MANAGER: 4,
+};
+
+export function canAccess(userRole: string, minimumRole: string): boolean {
+  const userLevel = ROLE_HIERARCHY[userRole] ?? -1;
+  const requiredLevel = ROLE_HIERARCHY[minimumRole] ?? -1;
+  return userLevel >= requiredLevel;
+}
+
+export function isAtLeast(userRole: string, targetRole: string): boolean {
+  return canAccess(userRole, targetRole);
+}

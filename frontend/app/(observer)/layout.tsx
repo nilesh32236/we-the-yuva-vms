@@ -1,5 +1,8 @@
-// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
-// See /issues/PHASE2_SCOPE.md
+'use client';
+
+import { useAuth } from '@/lib/auth-context';
+import { redirect } from 'next/navigation';
+import { useEffect } from 'react';
 import { BottomNav } from '../../components/layout/BottomNav';
 import type { NavItem } from '../../components/layout/Sidebar';
 import { Sidebar } from '../../components/layout/Sidebar';
@@ -15,6 +18,25 @@ const navItems: NavItem[] = [
 ];
 
 export default function ObserverLayout({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      redirect('/login');
+    }
+    if (!isLoading && user && user.role !== 'OBSERVER') {
+      redirect('/login');
+    }
+  }, [user, isLoading]);
+
+  if (isLoading || !user || user.role !== 'OBSERVER') {
+    return (
+      <div className="flex items-center justify-center h-dvh">
+        <div className="w-8 h-8 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="h-dvh bg-brand-bg flex flex-col overflow-hidden">
       <TopNav />

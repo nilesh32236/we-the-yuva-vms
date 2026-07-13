@@ -153,8 +153,8 @@ export default function SetupProfilePage() {
 
   const handleComplete = async () => {
     localStorage.removeItem(DRAFT_KEY);
-    await refetch();
-    router.push(ROLE_ROUTES[user?.role ?? ''] ?? '/login');
+    const freshUser = await refetch();
+    router.push(ROLE_ROUTES[freshUser?.role ?? ''] ?? '/login');
   };
 
   const validateStep = async (stepIndex: number): Promise<boolean> => {

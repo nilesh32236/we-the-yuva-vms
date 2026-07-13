@@ -213,7 +213,11 @@ export default function RegisterPage() {
         sessionStorage.removeItem('logged_out');
         // Check for access_token cookie using proper boundary matching
         const hasAccessCookie = /(?:^|;)\s*access_token\s*=/.test(document.cookie);
-        if (hasAccessCookie) setAccessToken(null);
+        if (hasAccessCookie) {
+          setAccessToken(null);
+          // biome-ignore lint/suspicious/noDocumentCookie: clearing stale cookie
+          document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict';
+        }
         setReady(true);
       }
     }
@@ -247,7 +251,8 @@ export default function RegisterPage() {
       });
       const otpRes = await api.post('/auth/send-otp', { email: data.email });
       if (otpRes.data?.devOtp) sessionStorage.setItem('devOtp', otpRes.data.devOtp);
-      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
+      sessionStorage.setItem('verifyEmail', data.email);
+      router.push('/verify-otp');
     } catch (error) {
       const err = error as {
         normalizedMessage?: string;
