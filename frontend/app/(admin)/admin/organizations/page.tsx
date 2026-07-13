@@ -81,7 +81,7 @@ export default function AdminOrganizationsPage() {
         <>
           <OrganizationTable orgs={data.orgs} />
 
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
         </>
       )}
     </div>

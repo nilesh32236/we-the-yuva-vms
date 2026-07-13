@@ -180,7 +180,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
               </div>
 
               {socialLinks.length > 0 && (
-                <div className="bg-brand-surface dark:bg-brand-surface rounded-2xl p-6">
+<div className="bg-brand-surface rounded-2xl p-6">
                   <h3 className="font-heading text-lg font-bold text-brand-text mb-4">
                     Social
                   </h3>

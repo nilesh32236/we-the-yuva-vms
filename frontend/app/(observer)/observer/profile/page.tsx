@@ -32,7 +32,7 @@ export default function ObserverProfilePage() {
         <div className="h-24 bg-gradient-to-r from-brand-primary to-brand-secondary" />
         <div className="px-6 pb-6">
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-white dark:border-slate-800 flex items-center justify-center shadow-md">
+            <div className="w-20 h-20 rounded-2xl bg-brand-primary border-4 border-brand-surface flex items-center justify-center shadow-md">
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
             <div className="flex items-center gap-1.5 text-xs font-semibold bg-brand-primary/10 text-brand-primary px-2.5 py-1 rounded-full">

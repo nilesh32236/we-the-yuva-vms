@@ -13,7 +13,7 @@ const CategoryPieChart = dynamic(
   { ssr: false }
 );
 const HoursBarChart = dynamic(
-  () => import('../../../../components/charts/HoursBarChart').then((mod) => mod.HoursBarChart),
+  () => import('@/components/charts/HoursBarChart').then((mod) => mod.HoursBarChart),
   { ssr: false }
 );
 

@@ -303,7 +303,7 @@ export default function AdminUsersPage() {
             users={data?.data ?? []}
             onUpdated={() => qc.invalidateQueries({ queryKey: ['admin-users'] })}
           />
-          <Pagination page={page} totalPages={data.totalPages} setPage={setPage} />
+          <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
           {data?.total && (
             <p className="text-sm text-brand-muted text-center mt-2">{data.total} total users</p>
           )}

@@ -1,6 +1,7 @@
 'use client';
 
 import * as Sentry from '@sentry/nextjs';
+import { TriangleAlert } from 'lucide-react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 
@@ -20,20 +21,7 @@ export default function ErrorPage({
     <div role="alert" className="min-h-dvh bg-brand-bg flex items-center justify-center p-6">
       <div className="max-w-md text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-brand-error/10 flex items-center justify-center mx-auto border border-brand-error/20">
-          <svg
-            className="w-8 h-8 text-destructive"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            aria-label="Error"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-            />
-          </svg>
+          <TriangleAlert className="w-8 h-8 text-destructive" aria-hidden="true" />
         </div>
         <h1 className="font-heading font-bold text-xl text-brand-text">Something went wrong</h1>
         <p className="text-brand-muted text-sm">An unexpected error occurred. Please try again.</p>

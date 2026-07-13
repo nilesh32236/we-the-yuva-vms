@@ -12,9 +12,9 @@ import { api, downloadCsv } from '@/lib/api';
 import { AddToCalendarButton } from '@/components/events/AddToCalendarButton';
 
 const STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-  COMPLETED: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-  CANCELLED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+  SCHEDULED: 'bg-brand-cta/10 text-brand-cta',
+  COMPLETED: 'bg-brand-primary/10 text-brand-primary',
+  CANCELLED: 'bg-brand-error/10 text-brand-error',
 };
 
 export default function CoordinatorEventsPage() {

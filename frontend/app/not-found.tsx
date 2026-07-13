@@ -1,3 +1,4 @@
+import { CircleAlert } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NotFoundPage() {
@@ -5,20 +6,7 @@ export default function NotFoundPage() {
     <div className="min-h-dvh bg-brand-bg flex items-center justify-center p-6">
       <div className="max-w-md text-center space-y-4">
         <div className="w-16 h-16 rounded-2xl bg-brand-surface flex items-center justify-center mx-auto border border-brand-border">
-          <svg
-            className="w-8 h-8 text-brand-accent"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            aria-label="Not found"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
-            />
-          </svg>
+          <CircleAlert className="w-8 h-8 text-brand-accent" aria-hidden="true" />
         </div>
         <h1 className="font-heading font-bold text-xl text-brand-text">Page not found</h1>
         <p className="text-brand-muted text-sm">

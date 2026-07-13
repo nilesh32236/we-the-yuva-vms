@@ -1,12 +1,14 @@
 'use client';
 
 import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
+import type { ApiError } from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ASPIRATIONS } from '@/lib/shared';
+import { ROLE_ROUTES } from '@/lib/shared/permissions';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,17 +36,6 @@ const ALL_SKILLS = [
   'Legal',
   'Healthcare',
 ];
-
-type ApiError = { normalizedMessage?: string; response?: { data?: { error?: string } } };
-
-const ROLE_ROUTES: Record<string, string> = {
-  VOLUNTEER: '/volunteer/dashboard',
-  COORDINATOR: '/coordinator/dashboard',
-  ADMIN: '/admin/dashboard',
-  PLATFORM_MANAGER: '/admin/dashboard',
-  OBSERVER: '/observer/dashboard',
-  ORGANIZATION_ADMIN: '/organization/dashboard',
-};
 
 const ALL_INTERESTS = [
   'Education',

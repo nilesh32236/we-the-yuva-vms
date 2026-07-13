@@ -4,11 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Clock, LogIn, LogOut, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { use } from 'react';
-import { AttendanceChecklist } from '../../../../../../components/events/AttendanceChecklist';
-import { SkeletonCard } from '../../../../../../components/shared/SkeletonCard';
-import { haptic } from '../../../../../../lib/haptic';
-import { useToast } from '../../../../../../hooks/use-toast';
-import { api } from '../../../../../../lib/api';
+import { AttendanceChecklist } from '@/components/events/AttendanceChecklist';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { haptic } from '@/lib/haptic';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 interface AttendanceRecord {
   volunteerId: string;
