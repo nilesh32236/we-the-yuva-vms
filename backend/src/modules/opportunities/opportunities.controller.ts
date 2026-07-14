@@ -106,7 +106,19 @@ export async function getPublicOpportunityHandler(
   }
 }
 
-export const getOpportunityHandler = getPublicOpportunityHandler;
+export async function getOpportunityHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const opportunity = await getOpportunityById(req.params.id);
+    res.setHeader('Cache-Control', 'private, max-age=300');
+    res.status(200).json(opportunity);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function updateOpportunityHandler(
   req: Request,

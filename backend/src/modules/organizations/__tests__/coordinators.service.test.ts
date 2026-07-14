@@ -86,7 +86,7 @@ describe('coordinators.service (via organizations.service)', () => {
       ] as never);
 
       const result = await listCoordinators('org-1');
-      expect(result).toHaveLength(1);
+      expect(result.data).toHaveLength(1);
     });
   });
 

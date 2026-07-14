@@ -170,15 +170,14 @@ export async function createLevelRequest(
       checkAndAwardBadges(userId).catch((err) =>
         logger.warn('Failed to check and award badges on auto-promotion', { err, userId })
       ),
-      notificationsQueue
-        ?.add('level-up', { userId, levelName: level.name })
+      (notificationsQueue?.add('level-up', { userId, levelName: level.name }) ?? Promise.resolve())
         .catch((err) =>
           logger.warn('Failed to enqueue level-up notification', {
             err,
             userId,
             levelName: level.name,
           })
-        ) ?? Promise.resolve(),
+        ),
     ]);
   }
 
@@ -310,15 +309,14 @@ export async function reviewLevelRequest(
           userId: request.userId,
         })
       ),
-      notificationsQueue
-        ?.add('level-up', { userId: request.userId, levelName: request.level.name })
+      (notificationsQueue?.add('level-up', { userId: request.userId, levelName: request.level.name }) ?? Promise.resolve())
         .catch((err) => {
           logger.warn('Failed to enqueue level-up notification', {
             err,
             userId: request.userId,
             levelName: request.level.name,
           });
-        }) ?? Promise.resolve(),
+        }),
     ]);
   }
 

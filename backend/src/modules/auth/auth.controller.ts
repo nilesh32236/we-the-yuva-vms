@@ -84,8 +84,10 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         },
       })
       .catch((err: unknown) => {
-        if ((err as { code?: string })?.code === 'P2002') {
-          throw new AppError('Email already registered', 409);
+        const prismaErr = err as { code?: string; meta?: { target?: string[] } };
+        if (prismaErr.code === 'P2002') {
+          const field = prismaErr.meta?.target?.[0] ?? 'Field';
+          throw new AppError(`${field.charAt(0).toUpperCase() + field.slice(1)} already in use`, 409);
         }
         throw err;
       });
@@ -189,7 +191,7 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         { userId: user.id, action: 'LOGIN' },
         { userId: user.id, action: 'OTP_VERIFIED' },
       ],
-    });
+    }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
 
     // Set cookies
     res.cookie('access_token', accessToken, ACCESS_COOKIE_OPTIONS);

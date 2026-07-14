@@ -1,7 +1,6 @@
 import { promisify } from 'node:util';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import * as Sentry from '@sentry/node';
 import { env } from '../config/env';
 import { logger } from '../lib/logger';
 

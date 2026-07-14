@@ -594,5 +594,7 @@ export async function updateApplicationStatus(
       })
     );
 
+  await invalidateListCache();
+
   return updated;
 }

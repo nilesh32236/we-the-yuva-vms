@@ -203,12 +203,17 @@ describe('E2E Flows — service level', () => {
     });
 
     it('registerOrganization creates pending org', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      const tx = {
+        user: { findUnique: vi.fn() },
+        organization: { findFirst: vi.fn(), create: vi.fn() },
+      };
+      vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
+      vi.mocked(tx.user.findUnique).mockResolvedValue({
         organizationId: null,
         roleRef: { name: 'ORGANIZATION_ADMIN' },
       } as any);
-      vi.mocked(prisma.organization.findFirst).mockResolvedValue(null);
-      vi.mocked(prisma.organization.create).mockResolvedValue({
+      vi.mocked(tx.organization.findFirst).mockResolvedValue(null);
+      vi.mocked(tx.organization.create).mockResolvedValue({
         id: 'org-1',
         name: 'Test Org',
         status: 'PENDING',
@@ -223,7 +228,7 @@ describe('E2E Flows — service level', () => {
 
       const org = await registerOrganization('u1', { name: 'Test Org', email: 'org@test.com' });
       expect(org.status).toBe('PENDING');
-      expect(prisma.organization.create).toHaveBeenCalled();
+      expect(tx.organization.create).toHaveBeenCalled();
     });
 
     it('verifyOrganization activates org', async () => {
@@ -274,6 +279,7 @@ describe('E2E Flows — service level', () => {
         title: 'Test',
         createdById: 'coord-1',
       } as any);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ name: 'Volunteer' } as any);
       const tx = {
         opportunity: { findUnique: vi.fn() },
         application: { count: vi.fn(), create: vi.fn() },
@@ -369,6 +375,7 @@ describe('E2E Flows — service level', () => {
         organizationId: 'org-1',
       } as any);
       vi.mocked(prisma.application.findMany).mockResolvedValue([]);
+      vi.mocked(prisma.user.findMany).mockResolvedValue([]);
 
       const { createEvent } = await import('../modules/events/events.service');
 
@@ -397,7 +404,6 @@ describe('E2E Flows — service level', () => {
       vi.mocked(tx.volunteerProfile.upsert).mockResolvedValue({
         id: 'vp-1',
         userId: 'v1',
-        volunteerType: 'PROFESSIONAL',
         skills: ['Teaching'],
         interests: ['Education'],
         availability: { days: ['Mon'], timeSlots: ['Morning'] },
@@ -411,7 +417,7 @@ describe('E2E Flows — service level', () => {
         interests: ['Education'],
         availability: { days: ['Mon'], timeSlots: ['Morning'] },
       });
-      expect(profile.volunteerType).toBe('PROFESSIONAL');
+      expect(profile.skills).toEqual(['Teaching']);
     });
 
     it('listOpportunities filters by org', async () => {

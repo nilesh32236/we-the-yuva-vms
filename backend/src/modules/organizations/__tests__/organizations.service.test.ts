@@ -24,6 +24,7 @@ vi.mock('@/lib/prisma', () => ({
       count: vi.fn(),
     },
     role: { findUnique: vi.fn() },
+    $transaction: vi.fn(),
   },
 }));
 
@@ -50,14 +51,22 @@ describe('organizations.service', () => {
 
   describe('registerOrganization', () => {
     const input = { name: 'Test Org', description: 'A test org', email: 'org@test.com' };
+    const makeTx = () => ({
+      user: { findUnique: vi.fn() },
+      organization: { findFirst: vi.fn(), create: vi.fn() },
+    });
 
     it('should throw 404 when admin user not found', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+      const tx = makeTx();
+      vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
+      vi.mocked(tx.user.findUnique).mockResolvedValue(null);
       await expect(registerOrganization('user-1', input)).rejects.toThrow('User not found');
     });
 
     it('should throw 409 when user already belongs to an org', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      const tx = makeTx();
+      vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
+      vi.mocked(tx.user.findUnique).mockResolvedValue({
         organizationId: 'org-1',
         roleRef: { name: 'ORGANIZATION_ADMIN' },
       } as never);
@@ -65,7 +74,9 @@ describe('organizations.service', () => {
     });
 
     it('should throw 403 when user is not ORGANIZATION_ADMIN', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      const tx = makeTx();
+      vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
+      vi.mocked(tx.user.findUnique).mockResolvedValue({
         organizationId: null,
         roleRef: { name: 'VOLUNTEER' },
       } as never);
@@ -75,21 +86,25 @@ describe('organizations.service', () => {
     });
 
     it('should throw 409 when org name already exists', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      const tx = makeTx();
+      vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
+      vi.mocked(tx.user.findUnique).mockResolvedValue({
         organizationId: null,
         roleRef: { name: 'ORGANIZATION_ADMIN' },
       } as never);
-      vi.mocked(prisma.organization.findFirst).mockResolvedValue({ id: 'existing-org' } as never);
+      vi.mocked(tx.organization.findFirst).mockResolvedValue({ id: 'existing-org' } as never);
       await expect(registerOrganization('user-1', input)).rejects.toThrow('already exists');
     });
 
     it('should create organization with PENDING status', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      const tx = makeTx();
+      vi.mocked(prisma.$transaction).mockImplementation((cb: any) => cb(tx));
+      vi.mocked(tx.user.findUnique).mockResolvedValue({
         organizationId: null,
         roleRef: { name: 'ORGANIZATION_ADMIN' },
       } as never);
-      vi.mocked(prisma.organization.findFirst).mockResolvedValue(null);
-      vi.mocked(prisma.organization.create).mockResolvedValue({
+      vi.mocked(tx.organization.findFirst).mockResolvedValue(null);
+      vi.mocked(tx.organization.create).mockResolvedValue({
         id: 'org-1',
         name: 'Test Org',
         status: 'PENDING',
@@ -98,7 +113,7 @@ describe('organizations.service', () => {
 
       const org = await registerOrganization('user-1', input);
       expect(org.status).toBe('PENDING');
-      expect(prisma.organization.create).toHaveBeenCalledWith(
+      expect(tx.organization.create).toHaveBeenCalledWith(
         expect.objectContaining({ data: expect.objectContaining({ status: 'PENDING' }) })
       );
     });
@@ -274,8 +289,8 @@ describe('organizations.service', () => {
         },
       ] as never);
       const result = await listCoordinators('org-1');
-      expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('Coord');
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].name).toBe('Coord');
     });
   });
 

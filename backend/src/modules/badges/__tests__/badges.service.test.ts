@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    badgeApproval: { update: vi.fn(), findMany: vi.fn() },
+    badgeApproval: { update: vi.fn(), findMany: vi.fn(), findUnique: vi.fn() },
     userBadge: { create: vi.fn(), findMany: vi.fn() },
     badge: { findMany: vi.fn() },
     pointTransaction: { create: vi.fn() },
@@ -39,6 +39,7 @@ describe('badges.service', () => {
         return [];
       });
 
+      vi.mocked(prisma.badgeApproval.findUnique).mockResolvedValue({ id: 'approval-1', userId, badgeId, status: 'PENDING' } as never);
       vi.mocked(prisma.badgeApproval.update).mockResolvedValue(mockApproval as never);
 
       await approveBadge(userId, badgeId, reviewedBy);
@@ -60,6 +61,7 @@ describe('badges.service', () => {
         return [];
       });
 
+      vi.mocked(prisma.badgeApproval.findUnique).mockResolvedValue({ id: 'approval-1', userId, badgeId, status: 'PENDING' } as never);
       vi.mocked(prisma.badgeApproval.update).mockResolvedValue(mockApproval as never);
 
       await approveBadge(userId, badgeId, reviewedBy);
