@@ -1,13 +1,38 @@
 import type { Prisma } from '@prisma/client';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
+import { redis } from '../../lib/redis';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 import { generateCertificate } from '../certificates/certificates.service';
 import { checkAndAwardBadges } from '../badges/badge-engine.service';
 
+const LEVELS_CACHE_KEY = 'levels:all';
+const LEVELS_CACHE_TTL = 300;
+
+async function getCachedLevels() {
+  if (redis) {
+    try {
+      const cached = await redis.get(LEVELS_CACHE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      logger.warn('Failed to parse cached levels');
+    }
+  }
+
+  const levels = await prisma.level.findMany({ orderBy: { tier: 'asc' } });
+
+  if (redis) {
+    redis.set(LEVELS_CACHE_KEY, JSON.stringify(levels), 'EX', LEVELS_CACHE_TTL).catch((err) =>
+      logger.warn('Failed to cache levels', { error: (err as Error).message })
+    );
+  }
+
+  return levels;
+}
+
 export async function listLevels() {
-  return prisma.level.findMany({ orderBy: { tier: 'asc' } });
+  return getCachedLevels();
 }
 
 export async function getLevel(id: string) {
@@ -28,7 +53,7 @@ export async function getMyLevel(userId: string) {
   });
   if (!user) throw new AppError('User not found', 404);
 
-  const allLevels = await prisma.level.findMany({ orderBy: { tier: 'asc' } });
+  const allLevels = await getCachedLevels();
 
   return {
     currentLevel: user.currentLevel,
@@ -47,7 +72,7 @@ export async function getMyProgress(userId: string) {
   });
   if (!user) throw new AppError('User not found', 404);
 
-  const allLevels = await prisma.level.findMany({ orderBy: { tier: 'asc' } });
+  const allLevels = await getCachedLevels();
   const currentTier = user.currentLevelId
     ? allLevels.find((l) => l.id === user.currentLevelId)
     : null;
