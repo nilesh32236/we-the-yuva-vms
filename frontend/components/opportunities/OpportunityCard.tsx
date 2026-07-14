@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Briefcase, Calendar, MapPin, Users, Wifi } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 import { memo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
@@ -264,21 +265,22 @@ const OpportunityCard = memo(function OpportunityCard({
 
       {/* Apply button */}
       {showApply && (
-        <button
+        <Button
           type="button"
           onClick={handleApply}
           disabled={applying || applied || isFull}
-          className={`mt-1 w-full py-2 rounded-xl text-sm font-semibold transition-colors duration-200 cursor-pointer active-bounce
-            ${
+          loading={applying}
+          fullWidth
+          className={`mt-1 py-2 rounded-xl ${
               applied
-                ? 'bg-brand-primary/10 text-brand-primary cursor-default'
+                ? 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/10 opacity-100 cursor-default'
                 : isFull
-                  ? 'bg-brand-border text-brand-muted cursor-not-allowed'
-                  : 'bg-brand-primary text-white hover:bg-brand-secondary'
+                  ? 'bg-brand-border text-brand-muted hover:bg-brand-border opacity-100 cursor-not-allowed'
+                  : ''
             }`}
         >
-          {applying ? 'Applying…' : applied ? 'Applied ✓' : 'Apply Now'}
-        </button>
+          {applied ? 'Applied ✓' : 'Apply Now'}
+        </Button>
       )}
     </div>
   );
