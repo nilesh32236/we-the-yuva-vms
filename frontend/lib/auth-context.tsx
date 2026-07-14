@@ -1,8 +1,9 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { api, setAccessToken } from './api';
+import { useQuery } from '@tanstack/react-query';
+import { api } from './api';
 import { clearQueue } from './offline-queue';
 import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
@@ -27,64 +28,70 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
 
-  const fetchUser = useCallback(async () => {
-    setIsLoading(true);
-    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
-      sessionStorage.removeItem('logged_out');
-    }
-    try {
-      const [userRes, statusRes] = await Promise.allSettled([
-        api.get<AuthUser>('/users/me'),
-        api.get<ProfileStatus>('/users/me/profile-status'),
-      ]);
-
-      let freshUser: AuthUser | null = null;
-      if (userRes.status === 'fulfilled') {
-        freshUser = userRes.value.data;
-        setUser(freshUser);
-        setFetchError(null);
-      } else {
-        const err = userRes.reason;
+  const userQuery = useQuery<AuthUser | null>({
+    queryKey: ['auth-user'],
+    queryFn: async () => {
+      if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
+        sessionStorage.removeItem('logged_out');
+        return null;
+      }
+      try {
+        const res = await api.get<AuthUser>('/users/me');
+        return res.data;
+      } catch (err) {
         if (err && typeof err === 'object' && 'response' in err) {
           const axiosErr = err as { response?: { status?: number } };
-          if (axiosErr.response?.status && axiosErr.response.status >= 500) {
-            setFetchError('Server error. Please try logging in again.');
+          if (axiosErr.response?.status === 401) {
+            return null;
           }
         }
-        setUser(null);
+        throw err;
       }
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: true,
+  });
 
-      if (statusRes.status === 'fulfilled') {
-        setProfileStatus(statusRes.value.data);
+  const profileStatusQuery = useQuery<ProfileStatus | null>({
+    queryKey: ['profile-status'],
+    queryFn: async () => {
+      try {
+        const res = await api.get<ProfileStatus>('/users/me/profile-status');
+        return res.data;
+      } catch {
+        return null;
       }
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
 
-      return freshUser;
-    } finally {
-      setIsLoading(false);
+  const user = userQuery.data ?? null;
+  const isLoading = userQuery.isLoading;
+  const fetchError = (() => {
+    if (!userQuery.error) return null;
+    if (
+      userQuery.error &&
+      typeof userQuery.error === 'object' &&
+      'response' in userQuery.error &&
+      (userQuery.error as { response?: { status?: number } }).response?.status &&
+      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
+    ) {
+      return 'Server error. Please try logging in again.';
     }
-  }, []);
+    return null;
+  })();
+  const profileStatus = profileStatusQuery.data ?? null;
 
-  const initialCheckDone = useRef(false);
-
-  useEffect(() => {
-    if (isPublicRoute(pathname) && initialCheckDone.current) {
-      return;
-    }
-
-    if (initialCheckDone.current) {
-      setIsLoading(true);
-    }
-    initialCheckDone.current = true;
-
-    fetchUser();
-  }, [fetchUser, pathname]);
+  const refetch = useCallback(async () => {
+    const result = await userQuery.refetch();
+    await profileStatusQuery.refetch();
+    return result.data ?? null;
+  }, [userQuery, profileStatusQuery]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -120,8 +127,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore errors — clear state regardless
     } finally {
-      setUser(null);
-      setAccessToken(null);
+      queryClient.setQueryData(['auth-user'], null);
+      queryClient.setQueryData(['profile-status'], null);
       queryClient.clear();
       clearQueue();
       if (typeof document !== 'undefined') {
@@ -138,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, fetchError, profileStatus, refetch: fetchUser, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, fetchError, profileStatus, refetch, logout }}>
       {children}
     </AuthContext.Provider>
   );

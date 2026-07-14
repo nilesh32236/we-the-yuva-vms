@@ -9,6 +9,7 @@ export const PUBLIC_ROUTES = [
   '/blog',
   '/login',
   '/register',
+  '/register-organization',
   '/verify-otp',
 ];
 

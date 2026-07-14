@@ -11,7 +11,7 @@ import { ResendButton } from '../../../components/auth/ResendButton';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
-import { api, setAccessToken } from '../../../lib/api';
+import { api } from '../../../lib/api';
 import { VerifyOtpSchema } from '../../../lib/shared';
 import type { VerifyOtpInput } from '../../../lib/shared';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
@@ -99,11 +99,11 @@ function VerifyOtpContent() {
         // Clear any stale logged_out flag from previous session
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.removeItem('logged_out');
+          sessionStorage.removeItem('verifyEmail');
         }
 
-        // Store in memory for immediate API calls (cross-domain Bearer)
+        // Store in cookie for immediate API calls
         if (accessToken) {
-          setAccessToken(accessToken);
           if (typeof document !== 'undefined') {
             const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
             // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
@@ -179,7 +179,7 @@ function VerifyOtpContent() {
           <p className="font-medium text-brand-text text-sm">{email}</p>
         </div>
 
-        {process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
+        {process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
               <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP
