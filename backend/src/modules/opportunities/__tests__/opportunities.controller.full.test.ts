@@ -52,6 +52,7 @@ describe('opportunities.controller full coverage', () => {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
       send: vi.fn().mockReturnThis(),
+      setHeader: vi.fn().mockReturnThis(),
     };
     next = vi.fn() as unknown as NextFunction;
   });

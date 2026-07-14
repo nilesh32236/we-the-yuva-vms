@@ -26,7 +26,12 @@ export const alertsRouter: IRouter = Router();
  *       200:
  *         description: List of alert subscriptions
  */
-alertsRouter.get('/', requireAuth, requirePermission(Permissions.ALERT_MANAGE), getMySubscriptionsHandler);
+alertsRouter.get(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.ALERT_MANAGE),
+  getMySubscriptionsHandler
+);
 
 /**
  * @openapi

@@ -5,6 +5,7 @@ import type {
   UpdateLessonInput,
 } from '@/shared';
 import { logAudit } from '../../lib/audit';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
@@ -42,7 +43,9 @@ export async function deleteCourse(id: string, userId: string) {
 
 export async function createLesson(courseId: string, userId: string, data: CreateLessonInput) {
   try {
-    const lesson = await prisma.lesson.create({ data: { ...data, course: { connect: { id: courseId } } } });
+    const lesson = await prisma.lesson.create({
+      data: { ...data, course: { connect: { id: courseId } } },
+    });
     await logAudit({
       userId,
       action: 'LESSON_CREATE',
@@ -113,6 +116,7 @@ export async function listCourses(userId: string, pagination?: { page: number; l
   if (!pagination) {
     const courses = await prisma.course.findMany({
       orderBy: { order: 'asc' },
+      take: 50,
       include: {
         _count: { select: { lessons: true } },
         progress: { where: { userId }, select: { completed: true, completedAt: true } },
@@ -213,7 +217,9 @@ export async function completeLesson(lessonId: string, userId: string) {
           courseTitle: lesson.course.title,
           courseId: lesson.course.id,
         })
-        .catch((err) => logger.warn('Failed to enqueue training notification', { error: (err as Error).message }));
+        .catch((err) =>
+          logger.warn('Failed to enqueue training notification', { error: (err as Error).message })
+        );
     }
   } else {
     await prisma.courseProgress.upsert({
@@ -323,7 +329,5 @@ export async function seedCoursesIfEmpty() {
     },
   ] as const;
 
-  for (const lesson of lessons) {
-    await prisma.lesson.create({ data: lesson });
-  }
+  await prisma.lesson.createMany({ data: lessons.map((l) => ({ ...l })) });
 }

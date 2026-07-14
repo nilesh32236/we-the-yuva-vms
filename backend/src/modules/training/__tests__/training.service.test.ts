@@ -19,6 +19,7 @@ vi.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       delete: vi.fn(),
       count: vi.fn(),
+      createMany: vi.fn(),
     },
     lessonCompletion: { upsert: vi.fn(), findMany: vi.fn(), count: vi.fn() },
     courseProgress: { upsert: vi.fn() },
@@ -68,7 +69,15 @@ describe('training.service', () => {
         id: 'course-1',
         title: 'Test',
         lessons: [
-          { id: 'l1', title: 'L1', content: 'C', type: 'TEXT', order: 1, courseId: 'course-1', completions: [{ lessonId: 'l1' }] },
+          {
+            id: 'l1',
+            title: 'L1',
+            content: 'C',
+            type: 'TEXT',
+            order: 1,
+            courseId: 'course-1',
+            completions: [{ lessonId: 'l1' }],
+          },
         ],
         progress: [],
       } as never);
@@ -270,10 +279,10 @@ describe('training.service', () => {
         { id: 'c2', order: 2 },
         { id: 'c3', order: 3 },
       ] as never);
-      vi.mocked(prisma.lesson.create).mockResolvedValue({} as never);
+      vi.mocked(prisma.lesson.createMany).mockResolvedValue({ count: 7 });
       await seedCoursesIfEmpty();
       expect(prisma.course.createMany).toHaveBeenCalled();
-      expect(prisma.lesson.create).toHaveBeenCalledTimes(7);
+      expect(prisma.lesson.createMany).toHaveBeenCalledOnce();
     });
   });
 });

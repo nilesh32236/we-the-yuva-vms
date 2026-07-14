@@ -1,5 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
-import { listBadges, getMyBadges, listPendingApprovals, approveBadge, rejectBadge } from './badges.service';
+import {
+  listBadges,
+  getMyBadges,
+  listPendingApprovals,
+  approveBadge,
+  rejectBadge,
+} from './badges.service';
 
 export async function listBadgesHandler(
   _req: Request,

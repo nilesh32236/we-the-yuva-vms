@@ -135,11 +135,13 @@ const EventSeriesBaseSchema = z.object({
   firstEventDate: z.string().datetime().optional(),
 });
 
-export const EventSeriesSchema = EventSeriesBaseSchema
-  .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
+export const EventSeriesSchema = EventSeriesBaseSchema.refine(
+  (data) => !data.isVirtual || data.meetingLink !== undefined,
+  {
     message: 'Meeting link is required for virtual events',
     path: ['meetingLink'],
-  })
+  }
+)
   .refine((data) => data.endTime > data.startTime, {
     message: 'End time must be after start time',
     path: ['endTime'],

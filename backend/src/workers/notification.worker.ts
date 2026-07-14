@@ -7,6 +7,8 @@ import { logger } from '../lib/logger';
 import { prisma } from '../lib/prisma';
 import { notificationsQueue } from '../lib/queue';
 import { redis } from '../lib/redis';
+import { updateStreaks } from './streak.handler';
+import { cleanupPendingUsers } from '../modules/auth/auth.service';
 
 if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
@@ -58,21 +60,21 @@ async function sendPushToUser(
       )
     );
 
-    for (let i = 0; i < subs.length; i++) {
-      if (results[i].status === 'rejected') {
-        const reason = (results[i] as PromiseRejectedResult).reason;
-        logger.warn('Push subscription send failed, removing', {
-          endpoint: subs[i].endpoint.slice(0, 30),
-          error: (reason as Error).message,
-        });
-        await prisma.pushSubscription
-          .deleteMany({ where: { endpoint: subs[i].endpoint } })
-          .catch((cleanupErr) =>
-            logger.warn('Failed to clean up expired push subscription', {
-              error: (cleanupErr as Error).message,
-            })
-          );
-      }
+    const failedEndpoints = subs
+      .map((sub, i) => (results[i].status === 'rejected' ? sub.endpoint : null))
+      .filter((e): e is string => e !== null);
+
+    if (failedEndpoints.length > 0) {
+      logger.warn('Push subscriptions failed, removing', {
+        count: failedEndpoints.length,
+      });
+      await prisma.pushSubscription
+        .deleteMany({ where: { endpoint: { in: failedEndpoints } } })
+        .catch((cleanupErr) =>
+          logger.warn('Failed to clean up expired push subscriptions', {
+            error: (cleanupErr as Error).message,
+          })
+        );
     }
   } catch (err) {
     logger.error('Failed to send push notification', { userId, error: (err as Error).message });
@@ -369,9 +371,7 @@ if (redis && notificationsQueue) {
         );
 
         logger.info('OTP email sent', { emailTo: email.substring(0, 3) + '***', jobId: job.id });
-      }
-
-      if (job.name === 'application-accepted') {
+      } else if (job.name === 'application-accepted') {
         const { volunteerId, opportunityTitle } = job.data as {
           volunteerId: string;
           opportunityTitle: string;
@@ -384,32 +384,31 @@ if (redis && notificationsQueue) {
         });
         if (!user?.email) return;
 
-        await sendEmail(
-          user.email,
-          `You've been accepted — ${opportunityTitle}`,
-          applicationAcceptedTemplate(opportunityTitle),
-          `Congratulations! Your application for "${opportunityTitle}" has been accepted.`
-        );
-
-        await createInAppNotification(
-          volunteerId,
-          'Application Accepted',
-          `Your application for "${opportunityTitle}" has been accepted!`,
-          undefined,
-          'SUCCESS'
-        );
-        await sendPushToUser(
-          volunteerId,
-          'Application Accepted',
-          `Your application for "${opportunityTitle}" has been accepted!`,
-          undefined,
-          'APPLICATION_ACCEPTED'
-        );
+        await Promise.allSettled([
+          sendEmail(
+            user.email,
+            `You've been accepted — ${opportunityTitle}`,
+            applicationAcceptedTemplate(opportunityTitle),
+            `Congratulations! Your application for "${opportunityTitle}" has been accepted.`
+          ),
+          createInAppNotification(
+            volunteerId,
+            'Application Accepted',
+            `Your application for "${opportunityTitle}" has been accepted!`,
+            undefined,
+            'SUCCESS'
+          ),
+          sendPushToUser(
+            volunteerId,
+            'Application Accepted',
+            `Your application for "${opportunityTitle}" has been accepted!`,
+            undefined,
+            'APPLICATION_ACCEPTED'
+          ),
+        ]);
 
         logger.info('Application accepted email sent', { volunteerId, jobId: job.id });
-      }
-
-      if (job.name === 'application-rejected') {
+      } else if (job.name === 'application-rejected') {
         const { volunteerId, opportunityTitle } = job.data as {
           volunteerId: string;
           opportunityTitle: string;
@@ -421,45 +420,44 @@ if (redis && notificationsQueue) {
         });
         if (!user?.email) return;
 
-        await sendEmail(
-          user.email,
-          `Application update — ${opportunityTitle}`,
-          applicationRejectedTemplate(opportunityTitle),
-          `Thank you for applying to "${opportunityTitle}". Unfortunately, we are unable to move forward with your application at this time.`
-        );
-
-        await createInAppNotification(
-          volunteerId,
-          'Application Update',
-          `Your application for "${opportunityTitle}" was not accepted.`,
-          undefined,
-          'INFO'
-        );
-        await sendPushToUser(
-          volunteerId,
-          'Application Update',
-          `Your application for "${opportunityTitle}" was not accepted.`,
-          undefined,
-          'APPLICATION_ACCEPTED'
-        );
+        await Promise.allSettled([
+          sendEmail(
+            user.email,
+            `Application update — ${opportunityTitle}`,
+            applicationRejectedTemplate(opportunityTitle),
+            `Thank you for applying to "${opportunityTitle}". Unfortunately, we are unable to move forward with your application at this time.`
+          ),
+          createInAppNotification(
+            volunteerId,
+            'Application Update',
+            `Your application for "${opportunityTitle}" was not accepted.`,
+            undefined,
+            'INFO'
+          ),
+          sendPushToUser(
+            volunteerId,
+            'Application Update',
+            `Your application for "${opportunityTitle}" was not accepted.`,
+            undefined,
+            'APPLICATION_ACCEPTED'
+          ),
+        ]);
 
         logger.info('Application rejected email sent', { volunteerId, jobId: job.id });
-      }
-
-      if (job.name === 'send-push') {
+      } else if (job.name === 'send-push') {
         const { userId, title, body } = job.data as {
           userId: string;
           title: string;
           body: string;
         };
 
-        await createInAppNotification(userId, title, body, undefined, 'INFO');
-        await sendPushToUser(userId, title, body, undefined, 'PROMOTION');
+        await Promise.allSettled([
+          createInAppNotification(userId, title, body, undefined, 'INFO'),
+          sendPushToUser(userId, title, body, undefined, 'PROMOTION'),
+        ]);
 
         logger.info('Push notification sent', { userId, title, jobId: job.id });
-      }
-
-      if (job.name === 'new-application') {
+      } else if (job.name === 'new-application') {
         const { userId, volunteerName, opportunityTitle, opportunityId } = job.data as {
           userId: string;
           volunteerName: string;
@@ -467,25 +465,25 @@ if (redis && notificationsQueue) {
           opportunityId: string;
         };
 
-        await createInAppNotification(
-          userId,
-          'New Application',
-          `${volunteerName} applied to "${opportunityTitle}"`,
-          `/coordinator/opportunities/${opportunityId}`,
-          'INFO'
-        );
-        await sendPushToUser(
-          userId,
-          'New Application',
-          `${volunteerName} applied to "${opportunityTitle}"`,
-          undefined,
-          'NEW_APPLICATION'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'New Application',
+            `${volunteerName} applied to "${opportunityTitle}"`,
+            `/coordinator/opportunities/${opportunityId}`,
+            'INFO'
+          ),
+          sendPushToUser(
+            userId,
+            'New Application',
+            `${volunteerName} applied to "${opportunityTitle}"`,
+            undefined,
+            'NEW_APPLICATION'
+          ),
+        ]);
 
         logger.info('New application notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'mentorship-update') {
+      } else if (job.name === 'mentorship-update') {
         const { userId, title, body, link } = job.data as {
           userId: string;
           title: string;
@@ -493,161 +491,161 @@ if (redis && notificationsQueue) {
           link?: string;
         };
 
-        await createInAppNotification(userId, title, body, link, 'INFO');
-        await sendPushToUser(userId, title, body, link, 'MENTORSHIP');
+        await Promise.allSettled([
+          createInAppNotification(userId, title, body, link, 'INFO'),
+          sendPushToUser(userId, title, body, link, 'MENTORSHIP'),
+        ]);
 
         logger.info('Mentorship notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'training-completion') {
+      } else if (job.name === 'training-completion') {
         const { userId, courseTitle, courseId } = job.data as {
           userId: string;
           courseTitle: string;
           courseId: string;
         };
 
-        await createInAppNotification(
-          userId,
-          'Course Completed',
-          `You completed "${courseTitle}"!`,
-          `/volunteer/training/${courseId}`,
-          'SUCCESS'
-        );
-        await sendPushToUser(
-          userId,
-          'Course Completed',
-          `You completed "${courseTitle}"!`,
-          undefined,
-          'TRAINING'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'Course Completed',
+            `You completed "${courseTitle}"!`,
+            `/volunteer/training/${courseId}`,
+            'SUCCESS'
+          ),
+          sendPushToUser(
+            userId,
+            'Course Completed',
+            `You completed "${courseTitle}"!`,
+            undefined,
+            'TRAINING'
+          ),
+        ]);
 
         logger.info('Training completion notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'level-up') {
+      } else if (job.name === 'level-up') {
         const { userId, levelName } = job.data as {
           userId: string;
           levelName: string;
         };
 
-        await createInAppNotification(
-          userId,
-          'Level Up!',
-          `You've reached "${levelName}" level!`,
-          '/volunteer/levels',
-          'SUCCESS'
-        );
-        await sendPushToUser(
-          userId,
-          'Level Up!',
-          `You've reached "${levelName}" level!`,
-          undefined,
-          'LEVEL_UP'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'Level Up!',
+            `You've reached "${levelName}" level!`,
+            '/volunteer/levels',
+            'SUCCESS'
+          ),
+          sendPushToUser(
+            userId,
+            'Level Up!',
+            `You've reached "${levelName}" level!`,
+            undefined,
+            'LEVEL_UP'
+          ),
+        ]);
 
         logger.info('Level-up notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'badge-earned') {
+      } else if (job.name === 'badge-earned') {
         const { userId, badgeName } = job.data as {
           userId: string;
           badgeName: string;
         };
 
-        await createInAppNotification(
-          userId,
-          'Badge Earned!',
-          `You earned the "${badgeName}" badge!`,
-          '/volunteer/dashboard',
-          'SUCCESS'
-        );
-        await sendPushToUser(
-          userId,
-          'Badge Earned!',
-          `You earned the "${badgeName}" badge!`,
-          undefined,
-          'BADGE_EARNED'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'Badge Earned!',
+            `You earned the "${badgeName}" badge!`,
+            '/volunteer/dashboard',
+            'SUCCESS'
+          ),
+          sendPushToUser(
+            userId,
+            'Badge Earned!',
+            `You earned the "${badgeName}" badge!`,
+            undefined,
+            'BADGE_EARNED'
+          ),
+        ]);
 
         logger.info('Badge notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'certificate-issued') {
+      } else if (job.name === 'certificate-issued') {
         const { userId, certificateTitle, certificateId } = job.data as {
           userId: string;
           certificateTitle: string;
           certificateId: string;
         };
 
-        await createInAppNotification(
-          userId,
-          'Certificate Issued',
-          `Your certificate "${certificateTitle}" is ready!`,
-          `/volunteer/certificates/${certificateId}`,
-          'SUCCESS'
-        );
-        await sendPushToUser(
-          userId,
-          'Certificate Issued',
-          `Your certificate "${certificateTitle}" is ready!`,
-          undefined,
-          'CERTIFICATE_ISSUED'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'Certificate Issued',
+            `Your certificate "${certificateTitle}" is ready!`,
+            `/volunteer/certificates/${certificateId}`,
+            'SUCCESS'
+          ),
+          sendPushToUser(
+            userId,
+            'Certificate Issued',
+            `Your certificate "${certificateTitle}" is ready!`,
+            undefined,
+            'CERTIFICATE_ISSUED'
+          ),
+        ]);
 
         logger.info('Certificate notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'attendance-confirmed') {
+      } else if (job.name === 'attendance-confirmed') {
         const { userId, eventTitle, hours } = job.data as {
           userId: string;
           eventTitle: string;
           hours: number;
         };
 
-        await createInAppNotification(
-          userId,
-          'Attendance Confirmed',
-          `${hours} hour(s) verified for "${eventTitle}"`,
-          undefined,
-          'SUCCESS'
-        );
-        await sendPushToUser(
-          userId,
-          'Attendance Confirmed',
-          `${hours} hour(s) verified for "${eventTitle}"`,
-          undefined,
-          'ATTENDANCE_CONFIRMED'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'Attendance Confirmed',
+            `${hours} hour(s) verified for "${eventTitle}"`,
+            undefined,
+            'SUCCESS'
+          ),
+          sendPushToUser(
+            userId,
+            'Attendance Confirmed',
+            `${hours} hour(s) verified for "${eventTitle}"`,
+            undefined,
+            'ATTENDANCE_CONFIRMED'
+          ),
+        ]);
 
         logger.info('Attendance notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'feedback-reminder') {
+      } else if (job.name === 'feedback-reminder') {
         const { userId, eventTitle, eventId } = job.data as {
           userId: string;
           eventTitle: string;
           eventId: string;
         };
 
-        await createInAppNotification(
-          userId,
-          'We Value Your Feedback',
-          `How was "${eventTitle}"? Share your experience.`,
-          `/volunteer/events/${eventId}/feedback`,
-          'INFO'
-        );
-        await sendPushToUser(
-          userId,
-          'We Value Your Feedback',
-          `How was "${eventTitle}"? Share your experience.`,
-          undefined,
-          'FEEDBACK_REMINDER'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'We Value Your Feedback',
+            `How was "${eventTitle}"? Share your experience.`,
+            `/volunteer/events/${eventId}/feedback`,
+            'INFO'
+          ),
+          sendPushToUser(
+            userId,
+            'We Value Your Feedback',
+            `How was "${eventTitle}"? Share your experience.`,
+            undefined,
+            'FEEDBACK_REMINDER'
+          ),
+        ]);
 
         logger.info('Feedback reminder notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'story-published') {
+      } else if (job.name === 'story-published') {
         const { userId, storyTitle, authorName, storyId } = job.data as {
           userId: string;
           storyTitle: string;
@@ -655,25 +653,25 @@ if (redis && notificationsQueue) {
           storyId: string;
         };
 
-        await createInAppNotification(
-          userId,
-          'New Story Published',
-          `${authorName} shared "${storyTitle}"`,
-          `/volunteer/stories/${storyId}`,
-          'INFO'
-        );
-        await sendPushToUser(
-          userId,
-          'New Story Published',
-          `${authorName} shared "${storyTitle}"`,
-          undefined,
-          'STORY_PUBLISHED'
-        );
+        await Promise.allSettled([
+          createInAppNotification(
+            userId,
+            'New Story Published',
+            `${authorName} shared "${storyTitle}"`,
+            `/volunteer/stories/${storyId}`,
+            'INFO'
+          ),
+          sendPushToUser(
+            userId,
+            'New Story Published',
+            `${authorName} shared "${storyTitle}"`,
+            undefined,
+            'STORY_PUBLISHED'
+          ),
+        ]);
 
         logger.info('Story published notification sent', { userId, jobId: job.id });
-      }
-
-      if (job.name === 'event-invitation') {
+      } else if (job.name === 'event-invitation') {
         const { volunteerId, eventTitle, eventDate, venue } = job.data as {
           volunteerId: string;
           eventId: string;
@@ -688,32 +686,31 @@ if (redis && notificationsQueue) {
         });
         if (!user?.email) return;
 
-        await sendEmail(
-          user.email,
-          `You're invited — ${eventTitle}`,
-          eventInvitationTemplate(eventTitle, eventDate, venue),
-          `You have been invited to "${eventTitle}" on ${eventDate}${venue ? ` at ${venue}` : ''}.`
-        );
-
-        await createInAppNotification(
-          volunteerId,
-          'Event Invitation',
-          `You're invited to "${eventTitle}"!`,
-          undefined,
-          'INFO'
-        );
-        await sendPushToUser(
-          volunteerId,
-          'Event Invitation',
-          `You're invited to "${eventTitle}"!`,
-          undefined,
-          'EVENT_REMINDER'
-        );
+        await Promise.allSettled([
+          sendEmail(
+            user.email,
+            `You're invited — ${eventTitle}`,
+            eventInvitationTemplate(eventTitle, eventDate, venue),
+            `You have been invited to "${eventTitle}" on ${eventDate}${venue ? ` at ${venue}` : ''}.`
+          ),
+          createInAppNotification(
+            volunteerId,
+            'Event Invitation',
+            `You're invited to "${eventTitle}"!`,
+            undefined,
+            'INFO'
+          ),
+          sendPushToUser(
+            volunteerId,
+            'Event Invitation',
+            `You're invited to "${eventTitle}"!`,
+            undefined,
+            'EVENT_REMINDER'
+          ),
+        ]);
 
         logger.info('Event invitation email sent', { volunteerId, jobId: job.id });
-      }
-
-      if (job.name === 'event-reminder') {
+      } else if (job.name === 'event-reminder') {
         const { volunteerId, eventTitle, eventDate, venue } = job.data as {
           volunteerId: string;
           eventId: string;
@@ -728,63 +725,69 @@ if (redis && notificationsQueue) {
         });
         if (!user?.email) return;
 
-        await sendEmail(
-          user.email,
-          `Reminder: ${eventTitle} is tomorrow`,
-          eventReminderTemplate(eventTitle, eventDate, venue),
-          `Reminder: "${eventTitle}" is happening tomorrow on ${eventDate}${venue ? ` at ${venue}` : ''}.`
-        );
-
-        await createInAppNotification(
-          volunteerId,
-          'Event Reminder',
-          `"${eventTitle}" is happening tomorrow!`,
-          undefined,
-          'INFO'
-        );
-        await sendPushToUser(
-          volunteerId,
-          'Event Reminder',
-          `"${eventTitle}" is happening tomorrow!`,
-          undefined,
-          'EVENT_REMINDER'
-        );
+        await Promise.allSettled([
+          sendEmail(
+            user.email,
+            `Reminder: ${eventTitle} is tomorrow`,
+            eventReminderTemplate(eventTitle, eventDate, venue),
+            `Reminder: "${eventTitle}" is happening tomorrow on ${eventDate}${venue ? ` at ${venue}` : ''}.`
+          ),
+          createInAppNotification(
+            volunteerId,
+            'Event Reminder',
+            `"${eventTitle}" is happening tomorrow!`,
+            undefined,
+            'INFO'
+          ),
+          sendPushToUser(
+            volunteerId,
+            'Event Reminder',
+            `"${eventTitle}" is happening tomorrow!`,
+            undefined,
+            'EVENT_REMINDER'
+          ),
+        ]);
 
         logger.info('Event reminder email sent', { volunteerId, jobId: job.id });
-      }
-
-      if (job.name === 'account-suspended') {
+      } else if (job.name === 'account-suspended') {
         const { userId, email } = job.data as { userId: string; email: string };
         if (!email) return;
 
-        await sendEmail(
-          email,
-          'Your WeTheYuva account has been suspended',
-          accountSuspendedTemplate(),
-          'Your WeTheYuva account has been suspended. If you believe this is a mistake, please contact our support team.'
-        );
+        const tasks: Promise<unknown>[] = [
+          sendEmail(
+            email,
+            'Your WeTheYuva account has been suspended',
+            accountSuspendedTemplate(),
+            'Your WeTheYuva account has been suspended. If you believe this is a mistake, please contact our support team.'
+          ),
+        ];
 
         if (userId) {
-          await createInAppNotification(
-            userId,
-            'Account Suspended',
-            'Your account has been suspended. Please contact support.',
-            undefined,
-            'WARNING'
-          );
-          await sendPushToUser(
-            userId,
-            'Account Suspended',
-            'Your account has been suspended.',
-            undefined,
-            'SYSTEM_ANNOUNCEMENT'
+          tasks.push(
+            createInAppNotification(
+              userId,
+              'Account Suspended',
+              'Your account has been suspended. Please contact support.',
+              undefined,
+              'WARNING'
+            ),
+            sendPushToUser(
+              userId,
+              'Account Suspended',
+              'Your account has been suspended.',
+              undefined,
+              'SYSTEM_ANNOUNCEMENT'
+            )
           );
         }
 
-        logger.info('Account suspended email sent', { email: email.substring(0, 3) + '***', jobId: job.id });
-      }
+        await Promise.allSettled(tasks);
 
-      if (job.name === 'match-alert-subscriptions') {
+        logger.info('Account suspended email sent', {
+          email: email.substring(0, 3) + '***',
+          jobId: job.id,
+        });
+      } else if (job.name === 'match-alert-subscriptions') {
         const { opportunityId } = job.data as { opportunityId: string };
 
         const opportunity = await prisma.opportunity.findUnique({
@@ -804,26 +807,24 @@ if (redis && notificationsQueue) {
           select: { userId: true },
         });
 
-        await Promise.allSettled(
-          subscriptions.map((sub) =>
-            createInAppNotification(
-              sub.userId,
-              'New Opportunity Match',
-              `"${opportunity.title}" matches your alert preferences!`,
-              `/volunteer/opportunities/${opportunityId}`,
-              'INFO'
-            )
-          )
-        );
+        if (subscriptions.length > 0) {
+          await prisma.notification.createMany({
+            data: subscriptions.map((sub) => ({
+              userId: sub.userId,
+              title: 'New Opportunity Match',
+              body: `"${opportunity.title}" matches your alert preferences!`,
+              link: `/volunteer/opportunities/${opportunityId}`,
+              type: 'INFO',
+            })),
+          });
+        }
 
         logger.info('Alert subscriptions matched', {
           opportunityId,
           matches: subscriptions.length,
           jobId: job.id,
         });
-      }
-
-      if (job.name === 'clean-expired-qr-tokens') {
+      } else if (job.name === 'clean-expired-qr-tokens') {
         const now = new Date();
         const result = await prisma.event.updateMany({
           where: { qrExpiresAt: { lt: now }, qrToken: { not: null } },
@@ -831,9 +832,7 @@ if (redis && notificationsQueue) {
         });
 
         logger.info('Expired QR tokens cleaned', { count: result.count, jobId: job.id });
-      }
-
-      if (job.name === 'daily-metrics-snapshot') {
+      } else if (job.name === 'daily-metrics-snapshot') {
         const [
           totalUsers,
           activeVolunteers,
@@ -856,24 +855,15 @@ if (redis && notificationsQueue) {
           activeOpportunities,
           scheduledEvents,
         });
-      }
-
-      if (job.name === 'daily-streak-update') {
-        const { updateStreaks } = await import('./streak.handler');
+      } else if (job.name === 'daily-streak-update') {
         await updateStreaks();
-      }
-
-      if (job.name === 'cleanup-pending-users') {
-        const { cleanupPendingUsers } = await import('../modules/auth/auth.service');
+      } else if (job.name === 'cleanup-pending-users') {
         const count = await cleanupPendingUsers();
         logger.info('Pending users cleaned up', { deleted: count, jobId: job.id });
-      }
-
-      if (job.name === 'check-event-reminders') {
+      } else if (job.name === 'check-event-reminders') {
         const now = new Date();
         const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-        // Find all SCHEDULED events within the next 24 hours
         const upcomingEvents = await prisma.event.findMany({
           where: {
             eventDate: { gte: now, lte: in24h },
@@ -882,7 +872,6 @@ if (redis && notificationsQueue) {
           take: 100,
         });
 
-        // Batch-fetch all accepted applications for all upcoming events
         const allAcceptedApps = await prisma.application.findMany({
           where: {
             opportunityId: { in: upcomingEvents.map((e) => e.opportunityId) },
@@ -891,7 +880,6 @@ if (redis && notificationsQueue) {
           select: { volunteerId: true, opportunityId: true },
         });
 
-        // Group by opportunityId
         const appsByOpportunity = new Map<string, string[]>();
         for (const app of allAcceptedApps) {
           const list = appsByOpportunity.get(app.opportunityId) ?? [];
@@ -899,30 +887,35 @@ if (redis && notificationsQueue) {
           appsByOpportunity.set(app.opportunityId, list);
         }
 
-        // Enqueue reminders per event
+        const reminderJobs: {
+          name: string;
+          data: Record<string, unknown>;
+          opts?: { jobId: string };
+        }[] = [];
         for (const event of upcomingEvents) {
           const volunteerIds = appsByOpportunity.get(event.opportunityId) ?? [];
-          await Promise.allSettled(
-            volunteerIds.map((volunteerId) =>
-              (notificationsQueue?.add(
-                'event-reminder',
-                {
-                  volunteerId,
-                  eventId: event.id,
-                  eventTitle: event.title,
-                  eventDate: event.eventDate.toISOString(),
-                  venue: event.venue ?? undefined,
-                },
-                {
-                  jobId: `event-reminder-${event.id}-${volunteerId}`,
-                }
-              ) ?? Promise.resolve())
-            )
-          );
+          for (const volunteerId of volunteerIds) {
+            reminderJobs.push({
+              name: 'event-reminder',
+              data: {
+                volunteerId,
+                eventId: event.id,
+                eventTitle: event.title,
+                eventDate: event.eventDate.toISOString(),
+                venue: event.venue ?? undefined,
+              },
+              opts: { jobId: `event-reminder-${event.id}-${volunteerId}` },
+            });
+          }
+        }
+
+        if (reminderJobs.length > 0) {
+          await notificationsQueue?.addBulk(reminderJobs);
         }
 
         logger.info('Event reminders enqueued', {
           eventsChecked: upcomingEvents.length,
+          jobsEnqueued: reminderJobs.length,
           jobId: job.id,
         });
       }

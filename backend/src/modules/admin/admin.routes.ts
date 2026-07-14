@@ -20,10 +20,7 @@ import {
   adminVerifyOrgHandler,
 } from './admin.organizations.controller';
 import { listRolesHandler } from './admin.roles.controller';
-import {
-  adminGetEventHandler,
-  adminListEventsHandler,
-} from './admin.events.controller';
+import { adminGetEventHandler, adminListEventsHandler } from './admin.events.controller';
 import {
   adminGetOpportunityHandler,
   adminListOpportunitiesHandler,

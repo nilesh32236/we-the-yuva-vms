@@ -1,6 +1,6 @@
+import { promisify } from 'node:util';
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import * as Sentry from '@sentry/node';
 import { env } from '../config/env';
 import { logger } from '../lib/logger';
 
@@ -26,7 +26,17 @@ declare global {
   }
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+const jwtVerify: (
+  token: string,
+  secret: string,
+  options?: jwt.VerifyOptions
+) => Promise<JwtPayload> = promisify(jwt.verify.bind(jwt)) as unknown as (
+  token: string,
+  secret: string,
+  options?: jwt.VerifyOptions
+) => Promise<JwtPayload>;
+
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
@@ -37,10 +47,10 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   const token = authHeader.split(' ')[1];
 
   try {
-    const payload = jwt.verify(token, env.JWT_ACCESS_SECRET, {
+    const payload = await jwtVerify(token, env.JWT_ACCESS_SECRET, {
       issuer: 'we-the-yuva-api',
       algorithms: ['HS256'],
-    }) as JwtPayload;
+    });
     req.user = {
       id: payload.sub,
       role: payload.role,
@@ -55,7 +65,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         path: req.path,
         ip: req.ip,
       });
-      Sentry.captureException(err);
       res.status(401).json({ error: 'Token expired' });
       return;
     }
@@ -65,7 +74,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         path: req.path,
         ip: req.ip,
       });
-      Sentry.captureException(err);
       res.status(401).json({ error: 'Token not yet active' });
       return;
     }
@@ -75,7 +83,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         path: req.path,
         ip: req.ip,
       });
-      Sentry.captureException(err);
       res.status(401).json({ error: 'Invalid token' });
       return;
     }
@@ -85,7 +92,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
       path: req.path,
       ip: req.ip,
     });
-    Sentry.captureException(err);
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }

@@ -2,10 +2,20 @@ import { z } from 'zod';
 
 export const RegisterOrganizationSchema = z.object({
   name: z.string().min(2, 'Organization name must be at least 2 characters'),
-  slug: z.string().min(2).max(100).regex(/^[a-z0-9-]+$/).optional(),
+  slug: z
+    .string()
+    .min(2)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
   description: z.string().max(2000).optional(),
   address: z.string().max(500).optional(),
-  phone: z.string().min(10).max(15).regex(/^\+?\d{1,3}[\s\-]?\d{6,14}$/, 'Invalid phone number format').optional(),
+  phone: z
+    .string()
+    .min(10)
+    .max(15)
+    .regex(/^\+?\d{1,3}[\s\-]?\d{6,14}$/, 'Invalid phone number format')
+    .optional(),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   website: z.string().url('Invalid website URL').optional().or(z.literal('')),
 });

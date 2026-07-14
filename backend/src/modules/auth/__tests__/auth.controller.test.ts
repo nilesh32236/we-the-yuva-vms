@@ -7,6 +7,7 @@ vi.mock('@/lib/prisma', () => ({
     role: { findUnique: vi.fn() },
     refreshToken: { findUnique: vi.fn() },
     consentRecord: { findUnique: vi.fn(), create: vi.fn() },
+    auditLog: { createMany: vi.fn().mockResolvedValue({ count: 2 }) },
   },
 }));
 
@@ -166,7 +167,10 @@ describe('auth.controller', () => {
 
     it('should return 409 when email already exists', async () => {
       req.body = { ...baseBody, email: 'existing@test.com' };
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'existing-id' } as never);
+      const err = new Error('Unique constraint failed');
+      (err as any).code = 'P2002';
+      (err as any).meta = { target: ['email'] };
+      vi.mocked(prisma.user.create).mockRejectedValue(err);
 
       await register(req as Request, res as Response, next);
 
@@ -215,6 +219,18 @@ describe('auth.controller', () => {
     it('should verify OTP and return tokens', async () => {
       req.body = { email: 'test@test.com', otp: '123456' };
       vi.mocked(authService.verifyOtp).mockResolvedValue();
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: 'user-1',
+        name: 'Test',
+        email: 'test@test.com',
+        roleRef: { name: 'VOLUNTEER', permissions: [] },
+        status: 'PENDING',
+        locationId: null,
+        organizationId: null,
+        consent: null,
+        profile: null,
+        volunteerType: null,
+      } as never);
       vi.mocked(prisma.user.update).mockResolvedValue({
         id: 'user-1',
         name: 'Test',

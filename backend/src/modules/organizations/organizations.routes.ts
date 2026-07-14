@@ -44,7 +44,12 @@ organizationsRouter.post(
   registerOrgHandler
 );
 
-organizationsRouter.get('/:id', requireAuth, requirePermission(Permissions.ORG_MANAGE), getOrgHandler);
+organizationsRouter.get(
+  '/:id',
+  requireAuth,
+  requirePermission(Permissions.ORG_MANAGE),
+  getOrgHandler
+);
 
 organizationsRouter.patch(
   '/:id',

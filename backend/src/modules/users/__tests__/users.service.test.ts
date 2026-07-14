@@ -2,8 +2,14 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    user: { findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn() },
-    volunteerProfile: { upsert: vi.fn(), findUnique: vi.fn() },
+    user: {
+      findUnique: vi.fn(),
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      update: vi.fn(),
+      count: vi.fn(),
+    },
+    volunteerProfile: { findUnique: vi.fn() },
     staffProfile: { upsert: vi.fn() },
     location: { upsert: vi.fn() },
     $transaction: vi.fn(),
@@ -111,7 +117,10 @@ describe('users.service', () => {
     });
 
     it('should throw 409 when email already in use', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'other-user' } as never);
+      const err = new Error('Unique constraint failed');
+      (err as any).code = 'P2002';
+      (err as any).meta = { target: ['email'] };
+      vi.mocked(prisma.user.update).mockRejectedValue(err);
       await expect(updateUser('user-1', { email: 'taken@t.com' })).rejects.toThrow(
         'Email already in use'
       );
@@ -120,15 +129,6 @@ describe('users.service', () => {
 
   describe('upsertVolunteerProfile', () => {
     it('should update volunteerType and upsert profile in transaction', async () => {
-      vi.mocked(prisma.volunteerProfile.upsert).mockResolvedValue({
-        id: 'vp-1',
-        userId: 'user-1',
-        skills: ['a'],
-        interests: ['b'],
-        availability: { days: ['Mon'], timeSlots: ['Morning'] },
-        totalHours: 0,
-      } as never);
-      const _mockTx = vi.fn();
       vi.mocked(prisma.$transaction).mockImplementation(
         async (cb: (tx: typeof prisma) => Promise<unknown>) => {
           const tx = {
@@ -276,10 +276,15 @@ describe('users.service', () => {
 
   describe('upsertStaffProfile', () => {
     it('should upsert location and staff profile', async () => {
-      vi.mocked(prisma.location.upsert).mockResolvedValue({ id: 'loc-mumbai-mh' } as never);
-      vi.mocked(prisma.user.update).mockResolvedValue({} as never);
-      vi.mocked(prisma.staffProfile.upsert).mockResolvedValue({ id: 'sp-1' } as never);
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      const tx = {
+        location: { upsert: vi.fn() },
+        user: { findUnique: vi.fn(), update: vi.fn() },
+        staffProfile: { upsert: vi.fn() },
+      };
+      vi.mocked(prisma.$transaction).mockImplementation(async (cb: any) => cb(tx));
+      vi.mocked(tx.location.upsert).mockResolvedValue({ id: 'loc-mumbai-mh' } as never);
+      vi.mocked(tx.staffProfile.upsert).mockResolvedValue({ id: 'sp-1' } as never);
+      vi.mocked(tx.user.findUnique).mockResolvedValue({
         id: 'user-1',
         location: { id: 'loc-mumbai-mh' },
         staffProfile: { id: 'sp-1' },

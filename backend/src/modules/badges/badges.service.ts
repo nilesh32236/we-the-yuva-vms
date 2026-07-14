@@ -39,10 +39,12 @@ export async function getMyBadges(userId: string) {
 
   const earnedMap = new Map(userBadges.map((ub) => [ub.badgeId, ub.earnedAt]));
   const pendingBadgeIds = new Set(
-    (await prisma.badgeApproval.findMany({
-      where: { userId, status: 'PENDING' },
-      select: { badgeId: true },
-    })).map((b) => b.badgeId)
+    (
+      await prisma.badgeApproval.findMany({
+        where: { userId, status: 'PENDING' },
+        select: { badgeId: true },
+      })
+    ).map((b) => b.badgeId)
   );
 
   const result = allBadges.map((badge) => ({
@@ -66,7 +68,12 @@ export async function listPendingApprovals() {
   });
 }
 
-export async function approveBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
+export async function approveBadge(
+  userId: string,
+  badgeId: string,
+  reviewedBy: string,
+  reviewNote?: string
+) {
   const result = await prisma.$transaction(async (tx) => {
     const existing = await tx.badgeApproval.findUnique({
       where: { userId_badgeId: { userId, badgeId } },
@@ -97,7 +104,12 @@ export async function approveBadge(userId: string, badgeId: string, reviewedBy: 
   return result;
 }
 
-export async function rejectBadge(userId: string, badgeId: string, reviewedBy: string, reviewNote?: string) {
+export async function rejectBadge(
+  userId: string,
+  badgeId: string,
+  reviewedBy: string,
+  reviewNote?: string
+) {
   return prisma.$transaction(async (tx) => {
     const existing = await tx.badgeApproval.findUnique({
       where: { userId_badgeId: { userId, badgeId } },

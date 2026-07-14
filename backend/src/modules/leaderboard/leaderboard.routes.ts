@@ -16,4 +16,10 @@ const LeaderboardQuerySchema = z.object({
 });
 
 export const leaderboardRouter: Router = Router();
-leaderboardRouter.get('/', requireAuth, requirePermission(Permissions.LEVEL_VIEW), validate(LeaderboardQuerySchema), getLeaderboardHandler);
+leaderboardRouter.get(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.LEVEL_VIEW),
+  validate(LeaderboardQuerySchema),
+  getLeaderboardHandler
+);

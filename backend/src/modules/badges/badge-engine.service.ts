@@ -49,24 +49,31 @@ interface BatchData {
 }
 
 async function getBatchData(userId: string): Promise<BatchData> {
-  const [profile, attendanceCount, referralCount, menteeCount, storyPublishedCount, user, courseProgressCount] =
-    await Promise.all([
-      prisma.volunteerProfile.findUnique({
-        where: { userId },
-        select: { bio: true, totalHours: true, currentStreak: true },
-      }),
-      prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
-      prisma.user.count({ where: { referredById: userId } }),
-      prisma.mentorship.count({ where: { mentorId: userId, status: 'ACTIVE' } }),
-      prisma.story.count({ where: { userId, published: true } }),
-      prisma.user.findUnique({
-        where: { id: userId },
-        select: { createdAt: true, currentLevel: { select: { tier: true } } },
-      }),
-      prisma.courseProgress.count({
-        where: { userId, completed: true, course: { category: 'ORIENTATION' } },
-      }),
-    ]);
+  const [
+    profile,
+    attendanceCount,
+    referralCount,
+    menteeCount,
+    storyPublishedCount,
+    user,
+    courseProgressCount,
+  ] = await Promise.all([
+    prisma.volunteerProfile.findUnique({
+      where: { userId },
+      select: { bio: true, totalHours: true, currentStreak: true },
+    }),
+    prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
+    prisma.user.count({ where: { referredById: userId } }),
+    prisma.mentorship.count({ where: { mentorId: userId, status: 'ACTIVE' } }),
+    prisma.story.count({ where: { userId, published: true } }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { createdAt: true, currentLevel: { select: { tier: true } } },
+    }),
+    prisma.courseProgress.count({
+      where: { userId, completed: true, course: { category: 'ORIENTATION' } },
+    }),
+  ]);
 
   const afterHoursCount = await prisma.$queryRaw<{ count: bigint }[]>`
     SELECT COUNT(*)::bigint as count FROM "Attendance" a
@@ -75,7 +82,16 @@ async function getBatchData(userId: string): Promise<BatchData> {
     AND (EXTRACT(HOUR FROM e."startTime"::time) >= 17 OR EXTRACT(DOW FROM e."eventDate") IN (0, 6))
   `.then((r) => Number(r[0]?.count ?? 0));
 
-  return { profile, attendanceCount, referralCount, menteeCount, storyPublishedCount, user, courseProgressCount, afterHoursCount };
+  return {
+    profile,
+    attendanceCount,
+    referralCount,
+    menteeCount,
+    storyPublishedCount,
+    user,
+    courseProgressCount,
+    afterHoursCount,
+  };
 }
 
 export async function checkAndAwardBadges(userId: string) {
@@ -88,15 +104,21 @@ export async function checkAndAwardBadges(userId: string) {
     )
   );
   const pendingApprovalBadgeIds = new Set(
-    (await prisma.badgeApproval.findMany({
-      where: { userId, status: 'PENDING' },
-      select: { badgeId: true },
-    })).map((b) => b.badgeId)
+    (
+      await prisma.badgeApproval.findMany({
+        where: { userId, status: 'PENDING' },
+        select: { badgeId: true },
+      })
+    ).map((b) => b.badgeId)
   );
 
-  const eligibleBadges = allBadges.filter((b) => !earnedBadgeIds.has(b.id) && !pendingApprovalBadgeIds.has(b.id));
+  const eligibleBadges = allBadges.filter(
+    (b) => !earnedBadgeIds.has(b.id) && !pendingApprovalBadgeIds.has(b.id)
+  );
   const batchData = await getBatchData(userId);
-  const criteriaResults = await Promise.all(eligibleBadges.map((badge) => evaluateCriteria(batchData, badge.criteria as BadgeCriteria)));
+  const criteriaResults = await Promise.all(
+    eligibleBadges.map((badge) => evaluateCriteria(batchData, badge.criteria as BadgeCriteria))
+  );
 
   const awardOps: Promise<unknown>[] = [];
   for (let i = 0; i < eligibleBadges.length; i++) {
@@ -125,7 +147,9 @@ export async function checkAndAwardBadges(userId: string) {
           if (notificationsQueue) {
             await notificationsQueue
               .add('badge-earned', { userId, badgeName: badge.name })
-              .catch((err) => logger.warn('Badge notification failed', { error: (err as Error).message }));
+              .catch((err) =>
+                logger.warn('Badge notification failed', { error: (err as Error).message })
+              );
           }
         }
       })();
@@ -193,15 +217,26 @@ async function evaluateCriteria(data: BatchData, criteria: BadgeCriteria): Promi
     }
 
     case 'INDUCTION': {
-      return data.attendanceCount >= criteria.eventsCount && (data.profile?.totalHours ?? 0) >= criteria.hoursCount;
+      return (
+        data.attendanceCount >= criteria.eventsCount &&
+        (data.profile?.totalHours ?? 0) >= criteria.hoursCount
+      );
     }
 
     case 'MOBILIZER': {
-      return data.attendanceCount >= criteria.eventsCount && (data.profile?.totalHours ?? 0) >= criteria.hoursCount && data.referralCount >= criteria.referralsCount;
+      return (
+        data.attendanceCount >= criteria.eventsCount &&
+        (data.profile?.totalHours ?? 0) >= criteria.hoursCount &&
+        data.referralCount >= criteria.referralsCount
+      );
     }
 
     case 'LEADER': {
-      return data.attendanceCount >= criteria.eventsCount && (data.profile?.totalHours ?? 0) >= criteria.hoursCount && data.menteeCount >= criteria.menteesCount;
+      return (
+        data.attendanceCount >= criteria.eventsCount &&
+        (data.profile?.totalHours ?? 0) >= criteria.hoursCount &&
+        data.menteeCount >= criteria.menteesCount
+      );
     }
 
     default:
@@ -214,7 +249,10 @@ export async function onEventCheckIn(userId: string, eventId: string) {
   try {
     await checkAndAwardBadges(userId);
   } catch (err) {
-    logger.warn('Badge evaluation failed on event check-in', { userId, error: (err as Error).message });
+    logger.warn('Badge evaluation failed on event check-in', {
+      userId,
+      error: (err as Error).message,
+    });
   }
 }
 
@@ -226,7 +264,10 @@ export async function onEventCheckOut(userId: string, eventId: string, hours: nu
   try {
     await checkAndAwardBadges(userId);
   } catch (err) {
-    logger.warn('Badge evaluation failed on event check-out', { userId, error: (err as Error).message });
+    logger.warn('Badge evaluation failed on event check-out', {
+      userId,
+      error: (err as Error).message,
+    });
   }
 }
 
@@ -235,7 +276,10 @@ export async function onFeedbackSubmitted(userId: string, eventId: string) {
   try {
     await checkAndAwardBadges(userId);
   } catch (err) {
-    logger.warn('Badge evaluation failed on feedback submission', { userId, error: (err as Error).message });
+    logger.warn('Badge evaluation failed on feedback submission', {
+      userId,
+      error: (err as Error).message,
+    });
   }
 }
 
@@ -244,6 +288,9 @@ export async function onApplicationAccepted(userId: string, opportunityId: strin
   try {
     await checkAndAwardBadges(userId);
   } catch (err) {
-    logger.warn('Badge evaluation failed on application accepted', { userId, error: (err as Error).message });
+    logger.warn('Badge evaluation failed on application accepted', {
+      userId,
+      error: (err as Error).message,
+    });
   }
 }

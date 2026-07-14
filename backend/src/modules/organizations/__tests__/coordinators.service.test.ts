@@ -3,14 +3,24 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     organization: { findUnique: vi.fn() },
-    user: { findUnique: vi.fn(), upsert: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn() },
+    user: {
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+      findMany: vi.fn(),
+      update: vi.fn(),
+      count: vi.fn(),
+    },
     role: { findUnique: vi.fn() },
   },
 }));
 
 const { prisma } = await import('@/lib/prisma');
 
-import { addCoordinatorToOrg, listCoordinators, removeCoordinatorFromOrg } from '../organizations.service';
+import {
+  addCoordinatorToOrg,
+  listCoordinators,
+  removeCoordinatorFromOrg,
+} from '../organizations.service';
 
 describe('coordinators.service (via organizations.service)', () => {
   beforeEach(() => {
@@ -42,7 +52,10 @@ describe('coordinators.service (via organizations.service)', () => {
         status: 'ACTIVE',
       } as never);
 
-      const result = await addCoordinatorToOrg('org-1', 'caller-id', { name: 'C', email: 'c@t.com' });
+      const result = await addCoordinatorToOrg('org-1', 'caller-id', {
+        name: 'C',
+        email: 'c@t.com',
+      });
       expect(result.id).toBe('coord-1');
       expect(prisma.user.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -73,7 +86,7 @@ describe('coordinators.service (via organizations.service)', () => {
       ] as never);
 
       const result = await listCoordinators('org-1');
-      expect(result).toHaveLength(1);
+      expect(result.data).toHaveLength(1);
     });
   });
 

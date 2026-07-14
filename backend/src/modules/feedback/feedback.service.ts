@@ -20,7 +20,10 @@ export async function submitFeedback(
   if (!attendance?.attended) throw new AppError('You have not attended this event', 403);
 
   if (data.rating < 1 || data.rating > 5) throw new AppError('Rating must be between 1 and 5', 400);
-  if (data.confidenceLevel !== undefined && (data.confidenceLevel < 1 || data.confidenceLevel > 5)) {
+  if (
+    data.confidenceLevel !== undefined &&
+    (data.confidenceLevel < 1 || data.confidenceLevel > 5)
+  ) {
     throw new AppError('Confidence level must be between 1 and 5', 400);
   }
 
@@ -126,7 +129,10 @@ export async function updateFeedback(
   if (data.rating !== undefined && (data.rating < 1 || data.rating > 5)) {
     throw new AppError('Rating must be between 1 and 5', 400);
   }
-  if (data.confidenceLevel !== undefined && (data.confidenceLevel < 1 || data.confidenceLevel > 5)) {
+  if (
+    data.confidenceLevel !== undefined &&
+    (data.confidenceLevel < 1 || data.confidenceLevel > 5)
+  ) {
     throw new AppError('Confidence level must be between 1 and 5', 400);
   }
   const existing = await prisma.eventFeedback.findUnique({

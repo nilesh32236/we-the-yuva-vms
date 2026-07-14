@@ -45,7 +45,9 @@ export async function requestMentorship(mentorId: string, menteeId: string) {
         body: `${mentorship.mentor.name} wants you as their mentee`,
         link: '/volunteer/mentorship',
       })
-      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
+      .catch((err) =>
+        logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message })
+      );
   }
 
   return mentorship;
@@ -121,7 +123,9 @@ export async function reviewMentorshipRequest(
         body: `${result.mentor.name} has accepted your mentorship request!`,
         link: '/volunteer/mentorship',
       })
-      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
+      .catch((err) =>
+        logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message })
+      );
   }
 
   return result;
@@ -191,7 +195,9 @@ export async function completeMentorship(requestId: string, userId: string) {
         body: `Your mentorship with ${result.mentor.name} has been completed!`,
         link: '/volunteer/mentorship',
       })
-      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
+      .catch((err) =>
+        logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message })
+      );
     notificationsQueue
       .add('mentorship-update', {
         userId: result.mentorId,
@@ -199,7 +205,9 @@ export async function completeMentorship(requestId: string, userId: string) {
         body: `Your mentorship with ${result.mentee.name} has been completed. Great job mentoring!`,
         link: '/coordinator/mentorship',
       })
-      .catch((err) => logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message }));
+      .catch((err) =>
+        logger.warn('Failed to enqueue mentorship notification', { error: (err as Error).message })
+      );
   }
 
   return result;

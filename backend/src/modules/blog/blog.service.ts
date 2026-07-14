@@ -101,7 +101,10 @@ export async function updatePost(
   },
   callerRole: string
 ) {
-  const post = await prisma.blogPost.findUnique({ where: { id }, select: { id: true, authorId: true } });
+  const post = await prisma.blogPost.findUnique({
+    where: { id },
+    select: { id: true, authorId: true },
+  });
   if (!post) throw new AppError('Post not found', 404);
   if (post.authorId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
 

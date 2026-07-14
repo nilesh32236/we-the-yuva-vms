@@ -23,19 +23,23 @@ export async function generateCertificate(userId: string, levelId: string) {
         userId,
         levelId,
         verificationHash,
+        certificateUrl: '',
       },
-    });
-
-    const certificateUrl = `/api/v1/certificates/${cert.id}/view`;
-
-    return tx.certificate.update({
-      where: { id: cert.id },
-      data: { certificateUrl },
       include: { level: true },
     });
+
+    const url = `/api/v1/certificates/${cert.id}/view`;
+
+    await tx.certificate.update({
+      where: { id: cert.id },
+      data: { certificateUrl: url },
+    });
+
+    cert.certificateUrl = url;
+    return cert;
   });
 
-  if (certificate && notificationsQueue) {
+  if (notificationsQueue) {
     try {
       await notificationsQueue.add('certificate-issued', {
         userId: certificate.userId,

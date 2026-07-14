@@ -5,6 +5,7 @@ import multer from 'multer';
 import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { AppError } from '../../middleware/error.middleware';
+import { logger } from '../../lib/logger';
 
 // TODO: use S3/cloud storage for production - local disk is not persistent
 // HF Spaces has read-only filesystem; use /tmp/uploads or cloud storage
@@ -55,7 +56,12 @@ const fileFilter = (
   );
   const mimeAllowed = ALLOWED_MIMES.has(file.mimetype);
   if (extAllowed && mimeAllowed) return cb(null, true);
-  cb(new AppError('Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed', 400));
+  cb(
+    new AppError(
+      'Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed',
+      400
+    )
+  );
 };
 
 export const upload = multer({
@@ -105,7 +111,7 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
       try {
         await fs.promises.unlink(file.path);
       } catch (err) {
-        console.warn(`Failed to delete local temp file ${file.path}:`, err);
+        logger.warn(`Failed to delete local temp file ${file.path}:`, { error: (err as Error).message });
       }
 
       // Construct direct URL (S3 standard structure or custom S3 endpoint mapping)

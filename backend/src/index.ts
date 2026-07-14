@@ -21,8 +21,10 @@ async function main() {
     process.exit(1);
   }
 
-  // Seed default training courses if DB is empty (dev mode only)
-  await seedCoursesIfEmpty();
+  // Seed default training courses if DB is empty (dev mode only) — background, non-blocking
+  seedCoursesIfEmpty().catch((err) =>
+    logger.warn('Seed courses failed', { error: (err as Error).message })
+  );
 
   if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
     logger.warn('VAPID keys not configured — push notifications will be disabled');

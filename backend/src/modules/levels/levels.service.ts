@@ -1,13 +1,38 @@
 import type { Prisma } from '@prisma/client';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
+import { redis } from '../../lib/redis';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 import { generateCertificate } from '../certificates/certificates.service';
 import { checkAndAwardBadges } from '../badges/badge-engine.service';
 
+const LEVELS_CACHE_KEY = 'levels:all';
+const LEVELS_CACHE_TTL = 300;
+
+async function getCachedLevels() {
+  if (redis) {
+    try {
+      const cached = await redis.get(LEVELS_CACHE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch {
+      logger.warn('Failed to parse cached levels');
+    }
+  }
+
+  const levels = await prisma.level.findMany({ orderBy: { tier: 'asc' } });
+
+  if (redis) {
+    redis.set(LEVELS_CACHE_KEY, JSON.stringify(levels), 'EX', LEVELS_CACHE_TTL).catch((err) =>
+      logger.warn('Failed to cache levels', { error: (err as Error).message })
+    );
+  }
+
+  return levels;
+}
+
 export async function listLevels() {
-  return prisma.level.findMany({ orderBy: { tier: 'asc' } });
+  return getCachedLevels();
 }
 
 export async function getLevel(id: string) {
@@ -28,7 +53,7 @@ export async function getMyLevel(userId: string) {
   });
   if (!user) throw new AppError('User not found', 404);
 
-  const allLevels = await prisma.level.findMany({ orderBy: { tier: 'asc' } });
+  const allLevels = await getCachedLevels();
 
   return {
     currentLevel: user.currentLevel,
@@ -47,7 +72,7 @@ export async function getMyProgress(userId: string) {
   });
   if (!user) throw new AppError('User not found', 404);
 
-  const allLevels = await prisma.level.findMany({ orderBy: { tier: 'asc' } });
+  const allLevels = await getCachedLevels();
   const currentTier = user.currentLevelId
     ? allLevels.find((l) => l.id === user.currentLevelId)
     : null;
@@ -55,12 +80,14 @@ export async function getMyProgress(userId: string) {
     ? allLevels.find((l) => l.tier === currentTier.tier + 1)
     : allLevels[0];
 
-  const eventsAttended = await prisma.attendance.count({
-    where: { volunteerId: userId, attended: true },
-  });
-  const storiesPublished = await prisma.story.count({
-    where: { userId, published: true },
-  });
+  const [eventsAttended, storiesPublished] = await Promise.all([
+    prisma.attendance.count({
+      where: { volunteerId: userId, attended: true },
+    }),
+    prisma.story.count({
+      where: { userId, published: true },
+    }),
+  ]);
   const totalHours = user.profile?.totalHours ?? 0;
 
   return {
@@ -132,27 +159,26 @@ export async function createLevelRequest(
     await prisma.$transaction(async (tx) => {
       await awardLevelPoints(tx, userId, level.id, level.id);
     });
-    try {
-      const _cert = await generateCertificate(userId, level.id);
-    } catch (err) {
-      logger.warn('Failed to generate certificate on level approval', {
-        err,
-        userId,
-        levelId: level.id,
-      });
-    }
-    try {
-      await checkAndAwardBadges(userId);
-    } catch (err) {
-      logger.warn('Failed to check and award badges on auto-promotion', { err, userId });
-    }
-    if (notificationsQueue) {
-      await notificationsQueue
-        .add('level-up', { userId, levelName: level.name })
-        .catch((err) => {
-          logger.warn('Failed to enqueue level-up notification', { err, userId, levelName: level.name });
-        });
-    }
+    await Promise.allSettled([
+      generateCertificate(userId, level.id).catch((err) =>
+        logger.warn('Failed to generate certificate on level approval', {
+          err,
+          userId,
+          levelId: level.id,
+        })
+      ),
+      checkAndAwardBadges(userId).catch((err) =>
+        logger.warn('Failed to check and award badges on auto-promotion', { err, userId })
+      ),
+      (notificationsQueue?.add('level-up', { userId, levelName: level.name }) ?? Promise.resolve())
+        .catch((err) =>
+          logger.warn('Failed to enqueue level-up notification', {
+            err,
+            userId,
+            levelName: level.name,
+          })
+        ),
+    ]);
   }
 
   return result;
@@ -269,30 +295,29 @@ export async function reviewLevelRequest(
   });
 
   if (data.status === 'APPROVED') {
-    try {
-      const _cert = await generateCertificate(request.userId, request.levelId);
-    } catch (err) {
-      logger.warn('Failed to generate certificate on level approval', {
-        err,
-        userId: request.userId,
-        levelId: request.levelId,
-      });
-    }
-    try {
-      await checkAndAwardBadges(request.userId);
-    } catch (err) {
-      logger.warn('Failed to check and award badges on level approval', {
-        err,
-        userId: request.userId,
-      });
-    }
-    if (notificationsQueue) {
-      await notificationsQueue
-        .add('level-up', { userId: request.userId, levelName: request.level.name })
+    await Promise.allSettled([
+      generateCertificate(request.userId, request.levelId).catch((err) =>
+        logger.warn('Failed to generate certificate on level approval', {
+          err,
+          userId: request.userId,
+          levelId: request.levelId,
+        })
+      ),
+      checkAndAwardBadges(request.userId).catch((err) =>
+        logger.warn('Failed to check and award badges on level approval', {
+          err,
+          userId: request.userId,
+        })
+      ),
+      (notificationsQueue?.add('level-up', { userId: request.userId, levelName: request.level.name }) ?? Promise.resolve())
         .catch((err) => {
-          logger.warn('Failed to enqueue level-up notification', { err, userId: request.userId, levelName: request.level.name });
-        });
-    }
+          logger.warn('Failed to enqueue level-up notification', {
+            err,
+            userId: request.userId,
+            levelName: request.level.name,
+          });
+        }),
+    ]);
   }
 
   return result;
