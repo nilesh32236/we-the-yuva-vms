@@ -17,6 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ── Job 1: Review an autofix PR ──
   review:
     if: |
       (
@@ -33,50 +34,483 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
-      approved: ${{ steps.review.outputs.verdict }}
+      approved: ${{ steps.post-review.outputs.approved }}
+      pr_number: ${{ steps.pr-info.outputs.number }}
+      head_ref: ${{ steps.pr-info.outputs.head_ref }}
+      iteration: ${{ steps.check-iterations.outputs.iteration }}
+      exceeded: ${{ steps.check-iterations.outputs.exceeded }}
 
     steps:
+      - name: Get PR details
+        id: pr-info
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number || github.event.issue.number }}"
+          HEAD_REF=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.ref')
+          HEAD_SHA=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.sha')
+          echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$HEAD_REF" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Check iteration limit
+        id: check-iterations
+        run: |
+          PR_NUMBER="${{ steps.pr-info.outputs.number }}"
+          MAX_ITER=3
+
+          COUNT=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+            --jq '[.[] | select(.body | contains("<!-- autofix-review -->"))] | length' \
+            2>/dev/null || echo "0")
+
+          echo "iteration=$COUNT" >> "$GITHUB_OUTPUT"
+
+          if [ "$COUNT" -ge "$MAX_ITER" ]; then
+            gh pr edit "$PR_NUMBER" \
+              --remove-label "autofix,autofix:needs-fix" \
+              --add-label "autofix:needs-manual-review" \
+              --repo "${{ github.repository }}" 2>/dev/null || true
+
+            # Update the review comment to note max iterations
+            chmod +x .github/scripts/post-or-update-comment.sh 2>/dev/null || true
+            echo "⚠️ **Max iterations reached** ($MAX_ITER). This PR needs manual review." > /tmp/max-iter.md
+            .github/scripts/post-or-update-comment.sh \
+              "${{ github.repository }}" "$PR_NUMBER" \
+              "<!-- autofix-status -->" /tmp/max-iter.md \
+              "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}" 2>/dev/null || \
+            gh pr comment "$PR_NUMBER" --body "⚠️ **Max iterations reached** ($MAX_ITER). This PR needs manual review." --repo "${{ github.repository }}"
+
+            echo "exceeded=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exceeded=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
       - uses: actions/checkout@v7
+        if: steps.check-iterations.outputs.exceeded != 'true'
         with:
+          ref: ${{ steps.pr-info.outputs.head_ref }}
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
 
-      - uses: nilesh32236/opencode-ai-reviewer@main
-        id: review
-        with:
-          mode: review
-          github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-          project_context: |
-            Monorepo with:
-            - frontend/ — Next.js 16 App Router (React 19, Tailwind v4, TanStack Query)
-            - backend/ — Express REST API (Node.js, Prisma, Zod, BullMQ)
+      - name: Configure git
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          git config --global user.name 'nilesh32236'
+          git config --global user.email 'nilesh32236@gmail.com'
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
+      - name: Extract linked issue number
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        id: linked-issue
+        run: |
+          PR_NUMBER="${{ steps.pr-info.outputs.number }}"
+          PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body' --repo "${{ github.repository }}" 2>/dev/null || echo "")
+          ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '(?:Fixes|Closes|Resolves)\s+#\K[0-9]+' | head -1 || echo "")
+          [ -z "$ISSUE_NUM" ] && ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '#\K[0-9]+' | head -1 || echo "")
+          echo "issue_number=$ISSUE_NUM" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Gather full context
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          chmod +x .github/scripts/gather-context.sh
+          ARGS="${{ github.repository }} /tmp/full-context.md --pr ${{ steps.pr-info.outputs.number }}"
+          ISSUE_NUM="${{ steps.linked-issue.outputs.issue_number }}"
+          [ -n "$ISSUE_NUM" ] && ARGS="$ARGS --issue $ISSUE_NUM"
+          .github/scripts/gather-context.sh $ARGS
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup OpenCode
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          chmod +x .github/scripts/setup-opencode.sh
+          .github/scripts/setup-opencode.sh
+
+      - name: Write review prompt
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          FULL_CONTEXT=$(cat /tmp/full-context.md 2>/dev/null || echo "No context available")
+          ITERATION="${{ steps.check-iterations.outputs.iteration }}"
+
+          cat << PROMPT_EOF > /tmp/opencode-review-prompt.txt
+          You are a Senior Code Reviewer. Review this autofix pull request thoroughly.
+
+          ## Full Context (Issue + PR + All Comments)
+
+          ${FULL_CONTEXT}
+
+          ---
+
+          ## Review Iteration: ${ITERATION}
+
+          This is iteration ${ITERATION} of the review-fix loop (max 3). Previous review feedback is included in the context above. Check if previous issues have been addressed.
+
+          ## Project Context
+          - **\`frontend/\`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query, Serwist PWA)
+          - **\`backend/\`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
+
+          Before reviewing:
+          1. Determine which project(s) the PR touches based on file paths
+          2. For frontend files, read \`frontend/AGENTS.md\` for conventions
+          3. For backend files, read \`backend/README.md\`
+
+          ## Context Window Management
+          If the PR touches more than 10 files, batch them into groups of at most 3 files.
+          Dispatch a sub-agent for each batch via the \`task\` tool with \`subagent_type: "general"\`.
+          Collect all results before proceeding.
+
+          ## What to Check
+          - **Correctness**: Does the fix actually resolve the issue described? Are all edge cases handled?
+          - **Regressions**: Could this break other functionality?
+          - **Security**: PII exposure, missing auth/RBAC checks, XSS, hardcoded secrets, JWT handling
+          - **Conventions**: Project conventions from AGENTS.md/README.md
+          - **TypeScript**: No \`any\`, proper types, no type errors
+          - **Error handling**: Graceful failure modes
+          - **Dead code**: Unused imports, console.log, commented-out code
+          - **HTML/DOM**: Duplicate IDs, htmlFor mismatches, improper nesting
+          - **UX/Accessibility**: ARIA, keyboard nav, mobile touch targets
+          - **Performance**: No unnecessary re-renders, proper optimization
+
+          ## Severity Guide
+          - **critical**: Bug, security hole, broken functionality — must fix before merge
+          - **important**: Architecture concern, maintainability debt, missing error handling — should fix
+          - **minor**: Style, naming, optimization — nice to have
+
+          ## Output
+
+          Write your findings to \`.opencode/review-output.jsonl\` in JSON Lines format:
+
+          \`\`\`
+          {"type":"summary","text":"Brief overall assessment of the PR."}
+          {"type":"verdict","ready":true/false,"reasoning":"Technical assessment explaining the verdict."}
+          {"type":"strength","file":"src/example.ts","line":10,"message":"What's well done."}
+          {"type":"issue","severity":"critical","file":"src/example.ts","line":42,"message":"What's wrong.","suggestion":"How to fix."}
+          \`\`\`
+
+          Rules:
+          - Write exactly ONE summary and ONE verdict
+          - Set \`ready: true\` ONLY if there are zero critical or important issues
+          - Every issue must include file and line
+          - Do NOT modify any source files — this is a read-only review
+          - Do NOT run git push, git commit, or create pull requests
+          - Do NOT run any git commands
+          PROMPT_EOF
+
+      - name: Run OpenCode review
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-review-prompt.txt)"
+
+      - name: Close auto-created OpenCode PR
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          gh pr list --state open --json headRefName,number \
+            --jq '.[] | select(.headRefName | startswith("opencode/")) | .number' \
+            | while read -r num; do
+              gh pr close "$num" --delete-branch 2>/dev/null || true
+            done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Parse review and post comment
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        id: post-review
+        run: |
+          fail() { echo "::warning::review: $*"; echo "approved=false" >> "$GITHUB_OUTPUT"; exit 0; }
+
+          FILE=".opencode/review-output.jsonl"
+          [ -f "$FILE" ] || fail "No review findings at $FILE"
+
+          jq -c . "$FILE" 2>/dev/null > /tmp/clean.jsonl
+          TOTAL=$(wc -l < "$FILE")
+          VALID=$(wc -l < /tmp/clean.jsonl)
+          FAILED=$(( TOTAL - VALID ))
+          [ "$FAILED" -gt 0 ] && echo "::warning::$FAILED/$TOTAL line(s) had invalid JSON"
+
+          SUMMARY=$(jq -r 'select(.type=="summary")|.text' /tmp/clean.jsonl | head -1)
+          READY=$(jq -r 'select(.type=="verdict")|.ready' /tmp/clean.jsonl | head -1)
+          REASONING=$(jq -r 'select(.type=="verdict")|.reasoning' /tmp/clean.jsonl | head -1)
+
+          PR_NUMBER="${{ steps.pr-info.outputs.number }}"
+          ITERATION="${{ steps.check-iterations.outputs.iteration }}"
+
+          CRIT_COUNT=$(jq -c 'select(.type=="issue" and .severity=="critical")' /tmp/clean.jsonl | wc -l)
+          IMP_COUNT=$(jq -c 'select(.type=="issue" and .severity=="important")' /tmp/clean.jsonl | wc -l)
+          MIN_COUNT=$(jq -c 'select(.type=="issue" and .severity=="minor")' /tmp/clean.jsonl | wc -l)
+
+          # Build single review comment (updated in-place across iterations)
+          {
+            echo "<!-- autofix-review -->"
+            echo ""
+            echo "## 🔍 Autofix Review (Iteration $((ITERATION + 1))/3)"
+            echo ""
+            echo "${SUMMARY:-No summary provided.}"
+            echo ""
+            if [ "$READY" = "true" ] && [ "$CRIT_COUNT" -eq 0 ] && [ "$IMP_COUNT" -eq 0 ]; then
+              echo "✅ **Ready to merge** — ${REASONING:-No issues found.}"
+            else
+              echo "❌ **Needs fixes** — ${CRIT_COUNT} critical, ${IMP_COUNT} important, ${MIN_COUNT} minor"
+              echo ""
+              echo "**Reasoning:** ${REASONING:-Not provided.}"
+            fi
+
+            STRENGTHS=$(jq -r 'select(.type=="strength")|"- ✅ **\(.file):\(.line)** — \(.message)"' /tmp/clean.jsonl)
+            [ -n "$STRENGTHS" ] && echo "" && echo "### Strengths" && echo "$STRENGTHS"
+
+            ISSUES=$(jq -r 'select(.type=="issue")|"- **\(.severity | ascii_upcase):** \(.file):\(.line) — \(.message)\(if .suggestion then "\n  > 💡 " + .suggestion else "" end)"' /tmp/clean.jsonl)
+            [ -n "$ISSUES" ] && echo "" && echo "### Issues" && echo "$ISSUES"
+          } > /tmp/review-body.md
+
+          # Use post-or-update to keep a SINGLE review comment
+          chmod +x .github/scripts/post-or-update-comment.sh
+          .github/scripts/post-or-update-comment.sh \
+            "${{ github.repository }}" "$PR_NUMBER" \
+            "<!-- autofix-review -->" /tmp/review-body.md \
+            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
+
+          if [ "$READY" = "true" ] && [ "$CRIT_COUNT" -eq 0 ] && [ "$IMP_COUNT" -eq 0 ]; then
+            echo "approved=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "approved=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Apply approval label
+        if: steps.check-iterations.outputs.exceeded != 'true' && steps.post-review.outputs.approved == 'true'
+        run: |
+          gh pr edit "${{ steps.pr-info.outputs.number }}" \
+            --remove-label "autofix,autofix:needs-fix" \
+            --add-label "autofix:approved" \
+            --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Apply needs-fix label
+        if: steps.check-iterations.outputs.exceeded != 'true' && steps.post-review.outputs.approved == 'false'
+        run: |
+          gh pr edit "${{ steps.pr-info.outputs.number }}" \
+            --add-label "autofix:needs-fix" \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+  # ── Job 2: Fix issues found by review ──
   fix:
     needs: [review]
     if: |
-      always() &&
-      needs.review.result == 'success' &&
-      needs.review.outputs.approved != 'true'
+      always() && (
+        (needs.review.result == 'success' && needs.review.outputs.approved == 'false' && needs.review.outputs.exceeded != 'true') ||
+        (github.event_name == 'issue_comment' && github.event.issue.pull_request != null && contains(github.event.comment.body || '', '/fix'))
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
+      - name: Get PR details
+        id: pr-info
+        run: |
+          # Use review outputs if available, otherwise fall back to event context
+          PR_NUMBER="${{ needs.review.outputs.pr_number }}"
+          [ -z "$PR_NUMBER" ] && PR_NUMBER="${{ github.event.issue.number }}"
+
+          HEAD_REF=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.ref')
+          HEAD_SHA=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '.head.sha')
+          echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$HEAD_REF" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Check iteration limit
+        id: check-iterations
+        run: |
+          PR_NUMBER="${{ steps.pr-info.outputs.number }}"
+          MAX_ITER=3
+
+          COUNT=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+            --jq '[.[] | select(.body | contains("<!-- autofix-review -->"))] | length' \
+            2>/dev/null || echo "0")
+
+          echo "iteration=$COUNT" >> "$GITHUB_OUTPUT"
+
+          if [ "$COUNT" -ge "$MAX_ITER" ]; then
+            echo "::warning::Fix iteration limit reached ($MAX_ITER). Stopping."
+            echo "exceeded=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exceeded=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
       - uses: actions/checkout@v7
+        if: steps.check-iterations.outputs.exceeded != 'true'
         with:
+          ref: ${{ steps.pr-info.outputs.head_ref }}
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.ref }}
 
-      - uses: nilesh32236/opencode-ai-reviewer@main
-        with:
-          mode: fix
-          github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-          max_fix_iterations: 3
-          run_checks_after_fix: cd frontend && pnpm typecheck && cd ../backend && pnpm typecheck
-          project_context: |
-            Monorepo with:
-            - frontend/ — Next.js 16 App Router
-            - backend/ — Express REST API
+      - name: Configure git
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          git config --global user.name 'nilesh32236'
+          git config --global user.email 'nilesh32236@gmail.com'
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
+      - name: Extract linked issue number
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        id: linked-issue
+        run: |
+          PR_NUMBER="${{ steps.pr-info.outputs.number }}"
+          PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body' --repo "${{ github.repository }}" 2>/dev/null || echo "")
+          ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '(?:Fixes|Closes|Resolves)\s+#\K[0-9]+' | head -1 || echo "")
+          [ -z "$ISSUE_NUM" ] && ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '#\K[0-9]+' | head -1 || echo "")
+          echo "issue_number=$ISSUE_NUM" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Gather full context
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          chmod +x .github/scripts/gather-context.sh
+          ARGS="${{ github.repository }} /tmp/full-context.md --pr ${{ steps.pr-info.outputs.number }}"
+          ISSUE_NUM="${{ steps.linked-issue.outputs.issue_number }}"
+          [ -n "$ISSUE_NUM" ] && ARGS="$ARGS --issue $ISSUE_NUM"
+          .github/scripts/gather-context.sh $ARGS
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup OpenCode
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          chmod +x .github/scripts/setup-opencode.sh
+          .github/scripts/setup-opencode.sh
+
+      - name: Write fix prompt
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          FULL_CONTEXT=$(cat /tmp/full-context.md 2>/dev/null || echo "No context available")
+          ITERATION="${{ steps.check-iterations.outputs.iteration }}"
+
+          cat << PROMPT_EOF > /tmp/opencode-fix-prompt.txt
+          You are a Senior Code Fixer. Fix the issues found during code review.
+
+          ## Full Context (Issue + PR + Review Comments + All Feedback)
+
+          ${FULL_CONTEXT}
+
+          ---
+
+          ## Fix Iteration: ${ITERATION}
+
+          Read ALL the review comments above carefully. Focus on:
+          1. Issues marked as CRITICAL — these must be fixed
+          2. Issues marked as IMPORTANT — these should be fixed
+          3. Issues marked as MINOR — fix these if straightforward
+
+          Also read any comments from other users or automated workflows — they may contain additional feedback or corrections.
+
+          ## Project Context
+          - **\`frontend/\`** — Next.js 16 App Router (React 19, Tailwind v4, axios, TanStack Query)
+          - **\`backend/\`** — Express REST API (Node.js, Prisma, Zod, BullMQ, vitest)
+
+          Before making changes:
+          1. Determine which project(s) are affected by file paths
+          2. For frontend files, read \`frontend/AGENTS.md\` for conventions
+          3. For backend files, read \`backend/README.md\`
+
+          ## Steps
+          1. Read and understand each issue from the review feedback above
+          2. For each issue, open the referenced file at the reported line
+          3. Apply a minimal, correct fix
+          4. After fixing, run from the correct subdirectory:
+             - Frontend: \`cd frontend && pnpm typecheck && pnpm lint\`
+             - Backend: \`cd backend && pnpm typecheck && pnpm lint\`
+             - Both: run both
+          5. Fix any type or lint errors introduced by your changes
+
+          ## CRITICAL RULES
+          - Do NOT run \`git push\`, \`git commit\`, or create any pull requests
+          - Do NOT run any git commands at all — the workflow handles git operations
+          - Fix ONLY the issues from the review feedback — nothing more
+          - Prefer minimal, targeted fixes over rewrites
+          - Do not add features or change unrelated code
+          - If a fix requires significant refactoring outside scope, skip it
+          - Verify every change compiles before finishing
+          PROMPT_EOF
+
+      - name: Run OpenCode fix
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-fix-prompt.txt)"
+
+      - name: Close auto-created OpenCode PR
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          gh pr list --state open --json headRefName,number \
+            --jq '.[] | select(.headRefName | startswith("opencode/")) | .number' \
+            | while read -r num; do
+              gh pr close "$num" --delete-branch 2>/dev/null || true
+            done
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Commit and push fixes
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        id: push-fixes
+        run: |
+          BRANCH="${{ steps.pr-info.outputs.head_ref }}"
+          ITERATION="${{ steps.check-iterations.outputs.iteration }}"
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "fix: address review feedback (iteration $((ITERATION + 1)))"
+            git remote set-url origin "https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+            git push origin "$BRANCH"
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update status comment
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          PR_NUMBER="${{ steps.pr-info.outputs.number }}"
+          ITERATION="${{ steps.check-iterations.outputs.iteration }}"
+          PUSHED="${{ steps.push-fixes.outputs.pushed }}"
+
+          if [ "$PUSHED" = "true" ]; then
+            echo "🔧 Fix applied (iteration $((ITERATION + 1))). Waiting for review..." > /tmp/status.md
+          else
+            echo "ℹ️ Fix agent ran but made no changes (iteration $((ITERATION + 1))). Manual review may be needed." > /tmp/status.md
+          fi
+
+          chmod +x .github/scripts/post-or-update-comment.sh
+          .github/scripts/post-or-update-comment.sh \
+            "${{ github.repository }}" "$PR_NUMBER" \
+            "<!-- autofix-status -->" /tmp/status.md \
+            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Remove needs-fix label
+        if: steps.check-iterations.outputs.exceeded != 'true'
+        run: |
+          gh pr edit "${{ steps.pr-info.outputs.number }}" \
+            --remove-label "autofix:needs-fix" \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+  # ── Job 3: Auto-merge approved PRs ──
   auto-merge:
     needs: [review]
     if: needs.review.result == 'success' && needs.review.outputs.approved == 'true'
@@ -84,11 +518,68 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Enable auto-merge
+      - name: Merge PR
+        id: merge
+        run: |
+          PR_NUMBER="${{ needs.review.outputs.pr_number }}"
+          REPO="${{ github.repository }}"
+
+          # Enable auto-merge — GitHub will merge once all required checks pass
+          gh pr merge "$PR_NUMBER" \
+            --squash \
+            --auto \
+            --delete-branch \
+            --repo "$REPO" && {
+              echo "merged=true" >> "$GITHUB_OUTPUT"
+            } || {
+              echo "::warning::Auto-merge failed — PR may need manual merge"
+              echo "merged=false" >> "$GITHUB_OUTPUT"
+            }
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Update status
         run: |
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          gh pr merge "$PR_NUMBER" --squash --auto --delete-branch || {
-            echo "::warning::Auto-merge failed"
-          }
+          PR_NUMBER="${{ needs.review.outputs.pr_number }}"
+          MERGED="${{ steps.merge.outputs.merged }}"
+
+          if [ "$MERGED" = "true" ]; then
+            echo "✅ Review approved. Auto-merge enabled — will merge when CI passes." > /tmp/status.md
+          else
+            echo "⚠️ Review approved but auto-merge failed. Please merge manually." > /tmp/status.md
+          fi
+
+          chmod +x .github/scripts/post-or-update-comment.sh 2>/dev/null || true
+          .github/scripts/post-or-update-comment.sh \
+            "${{ github.repository }}" "$PR_NUMBER" \
+            "<!-- autofix-status -->" /tmp/status.md \
+            "${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}" 2>/dev/null || \
+          gh pr comment "$PR_NUMBER" --body-file /tmp/status.md --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Close linked issue
+        if: steps.merge.outputs.merged == 'true'
+        run: |
+          PR_NUMBER="${{ needs.review.outputs.pr_number }}"
+          REPO="${{ github.repository }}"
+
+          PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body' --repo "$REPO" 2>/dev/null || echo "")
+          ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '(?:Fixes|Closes|Resolves)\s+#\K[0-9]+' | head -1 || echo "")
+
+          if [ -n "$ISSUE_NUM" ]; then
+            gh issue close "$ISSUE_NUM" \
+              --comment "✅ Fixed by PR #${PR_NUMBER}" \
+              --repo "$REPO" 2>/dev/null || true
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Update labels
+        run: |
+          gh pr edit "${{ needs.review.outputs.pr_number }}" \
+            --add-label "autofix:merged" \
+            --remove-label "autofix:approved,autofix" \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
