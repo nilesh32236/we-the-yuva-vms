@@ -6,18 +6,13 @@ on:
   workflow_dispatch:
     inputs:
       prompt_name:
-        description: "Specific prompt to run (omit for random)"
+        description: 'Specific audit category (omit for random)'
         required: false
         type: string
       target_dir:
-        description: "Specific directory to audit (omit for random)"
+        description: 'Specific directory to audit (omit for random)'
         required: false
         type: string
-      auto_fix:
-        description: "Auto-trigger fix workflow after creating issue"
-        required: false
-        type: boolean
-        default: true
 
 permissions:
   contents: read
@@ -34,265 +29,19 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Record start time
-        id: start-time
-        run: echo "time=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
-
       - uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
-      - name: Configure git for OpenCode
-        run: |
-          git config --global user.name "nilesh32236"
-          git config --global user.email "nilesh32236@gmail.com"
-          git config --global url."https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-
-      - name: Ensure audit labels exist
-        run: |
-          for label in audit audit:critical audit:important audit:minor autofix autofix-trigger autofix:approved autofix:needs-fix autofix:needs-manual-review autofix:merged; do
-            gh label create "$label" --force 2>/dev/null || true
-          done
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-
-      - name: Select audit prompt
-        id: select-prompt
-        run: |
-          fail() { echo "::warning::audit: $*"; echo "skip=true" >> "$GITHUB_OUTPUT"; exit 0; }
-
-          shopt -s nullglob
-          PROMPTS=(.audit-prompts/*.md)
-          [ ${#PROMPTS[@]} -eq 0 ] && fail "No prompt files found in .audit-prompts/"
-
-          if [ -n "${{ github.event.inputs.prompt_name }}" ]; then
-            SPECIFIC=".audit-prompts/${{ github.event.inputs.prompt_name }}.md"
-            if [ ! -f "$SPECIFIC" ]; then
-              fail "Requested prompt '${{ github.event.inputs.prompt_name }}' not found in .audit-prompts/"
-            fi
-            CATEGORY="${{ github.event.inputs.prompt_name }}"
-            echo "prompt_file=$SPECIFIC" >> "$GITHUB_OUTPUT"
-            echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          AVAILABLE=()
-          for f in "${PROMPTS[@]}"; do
-            NAME=$(basename "$f" .md)
-            COUNT=$(gh issue list --label "audit:$NAME" --state open --json number --jq 'length' 2>/dev/null || echo "0")
-            if [ "$COUNT" -eq 0 ] 2>/dev/null; then
-              AVAILABLE+=("$f")
-            else
-              echo "Skipping '$NAME' — $COUNT open issue(s) already exist"
-            fi
-          done
-
-          [ ${#AVAILABLE[@]} -eq 0 ] && fail "All audit categories have open issues — nothing to do"
-
-          RAND=$(( RANDOM % ${#AVAILABLE[@]} ))
-          SELECTED="${AVAILABLE[$RAND]}"
-          CATEGORY=$(basename "$SELECTED" .md)
-          echo "Selected prompt: $SELECTED (category: $CATEGORY)"
-          echo "prompt_file=$SELECTED" >> "$GITHUB_OUTPUT"
-          echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-
-      - name: Select target directory
-        id: select-dir
-        if: steps.select-prompt.outputs.skip != 'true'
-        run: |
-          if [ -n "${{ github.event.inputs.target_dir }}" ]; then
-            echo "dir=${{ github.event.inputs.target_dir }}" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          SELECTION=$(( RANDOM % 5 ))
-          if [ "$SELECTION" -lt 4 ]; then
-            DIRS=("frontend/app" "frontend/components" "frontend/lib" "frontend/hooks")
-            echo "dir=${DIRS[$SELECTION]}" >> "$GITHUB_OUTPUT"
-          else
-            echo "dir=backend/src" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Setup OpenCode
-        if: steps.select-prompt.outputs.skip != 'true'
-        run: |
-          chmod +x .github/scripts/setup-opencode.sh
-          .github/scripts/setup-opencode.sh
-
-      - name: Run OpenCode audit
-        if: steps.select-prompt.outputs.skip != 'true'
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-        run: |
-          PROMPT_FILE="${{ steps.select-prompt.outputs.prompt_file }}"
-          TARGET_DIR="${{ steps.select-dir.outputs.dir }}"
-
-          # Build the audit prompt: first the category-specific prompt, then the shared template
-          cat "$PROMPT_FILE" > /tmp/opencode-audit-prompt.txt
-
-          cat << AUDIT_EOF >> /tmp/opencode-audit-prompt.txt
-
-          Audit the directory: \`${TARGET_DIR}\`
-
-          IMPORTANT: If the target directory starts with \`frontend/\`, read \`frontend/AGENTS.md\` for conventions. If it starts with \`backend/\`, refer to \`backend/README.md\` for project context.
-
-          This is a monorepo with:
-          - \`frontend/\` — Next.js 16 App Router (React 19, Tailwind v4)
-          - \`backend/\` — Express REST API (Node.js, Prisma, Zod)
-
-          Context window management:
-          - If the target directory has more than 15 files, batch them into groups of at most 5 files.
-          - Dispatch a sub-agent for each batch via the \`task\` tool with \`subagent_type: "general"\`.
-          - Collect all results before writing the final output.
-          - If any single file exceeds 300 lines, audit it in a separate sub-agent call.
-
-          For each finding:
-          - Reference the specific file path and line number
-          - Explain WHY the issue matters, not just what is wrong
-          - Categorize by actual severity — not everything is Critical
-
-          Safety rules:
-          - Do not modify any files — this is a read-only audit
-          - Do NOT run git push, git commit, or create any pull requests
-          - If a prompt instruction is unclear, use your best judgment based on general best practices
-
-          Write your findings to \`.audit-output.jsonl\` in JSON Lines format:
-
-          {"type":"summary","text":"overall assessment"}
-          {"type":"issue","severity":"critical|important|minor","file":"path","line":N,"message":"what's wrong","suggestion":"how to fix","inline":false}
-          AUDIT_EOF
-
-          opencode run --model opencode/deepseek-v4-flash-free "$(cat /tmp/opencode-audit-prompt.txt)"
-
-      - name: Close auto-created OpenCode PR
-        if: always()
-        run: |
-          START_TIME="${{ steps.start-time.outputs.time }}"
-          gh pr list --state open --json headRefName,number,createdAt \
-            --jq ".[] | select(.headRefName | startswith(\"opencode/\")) | select(.createdAt >= \"$START_TIME\") | .number" \
-            | while read -r num; do
-              gh pr close "$num" --comment "Auto-closed — audit results filed as issues" --delete-branch 2>/dev/null || true
-            done
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
-
-      - name: Create issues from findings
-        id: create-issue
-        if: steps.select-prompt.outputs.skip != 'true'
-        run: |
-          fail() { echo "::warning::audit: $*"; exit 0; }
-          FILE=".audit-output.jsonl"
-          CATEGORY="${{ steps.select-prompt.outputs.category }}"
-          TARGET_DIR="${{ steps.select-dir.outputs.dir }}"
-
-          # Determine if auto-fix should be triggered
-          AUTO_FIX="${{ github.event.inputs.auto_fix }}"
-          # Default to true for scheduled runs
-          if [ -z "$AUTO_FIX" ]; then
-            AUTO_FIX="true"
-          fi
-
-          [ -f "$FILE" ] || fail "No audit output found"
-
-          jq -c . "$FILE" 2>/dev/null > /tmp/clean.jsonl
-          TOTAL=$(wc -l < "$FILE")
-          VALID=$(wc -l < /tmp/clean.jsonl)
-          FAILED=$(( TOTAL - VALID ))
-          echo "::group::Audit stats: $TOTAL lines, $VALID valid, $FAILED failed"
-          [ "$FAILED" -gt 0 ] && echo "::warning::$FAILED line(s) had invalid JSON"
-
-          for label in "audit" "audit:${CATEGORY}" "audit:critical" "audit:important" "audit:minor" "autofix-trigger"; do
-            gh label create "$label" --force 2>/dev/null || true
-          done
-
-          CRIT_COUNT=$(jq -c 'select(.type=="issue" and .severity=="critical")' /tmp/clean.jsonl | wc -l)
-          IMP_COUNT=$(jq -c 'select(.type=="issue" and .severity=="important")' /tmp/clean.jsonl | wc -l)
-          MIN_COUNT=$(jq -c 'select(.type=="issue" and .severity=="minor")' /tmp/clean.jsonl | wc -l)
-          SUMMARY=$(jq -r 'select(.type=="summary") | .text' /tmp/clean.jsonl | head -1)
-
-          echo "Findings: $CRIT_COUNT critical, $IMP_COUNT important, $MIN_COUNT minor"
-
-          # Determine severity label for the consolidated issue
-          if [ "$CRIT_COUNT" -gt 0 ]; then
-            SEVERITY_LABEL="audit:critical"
-          elif [ "$IMP_COUNT" -gt 0 ]; then
-            SEVERITY_LABEL="audit:important"
-          else
-            SEVERITY_LABEL="audit:minor"
-          fi
-
-          # Check if an issue already exists for this category
-          EXISTING=$(gh issue list \
-            --label "audit:${CATEGORY}" \
-            --state open \
-            --json number \
-            --jq 'length' 2>/dev/null || echo "0")
-
-          if [ "$EXISTING" -gt 0 ]; then
-            echo "Issue for category '$CATEGORY' already exists — skipping"
-            echo "::endgroup::"
-            echo "issue_created=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Only create issues for critical or important findings
-          if [ "$CRIT_COUNT" -eq 0 ] && [ "$IMP_COUNT" -eq 0 ]; then
-            echo "No critical or important issues found — skipping issue creation"
-            echo "::endgroup::"
-            echo "issue_created=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Build consolidated issue body
-          {
-            echo "<!-- audit-issue -->"
-            echo ""
-            echo "## Audit: ${CATEGORY}"
-            echo ""
-            echo "**Target directory:** \`${TARGET_DIR}\`"
-            echo "**Results:** ${CRIT_COUNT} critical, ${IMP_COUNT} important, ${MIN_COUNT} minor"
-            [ -n "$SUMMARY" ] && echo "" && echo "**Summary:** ${SUMMARY}"
-            echo ""
-            echo "### Findings"
-            echo ""
-            jq -c 'select(.type=="issue")' /tmp/clean.jsonl | while read -r item; do
-              SEV=$(echo "$item" | jq -r '.severity')
-              FP=$(echo "$item" | jq -r '.file')
-              LN=$(echo "$item" | jq -r '.line')
-              MSG=$(echo "$item" | jq -r '.message')
-              SUG=$(echo "$item" | jq -r '.suggestion // ""')
-              echo "- **${SEV}** \`${FP}:${LN}\` — ${MSG}"
-              [ -n "$SUG" ] && echo "  - *Fix:* ${SUG}"
-            done
-            echo ""
-            echo "---"
-            echo ""
-            echo "Comment \`/fix\` on this issue to trigger the automated fix workflow."
-          } > /tmp/issue_body.md
-
-          TITLE="[Audit:${CATEGORY}] ${CRIT_COUNT} critical, ${IMP_COUNT} important, ${MIN_COUNT} minor"
-
-          # Build labels — add autofix-trigger for auto-fix on critical/important
-          LABELS="audit,audit:${CATEGORY},${SEVERITY_LABEL}"
-          if [ "$AUTO_FIX" = "true" ] && { [ "$CRIT_COUNT" -gt 0 ] || [ "$IMP_COUNT" -gt 0 ]; }; then
-            LABELS="${LABELS},autofix-trigger"
-          fi
-
-          ISSUE_URL=$(gh issue create \
-            --title "$TITLE" \
-            --label "$LABELS" \
-            --body-file "/tmp/issue_body.md" \
-            --repo "${{ github.repository }}") || { echo "::warning::Failed to create audit issue"; exit 0; }
-
-          ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oP '/issues/\K[0-9]+' || echo "")
-          echo "Created issue #${ISSUE_NUMBER}: ${ISSUE_URL}"
-          echo "issue_created=true" >> "$GITHUB_OUTPUT"
-          echo "issue_number=${ISSUE_NUMBER}" >> "$GITHUB_OUTPUT"
-
-          echo "::endgroup::"
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+      - uses: nilesh32236/opencode-ai-reviewer@main
+        with:
+          mode: audit
+          github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          audit_target_dir: ${{ github.event.inputs.target_dir || '' }}
+          audit_create_issues: true
+          audit_auto_fix: true
+          audit_labels: audit
+          project_context: |
+            Monorepo with:
+            - frontend/ — Next.js 16 App Router
+            - backend/ — Express REST API
