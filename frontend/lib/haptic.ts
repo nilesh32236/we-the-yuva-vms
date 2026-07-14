@@ -10,6 +10,13 @@ export const haptic = {
   vibrate(pattern: number | number[]): boolean {
     if (
       typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return false;
+    }
+    if (
+      typeof window !== 'undefined' &&
       typeof navigator !== 'undefined' &&
       'vibrate' in navigator
     ) {

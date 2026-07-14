@@ -13,6 +13,7 @@ export const api = axios.create({
 api.defaults.timeout = 30000;
 
 export async function downloadCsv(url: string, filename = 'export.csv') {
+  const previouslyFocused = document.activeElement as HTMLElement | null;
   const res = await api.get(url, { responseType: 'blob' });
   const blob = new Blob([res.data], { type: 'text/csv' });
   const a = document.createElement('a');
@@ -22,6 +23,7 @@ export async function downloadCsv(url: string, filename = 'export.csv') {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
+  previouslyFocused?.focus();
 }
 
 // In-memory token — set immediately after login so next request has it
