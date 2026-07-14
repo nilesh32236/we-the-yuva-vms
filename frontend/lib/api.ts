@@ -26,10 +26,6 @@ export async function downloadCsv(url: string, filename = 'export.csv') {
   previouslyFocused?.focus();
 }
 
-// In-memory token store for Authorization header.
-// The backend sets the access_token as an HttpOnly cookie (not readable by JS)
-// for middleware.ts route protection. We keep a copy in memory for attaching
-// the Bearer header on API calls.
 let accessTokenMemory: string | null = null;
 
 export function setAccessToken(token: string | null) {
@@ -37,10 +33,7 @@ export function setAccessToken(token: string | null) {
 }
 
 function getAccessToken(): string | null {
-  if (accessTokenMemory) return accessTokenMemory;
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)access_token=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
+  return accessTokenMemory;
 }
 
 // Track last returned access token from refresh to detect missing rotation

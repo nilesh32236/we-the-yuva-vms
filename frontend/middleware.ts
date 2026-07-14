@@ -18,7 +18,6 @@ const PUBLIC_ROUTES = [
   '/blog',
   '/login',
   '/register',
-  '/register-organization',
   '/verify-otp',
 ];
 
@@ -36,7 +35,7 @@ const ROLE_ROUTES: Record<string, string> = {
 const ROLE_PREFIXES: Record<string, string[]> = {
   VOLUNTEER: ['/volunteer'],
   COORDINATOR: ['/coordinator'],
-  ORGANIZATION_ADMIN: ['/organization'],
+  ORGANIZATION_ADMIN: ['/organization', '/register-organization'],
   ADMIN: ['/admin'],
   PLATFORM_MANAGER: ['/admin'],
   OBSERVER: ['/observer'],
@@ -74,11 +73,9 @@ export async function middleware(request: NextRequest) {
         issuer: 'we-the-yuva-api',
       });
       payload = result.payload as { exp?: number; role?: string };
+    } else if (process.env.NODE_ENV === 'production') {
+      return NextResponse.redirect(new URL('/login', request.url));
     } else {
-      // No JWT_ACCESS_SECRET available in this environment — decode without
-      // signature verification. The backend always validates signatures, so
-      // this is an optimization layer only (prevents rendering protected
-      // pages before the API call fails).
       payload = decodeJwt(token);
     }
 

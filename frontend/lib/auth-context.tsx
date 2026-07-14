@@ -93,6 +93,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return queryClient.getQueryData<AuthUser | null>(['auth-user']) ?? null;
   }, []);
 
+  // pathname is in deps so redirects re-evaluate when the route changes.
+  // The underlying userQuery uses a 5-min staleTime, so this does NOT
+  // trigger API calls on every navigation — it relies on cached query data.
   useEffect(() => {
     if (isLoading) return;
 
