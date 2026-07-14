@@ -18,6 +18,7 @@ export interface ProfileStatus {
 interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
+  fetchError: string | null;
   profileStatus: ProfileStatus | null;
   refetch: () => Promise<AuthUser | null>;
   logout: () => Promise<void>;
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profileStatus, setProfileStatus] = useState<ProfileStatus | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
@@ -47,12 +49,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (userRes.status === 'fulfilled') {
         freshUser = userRes.value.data;
         setUser(freshUser);
+        setFetchError(null);
       } else {
         const err = userRes.reason;
         if (err && typeof err === 'object' && 'response' in err) {
           const axiosErr = err as { response?: { status?: number } };
           if (axiosErr.response?.status && axiosErr.response.status >= 500) {
-            console.error('Server error during session fetch - will retry on next navigation');
+            setFetchError('Server error. Please try logging in again.');
           }
         }
         setUser(null);
@@ -84,7 +87,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchUser, pathname]);
 
   useEffect(() => {
-    if (isLoading || !user) return;
+    if (isLoading) return;
+
+    if (!user && fetchError) {
+      const isPublic = isPublicRoute(pathname);
+      if (!isPublic) {
+        router.replace('/login');
+      }
+      return;
+    }
+
+    if (!user) return;
 
     const isPublic = isPublicRoute(pathname);
     const isOnboarding = ONBOARDING_ROUTES.includes(pathname);
@@ -99,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [user, isLoading, pathname, router]);
+  }, [user, isLoading, fetchError, pathname, router]);
 
   const logout = async () => {
     try {
@@ -125,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, profileStatus, refetch: fetchUser, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, fetchError, profileStatus, refetch: fetchUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
