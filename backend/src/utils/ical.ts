@@ -37,7 +37,7 @@ export function generateIcs(event: IcalEventInput): string {
     `SUMMARY:${escapeIcalText(event.title)}`,
     `DESCRIPTION:${escapeIcalText(event.description)}`,
     `LOCATION:${escapeIcalText(event.location)}`,
-    `ORGANIZER;CN=${escapeIcalText(event.organizerName)}`,
+    `ORGANIZER;CN=${escapeIcalText(event.organizerName)}:mailto:${escapeIcalText(event.organizerName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase())}@wetheyuva`,
     'END:VEVENT',
     'END:VCALENDAR',
   ].join('\r\n')}\r\n`;

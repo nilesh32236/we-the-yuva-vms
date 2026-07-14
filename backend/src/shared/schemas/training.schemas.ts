@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-export const GetCourseSchema = z.object({}).optional();
-
 export const CompleteLessonSchema = z
   .object({
     timeSpent: z.number().positive().optional(),

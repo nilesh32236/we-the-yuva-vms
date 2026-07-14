@@ -50,8 +50,9 @@ export const RegisterSchema = z.object({
     { message: 'You must be at least 14 years old' }
   ),
   address: AddressSchema,
-  reference: z.string().optional(),
+  reference: z.string().max(500, 'Reference must be 500 characters or less').optional(),
   callAvailability: CallAvailabilitySchema.optional(),
+  /** @deprecated Field name is a typo of "whyVolunteer". Exposed to external API clients — cannot rename without migration. */
   whyVoluntary: z
     .string()
     .max(500, 'Must be 500 characters or less')

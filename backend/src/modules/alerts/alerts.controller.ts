@@ -1,5 +1,3 @@
-// Phase 2 (future): Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
-// See /issues/PHASE2_SCOPE.md
 import type { NextFunction, Request, Response } from 'express';
 import * as service from './alerts.service';
 

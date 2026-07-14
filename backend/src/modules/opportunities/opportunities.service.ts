@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 import type { OpportunityInput } from '@/shared';
 import { z } from 'zod';
@@ -82,20 +83,24 @@ export interface PaginationParams {
   limit: number;
 }
 
+function hashFilters(obj: Record<string, unknown>): string {
+  return crypto.createHash('sha256').update(JSON.stringify(obj)).digest('hex').slice(0, 16);
+}
+
+const CachedOpportunitySchema = z.object({
+  data: z.array(z.object({ id: z.string(), title: z.string() }).passthrough()),
+  total: z.number(),
+  page: z.number(),
+  limit: z.number(),
+  totalPages: z.number(),
+});
+
 export async function listOpportunities(
   filters: OpportunityFilters,
   pagination: PaginationParams,
   userId?: string
 ) {
-  const cacheKey = `opportunities:list:${JSON.stringify({ filters, pagination })}`;
-
-  const CachedOpportunitySchema = z.object({
-    data: z.array(z.object({ id: z.string(), title: z.string() }).passthrough()),
-    total: z.number(),
-    page: z.number(),
-    limit: z.number(),
-    totalPages: z.number(),
-  });
+  const cacheKey = `opportunities:list:${hashFilters({ filters, pagination })}`;
 
   if (redis && !userId) {
     const cached = await redis.get(cacheKey);
@@ -480,7 +485,6 @@ export async function listApplications(
         volunteer: {
           select: {
             name: true,
-            email: true,
             profile: { select: { skills: true } },
           },
         },

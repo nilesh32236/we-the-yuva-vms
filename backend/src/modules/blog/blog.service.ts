@@ -32,17 +32,27 @@ export async function createPost(
     category?: string;
   }
 ) {
-  const slug = await generateUniqueSlug(data.title);
-  const post = await prisma.blogPost.create({
-    data: { ...data, slug, authorId, tags: data.tags ?? [] },
-  });
-  await logAudit({
-    userId: authorId,
-    action: 'BLOG_CREATE',
-    targetId: post.id,
-    targetType: 'BlogPost',
-  });
-  return post;
+  const maxRetries = 3;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const slug = await generateUniqueSlug(data.title);
+    try {
+      const post = await prisma.blogPost.create({
+        data: { ...data, slug, authorId, tags: data.tags ?? [] },
+      });
+      await logAudit({
+        userId: authorId,
+        action: 'BLOG_CREATE',
+        targetId: post.id,
+        targetType: 'BlogPost',
+      });
+      return post;
+    } catch (err: unknown) {
+      if ((err as { code?: string })?.code !== 'P2002' || attempt === maxRetries - 1) {
+        throw err;
+      }
+    }
+  }
+  throw new AppError('Failed to create post after retries', 500);
 }
 
 export async function getPublishedPosts(page = 1, limit = 20) {
@@ -71,7 +81,7 @@ export async function getPostBySlug(slug: string) {
 
 export async function getPostById(id: string) {
   const post = await prisma.blogPost.findUnique({
-    where: { id },
+    where: { id, status: 'PUBLISHED' },
     include: { author: { select: { name: true } } },
   });
   if (!post) throw new AppError('Post not found', 404);
@@ -91,13 +101,25 @@ export async function updatePost(
   },
   callerRole: string
 ) {
-  const post = await prisma.blogPost.findUnique({ where: { id } });
+  const post = await prisma.blogPost.findUnique({ where: { id }, select: { id: true, authorId: true } });
   if (!post) throw new AppError('Post not found', 404);
   if (post.authorId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
 
   const updateData: Record<string, unknown> = { ...data };
   if (data.title) {
-    updateData.slug = await generateUniqueSlug(data.title);
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      updateData.slug = await generateUniqueSlug(data.title);
+      try {
+        const updated = await prisma.blogPost.update({ where: { id }, data: updateData });
+        await logAudit({ userId, action: 'BLOG_UPDATE', targetId: id, targetType: 'BlogPost' });
+        return updated;
+      } catch (err: unknown) {
+        if ((err as { code?: string })?.code !== 'P2002' || attempt === maxRetries - 1) {
+          throw err;
+        }
+      }
+    }
   }
 
   const updated = await prisma.blogPost.update({ where: { id }, data: updateData });

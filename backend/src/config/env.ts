@@ -23,6 +23,7 @@ const envSchema = z.object({
   VAPID_PUBLIC_KEY: z.string().optional().default(''),
   VAPID_PRIVATE_KEY: z.string().optional().default(''),
   FRONTEND_URL: z.string().min(1, 'FRONTEND_URL is required'),
+  BASE_URL: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

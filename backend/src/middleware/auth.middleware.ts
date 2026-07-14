@@ -54,7 +54,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         error: err.message,
         path: req.path,
         ip: req.ip,
-        tokenPrefix: `${token.substring(0, 7)}...`,
       });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Token expired' });
@@ -65,7 +64,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         error: err.message,
         path: req.path,
         ip: req.ip,
-        tokenPrefix: `${token.substring(0, 7)}...`,
       });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Token not yet active' });
@@ -76,7 +74,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
         error: err.message,
         path: req.path,
         ip: req.ip,
-        tokenPrefix: `${token.substring(0, 7)}...`,
       });
       Sentry.captureException(err);
       res.status(401).json({ error: 'Invalid token' });
@@ -87,7 +84,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
       errorType: (err as Error).constructor.name,
       path: req.path,
       ip: req.ip,
-      tokenPrefix: `${token.substring(0, 7)}...`,
     });
     Sentry.captureException(err);
     res.status(401).json({ error: 'Unauthorized' });

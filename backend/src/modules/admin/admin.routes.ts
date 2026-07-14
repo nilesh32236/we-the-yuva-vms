@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import { AdminCreateUserSchema, AdminUserUpdateSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
@@ -29,6 +30,31 @@ import {
 } from './admin.opportunities.controller';
 import { getAdminStoryHandler } from '../stories/stories.controller';
 
+const ListUsersQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    role: z.string().optional(),
+    status: z.enum(['PENDING', 'ACTIVE', 'INACTIVE', 'SUSPENDED']).optional(),
+    search: z.string().optional(),
+  }),
+});
+
+const ListEventsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  }),
+});
+
+const ListOpportunitiesQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    search: z.string().optional(),
+  }),
+});
+
 export const adminRouter: IRouter = Router();
 
 /**
@@ -54,6 +80,7 @@ adminRouter.get(
   '/users',
   requireAuth,
   requirePermission(Permissions.USER_MANAGE),
+  validate(ListUsersQuerySchema),
   listUsersHandler
 );
 
@@ -121,6 +148,7 @@ adminRouter.get(
   '/events',
   requireAuth,
   requirePermission(Permissions.EVENT_MANAGE),
+  validate(ListEventsQuerySchema),
   adminListEventsHandler
 );
 adminRouter.get(
@@ -135,6 +163,7 @@ adminRouter.get(
   '/opportunities',
   requireAuth,
   requirePermission(Permissions.OPPORTUNITY_MANAGE),
+  validate(ListOpportunitiesQuerySchema),
   adminListOpportunitiesHandler
 );
 adminRouter.get(

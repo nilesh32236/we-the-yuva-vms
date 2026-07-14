@@ -1,30 +1,53 @@
 import { logAudit } from '../../lib/audit';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  '#39': "'",
+  apos: "'",
+  nbsp: '\u00A0',
+  copy: '\u00A9',
+  reg: '\u00AE',
+  trade: '\u2122',
+  mdash: '\u2014',
+  ndash: '\u2013',
+  hellip: '\u2026',
+  laquo: '\u00AB',
+  raquo: '\u00BB',
+  ldquo: '\u201C',
+  rdquo: '\u201D',
+  lsquo: '\u2018',
+  rsquo: '\u2019',
+};
+
+function decodeEntities(value: string): string {
+  let prev: string;
+  let result = value;
+  do {
+    prev = result;
+    result = result
+      .replace(/&#x([\da-f]+);/gi, (_, h: string) => String.fromCodePoint(Number.parseInt(h, 16)))
+      .replace(/&#(\d+);/g, (_, d: string) => String.fromCodePoint(Number(d)))
+      .replace(/&([a-zA-Z#][a-zA-Z0-9]+);/g, (_, name: string) =>
+        name in NAMED_ENTITIES ? NAMED_ENTITIES[name] : _
+      );
+  } while (result !== prev);
+  return result;
+}
+
 function stripHtml(value: string): string {
-  return (
-    value
-      // Decode HTML entities first
-      .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(Number(dec)))
-      .replace(/&#x([\da-f]+);/gi, (_: string, hex: string) =>
-        String.fromCharCode(Number.parseInt(hex, 16))
-      )
-      // Remove script tags and their content entirely
-      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-      // Remove HTML tags (only actual tags starting with < followed by a letter or /)
-      .replace(/<\/?[a-z][\s\S]*?>/gi, '')
-      // Strip javascript:/data:/vbscript: protocol handlers in attributes
-      .replace(
-        /\s+(?:href|src|action|formaction)\s*=\s*["']?\s*(?:javascript|data|vbscript):/gi,
-        ' '
-      )
-      // Strip event handler attributes
-      .replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, ' ')
-      .replace(/\s+on\w+\s*=\s*\S+/gi, ' ')
-      .trim()
-  );
+  const decoded = decodeEntities(value);
+  return decoded
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/[<>\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+    .trim();
 }
 
 export async function createStory(
@@ -117,7 +140,7 @@ export async function moderateStory(
         storyId: story.id,
         storyTitle: story.title,
       })
-      .catch(() => {});
+      .catch((err) => logger.error('Failed to enqueue story-published notification', { error: (err as Error).message, storyId: story.id }));
   }
   return updated;
 }

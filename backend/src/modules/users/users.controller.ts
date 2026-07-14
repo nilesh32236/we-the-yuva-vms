@@ -132,10 +132,11 @@ export async function getCoordinatorVolunteersHandler(
 }
 
 function sanitizeCsvCell(value: string): string {
-  if (/^[=+\-@]/.test(value)) {
-    return `'${value}`;
+  const escaped = value.replace(/"/g, '""');
+  if (/^[=+\-@]/.test(escaped)) {
+    return `'${escaped}`;
   }
-  return value;
+  return escaped;
 }
 
 export async function exportVolunteersHandler(
@@ -151,7 +152,7 @@ export async function exportVolunteersHandler(
       'name,email,type,skills,totalHours,applicationCount',
       ...rows.map(
         (r) =>
-          `"${sanitizeCsvCell(r.name)}","${sanitizeCsvCell(r.email)}","${sanitizeCsvCell(r.type)}","${sanitizeCsvCell(r.skills.join(';'))}",${r.totalHours},${r.applicationCount}`
+          `"${sanitizeCsvCell(r.name)}","${sanitizeCsvCell(r.email)}","${sanitizeCsvCell(r.type)}","${sanitizeCsvCell(r.skills.join(';'))}","${r.totalHours}","${r.applicationCount}"`
       ),
     ].join('\n');
     res.send(csv);

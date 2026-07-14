@@ -1,9 +1,11 @@
 import crypto from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
 import { logAudit } from '../../lib/audit';
+import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import {
+  checkOtpRateLimit,
   enqueueOtpEmail,
   generateAndStoreOtp,
   lookupReferral,
@@ -91,7 +93,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       action: 'USER_CREATE',
       targetId: user.id,
       targetType: 'User',
-    }).catch(() => {});
+    }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
 
     res
       .status(201)
@@ -108,7 +110,7 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() }, select: { id: true, status: true } });
     if (!user) {
       // Don't reveal whether email exists
-      res.status(200).json({ message: 'Verification code sent to your email.', devOtp: null });
+      res.status(200).json({ message: 'Verification code sent to your email.' });
       return;
     }
 
@@ -116,12 +118,17 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
       throw new AppError('Account is suspended or inactive', 403);
     }
 
+    await checkOtpRateLimit(email);
     const otp = await generateAndStoreOtp(email);
     await enqueueOtpEmail(email, otp);
-    logAudit({ userId: user.id, action: 'OTP_SENT' }).catch(() => {});
+    logAudit({ userId: user.id, action: 'OTP_SENT' }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
 
     // TEMPORARY: return OTP for testing until SMTP is configured
-    res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
+    if (!isProd) {
+      res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
+    } else {
+      res.status(200).json({ message: 'Verification code sent to your email.' });
+    }
   } catch (err) {
     next(err);
   }

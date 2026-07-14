@@ -1,4 +1,3 @@
-import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 
 function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -66,84 +65,79 @@ function computeLocationScore(
 }
 
 export async function getRecommendedOpportunities(volunteerId: string) {
-  try {
-    // 1. Fetch volunteer's profile and location
-    const [profile, volunteerUser] = await Promise.all([
-      prisma.volunteerProfile.findUnique({ where: { userId: volunteerId } }),
-      prisma.user.findUnique({
-        where: { id: volunteerId },
-        include: { location: true },
-      }),
-    ]);
+  // 1. Fetch volunteer's profile and location
+  const [profile, volunteerUser] = await Promise.all([
+    prisma.volunteerProfile.findUnique({ where: { userId: volunteerId } }),
+    prisma.user.findUnique({
+      where: { id: volunteerId },
+      include: { location: true },
+    }),
+  ]);
 
-    const volunteerLocation = volunteerUser?.location ?? null;
+  const volunteerLocation = volunteerUser?.location ?? null;
 
-    // 2. Fetch all ACTIVE opportunities with startDate in the future
-    const opportunities = await prisma.opportunity.findMany({
-      take: 50,
-      where: {
-        status: 'ACTIVE',
-        startDate: { gt: new Date() },
-      },
-      include: {
-        _count: { select: { applications: { where: { status: 'ACCEPTED' } } } },
-        location: true,
-      },
-    });
+  // 2. Fetch all ACTIVE opportunities with startDate in the future
+  const opportunities = await prisma.opportunity.findMany({
+    take: 50,
+    where: {
+      status: 'ACTIVE',
+      startDate: { gt: new Date() },
+    },
+    include: {
+      _count: { select: { applications: { where: { status: 'ACCEPTED' } } } },
+      location: true,
+    },
+  });
 
-    // 3. Filter out full opportunities
-    const available = opportunities.filter((o) => o._count.applications < o.totalSlots);
+  // 3. Filter out full opportunities
+  const available = opportunities.filter((o) => o._count.applications < o.totalSlots);
 
-    // 4. Fallback: no profile or empty skills+interests
-    const hasProfile = profile && (profile.skills.length > 0 || profile.interests.length > 0);
+  // 4. Fallback: no profile or empty skills+interests
+  const hasProfile = profile && (profile.skills.length > 0 || profile.interests.length > 0);
 
-    if (!hasProfile) {
-      return available
-        .sort((a, b) => {
-          const locA = computeLocationScore(volunteerLocation, a.location);
-          const locB = computeLocationScore(volunteerLocation, b.location);
-          return locB - locA || b.createdAt.getTime() - a.createdAt.getTime();
-        })
-        .slice(0, 10)
-        .map((o) => ({
-          ...o,
-          matchScore: Math.round(computeLocationScore(volunteerLocation, o.location)),
-        }));
-    }
-
-    // 5. Score each opportunity with new weighting
-    const scored = available.map((o) => {
-      const skillOverlap =
-        o.skills.length === 0
-          ? 0
-          : o.skills.filter((s) => profile.skills.includes(s)).length / o.skills.length;
-
-      const interestMatch = profile.interests.some(
-        (i) => i.toLowerCase() === o.category.toLowerCase()
-      )
-        ? 1
-        : 0;
-
-      const locationScore = computeLocationScore(volunteerLocation, o.location);
-
-      const score = Math.round(skillOverlap * 40 + interestMatch * 20 + locationScore);
-
-      return { ...o, matchScore: score };
-    });
-
-    // 6. Attach user application status
-    const top10 = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
-    const userApps = await prisma.application.findMany({
-      where: { opportunityId: { in: top10.map((o) => o.id) }, volunteerId },
-      select: { opportunityId: true, status: true },
-    });
-    const appMap = new Map(userApps.map((a) => [a.opportunityId, a]));
-    return top10.map((o) => ({
-      ...o,
-      userApplication: appMap.has(o.id) ? { status: appMap.get(o.id)!.status } : null,
-    }));
-  } catch (error) {
-    logger.error('Matching failed', { error });
-    return [];
+  if (!hasProfile) {
+    return available
+      .sort((a, b) => {
+        const locA = computeLocationScore(volunteerLocation, a.location);
+        const locB = computeLocationScore(volunteerLocation, b.location);
+        return locB - locA || b.createdAt.getTime() - a.createdAt.getTime();
+      })
+      .slice(0, 10)
+      .map((o) => ({
+        ...o,
+        matchScore: Math.round(computeLocationScore(volunteerLocation, o.location)),
+      }));
   }
+
+  // 5. Score each opportunity with new weighting
+  const scored = available.map((o) => {
+    const skillOverlap =
+      o.skills.length === 0
+        ? 0
+        : o.skills.filter((s) => profile.skills.includes(s)).length / o.skills.length;
+
+    const interestMatch = profile.interests.some(
+      (i) => i.toLowerCase() === o.category.toLowerCase()
+    )
+      ? 1
+      : 0;
+
+    const locationScore = computeLocationScore(volunteerLocation, o.location);
+
+    const score = Math.round(skillOverlap * 40 + interestMatch * 20 + locationScore);
+
+    return { ...o, matchScore: score };
+  });
+
+  // 6. Attach user application status
+  const top10 = scored.sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
+  const userApps = await prisma.application.findMany({
+    where: { opportunityId: { in: top10.map((o) => o.id) }, volunteerId },
+    select: { opportunityId: true, status: true },
+  });
+  const appMap = new Map(userApps.map((a) => [a.opportunityId, a]));
+  return top10.map((o) => ({
+    ...o,
+    userApplication: appMap.has(o.id) ? { status: appMap.get(o.id)!.status } : null,
+  }));
 }

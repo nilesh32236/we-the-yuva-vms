@@ -130,17 +130,7 @@ export async function createLevelRequest(
 
   if (isAutoApproved) {
     await prisma.$transaction(async (tx) => {
-      await tx.user.update({
-        where: { id: userId },
-        data: { currentLevelId: level.id },
-      });
-      await tx.pointTransaction.create({
-        data: { userId, amount: 100, reason: 'LEVEL_UP', reference: level.id },
-      });
-      await tx.user.update({
-        where: { id: userId },
-        data: { points: { increment: 100 } },
-      });
+      await awardLevelPoints(tx, userId, level.id, level.id);
     });
     try {
       const _cert = await generateCertificate(userId, level.id);
@@ -159,11 +149,32 @@ export async function createLevelRequest(
     if (notificationsQueue) {
       await notificationsQueue
         .add('level-up', { userId, levelName: level.name })
-        .catch(() => {});
+        .catch((err) => {
+          logger.warn('Failed to enqueue level-up notification', { err, userId, levelName: level.name });
+        });
     }
   }
 
   return result;
+}
+
+async function awardLevelPoints(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  levelId: string,
+  referenceId: string
+) {
+  await tx.user.update({
+    where: { id: userId },
+    data: { currentLevelId: levelId },
+  });
+  await tx.pointTransaction.create({
+    data: { userId, amount: 100, reason: 'LEVEL_UP', reference: referenceId },
+  });
+  await tx.user.update({
+    where: { id: userId },
+    data: { points: { increment: 100 } },
+  });
 }
 
 async function checkAutoPromotion(userId: string, level: { tier: number }): Promise<boolean> {
@@ -193,24 +204,31 @@ export async function cancelLevelRequest(requestId: string, userId: string) {
   const request = await prisma.userLevel.findUnique({ where: { id: requestId } });
   if (!request || request.userId !== userId) throw new AppError('Request not found', 404);
   if (request.status !== 'PENDING') throw new AppError('Can only cancel pending requests', 400);
-  return prisma.userLevel.delete({ where: { id: requestId } });
+  return prisma.userLevel.update({ where: { id: requestId }, data: { status: 'CANCELLED' } });
 }
 
-export async function listPendingRequests(search?: string) {
+export async function listPendingRequests(search?: string, page = 1, limit = 20) {
   const where = search
     ? {
         status: 'PENDING' as const,
         user: { name: { contains: search, mode: 'insensitive' as const } },
       }
     : { status: 'PENDING' as const };
-  return prisma.userLevel.findMany({
-    where,
-    include: {
-      user: { select: { id: true, name: true, email: true, currentLevel: true } },
-      level: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.userLevel.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        user: { select: { id: true, name: true, currentLevel: true } },
+        level: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.userLevel.count({ where }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function reviewLevelRequest(
@@ -244,24 +262,7 @@ export async function reviewLevelRequest(
     });
 
     if (data.status === 'APPROVED') {
-      await tx.user.update({
-        where: { id: request.userId },
-        data: { currentLevelId: request.levelId },
-      });
-
-      await tx.pointTransaction.create({
-        data: {
-          userId: request.userId,
-          amount: 100,
-          reason: 'LEVEL_UP',
-          reference: requestId,
-        },
-      });
-
-      await tx.user.update({
-        where: { id: request.userId },
-        data: { points: { increment: 100 } },
-      });
+      await awardLevelPoints(tx, request.userId, request.levelId, requestId);
     }
 
     return updated;
@@ -288,7 +289,9 @@ export async function reviewLevelRequest(
     if (notificationsQueue) {
       await notificationsQueue
         .add('level-up', { userId: request.userId, levelName: request.level.name })
-        .catch(() => {});
+        .catch((err) => {
+          logger.warn('Failed to enqueue level-up notification', { err, userId: request.userId, levelName: request.level.name });
+        });
     }
   }
 

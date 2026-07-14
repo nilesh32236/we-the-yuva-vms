@@ -60,7 +60,7 @@ export const OnboardingSchema = z.object({
   }),
   step5: z.object({
     bio: z.string().max(300, 'Bio must be 300 characters or less'),
-    avatarUrl: z.string().optional(),
+    avatarUrl: z.string().url('Must be a valid URL').optional(),
     socialLinks: SocialLinksSchema,
   }),
 });

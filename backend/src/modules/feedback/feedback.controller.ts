@@ -41,21 +41,16 @@ export async function deleteFeedbackHandler(req: Request, res: Response, next: N
 
 export async function getEventFeedbackHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const page = req.query.page
-      ? Math.max(1, Number.parseInt(req.query.page as string, 10) || 1)
-      : undefined;
-    const limit = page
-      ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
-      : undefined;
-    const pagination = page ? { page, limit: limit! } : undefined;
+    const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 100));
     const result = await service.getEventFeedback(
       req.params.eventId,
       req.user!.id,
       req.user!.role,
       req.user!.organizationId,
-      pagination
+      { page, limit }
     );
-    res.status(200).json(pagination ? result : { data: result });
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

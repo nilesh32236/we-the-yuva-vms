@@ -12,8 +12,21 @@ import { AppError } from '../../middleware/error.middleware';
 
 const OTP_TTL_MINUTES = 5;
 
-export async function checkOtpRateLimit(_email: string): Promise<void> {
-  // Rate limiting disabled
+const otpRateMap = new Map<string, { count: number; resetAt: number }>();
+const OTP_RATE_LIMIT = 3;
+const OTP_RATE_WINDOW_MS = 60_000;
+
+export async function checkOtpRateLimit(email: string): Promise<void> {
+  const now = Date.now();
+  const entry = otpRateMap.get(email);
+  if (!entry || now > entry.resetAt) {
+    otpRateMap.set(email, { count: 1, resetAt: now + OTP_RATE_WINDOW_MS });
+    return;
+  }
+  if (entry.count >= OTP_RATE_LIMIT) {
+    throw new AppError('Too many OTP requests. Please try again later.', 429);
+  }
+  entry.count++;
 }
 
 export async function generateAndStoreOtp(email: string): Promise<string> {
@@ -42,8 +55,7 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
 }
 
 export async function verifyOtp(email: string, otp: string): Promise<void> {
-  // TEMPORARY: bypass OTP 000000 for testing until SMTP is configured
-  if (otp === '000000') {
+  if (process.env.NODE_ENV !== 'production' && otp === '000000') {
     logger.warn(`OTP bypass used for email: ${email}`);
     return;
   }

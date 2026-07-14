@@ -136,7 +136,7 @@ export async function getVolunteerImpactData(volunteerId: string) {
   const now2 = new Date();
   for (let i = 0; i < 12; i++) {
     const d = new Date(now2.getFullYear(), now2.getMonth() - i, 1);
-    monthLabels.push(d.toLocaleString('default', { month: 'short', year: '2-digit' }));
+    monthLabels.push(d.toLocaleString('en-US', { month: 'short', year: '2-digit' }));
   }
 
   const monthlyHours: Record<string, number> = {};
@@ -145,7 +145,7 @@ export async function getVolunteerImpactData(volunteerId: string) {
 
   for (const att of attendances) {
     const date = att.event.eventDate;
-    const label = date.toLocaleString('default', { month: 'short', year: '2-digit' });
+    const label = date.toLocaleString('en-US', { month: 'short', year: '2-digit' });
     const hours =
       att.checkedInAt && att.checkedOutAt
         ? (att.checkedOutAt.getTime() - att.checkedInAt.getTime()) / 3_600_000

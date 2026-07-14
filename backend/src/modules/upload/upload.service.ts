@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import multer from 'multer';
 import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
@@ -17,7 +18,7 @@ async function ensureUploadsDir() {
     await fs.promises.mkdir(UPLOADS_DIR, { recursive: true });
     uploadsDirReady = true;
   } catch {
-    console.warn(`Uploads directory not writable at ${UPLOADS_DIR} — uploads will fail`);
+    throw new AppError(`Uploads directory not writable at ${UPLOADS_DIR}`, 500);
   }
 }
 
@@ -27,7 +28,7 @@ const storage = multer.diskStorage({
     cb(null, UPLOADS_DIR);
   },
   filename: (_req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const uniqueSuffix = `${Date.now()}-${crypto.randomUUID()}`;
     const ext = path.extname(file.originalname);
     cb(null, `${uniqueSuffix}${ext}`);
   },
@@ -109,10 +110,9 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
 
       // Construct direct URL (S3 standard structure or custom S3 endpoint mapping)
       const endpoint = process.env.S3_ENDPOINT || 'https://s3.hf.co';
-      if (endpoint.includes('s3.hf.co')) {
-        // Extract namespace from endpoint URL e.g. https://s3.hf.co/namespace
-        const urlParts = endpoint.replace(/\/$/, '').split('/');
-        const namespace = urlParts[urlParts.length - 1];
+      const namespace = process.env.S3_NAMESPACE;
+      const provider = process.env.S3_PROVIDER;
+      if (provider === 'hf' && namespace) {
         return `https://huggingface.co/api/buckets/${namespace}/${process.env.S3_BUCKET_NAME}/${file.filename}`;
       }
       return `${endpoint}/${process.env.S3_BUCKET_NAME}/${file.filename}`;

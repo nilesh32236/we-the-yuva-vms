@@ -9,8 +9,7 @@ import {
   archiveHandler,
   createHandler,
   deleteHandler,
-  getByIdHandler,
-  getPublishedBySlugHandler,
+  getPublishedByParamHandler,
   listAllHandler,
   listPublishedHandler,
   publishHandler,
@@ -27,9 +26,8 @@ blogRouter.get(
   listAllHandler
 );
 
-// Public slug route must be before admin `/:id` to avoid Express matching slugs as IDs
-blogRouter.get('/:slug', getPublishedBySlugHandler);
-blogRouter.get('/:id', requireAuth, requirePermission(Permissions.BLOG_VIEW_ALL), getByIdHandler);
+// Single param route handles both slug and ID lookups
+blogRouter.get('/:param', getPublishedByParamHandler);
 blogRouter.post(
   '/',
   requireAuth,

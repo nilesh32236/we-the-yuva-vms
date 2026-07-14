@@ -68,16 +68,15 @@ export async function getMyFeedback(
   return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
-export async function getEventFeedback(
+async function assertEventAccess(
   eventId: string,
   callerId: string,
   callerRole: string,
-  callerOrgId: string | null | undefined,
-  pagination?: { page: number; limit: number }
+  callerOrgId: string | null | undefined
 ) {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
-    include: { opportunity: true },
+    select: { id: true, opportunity: { select: { createdById: true, organizationId: true } } },
   });
 
   if (!event) throw new AppError('Event not found', 404);
@@ -92,15 +91,19 @@ export async function getEventFeedback(
   if (!isSysAdmin && !isOwner && !isSameOrg) {
     throw new AppError('Forbidden', 403);
   }
+}
 
-  if (!pagination) {
-    return prisma.eventFeedback.findMany({
-      where: { eventId },
-      take: 100,
-      include: { volunteer: { select: { name: true } } },
-    });
-  }
-  const { page, limit } = pagination;
+export async function getEventFeedback(
+  eventId: string,
+  callerId: string,
+  callerRole: string,
+  callerOrgId: string | null | undefined,
+  pagination?: { page: number; limit: number }
+) {
+  await assertEventAccess(eventId, callerId, callerRole, callerOrgId);
+
+  const page = pagination?.page ?? 1;
+  const limit = pagination?.limit ?? 100;
   const skip = (page - 1) * limit;
   const [data, total] = await Promise.all([
     prisma.eventFeedback.findMany({
@@ -120,6 +123,12 @@ export async function updateFeedback(
   volunteerId: string,
   data: { rating?: number; comments?: string; learnings?: string; confidenceLevel?: number }
 ) {
+  if (data.rating !== undefined && (data.rating < 1 || data.rating > 5)) {
+    throw new AppError('Rating must be between 1 and 5', 400);
+  }
+  if (data.confidenceLevel !== undefined && (data.confidenceLevel < 1 || data.confidenceLevel > 5)) {
+    throw new AppError('Confidence level must be between 1 and 5', 400);
+  }
   const existing = await prisma.eventFeedback.findUnique({
     where: { eventId_volunteerId: { eventId, volunteerId } },
   });
@@ -146,23 +155,7 @@ export async function getEventFeedbackSummary(
   callerRole: string,
   callerOrgId: string | null | undefined
 ) {
-  const event = await prisma.event.findUnique({
-    where: { id: eventId },
-    include: { opportunity: true },
-  });
-
-  if (!event) throw new AppError('Event not found', 404);
-
-  const isSysAdmin = hasSystemRole(callerRole);
-  const isOwner = event.opportunity.createdById === callerId;
-  const isSameOrg =
-    event.opportunity.organizationId &&
-    callerOrgId &&
-    event.opportunity.organizationId === callerOrgId;
-
-  if (!isSysAdmin && !isOwner && !isSameOrg) {
-    throw new AppError('Forbidden', 403);
-  }
+  await assertEventAccess(eventId, callerId, callerRole, callerOrgId);
 
   const [aggregate, distribution] = await Promise.all([
     prisma.eventFeedback.aggregate({

@@ -3,6 +3,7 @@ import type { RecurrenceFrequency } from '@prisma/client';
 import { Prisma } from '@prisma/client';
 import type { EventInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
+import { invalidateCache } from '../leaderboard/leaderboard.service';
 import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
 import { sendEmail } from '../../lib/email';
@@ -65,6 +66,14 @@ export async function createEvent(
     select: { volunteerId: true },
   });
 
+  // Batch-fetch all volunteer emails in a single query
+  const volunteerIds = acceptedApplications.map((a) => a.volunteerId);
+  const volunteers = await prisma.user.findMany({
+    where: { id: { in: volunteerIds } },
+    select: { id: true, email: true },
+  });
+  const emailMap = new Map(volunteers.map((v) => [v.id, v.email]));
+
   for (const { volunteerId } of acceptedApplications) {
     const send = async () => {
       if (notificationsQueue) {
@@ -84,13 +93,10 @@ export async function createEvent(
         }
       }
 
-      const volunteer = await prisma.user.findUnique({
-        where: { id: volunteerId },
-        select: { email: true },
-      });
-      if (volunteer?.email) {
+      const email = emailMap.get(volunteerId);
+      if (email) {
         await sendEmail(
-          volunteer.email,
+          email,
           `You're invited — ${event.title}`,
           `<h2>You're invited!</h2><p>You have been invited to <strong>${event.title}</strong>.</p><p><strong>Date:</strong> ${event.eventDate.toISOString()}${event.venue ? `<br><strong>Venue:</strong> ${event.venue}` : ''}</p>`,
           `You're invited to "${event.title}" on ${event.eventDate.toISOString()}${event.venue ? ` at ${event.venue}` : ''}.`
@@ -464,8 +470,8 @@ export async function markAttendance(
     }
   }
 
-  // Execute all upserts and hour adjustments in a transaction
-  await prisma.$transaction([
+  // Execute all upserts and hour adjustments in a transaction and return count
+  const txResults = await prisma.$transaction([
     ...upsertOps,
     ...hourAdjustments.map((adj) =>
       prisma.volunteerProfile.update({
@@ -473,9 +479,11 @@ export async function markAttendance(
         data: { totalHours: { increment: adj.increment } },
       })
     ),
+    prisma.attendance.count({ where: { eventId, attended: true } }),
   ]);
 
-  return prisma.attendance.count({ where: { eventId, attended: true } });
+  invalidateCache();
+  return txResults[txResults.length - 1] as number;
 }
 
 export async function getAttendanceList(
@@ -573,17 +581,23 @@ export async function approveAttendance(
   if (!attendance.checkedInAt) throw new AppError('Volunteer has not checked in', 400);
   if (attendance.approvedAt) throw new AppError('Hours already approved', 400);
 
-  const rawHours = attendance.checkedOutAt
-    ? Math.min(
-        Math.max(
-          0,
-          (attendance.checkedOutAt.getTime() - attendance.checkedInAt.getTime()) / 3_600_000
-        ),
-        16
-      )
-    : 0;
-
   const result = await prisma.$transaction(async (tx) => {
+    const current = await tx.attendance.findUnique({
+      where: { eventId_volunteerId: { eventId, volunteerId } },
+    });
+    if (!current) throw new AppError('Attendance record not found', 404);
+    if (!current.checkedInAt) throw new AppError('Volunteer has not checked in', 400);
+
+    const rawHours = current.checkedOutAt
+      ? Math.min(
+          Math.max(
+            0,
+            (current.checkedOutAt.getTime() - current.checkedInAt.getTime()) / 3_600_000
+          ),
+          16
+        )
+      : 0;
+
     const updated = await tx.attendance.update({
       where: { eventId_volunteerId: { eventId, volunteerId } },
       data: {
@@ -605,15 +619,16 @@ export async function approveAttendance(
     return updated;
   });
 
+  invalidateCache();
+
   if (notificationsQueue) {
-    const evt = await prisma.event.findUnique({ where: { id: eventId }, select: { title: true } });
     await notificationsQueue
       .add('attendance-confirmed', {
         userId: volunteerId,
-        eventTitle: evt?.title ?? 'Event',
+        eventTitle: event.title,
         eventId,
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Failed to enqueue attendance confirmation notification', { error: (err as Error).message }));
   }
 
   return result;
@@ -845,18 +860,18 @@ export async function createEventSeries(
     opportunity.organizationId && callerOrgId && opportunity.organizationId === callerOrgId;
   if (!isSysAdmin && !isOwner && !isSameOrg) throw new AppError('Forbidden', 403);
 
-    const seriesStartDate = data.firstEventDate ? new Date(data.firstEventDate) : new Date();
-    const series = await prisma.eventSeries.create({
-      data: {
-        opportunityId,
-        title: data.title,
-        description: data.description,
-        frequency: data.frequency,
-        daysOfWeek: data.daysOfWeek ?? [],
-        interval: data.interval ?? 1,
-        startDate: seriesStartDate,
-        startTime: data.startTime,
-        endTime: data.endTime,
+  const seriesStartDate = data.firstEventDate ? new Date(data.firstEventDate) : new Date();
+  const series = await prisma.eventSeries.create({
+    data: {
+      opportunityId,
+      title: data.title,
+      description: data.description,
+      frequency: data.frequency,
+      daysOfWeek: data.daysOfWeek ?? [],
+      interval: data.interval ?? 1,
+      startDate: seriesStartDate,
+      startTime: data.startTime,
+      endTime: data.endTime,
       venue: data.venue,
       isVirtual: data.isVirtual ?? false,
       meetingLink: data.meetingLink,
@@ -952,6 +967,7 @@ export async function updateEventSeries(
   if (data.capacity !== undefined) updateData.capacity = data.capacity;
   if (data.endDate !== undefined) updateData.endDate = data.endDate ? new Date(data.endDate) : null;
   if (data.maxOccurrences !== undefined) updateData.maxOccurrences = data.maxOccurrences;
+  if (data.firstEventDate !== undefined) updateData.startDate = new Date(data.firstEventDate);
   if (data.isActive !== undefined) updateData.isActive = data.isActive;
   if (data.customRule !== undefined) updateData.customRule = data.customRule ?? Prisma.DbNull;
 
@@ -967,7 +983,15 @@ export async function updateEventSeries(
     targetType: 'EventSeries',
   });
 
-  if (updated.isActive && data.frequency !== undefined) {
+  const schedulingChanged =
+    data.frequency !== undefined ||
+    data.daysOfWeek !== undefined ||
+    data.interval !== undefined ||
+    data.startTime !== undefined ||
+    data.endTime !== undefined ||
+    data.firstEventDate !== undefined;
+
+  if (updated.isActive && schedulingChanged) {
     await generateEventsFromSeries(id);
   }
 
@@ -1025,11 +1049,11 @@ export async function generateEventsFromSeries(
 ): Promise<number> {
   return prisma.$transaction(async (tx) => {
     // Lock the EventSeries row to prevent concurrent generation from reading stale currentCount
-    const locked = await tx.eventSeries.findUnique({
-      where: { id: seriesId },
-      select: { id: true },
-    });
-    if (!locked) throw new AppError('Event series not found', 404);
+    const locked = await tx.$queryRawUnsafe<{ id: string }[]>(
+      'SELECT id FROM "EventSeries" WHERE id = $1 FOR UPDATE',
+      seriesId
+    );
+    if (!locked || locked.length === 0) throw new AppError('Event series not found', 404);
 
     const series = await tx.eventSeries.findUnique({
       where: { id: seriesId },
@@ -1095,6 +1119,31 @@ export async function generateEventsFromSeries(
     logger.info(`Generated ${count} events for series ${seriesId}`);
     return count;
   });
+}
+
+export async function generateEventsFromSeriesWithAuth(
+  seriesId: string,
+  userId: string,
+  userRole: string,
+  userOrgId: string | null | undefined
+): Promise<number> {
+  const series = await prisma.eventSeries.findUnique({
+    where: { id: seriesId },
+    include: { opportunity: true },
+  });
+  if (!series) throw new AppError('Event series not found', 404);
+
+  const isSysAdmin = hasSystemRole(userRole);
+  const isOwner = series.opportunity.createdById === userId;
+  const isSameOrg =
+    series.opportunity.organizationId &&
+    userOrgId &&
+    series.opportunity.organizationId === userOrgId;
+  if (!isSysAdmin && !isOwner && !isSameOrg) {
+    throw new AppError('Forbidden', 403);
+  }
+
+  return generateEventsFromSeries(seriesId);
 }
 
 function sanitizeCsvCell(value: string): string {

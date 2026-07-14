@@ -21,18 +21,11 @@ export async function listPublishedHandler(req: Request, res: Response, next: Ne
   }
 }
 
-export async function getPublishedBySlugHandler(req: Request, res: Response, next: NextFunction) {
+export async function getPublishedByParamHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const post = await service.getPostBySlug(req.params.slug);
-    res.status(200).json(post);
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function getByIdHandler(req: Request, res: Response, next: NextFunction) {
-  try {
-    const post = await service.getPostById(req.params.id);
+    const param = req.params.param;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(param);
+    const post = isUuid ? await service.getPostById(param) : await service.getPostBySlug(param);
     res.status(200).json(post);
   } catch (err) {
     next(err);

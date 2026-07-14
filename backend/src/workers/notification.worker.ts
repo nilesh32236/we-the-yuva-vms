@@ -368,7 +368,7 @@ if (redis && notificationsQueue) {
           `Your WeTheYuva verification code is: ${otp}\n\nThis code expires in 5 minutes.`
         );
 
-        logger.info('OTP email sent', { email, jobId: job.id });
+        logger.info('OTP email sent', { emailTo: email.substring(0, 3) + '***', jobId: job.id });
       }
 
       if (job.name === 'application-accepted') {
@@ -781,7 +781,7 @@ if (redis && notificationsQueue) {
           );
         }
 
-        logger.info('Account suspended email sent', { email, jobId: job.id });
+        logger.info('Account suspended email sent', { email: email.substring(0, 3) + '***', jobId: job.id });
       }
 
       if (job.name === 'match-alert-subscriptions') {
@@ -804,15 +804,17 @@ if (redis && notificationsQueue) {
           select: { userId: true },
         });
 
-        for (const sub of subscriptions) {
-          await createInAppNotification(
-            sub.userId,
-            'New Opportunity Match',
-            `"${opportunity.title}" matches your alert preferences!`,
-            `/volunteer/opportunities/${opportunityId}`,
-            'INFO'
-          );
-        }
+        await Promise.allSettled(
+          subscriptions.map((sub) =>
+            createInAppNotification(
+              sub.userId,
+              'New Opportunity Match',
+              `"${opportunity.title}" matches your alert preferences!`,
+              `/volunteer/opportunities/${opportunityId}`,
+              'INFO'
+            )
+          )
+        );
 
         logger.info('Alert subscriptions matched', {
           opportunityId,
@@ -900,21 +902,23 @@ if (redis && notificationsQueue) {
         // Enqueue reminders per event
         for (const event of upcomingEvents) {
           const volunteerIds = appsByOpportunity.get(event.opportunityId) ?? [];
-          for (const volunteerId of volunteerIds) {
-            await notificationsQueue?.add(
-              'event-reminder',
-              {
-                volunteerId,
-                eventId: event.id,
-                eventTitle: event.title,
-                eventDate: event.eventDate.toISOString(),
-                venue: event.venue ?? undefined,
-              },
-              {
-                jobId: `event-reminder-${event.id}-${volunteerId}`,
-              }
-            );
-          }
+          await Promise.allSettled(
+            volunteerIds.map((volunteerId) =>
+              (notificationsQueue?.add(
+                'event-reminder',
+                {
+                  volunteerId,
+                  eventId: event.id,
+                  eventTitle: event.title,
+                  eventDate: event.eventDate.toISOString(),
+                  venue: event.venue ?? undefined,
+                },
+                {
+                  jobId: `event-reminder-${event.id}-${volunteerId}`,
+                }
+              ) ?? Promise.resolve())
+            )
+          );
         }
 
         logger.info('Event reminders enqueued', {
@@ -938,7 +942,6 @@ if (redis && notificationsQueue) {
     logger.error('Notification job failed', {
       jobId: job?.id,
       name: job?.name,
-      email: job?.data?.email,
       error: err.message,
       attempts: job?.attemptsMade,
     });
