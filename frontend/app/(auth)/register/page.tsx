@@ -77,11 +77,20 @@ function CallAvailabilityInput({
           { value: 'specific_days' as const, label: 'Specific days' },
           { value: 'custom' as const, label: 'Custom schedule' },
         ].map((opt) => (
-          <Button key={opt.value} type="button" variant="outline" size="sm" onClick={() => setPref(opt.value)} className={`px-3 py-1.5 text-xs rounded-full cursor-pointer ${
+          <Button
+            key={opt.value}
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setPref(opt.value)}
+            className={`px-3 py-1.5 text-xs rounded-full cursor-pointer ${
               pref === opt.value
                 ? 'bg-brand-primary text-white border-brand-primary'
                 : 'bg-background text-brand-muted border-brand-border hover:border-brand-primary'
-            }`}> {opt.label} </Button>
+            }`}
+          >
+            {opt.label}
+          </Button>
         ))}
       </div>
 
@@ -173,7 +182,13 @@ function CallAvailabilityInput({
               </Button>
             </div>
           ))}
-          <Button type="button" variant="ghost" size="sm" onClick={addSlot} className="text-xs text-brand-primary hover:bg-brand-primary/10 px-2 py-1 h-auto min-h-0 cursor-pointer"> + Add time slot </Button>
+          <button
+            type="button"
+            onClick={addSlot}
+            className="text-xs text-brand-primary hover:underline cursor-pointer"
+          >
+            + Add time slot
+          </button>
         </div>
       )}
 
