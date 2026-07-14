@@ -88,10 +88,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const profileStatus = profileStatusQuery.data ?? null;
 
   const refetch = useCallback(async () => {
-    const result = await userQuery.refetch();
-    await profileStatusQuery.refetch();
-    return result.data ?? null;
-  }, [userQuery, profileStatusQuery]);
+    await queryClient.refetchQueries({ queryKey: ['auth-user'] });
+    await queryClient.refetchQueries({ queryKey: ['profile-status'] });
+    return queryClient.getQueryData<AuthUser | null>(['auth-user']) ?? null;
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
@@ -127,8 +127,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore errors — clear state regardless
     } finally {
-      queryClient.setQueryData(['auth-user'], null);
-      queryClient.setQueryData(['profile-status'], null);
       queryClient.clear();
       clearQueue();
       if (typeof document !== 'undefined') {

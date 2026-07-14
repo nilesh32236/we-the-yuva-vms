@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { decodeJwt } from 'jose';
+import { decodeJwt, jwtVerify } from 'jose';
+
+// NOTE: Route lists below are duplicated from:
+//   - frontend/lib/public-routes.ts
+//   - frontend/lib/shared/permissions.ts
+// Keep in sync when routes change.
 
 const PUBLIC_ROUTES = [
   '/',
@@ -17,6 +22,7 @@ const PUBLIC_ROUTES = [
   '/verify-otp',
 ];
 
+// Canonical source: frontend/lib/shared/permissions.ts
 const ROLE_ROUTES: Record<string, string> = {
   VOLUNTEER: '/volunteer/dashboard',
   COORDINATOR: '/coordinator/dashboard',
@@ -26,6 +32,7 @@ const ROLE_ROUTES: Record<string, string> = {
   PLATFORM_MANAGER: '/admin/dashboard',
 };
 
+// Canonical source: frontend/lib/shared/permissions.ts
 const ROLE_PREFIXES: Record<string, string[]> = {
   VOLUNTEER: ['/volunteer'],
   COORDINATOR: ['/coordinator'],
@@ -42,7 +49,7 @@ function isPublicRoute(pathname: string): boolean {
   });
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (isPublicRoute(pathname)) {
@@ -58,7 +65,22 @@ export function middleware(request: NextRequest) {
   }
 
   try {
-    const payload = decodeJwt(token);
+    const secret = process.env.JWT_ACCESS_SECRET;
+    let payload: { exp?: number; role?: string };
+
+    if (secret) {
+      const result = await jwtVerify(token, new TextEncoder().encode(secret), {
+        algorithms: ['HS256'],
+        issuer: 'we-the-yuva-api',
+      });
+      payload = result.payload as { exp?: number; role?: string };
+    } else {
+      // No JWT_ACCESS_SECRET available in this environment — decode without
+      // signature verification. The backend always validates signatures, so
+      // this is an optimization layer only (prevents rendering protected
+      // pages before the API call fails).
+      payload = decodeJwt(token);
+    }
 
     if (payload.exp && payload.exp * 1000 < Date.now()) {
       const loginUrl = new URL('/login', request.url);

@@ -11,7 +11,7 @@ import { ResendButton } from '../../../components/auth/ResendButton';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
-import { api } from '../../../lib/api';
+import { api, setAccessToken } from '../../../lib/api';
 import { VerifyOtpSchema } from '../../../lib/shared';
 import type { VerifyOtpInput } from '../../../lib/shared';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
@@ -102,13 +102,10 @@ function VerifyOtpContent() {
           sessionStorage.removeItem('verifyEmail');
         }
 
-        // Store in cookie for immediate API calls
+        // Store in memory for Authorization header.
+        // The backend sets the actual cookie as HttpOnly via Set-Cookie.
         if (accessToken) {
-          if (typeof document !== 'undefined') {
-            const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-            // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-            document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
-          }
+          setAccessToken(accessToken);
         }
 
         // Populate auth context via refetch — the navigation effect above

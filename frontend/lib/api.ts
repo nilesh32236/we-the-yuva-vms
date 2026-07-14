@@ -26,8 +26,18 @@ export async function downloadCsv(url: string, filename = 'export.csv') {
   previouslyFocused?.focus();
 }
 
-// Read access_token from cookie
+// In-memory token store for Authorization header.
+// The backend sets the access_token as an HttpOnly cookie (not readable by JS)
+// for middleware.ts route protection. We keep a copy in memory for attaching
+// the Bearer header on API calls.
+let accessTokenMemory: string | null = null;
+
+export function setAccessToken(token: string | null) {
+  accessTokenMemory = token;
+}
+
 function getAccessToken(): string | null {
+  if (accessTokenMemory) return accessTokenMemory;
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(/(?:^|;\s*)access_token=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : null;
@@ -35,6 +45,15 @@ function getAccessToken(): string | null {
 
 // Track last returned access token from refresh to detect missing rotation
 let lastRefreshAccessToken: string | null = null;
+
+function checkTokenRotation(token: string) {
+  if (token === lastRefreshAccessToken) {
+    console.warn(
+      '[Auth] Refresh returned same access token — refresh token may not be rotating',
+    );
+  }
+  lastRefreshAccessToken = token;
+}
 
 // biome-ignore lint/suspicious/noExplicitAny: error type unknown
 let refreshPromise: Promise<any> | null = null;
@@ -56,17 +75,8 @@ api.interceptors.request.use(async (config) => {
         }
         const data = await refreshPromise;
         if (data.accessToken) {
-          if (data.accessToken === lastRefreshAccessToken) {
-            console.warn(
-              '[Auth] Refresh returned same access token — refresh token may not be rotating',
-            );
-          }
-          lastRefreshAccessToken = data.accessToken;
-          if (typeof document !== 'undefined') {
-            const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-            // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
-          }
+          checkTokenRotation(data.accessToken);
+          setAccessToken(data.accessToken);
           config.headers.Authorization = `Bearer ${data.accessToken}`;
         } else {
           const freshToken = getAccessToken();
@@ -108,17 +118,8 @@ api.interceptors.response.use(
         }
         const data = await refreshPromise;
         if (data.accessToken) {
-          if (data.accessToken === lastRefreshAccessToken) {
-            console.warn(
-              '[Auth] Refresh returned same access token — refresh token may not be rotating',
-            );
-          }
-          lastRefreshAccessToken = data.accessToken;
-          if (typeof document !== 'undefined') {
-            const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-            // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-            document.cookie = `access_token=${encodeURIComponent(data.accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
-          }
+          checkTokenRotation(data.accessToken);
+          setAccessToken(data.accessToken);
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         }
         return api(originalRequest);
