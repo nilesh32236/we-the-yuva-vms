@@ -55,7 +55,12 @@ const fileFilter = (
   );
   const mimeAllowed = ALLOWED_MIMES.has(file.mimetype);
   if (extAllowed && mimeAllowed) return cb(null, true);
-  cb(new AppError('Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed', 400));
+  cb(
+    new AppError(
+      'Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed',
+      400
+    )
+  );
 };
 
 export const upload = multer({

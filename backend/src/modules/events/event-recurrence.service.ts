@@ -36,7 +36,14 @@ export function calculateNextDates(
       generateWeekly(dates, start, remaining, config.daysOfWeek, config.interval, effectiveEnd);
       break;
     case 'MONTHLY':
-      generateMonthly(dates, start, remaining, config.interval, effectiveEnd, config.anchorDate?.getDate());
+      generateMonthly(
+        dates,
+        start,
+        remaining,
+        config.interval,
+        effectiveEnd,
+        config.anchorDate?.getDate()
+      );
       break;
     case 'CUSTOM':
       generateCustom(dates, start, remaining, config.customRule, effectiveEnd);

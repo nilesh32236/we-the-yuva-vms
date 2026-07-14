@@ -17,25 +17,21 @@ function escapeHtml(str: string): string {
 export async function generateCertificate(userId: string, levelId: string) {
   const verificationHash = crypto.randomUUID();
 
-  const certificate = await prisma.$transaction(async (tx) => {
-    const cert = await tx.certificate.create({
-      data: {
-        userId,
-        levelId,
-        verificationHash,
-      },
-    });
-
-    const certificateUrl = `/api/v1/certificates/${cert.id}/view`;
-
-    return tx.certificate.update({
-      where: { id: cert.id },
-      data: { certificateUrl },
-      include: { level: true },
-    });
+  const certificate = await prisma.certificate.create({
+    data: {
+      userId,
+      levelId,
+      verificationHash,
+      certificateUrl: '',
+    },
+    include: { level: true },
   });
 
-  if (certificate && notificationsQueue) {
+  const certificateUrl = `/api/v1/certificates/${certificate.id}/view`;
+
+  certificate.certificateUrl = certificateUrl;
+
+  if (notificationsQueue) {
     try {
       await notificationsQueue.add('certificate-issued', {
         userId: certificate.userId,
@@ -49,6 +45,16 @@ export async function generateCertificate(userId: string, levelId: string) {
       });
     }
   }
+
+  // Fire-and-forget update to persist the URL; acceptable since it's derived from the id
+  prisma.certificate
+    .update({
+      where: { id: certificate.id },
+      data: { certificateUrl },
+    })
+    .catch((err) =>
+      logger.warn('Failed to persist certificate URL', { error: (err as Error).message })
+    );
 
   return certificate;
 }

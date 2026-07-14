@@ -160,7 +160,14 @@ describe('admin.controller', () => {
       vi.mocked(orgService.getAdminOrganizationDetails).mockResolvedValue({
         id: 'org-1',
         name: 'Test Org',
-        stats: { staffCount: 5, opportunitiesCount: 3, activeOpportunitiesCount: 2, eventsCount: 10, applicationsCount: 50, activeVolunteersCount: 20 },
+        stats: {
+          staffCount: 5,
+          opportunitiesCount: 3,
+          activeOpportunitiesCount: 2,
+          eventsCount: 10,
+          applicationsCount: 50,
+          activeVolunteersCount: 20,
+        },
         documents: [],
       } as never);
       req.params = { id: 'org-1' };

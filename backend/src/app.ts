@@ -1,9 +1,11 @@
 import 'express-async-errors';
 import path from 'node:path';
 import { setupExpressErrorHandler } from '@sentry/node';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
@@ -83,9 +85,22 @@ export function createApp(): Express {
     })
   );
 
+  // Compression — gzip/brotli for JSON responses
+  app.use(compression());
+
+  // Global rate limiter — protects all routes from brute force / DoS
+  const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later' },
+  });
+  app.use(globalLimiter);
+
   // Body parsing
   app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(cookieParser());
 
   // HTTP request logging
@@ -148,7 +163,10 @@ export function createApp(): Express {
   app.use('/api/v1/upload', uploadRouter);
 
   // Serve uploaded files
-  app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
+  app.use(
+    '/uploads',
+    express.static(path.resolve(process.cwd(), 'uploads'), { maxAge: '1d', etag: true })
+  );
 
   // Swagger/OpenAPI docs
   app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

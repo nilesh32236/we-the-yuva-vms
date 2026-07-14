@@ -38,6 +38,7 @@ export async function listPublicOpportunitiesHandler(
     const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
 
     const result = await listOpportunities({}, { page, limit });
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300');
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -98,24 +99,14 @@ export async function getPublicOpportunityHandler(
 ): Promise<void> {
   try {
     const opportunity = await getOpportunityById(req.params.id);
+    res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300');
     res.status(200).json(opportunity);
   } catch (err) {
     next(err);
   }
 }
 
-export async function getOpportunityHandler(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  try {
-    const opportunity = await getOpportunityById(req.params.id);
-    res.status(200).json(opportunity);
-  } catch (err) {
-    next(err);
-  }
-}
+export const getOpportunityHandler = getPublicOpportunityHandler;
 
 export async function updateOpportunityHandler(
   req: Request,

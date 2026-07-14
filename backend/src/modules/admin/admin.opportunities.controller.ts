@@ -18,11 +18,7 @@ export async function adminListOpportunitiesHandler(
   }
 }
 
-export async function adminGetOpportunityHandler(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function adminGetOpportunityHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const [opportunity, applicationStats] = await Promise.all([
       opportunitiesService.getOpportunity(req.params.id),

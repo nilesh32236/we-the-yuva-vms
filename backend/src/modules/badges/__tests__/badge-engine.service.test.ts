@@ -43,7 +43,7 @@ describe('badge-engine.service', () => {
     vi.clearAllMocks();
     vi.mocked(prisma.$transaction).mockImplementation(async (ops: unknown) => {
       if (Array.isArray(ops)) {
-        return Promise.all(ops.map((op: unknown) => (op as Promise<unknown>)));
+        return Promise.all(ops.map((op: unknown) => op as Promise<unknown>));
       }
       return [];
     });
@@ -55,13 +55,21 @@ describe('badge-engine.service', () => {
       const badgeId = 'badge-1';
 
       vi.mocked(prisma.badge.findMany).mockResolvedValue([
-        makeBadge({ id: badgeId, name: 'ONBOARDING', requiresApproval: true, criteria: { type: 'ONBOARDING_COMPLETE' } }),
+        makeBadge({
+          id: badgeId,
+          name: 'ONBOARDING',
+          requiresApproval: true,
+          criteria: { type: 'ONBOARDING_COMPLETE' },
+        }),
       ]);
 
       vi.mocked(prisma.userBadge.findMany).mockResolvedValue([]);
       vi.mocked(prisma.badgeApproval.findMany).mockResolvedValue([]);
 
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ userId, bio: 'test' } as never);
+      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({
+        userId,
+        bio: 'test',
+      } as never);
       vi.mocked(prisma.courseProgress.count).mockResolvedValue(1);
 
       await checkAndAwardBadges(userId);
@@ -97,7 +105,12 @@ describe('badge-engine.service', () => {
       const badgeId = 'badge-2';
 
       vi.mocked(prisma.badge.findMany).mockResolvedValue([
-        makeBadge({ id: badgeId, name: 'COMMUNITY_BUILDER', requiresApproval: false, criteria: { type: 'REFERRALS', count: 3 } }),
+        makeBadge({
+          id: badgeId,
+          name: 'COMMUNITY_BUILDER',
+          requiresApproval: false,
+          criteria: { type: 'REFERRALS', count: 3 },
+        }),
       ]);
 
       vi.mocked(prisma.userBadge.findMany).mockResolvedValue([]);
@@ -117,7 +130,12 @@ describe('badge-engine.service', () => {
       const badgeId = 'badge-2';
 
       vi.mocked(prisma.badge.findMany).mockResolvedValue([
-        makeBadge({ id: badgeId, name: 'COMMUNITY_BUILDER', requiresApproval: false, criteria: { type: 'REFERRALS', count: 3 } }),
+        makeBadge({
+          id: badgeId,
+          name: 'COMMUNITY_BUILDER',
+          requiresApproval: false,
+          criteria: { type: 'REFERRALS', count: 3 },
+        }),
       ]);
 
       vi.mocked(prisma.userBadge.findMany).mockResolvedValue([]);
@@ -134,7 +152,12 @@ describe('badge-engine.service', () => {
       const badgeId = 'badge-2';
 
       vi.mocked(prisma.badge.findMany).mockResolvedValue([
-        makeBadge({ id: badgeId, name: 'COMMUNITY_BUILDER', requiresApproval: false, criteria: { type: 'REFERRALS', count: 3 } }),
+        makeBadge({
+          id: badgeId,
+          name: 'COMMUNITY_BUILDER',
+          requiresApproval: false,
+          criteria: { type: 'REFERRALS', count: 3 },
+        }),
       ]);
 
       vi.mocked(prisma.userBadge.findMany).mockResolvedValue([]);
@@ -152,7 +175,12 @@ describe('badge-engine.service', () => {
       const badgeId = 'badge-3';
 
       vi.mocked(prisma.badge.findMany).mockResolvedValue([
-        makeBadge({ id: badgeId, name: 'PROBLEM_SOLVER', requiresApproval: false, criteria: { type: 'GRIEVANCES_RESOLVED', count: 5 } }),
+        makeBadge({
+          id: badgeId,
+          name: 'PROBLEM_SOLVER',
+          requiresApproval: false,
+          criteria: { type: 'GRIEVANCES_RESOLVED', count: 5 },
+        }),
       ]);
 
       vi.mocked(prisma.userBadge.findMany).mockResolvedValue([]);

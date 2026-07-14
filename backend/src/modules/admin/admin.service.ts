@@ -126,15 +126,17 @@ export async function listUsers(filters: ListUsersFilters, pagination: Paginatio
   };
 }
 
-export async function updateUser(
-  id: string,
-  data: AdminUserUpdateInput,
-  adminId?: string
-) {
+export async function updateUser(id: string, data: AdminUserUpdateInput, adminId?: string) {
   // Verify user exists
   const existing = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, roleId: true, status: true, email: true, roleRef: { select: { name: true } } },
+    select: {
+      id: true,
+      roleId: true,
+      status: true,
+      email: true,
+      roleRef: { select: { name: true } },
+    },
   });
   if (!existing) {
     throw new AppError('User not found', 404);

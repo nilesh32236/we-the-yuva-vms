@@ -160,7 +160,12 @@ eventsRouter.get(
  *       200:
  *         description: Event details
  */
-eventsRouter.get('/:id/ical', requireAuth, requirePermission(Permissions.EVENT_VIEW), downloadIcalHandler);
+eventsRouter.get(
+  '/:id/ical',
+  requireAuth,
+  requirePermission(Permissions.EVENT_VIEW),
+  downloadIcalHandler
+);
 
 eventsRouter.get('/:id', requireAuth, getEventHandler);
 
@@ -382,14 +387,24 @@ opportunityEventSeriesRouter.post(
   createEventSeriesHandler
 );
 
-opportunityEventSeriesRouter.get('/', requireAuth, requirePermission(Permissions.EVENT_VIEW), listEventSeriesHandler);
+opportunityEventSeriesRouter.get(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.EVENT_VIEW),
+  listEventSeriesHandler
+);
 
 // ─── Router: /event-series/:id ───────────────────────────────────
 // Mount at: /api/v1/event-series
 
 export const eventSeriesRouter: IRouter = Router();
 
-eventSeriesRouter.get('/:id', requireAuth, requirePermission(Permissions.EVENT_VIEW), getEventSeriesByIdHandler);
+eventSeriesRouter.get(
+  '/:id',
+  requireAuth,
+  requirePermission(Permissions.EVENT_VIEW),
+  getEventSeriesByIdHandler
+);
 
 eventSeriesRouter.put(
   '/:id',

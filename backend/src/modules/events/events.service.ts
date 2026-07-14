@@ -288,7 +288,7 @@ export async function updateEvent(
 ) {
   const event = await prisma.event.findUnique({
     where: { id },
-    include: { opportunity: true },
+    include: { opportunity: { select: { createdById: true, organizationId: true } } },
   });
 
   if (!event) {
@@ -327,7 +327,7 @@ export async function cancelEvent(
 ) {
   const event = await prisma.event.findUnique({
     where: { id },
-    include: { opportunity: true },
+    include: { opportunity: { select: { createdById: true, organizationId: true } } },
   });
 
   if (!event) {
@@ -372,7 +372,7 @@ export async function markAttendance(
 ) {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
-    include: { opportunity: true },
+    include: { opportunity: { select: { createdById: true, organizationId: true } } },
   });
 
   if (!event) {
@@ -562,7 +562,7 @@ export async function approveAttendance(
 
   const event = await prisma.event.findUnique({
     where: { id: eventId },
-    include: { opportunity: true },
+    include: { opportunity: { select: { createdById: true, organizationId: true } } },
   });
   if (!event) throw new AppError('Event not found', 404);
 
@@ -590,10 +590,7 @@ export async function approveAttendance(
 
     const rawHours = current.checkedOutAt
       ? Math.min(
-          Math.max(
-            0,
-            (current.checkedOutAt.getTime() - current.checkedInAt.getTime()) / 3_600_000
-          ),
+          Math.max(0, (current.checkedOutAt.getTime() - current.checkedInAt.getTime()) / 3_600_000),
           16
         )
       : 0;
@@ -628,7 +625,11 @@ export async function approveAttendance(
         eventTitle: event.title,
         eventId,
       })
-      .catch((err) => logger.warn('Failed to enqueue attendance confirmation notification', { error: (err as Error).message }));
+      .catch((err) =>
+        logger.warn('Failed to enqueue attendance confirmation notification', {
+          error: (err as Error).message,
+        })
+      );
   }
 
   return result;
@@ -1048,13 +1049,6 @@ export async function generateEventsFromSeries(
   startFrom?: Date
 ): Promise<number> {
   return prisma.$transaction(async (tx) => {
-    // Lock the EventSeries row to prevent concurrent generation from reading stale currentCount
-    const locked = await tx.$queryRawUnsafe<{ id: string }[]>(
-      'SELECT id FROM "EventSeries" WHERE id = $1 FOR UPDATE',
-      seriesId
-    );
-    if (!locked || locked.length === 0) throw new AppError('Event series not found', 404);
-
     const series = await tx.eventSeries.findUnique({
       where: { id: seriesId },
     });

@@ -19,11 +19,9 @@ export function requireRole(...roles: Role[]) {
         role: req.user.role,
         requiredRoles: roles,
       });
-      res
-        .status(403)
-        .json({
-          error: `You do not have the required role for this action. Required: ${roles.join(', ')}`,
-        });
+      res.status(403).json({
+        error: `You do not have the required role for this action. Required: ${roles.join(', ')}`,
+      });
       return;
     }
 
@@ -47,11 +45,9 @@ export function requirePermission(...permissions: Permission[]) {
         role: req.user.role,
         requiredPermissions: permissions,
       });
-      res
-        .status(403)
-        .json({
-          error: `You do not have permission to perform this action. Required permission: ${permissions.join(', ')}`,
-        });
+      res.status(403).json({
+        error: `You do not have permission to perform this action. Required permission: ${permissions.join(', ')}`,
+      });
       return;
     }
 

@@ -13,24 +13,17 @@ import { redis } from '../../lib/redis';
 import { getProfileStatus } from '../users/users.service';
 import { AppError } from '../../middleware/error.middleware';
 
+const CACHE_KEY_SET = 'opportunities:list:keys';
+
 // ─── Helpers ─────────────────────────────────────────────────────
 
 async function invalidateListCache(): Promise<void> {
   if (!redis) return;
-  let cursor = '0';
-  do {
-    const [nextCursor, keys] = await redis.scan(
-      cursor,
-      'MATCH',
-      'opportunities:list:*',
-      'COUNT',
-      100
-    );
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
-    cursor = nextCursor;
-  } while (cursor !== '0');
+  const keys = await redis.smembers(CACHE_KEY_SET);
+  if (keys.length > 0) {
+    await redis.del(...keys);
+    await redis.del(CACHE_KEY_SET);
+  }
 }
 
 // ─── Opportunity CRUD ─────────────────────────────────────────────
@@ -143,8 +136,19 @@ export async function listOpportunities(
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        isRemote: true,
+        locationId: true,
         location: true,
+        status: true,
+        totalSlots: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
         createdBy: { select: { name: true } },
       },
     }),
@@ -198,7 +202,11 @@ export async function listOpportunities(
   };
 
   if (redis && !userId) {
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+    await redis
+      .multi()
+      .sadd(CACHE_KEY_SET, cacheKey)
+      .set(cacheKey, JSON.stringify(result), 'EX', 300)
+      .exec();
   }
 
   return result;
@@ -324,50 +332,48 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
     select: { id: true, title: true, createdById: true },
   });
 
-  const application = await prisma.$transaction(
-    async (tx) => {
-      const opportunity = await tx.opportunity.findUnique({ where: { id: opportunityId } });
+  const application = await prisma.$transaction(async (tx) => {
+    const opportunity = await tx.opportunity.findUnique({ where: { id: opportunityId } });
 
-      if (!opportunity) {
-        throw new AppError('Opportunity not found', 404);
-      }
+    if (!opportunity) {
+      throw new AppError('Opportunity not found', 404);
+    }
 
-      if (opportunity.status !== 'ACTIVE') {
-        throw new AppError('Opportunity is not accepting applications', 400);
-      }
+    if (opportunity.status !== 'ACTIVE') {
+      throw new AppError('Opportunity is not accepting applications', 400);
+    }
 
-      const acceptedCount = await tx.application.count({
-        where: { opportunityId, status: 'ACCEPTED' },
+    const acceptedCount = await tx.application.count({
+      where: { opportunityId, status: 'ACCEPTED' },
+    });
+
+    if (acceptedCount >= opportunity.totalSlots) {
+      throw new AppError('No slots available', 400);
+    }
+
+    try {
+      const app = await tx.application.create({
+        data: {
+          opportunityId,
+          volunteerId,
+          status: 'PENDING',
+        },
       });
-
-      if (acceptedCount >= opportunity.totalSlots) {
-        throw new AppError('No slots available', 400);
+      await logAudit({
+        userId: volunteerId,
+        action: 'APPLICATION_CREATE',
+        targetId: app.id,
+        targetType: 'Application',
+        metadata: { opportunityId },
+      });
+      return app;
+    } catch (err: unknown) {
+      if ((err as { code?: string })?.code === 'P2002') {
+        throw new AppError('Already applied', 409);
       }
-
-      try {
-        const app = await tx.application.create({
-          data: {
-            opportunityId,
-            volunteerId,
-            status: 'PENDING',
-          },
-        });
-        await logAudit({
-          userId: volunteerId,
-          action: 'APPLICATION_CREATE',
-          targetId: app.id,
-          targetType: 'Application',
-          metadata: { opportunityId },
-        });
-        return app;
-      } catch (err: unknown) {
-        if ((err as { code?: string })?.code === 'P2002') {
-          throw new AppError('Already applied', 409);
-        }
-        throw err;
-      }
-    },
-  );
+      throw err;
+    }
+  });
 
   // Notify the opportunity creator (non-blocking)
   if (oppInfo?.createdById && oppInfo.createdById !== volunteerId) {

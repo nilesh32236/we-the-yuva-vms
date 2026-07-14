@@ -56,11 +56,6 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     } = req.body;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
-    const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() }, select: { id: true } });
-    if (existing) {
-      throw new AppError('Email already registered', 409);
-    }
-
     const roleName = role ?? 'VOLUNTEER';
     const roleRecord = await prisma.role.findUnique({ where: { name: roleName } });
     if (!roleRecord) throw new AppError(`Invalid role: ${roleName}`, 500);
@@ -73,20 +68,27 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       }
     }
 
-    const user = await prisma.user.create({
-      data: {
-        email: email.toLowerCase(),
-        name: sanitizedName,
-        roleId: roleRecord.id,
-        status: 'PENDING',
-        phone,
-        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-        address,
-        ...(referredById && { referredById }),
-        callAvailability,
-        whyVoluntary,
-      },
-    });
+    const user = await prisma.user
+      .create({
+        data: {
+          email: email.toLowerCase(),
+          name: sanitizedName,
+          roleId: roleRecord.id,
+          status: 'PENDING',
+          phone,
+          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+          address,
+          ...(referredById && { referredById }),
+          callAvailability,
+          whyVoluntary,
+        },
+      })
+      .catch((err: unknown) => {
+        if ((err as { code?: string })?.code === 'P2002') {
+          throw new AppError('Email already registered', 409);
+        }
+        throw err;
+      });
 
     logAudit({
       userId: user.id,
@@ -107,7 +109,10 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
   try {
     const { email } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() }, select: { id: true, status: true } });
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: { id: true, status: true },
+    });
     if (!user) {
       // Don't reveal whether email exists
       res.status(200).json({ message: 'Verification code sent to your email.' });
@@ -121,7 +126,9 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     await checkOtpRateLimit(email);
     const otp = await generateAndStoreOtp(email);
     await enqueueOtpEmail(email, otp);
-    logAudit({ userId: user.id, action: 'OTP_SENT' }).catch((err) => logger.warn('Audit log failed', { error: (err as Error).message }));
+    logAudit({ userId: user.id, action: 'OTP_SENT' }).catch((err) =>
+      logger.warn('Audit log failed', { error: (err as Error).message })
+    );
 
     // TEMPORARY: return OTP for testing until SMTP is configured
     if (!isProd) {
@@ -140,25 +147,14 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
 
     await verifyOtp(email, otp);
 
-    const currentUser = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
-      select: { status: true },
-    });
-    if (!currentUser) throw new AppError('User not found', 404);
-    if (currentUser.status === 'SUSPENDED' || currentUser.status === 'INACTIVE') {
-      throw new AppError('Account is suspended or inactive', 403);
-    }
-
-    // Activate user on first verification
-    const user = await prisma.user.update({
-      where: { email: email.toLowerCase() },
-      data: { ...(currentUser.status === 'PENDING' && { status: 'ACTIVE' }) },
       select: {
         id: true,
         name: true,
         email: true,
-        roleRef: { select: { name: true, permissions: true } },
         status: true,
+        roleRef: { select: { name: true, permissions: true } },
         locationId: true,
         organizationId: true,
         consent: { select: { id: true } },
@@ -166,6 +162,18 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         volunteerType: true,
       },
     });
+    if (!user) throw new AppError('User not found', 404);
+    if (user.status === 'SUSPENDED' || user.status === 'INACTIVE') {
+      throw new AppError('Account is suspended or inactive', 403);
+    }
+
+    if (user.status === 'PENDING') {
+      await prisma.user.update({
+        where: { email: email.toLowerCase() },
+        data: { status: 'ACTIVE' },
+      });
+      user.status = 'ACTIVE';
+    }
 
     const accessToken = signAccessToken(
       user.id,
@@ -176,7 +184,12 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
     const refreshToken = signRefreshToken(user.id);
     await storeRefreshToken(user.id, refreshToken);
 
-    await logAudit({ userId: user.id, action: 'LOGIN' });
+    await prisma.auditLog.createMany({
+      data: [
+        { userId: user.id, action: 'LOGIN' },
+        { userId: user.id, action: 'OTP_VERIFIED' },
+      ],
+    });
 
     // Set cookies
     res.cookie('access_token', accessToken, ACCESS_COOKIE_OPTIONS);
@@ -196,8 +209,6 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         volunteerType: user.volunteerType,
       },
     });
-
-    await logAudit({ userId: user.id, action: 'OTP_VERIFIED' });
   } catch (err) {
     next(err);
   }
@@ -230,7 +241,10 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
     const refreshToken = req.cookies?.refresh_token;
     if (refreshToken) {
       const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
-      const record = await prisma.refreshToken.findUnique({ where: { tokenHash }, select: { userId: true } });
+      const record = await prisma.refreshToken.findUnique({
+        where: { tokenHash },
+        select: { userId: true },
+      });
       if (record) {
         await logAudit({ userId: record.userId, action: 'LOGOUT' });
       }

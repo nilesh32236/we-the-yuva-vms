@@ -66,7 +66,12 @@ describe('badges.service', () => {
 
       expect(prisma.badgeApproval.update).toHaveBeenCalledWith({
         where: { userId_badgeId: { userId, badgeId } },
-        data: { status: 'APPROVED', reviewedAt: expect.any(Date), reviewedBy, reviewNote: undefined },
+        data: {
+          status: 'APPROVED',
+          reviewedAt: expect.any(Date),
+          reviewedBy,
+          reviewNote: undefined,
+        },
       });
 
       expect(prisma.userBadge.create).toHaveBeenCalledWith({

@@ -55,12 +55,14 @@ export async function getMyProgress(userId: string) {
     ? allLevels.find((l) => l.tier === currentTier.tier + 1)
     : allLevels[0];
 
-  const eventsAttended = await prisma.attendance.count({
-    where: { volunteerId: userId, attended: true },
-  });
-  const storiesPublished = await prisma.story.count({
-    where: { userId, published: true },
-  });
+  const [eventsAttended, storiesPublished] = await Promise.all([
+    prisma.attendance.count({
+      where: { volunteerId: userId, attended: true },
+    }),
+    prisma.story.count({
+      where: { userId, published: true },
+    }),
+  ]);
   const totalHours = user.profile?.totalHours ?? 0;
 
   return {
@@ -132,27 +134,27 @@ export async function createLevelRequest(
     await prisma.$transaction(async (tx) => {
       await awardLevelPoints(tx, userId, level.id, level.id);
     });
-    try {
-      const _cert = await generateCertificate(userId, level.id);
-    } catch (err) {
-      logger.warn('Failed to generate certificate on level approval', {
-        err,
-        userId,
-        levelId: level.id,
-      });
-    }
-    try {
-      await checkAndAwardBadges(userId);
-    } catch (err) {
-      logger.warn('Failed to check and award badges on auto-promotion', { err, userId });
-    }
-    if (notificationsQueue) {
-      await notificationsQueue
-        .add('level-up', { userId, levelName: level.name })
-        .catch((err) => {
-          logger.warn('Failed to enqueue level-up notification', { err, userId, levelName: level.name });
-        });
-    }
+    await Promise.allSettled([
+      generateCertificate(userId, level.id).catch((err) =>
+        logger.warn('Failed to generate certificate on level approval', {
+          err,
+          userId,
+          levelId: level.id,
+        })
+      ),
+      checkAndAwardBadges(userId).catch((err) =>
+        logger.warn('Failed to check and award badges on auto-promotion', { err, userId })
+      ),
+      notificationsQueue
+        ?.add('level-up', { userId, levelName: level.name })
+        .catch((err) =>
+          logger.warn('Failed to enqueue level-up notification', {
+            err,
+            userId,
+            levelName: level.name,
+          })
+        ) ?? Promise.resolve(),
+    ]);
   }
 
   return result;
@@ -269,30 +271,30 @@ export async function reviewLevelRequest(
   });
 
   if (data.status === 'APPROVED') {
-    try {
-      const _cert = await generateCertificate(request.userId, request.levelId);
-    } catch (err) {
-      logger.warn('Failed to generate certificate on level approval', {
-        err,
-        userId: request.userId,
-        levelId: request.levelId,
-      });
-    }
-    try {
-      await checkAndAwardBadges(request.userId);
-    } catch (err) {
-      logger.warn('Failed to check and award badges on level approval', {
-        err,
-        userId: request.userId,
-      });
-    }
-    if (notificationsQueue) {
-      await notificationsQueue
-        .add('level-up', { userId: request.userId, levelName: request.level.name })
+    await Promise.allSettled([
+      generateCertificate(request.userId, request.levelId).catch((err) =>
+        logger.warn('Failed to generate certificate on level approval', {
+          err,
+          userId: request.userId,
+          levelId: request.levelId,
+        })
+      ),
+      checkAndAwardBadges(request.userId).catch((err) =>
+        logger.warn('Failed to check and award badges on level approval', {
+          err,
+          userId: request.userId,
+        })
+      ),
+      notificationsQueue
+        ?.add('level-up', { userId: request.userId, levelName: request.level.name })
         .catch((err) => {
-          logger.warn('Failed to enqueue level-up notification', { err, userId: request.userId, levelName: request.level.name });
-        });
-    }
+          logger.warn('Failed to enqueue level-up notification', {
+            err,
+            userId: request.userId,
+            levelName: request.level.name,
+          });
+        }) ?? Promise.resolve(),
+    ]);
   }
 
   return result;

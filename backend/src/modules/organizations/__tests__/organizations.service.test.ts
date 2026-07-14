@@ -16,7 +16,13 @@ vi.mock('@/lib/prisma', () => ({
       count: vi.fn(),
     },
     organizationDocument: { create: vi.fn(), findMany: vi.fn() },
-    user: { findUnique: vi.fn(), upsert: vi.fn(), findMany: vi.fn(), update: vi.fn(), count: vi.fn() },
+    user: {
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+      findMany: vi.fn(),
+      update: vi.fn(),
+      count: vi.fn(),
+    },
     role: { findUnique: vi.fn() },
   },
 }));

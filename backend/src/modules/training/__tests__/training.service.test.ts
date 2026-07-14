@@ -68,7 +68,15 @@ describe('training.service', () => {
         id: 'course-1',
         title: 'Test',
         lessons: [
-          { id: 'l1', title: 'L1', content: 'C', type: 'TEXT', order: 1, courseId: 'course-1', completions: [{ lessonId: 'l1' }] },
+          {
+            id: 'l1',
+            title: 'L1',
+            content: 'C',
+            type: 'TEXT',
+            order: 1,
+            courseId: 'course-1',
+            completions: [{ lessonId: 'l1' }],
+          },
         ],
         progress: [],
       } as never);

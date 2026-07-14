@@ -37,31 +37,42 @@ export interface UpdateOrgInput {
   logo?: string;
 }
 
-async function generateUniqueSlug(name: string, client?: Prisma.TransactionClient): Promise<string> {
+async function generateUniqueSlug(
+  name: string,
+  client?: Prisma.TransactionClient
+): Promise<string> {
   const base = slugify(name, { lower: true, strict: true });
-  let slug = base;
-  let counter = 1;
-  const MAX_RETRIES = 100;
   const db = client ?? prisma;
-  while (await db.organization.findUnique({ where: { slug } })) {
-    if (counter > MAX_RETRIES) {
-      throw new AppError('Unable to generate unique slug after maximum retries', 500);
-    }
-    slug = `${base}-${counter}`;
-    counter++;
-  }
-  return slug;
+  // Check if base slug exists and find the highest counter in one query
+  const existing = await db.organization.findFirst({
+    where: { slug: { startsWith: base } },
+    select: { slug: true },
+    orderBy: { slug: 'desc' },
+  });
+  if (!existing?.slug) return base;
+  const match = existing.slug.match(new RegExp(`^${base}-(\\d+)$`));
+  const nextCounter = match ? Number.parseInt(match[1], 10) + 1 : 1;
+  return `${base}-${nextCounter}`;
 }
 
 export async function registerOrganization(adminUserId: string, data: RegisterOrgInput) {
   return prisma.$transaction(async (tx) => {
-    const adminUser = await tx.user.findUnique({
-      where: { id: adminUserId },
-      select: { organizationId: true, roleRef: { select: { name: true } } },
-    });
+    const [adminUser, existing] = await Promise.all([
+      tx.user.findUnique({
+        where: { id: adminUserId },
+        select: { organizationId: true, roleRef: { select: { name: true } } },
+      }),
+      tx.organization.findFirst({
+        where: { name: data.name },
+      }),
+    ]);
 
     if (!adminUser) {
       throw new AppError('User not found', 404);
+    }
+
+    if (existing) {
+      throw new AppError('Organization with this name already exists', 409);
     }
 
     if (adminUser.organizationId) {
@@ -72,15 +83,7 @@ export async function registerOrganization(adminUserId: string, data: RegisterOr
       throw new AppError('Only organization admins can register an organization', 403);
     }
 
-    const existing = await tx.organization.findFirst({
-      where: { name: data.name },
-    });
-
-    if (existing) {
-      throw new AppError('Organization with this name already exists', 409);
-    }
-
-    const slug = data.slug ?? await generateUniqueSlug(data.name, tx);
+    const slug = data.slug ?? (await generateUniqueSlug(data.name, tx));
 
     const org = await tx.organization.create({
       data: {
@@ -118,7 +121,13 @@ export async function getOrganization(orgId: string) {
 }
 
 export async function updateOrganization(orgId: string, userId: string, data: UpdateOrgInput) {
-  const org = await prisma.organization.findUnique({ where: { id: orgId } });
+  const [org, user] = await Promise.all([
+    prisma.organization.findUnique({ where: { id: orgId } }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { organizationId: true, roleRef: { select: { name: true } } },
+    }),
+  ]);
   if (!org) {
     throw new AppError('Organization not found', 404);
   }
@@ -126,11 +135,6 @@ export async function updateOrganization(orgId: string, userId: string, data: Up
   if (org.status === 'SUSPENDED') {
     throw new AppError('Cannot update a suspended organization', 400);
   }
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { organizationId: true, roleRef: { select: { name: true } } },
-  });
 
   if (!user) {
     throw new AppError('User not found', 404);

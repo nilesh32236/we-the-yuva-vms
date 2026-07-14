@@ -18,7 +18,34 @@ export async function getUserProfile(
   if (isSysAdmin || isSelf) {
     const user = await prisma.user.findUnique({
       where: { id },
-      include: { profile: true, location: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        roleRef: { select: { name: true } },
+        organizationId: true,
+        status: true,
+        locationId: true,
+        volunteerType: true,
+        createdAt: true,
+        updatedAt: true,
+        profile: {
+          select: {
+            id: true,
+            bio: true,
+            skills: true,
+            interests: true,
+            availability: true,
+            totalHours: true,
+            currentStreak: true,
+            longestStreak: true,
+            avatarUrl: true,
+            education: true,
+            details: true,
+          },
+        },
+        location: true,
+      },
     });
     if (!user) throw new AppError('User not found', 404);
     return user;
@@ -44,7 +71,34 @@ export async function getUserProfile(
         },
       ],
     },
-    include: { profile: true, location: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      roleRef: { select: { name: true } },
+      organizationId: true,
+      status: true,
+      locationId: true,
+      volunteerType: true,
+      createdAt: true,
+      updatedAt: true,
+      profile: {
+        select: {
+          id: true,
+          bio: true,
+          skills: true,
+          interests: true,
+          availability: true,
+          totalHours: true,
+          currentStreak: true,
+          longestStreak: true,
+          avatarUrl: true,
+          education: true,
+          details: true,
+        },
+      },
+      location: true,
+    },
   });
 
   if (!user) {
