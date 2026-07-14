@@ -1148,35 +1148,59 @@ function sanitizeCsvCell(value: string): string {
   return `"${escaped}"`;
 }
 
+const CSV_BATCH_SIZE = 500;
+
 export async function exportEventsCsv(callerOrgId: string | null | undefined) {
   const where = callerOrgId ? { opportunity: { organizationId: callerOrgId } } : {};
-  // Limit to 10k rows to prevent OOM; use streaming/paginated iteration for larger exports
-  const events = await prisma.event.findMany({
-    where,
-    take: 10000,
-    orderBy: { eventDate: 'desc' },
-    include: {
-      opportunity: { select: { title: true } },
-      _count: { select: { attendances: true } },
-    },
-  });
 
-  const header = 'Title,Opportunity,Date,Start,End,Status,Capacity,Attendances,Virtual\n';
-  const rows = events
-    .map((e) =>
-      [
-        sanitizeCsvCell(e.title),
-        sanitizeCsvCell(e.opportunity.title),
-        e.eventDate.toISOString().split('T')[0],
-        e.startTime,
-        e.endTime,
-        e.status,
-        e.capacity,
-        e._count.attendances,
-        e.isVirtual ? 'Yes' : 'No',
-      ].join(',')
-    )
-    .join('\n');
+  const header = 'Title,Opportunity,Date,Start,End,Status,Capacity,Attendances,Virtual';
+  const rows: string[] = [header];
 
-  return header + rows;
+  let cursor: string | undefined;
+  let hasMore = true;
+
+  while (hasMore) {
+    const batch = await prisma.event.findMany({
+      where,
+      take: CSV_BATCH_SIZE,
+      ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+      orderBy: { eventDate: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        eventDate: true,
+        startTime: true,
+        endTime: true,
+        status: true,
+        capacity: true,
+        isVirtual: true,
+        opportunity: { select: { title: true } },
+        _count: { select: { attendances: true } },
+      },
+    });
+
+    for (const e of batch) {
+      rows.push(
+        [
+          sanitizeCsvCell(e.title),
+          sanitizeCsvCell(e.opportunity.title),
+          e.eventDate.toISOString().split('T')[0],
+          e.startTime,
+          e.endTime,
+          e.status,
+          e.capacity,
+          e._count.attendances,
+          e.isVirtual ? 'Yes' : 'No',
+        ].join(',')
+      );
+    }
+
+    if (batch.length < CSV_BATCH_SIZE) {
+      hasMore = false;
+    } else {
+      cursor = batch[batch.length - 1].id;
+    }
+  }
+
+  return rows.join('\n');
 }
