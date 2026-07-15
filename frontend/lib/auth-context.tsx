@@ -9,6 +9,7 @@ import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
 import { ROLE_ROUTES, ROLE_ROUTE_PREFIXES, ONBOARDING_ROUTES } from './shared/permissions';
 import type { AuthUser } from './shared/types';
+import { toast } from '@/hooks/use-toast';
 
 export interface ProfileStatus {
   isComplete: boolean;
@@ -81,7 +82,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (userQuery.error as { response?: { status?: number } }).response?.status &&
       (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
     ) {
-      return 'Server error. Please try logging in again.';
+      const msg = 'Server error. Please try logging in again.';
+      toast({ title: 'Authentication error', description: msg, variant: 'destructive' });
+      return msg;
     }
     return null;
   })();
