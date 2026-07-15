@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type RegisterInput, RegisterSchema } from '@/lib/shared';
-import { Button } from '../../../components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { api } from '../../../lib/api';
@@ -77,18 +77,20 @@ function CallAvailabilityInput({
           { value: 'specific_days' as const, label: 'Specific days' },
           { value: 'custom' as const, label: 'Custom schedule' },
         ].map((opt) => (
-          <button
+          <Button
             key={opt.value}
             type="button"
+            variant="outline"
+            size="sm"
             onClick={() => setPref(opt.value)}
-            className={`px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 text-xs rounded-full cursor-pointer ${
               pref === opt.value
                 ? 'bg-brand-primary text-white border-brand-primary'
                 : 'bg-background text-brand-muted border-brand-border hover:border-brand-primary'
             }`}
           >
             {opt.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -96,11 +98,13 @@ function CallAvailabilityInput({
         <div className="space-y-3">
           <div className="flex flex-wrap gap-1.5">
             {DAY_LABELS.map((label, i) => (
-              <button
+              <Button
                 key={label}
                 type="button"
+                variant="outline"
+                size="icon"
                 onClick={() => toggleDay(i)}
-                className={`w-10 h-10 text-xs rounded-full border transition-colors cursor-pointer ${
+                className={`w-10 h-10 text-xs rounded-full cursor-pointer ${
                   (value?.days ?? []).includes(i)
                     ? 'bg-brand-primary text-white border-brand-primary'
                     : 'bg-background text-brand-muted border-brand-border hover:border-brand-primary'
@@ -108,7 +112,7 @@ function CallAvailabilityInput({
                 aria-pressed={(value?.days ?? []).includes(i)}
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
           <div className="flex items-center gap-2">
@@ -168,14 +172,14 @@ function CallAvailabilityInput({
                 onChange={(e) => updateSlot(i, 'endTime', e.target.value)}
                 className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
-              <button
+              <Button
                 type="button"
-                onClick={() => removeSlot(i)}
+                variant="ghost" size="icon" onClick={() => removeSlot(i)}
                 className="text-brand-error hover:text-brand-error/80 cursor-pointer"
                 aria-label="Remove time slot"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           ))}
           <button
@@ -311,14 +315,14 @@ export default function RegisterPage() {
           >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{formError}</p>
-            <button
+            <Button
               type="button"
-              onClick={() => setFormError(null)}
+              variant="ghost" size="icon" onClick={() => setFormError(null)}
               className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0"
               aria-label="Dismiss error"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         )}
 
