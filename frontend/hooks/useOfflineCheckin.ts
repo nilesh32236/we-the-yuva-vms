@@ -8,7 +8,7 @@ import {
   syncQueuedCheckins,
   clearQueue,
 } from '@/lib/offline-queue';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '@/hooks/useAuth';
 
 interface UseOfflineCheckinOptions {
   eventId: string;
@@ -36,8 +36,13 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   useEffect(() => {
     if (prevUserRef.current != null && user == null) {
-      clearQueue();
-      setQueuedCount(0);
+      try {
+        clearQueue();
+      } catch {
+        // Queue clear failed silently — UI will reset below
+      } finally {
+        setQueuedCount(0);
+      }
     }
     prevUserRef.current = user;
   }, [user]);
