@@ -1,9 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Send, Loader2 } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@/components/ui/Button';
 import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
@@ -36,7 +37,9 @@ export function ContactForm() {
       });
       reset();
     } catch (err) {
-      if (process.env.NODE_ENV !== 'production') { console.error('Contact form error:', err); }
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Contact form error:', err);
+      }
       toast({
         title: 'Something went wrong',
         description: 'Could not send your message. Please try again.',
@@ -130,18 +133,10 @@ export function ContactForm() {
         )}
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="inline-flex items-center gap-2 rounded-xl bg-brand-primary text-white px-6 py-3.5 font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
-      >
-        {isSubmitting ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-        ) : (
-          <Send className="h-4 w-4" aria-hidden="true" />
-        )}
+      <Button type="submit" loading={isSubmitting} className="px-6">
+        {!isSubmitting && <Send className="h-4 w-4" aria-hidden="true" />}
         {isSubmitting ? 'Sending...' : 'Send message'}
-      </button>
+      </Button>
     </form>
   );
 }

@@ -15,9 +15,10 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Pagination from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { useToast } from '@/hooks/use-toast';
 
 const TYPE_ICON: Record<string, React.ElementType> = {
   info: Info,
@@ -107,29 +108,28 @@ export default function NotificationsPage() {
     <main id="main" className="min-h-dvh bg-brand-bg">
       {/* Header */}
       <header className="h-16 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
-        <button
-          type="button"
+        <Button
+          variant="icon"
           onClick={() => {
             haptic.light();
             router.back();
           }}
-          className="w-11 h-11 rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
           aria-label="Go back"
         >
           <ArrowLeft className="w-4 h-4" />
-        </button>
+        </Button>
         <h1 className="font-heading font-bold text-lg text-brand-text flex-1">Notifications</h1>
         {unreadCount > 0 && (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={() => {
               haptic.light();
               markAllReadMut.mutate();
             }}
-            className="text-xs text-brand-primary hover:underline cursor-pointer font-medium"
+            className="text-xs font-medium"
           >
             Mark all read
-          </button>
+          </Button>
         )}
       </header>
 
@@ -154,18 +154,20 @@ export default function NotificationsPage() {
             {notifications.map((n) => {
               const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
               return (
-                <button
+                // biome-ignore lint/a11y/noStaticElementInteractions: need div to nest dismiss button
+                <div
                   key={n.id}
-                  type="button"
-                  role={n.link ? 'link' : undefined}
-                  className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
+                  role={n.link ? 'link' : 'button'}
+                  tabIndex={0}
+                  className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full cursor-pointer ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
                   onClick={() => {
                     haptic.light();
                     if (!n.read) markReadMut.mutate(n.id);
                     if (n.link) router.push(n.link);
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
                       if (!n.read) markReadMut.mutate(n.id);
                       if (n.link) router.push(n.link);
                     }
@@ -187,20 +189,21 @@ export default function NotificationsPage() {
                   </div>
                   <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
                     {!n.read && <span className="w-2 h-2 rounded-full bg-brand-primary" />}
-                    <button
-                      type="button"
+                    <Button
+                      variant="icon"
+                      size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         haptic.light();
                         deleteMut.mutate(n.id);
                       }}
-                      className="w-11 h-11 rounded-lg flex items-center justify-center text-brand-muted hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+                      className="hover:bg-brand-error/10 hover:text-brand-error text-brand-muted"
                       aria-label="Dismiss notification"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
                   </div>
-                </button>
+                </div>
               );
             })}
             <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
