@@ -10,7 +10,7 @@ import { type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { Button } from '../../../components/ui/Button';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
-import { api, setAccessToken } from '../../../lib/api';
+import { api } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
@@ -220,7 +220,6 @@ export default function RegisterPage() {
         // Check for access_token cookie using proper boundary matching
         const hasAccessCookie = /(?:^|;)\s*access_token\s*=/.test(document.cookie);
         if (hasAccessCookie) {
-          setAccessToken(null);
           // biome-ignore lint/suspicious/noDocumentCookie: clearing stale cookie
           document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict';
         }

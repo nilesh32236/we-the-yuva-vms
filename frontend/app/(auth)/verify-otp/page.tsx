@@ -99,16 +99,13 @@ function VerifyOtpContent() {
         // Clear any stale logged_out flag from previous session
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.removeItem('logged_out');
+          sessionStorage.removeItem('verifyEmail');
         }
 
-        // Store in memory for immediate API calls (cross-domain Bearer)
+        // Store in memory for Authorization header.
+        // The backend sets the actual cookie as HttpOnly via Set-Cookie.
         if (accessToken) {
           setAccessToken(accessToken);
-          if (typeof document !== 'undefined') {
-            const secureFlag = window.location.protocol === 'https:' ? '; Secure' : '';
-            // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-            document.cookie = `access_token=${encodeURIComponent(accessToken)}; path=/; max-age=900; SameSite=Strict${secureFlag}`;
-          }
         }
 
         // Populate auth context via refetch — the navigation effect above
@@ -179,7 +176,7 @@ function VerifyOtpContent() {
           <p className="font-medium text-brand-text text-sm">{email}</p>
         </div>
 
-        {process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
+        {process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
               <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP

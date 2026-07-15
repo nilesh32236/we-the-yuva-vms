@@ -9,8 +9,6 @@ import type {
   RegisterSchema,
   SendOtpSchema,
   VerifyOtpSchema,
-  ForgotPasswordSchema,
-  ResetPasswordSchema,
 } from '../schemas/auth.schemas';
 import type { CreateBlogPostSchema, UpdateBlogPostSchema } from '../schemas/blog.schemas';
 import type { FeedbackSchema, UpdateFeedbackSchema } from '../schemas/feedback.schemas';
@@ -55,8 +53,7 @@ export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type SendOtpInput = z.infer<typeof SendOtpSchema>;
 export type VerifyOtpInput = z.infer<typeof VerifyOtpSchema>;
 export type ConsentInput = z.infer<typeof ConsentSchema>;
-export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
-export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
+
 export type VolunteerProfileInput = z.infer<typeof VolunteerProfileSchema>;
 export type StaffProfileInput = z.infer<typeof StaffProfileSchema>;
 export type UpdateMeInput = z.infer<typeof UpdateMeSchema>;
