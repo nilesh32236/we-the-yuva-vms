@@ -1,10 +1,11 @@
 'use client';
 
+import * as Sentry from '@sentry/nextjs';
 import { Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
 import { api } from '../../lib/api';
-import * as Sentry from '@sentry/nextjs';
+import { Button } from '../ui/Button';
 
 interface FileUploadProps {
   onUpload: (url: string) => void;
@@ -96,14 +97,15 @@ export function FileUpload({
             height={128}
             className="h-32 w-32 rounded-xl object-cover border border-brand-border"
           />
-          <button
-            type="button"
+          <Button
+            size="icon"
+            variant="destructive"
             onClick={remove}
             aria-label="Remove file"
-            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-brand-error text-white flex items-center justify-center hover:bg-brand-error/80 transition-colors active-bounce"
+            className="absolute -top-2 -right-2 rounded-full w-8 h-8 min-h-0 min-w-0 flex items-center justify-center p-0"
           >
-            <X className="w-3 h-3" />
-          </button>
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       ) : (
         <button

@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '../ui/Button';
 
 interface PaginationProps {
   page: number;
@@ -13,27 +14,27 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
 
   return (
     <div className="flex items-center justify-center gap-2 mt-6">
-      <button
-        type="button"
+      <Button
+        variant="outline"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
+        className="rounded-xl disabled:opacity-40 active-bounce card-hover"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         Previous
-      </button>
+      </Button>
       <span className="text-sm text-brand-muted">
         Page {page} of {totalPages}
       </span>
-      <button
-        type="button"
+      <Button
+        variant="outline"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
+        className="rounded-xl disabled:opacity-40 active-bounce card-hover"
       >
         Next
         <ChevronRight className="w-4 h-4" aria-hidden="true" />
-      </button>
+      </Button>
     </div>
   );
 }

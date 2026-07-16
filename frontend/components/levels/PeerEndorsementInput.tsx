@@ -2,6 +2,7 @@
 
 import { Plus, Trash2, User } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '../ui/Button';
 
 interface Endorsement {
   userId: string;
@@ -54,14 +55,15 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
                 <p className="text-sm font-medium text-brand-text">{end.name}</p>
                 <p className="text-xs text-brand-muted mt-0.5 line-clamp-2">{end.statement}</p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => removeEndorsement(index)}
-                className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:text-brand-error hover:bg-brand-error/10 transition-colors cursor-pointer"
+                className="flex-shrink-0 text-brand-muted hover:text-brand-error hover:bg-brand-error/10 w-8 h-8 p-0"
                 aria-label={`Remove endorsement from ${end.name}`}
               >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </li>
           ))}
         </ul>
@@ -96,36 +98,37 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
             />
           </div>
           <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 setIsAdding(false);
                 setNewName('');
                 setNewStatement('');
               }}
-              className="text-xs text-brand-muted hover:text-brand-text px-3 py-1.5 rounded-lg hover:bg-brand-border/50 transition-colors cursor-pointer"
             >
               Cancel
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
               onClick={addEndorsement}
               disabled={!newName.trim() || !newStatement.trim()}
-              className="text-xs font-semibold text-white bg-brand-primary hover:bg-brand-secondary disabled:opacity-60 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
             >
               Add
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          fullWidth
           onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 w-full p-3 rounded-xl border-2 border-dashed border-brand-border text-brand-muted hover:text-brand-primary hover:border-brand-primary/50 hover:bg-brand-bg transition-colors cursor-pointer"
+          className="border-dashed text-brand-muted hover:text-brand-primary hover:border-brand-primary/50 bg-transparent"
         >
           <Plus className="w-4 h-4" />
           <span className="text-sm font-medium">Add Endorsement</span>
-        </button>
+        </Button>
       )}
     </div>
   );
