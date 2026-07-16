@@ -154,7 +154,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{' '}
           <Link
             href="/register"
-            className="text-brand-primary font-medium hover:underline cursor-pointer"
+            className="text-brand-primary font-medium hover:underline cursor-pointer py-2 inline-block"
           >
             Register
           </Link>

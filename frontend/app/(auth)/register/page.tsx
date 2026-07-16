@@ -292,7 +292,7 @@ export default function RegisterPage() {
       {/* Back link */}
       <Link
         href="/login"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer py-2 min-h-[44px]"
       >
         <ArrowLeft className="w-4 h-4" aria-hidden="true" />
         Back to login

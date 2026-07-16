@@ -204,10 +204,11 @@ function ScanInner() {
       ) : (
         <>
           {/* Mode toggle */}
-          <div className="flex gap-2 bg-brand-muted/10 dark:bg-brand-muted/20 rounded-xl p-1" role="tablist">
+          <div className="flex gap-2 bg-brand-muted/10 dark:bg-brand-muted/20 rounded-xl p-1" role="tablist" aria-label="Scan mode">
             <button
               type="button"
               role="tab"
+              id="scan-camera-tab"
               aria-selected={mode === 'camera'}
               aria-controls="scan-camera-panel"
               onClick={() => {
@@ -225,6 +226,7 @@ function ScanInner() {
             <button
               type="button"
               role="tab"
+              id="scan-manual-tab"
               aria-selected={mode === 'manual'}
               aria-controls="scan-manual-panel"
               onClick={() => {
@@ -246,6 +248,7 @@ function ScanInner() {
             <div
               id="scan-camera-panel"
               role="tabpanel"
+              aria-labelledby="scan-camera-tab"
               className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden"
             >
               <div
@@ -266,6 +269,7 @@ function ScanInner() {
             <div
               id="scan-manual-panel"
               role="tabpanel"
+              aria-labelledby="scan-manual-tab"
               className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4"
             >
               <form onSubmit={handleTokenSubmit(onManualSubmit)} className="space-y-4">

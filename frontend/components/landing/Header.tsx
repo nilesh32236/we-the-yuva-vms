@@ -92,7 +92,7 @@ export function Header() {
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          className={`md:hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
+          className={`min-w-[44px] min-h-[44px] flex items-center justify-center md:hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
             scrolled ? 'text-brand-text dark:text-white' : 'text-white'
           }`}
         >
