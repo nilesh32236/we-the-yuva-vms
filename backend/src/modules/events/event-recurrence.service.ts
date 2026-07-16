@@ -112,7 +112,10 @@ function generateMonthly(
   const current = new Date(start);
   current.setDate(1);
 
-  for (let i = 0; i < remaining; i++) {
+  let added = 0;
+  let attempts = 0;
+  const maxAttempts = remaining * 2;
+  while (added < remaining && attempts < maxAttempts) {
     const lastDay = new Date(current.getFullYear(), current.getMonth() + 1, 0).getDate();
     const day = Math.min(targetDay, lastDay);
     const candidate = new Date(current);
@@ -121,11 +124,11 @@ function generateMonthly(
 
     if (candidate >= start && candidate <= endDate) {
       dates.push(new Date(candidate));
-    } else if (candidate < start) {
-      i--;
+      added++;
     }
 
     current.setMonth(current.getMonth() + interval);
+    attempts++;
     if (current > endDate) break;
   }
 }

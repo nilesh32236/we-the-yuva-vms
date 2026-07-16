@@ -104,7 +104,15 @@ authRouter.post('/verify-otp', otpLimiter, validate(VerifyOtpSchema), verifyOtpH
  *       200:
  *         description: Token refreshed
  */
-authRouter.post('/refresh', refresh);
+const refreshLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: 'Too many refresh requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+authRouter.post('/refresh', refreshLimiter, refresh);
 
 /**
  * @openapi

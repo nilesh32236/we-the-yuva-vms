@@ -3,8 +3,7 @@ import { z } from 'zod';
 export const CreateMentorshipSchema = z.object({
   menteeId: z
     .string()
-    .min(1, 'Mentee ID is required')
-    .regex(/^c[a-z0-9]{8,}$/, 'Invalid mentee ID format'),
+    .min(1, 'Mentee ID is required'),
   message: z.string().max(1000).optional(),
 });
 

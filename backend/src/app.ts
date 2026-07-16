@@ -91,7 +91,7 @@ export function createApp(): Express {
   // Global rate limiter — protects all routes from brute force / DoS
   const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200,
+    max: 600,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many requests, please try again later' },
@@ -165,7 +165,7 @@ export function createApp(): Express {
   // Serve uploaded files
   app.use(
     '/uploads',
-    express.static(path.resolve(process.cwd(), 'uploads'), { maxAge: '1d', etag: true })
+    express.static(path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads'), { maxAge: '1d', etag: true })
   );
 
   // Swagger/OpenAPI docs

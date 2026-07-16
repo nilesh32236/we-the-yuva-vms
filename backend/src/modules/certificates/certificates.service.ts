@@ -79,7 +79,7 @@ export async function getCertificate(id: string, userId: string) {
   });
 
   if (!cert || cert.userId !== userId) {
-    throw new AppError('Certificate not found', 404);
+    throw new AppError(cert ? 'Forbidden' : 'Certificate not found', cert ? 403 : 404);
   }
 
   return cert;
@@ -88,7 +88,13 @@ export async function getCertificate(id: string, userId: string) {
 export async function getCertificateByHash(hash: string) {
   const cert = await prisma.certificate.findUnique({
     where: { verificationHash: hash },
-    include: { user: true, level: true },
+    select: {
+      id: true,
+      verificationHash: true,
+      issuedAt: true,
+      level: { select: { name: true, tier: true } },
+      user: { select: { name: true } },
+    },
   });
 
   if (!cert) {

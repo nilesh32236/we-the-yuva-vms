@@ -863,18 +863,27 @@ if (redis && notificationsQueue) {
       } else if (job.name === 'check-event-reminders') {
         const now = new Date();
         const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        const PAGE_SIZE = 100;
 
-        const upcomingEvents = await prisma.event.findMany({
-          where: {
-            eventDate: { gte: now, lte: in24h },
-            status: 'SCHEDULED',
-          },
-          take: 100,
-        });
+        const allUpcomingEvents: Array<{ id: string; opportunityId: string; title: string; eventDate: Date; venue: string | null }> = [];
+        for (let page = 0; ; page++) {
+          const batch = await prisma.event.findMany({
+            where: {
+              eventDate: { gte: now, lte: in24h },
+              status: 'SCHEDULED',
+            },
+            select: { id: true, opportunityId: true, title: true, eventDate: true, venue: true },
+            take: PAGE_SIZE,
+            skip: page * PAGE_SIZE,
+            orderBy: { id: 'asc' },
+          });
+          if (batch.length === 0) break;
+          allUpcomingEvents.push(...batch);
+        }
 
         const allAcceptedApps = await prisma.application.findMany({
           where: {
-            opportunityId: { in: upcomingEvents.map((e) => e.opportunityId) },
+            opportunityId: { in: allUpcomingEvents.map((e) => e.opportunityId) },
             status: 'ACCEPTED',
           },
           select: { volunteerId: true, opportunityId: true },
@@ -892,7 +901,7 @@ if (redis && notificationsQueue) {
           data: Record<string, unknown>;
           opts?: { jobId: string };
         }[] = [];
-        for (const event of upcomingEvents) {
+        for (const event of allUpcomingEvents) {
           const volunteerIds = appsByOpportunity.get(event.opportunityId) ?? [];
           for (const volunteerId of volunteerIds) {
             reminderJobs.push({
@@ -914,7 +923,7 @@ if (redis && notificationsQueue) {
         }
 
         logger.info('Event reminders enqueued', {
-          eventsChecked: upcomingEvents.length,
+          eventsChecked: allUpcomingEvents.length,
           jobsEnqueued: reminderJobs.length,
           jobId: job.id,
         });

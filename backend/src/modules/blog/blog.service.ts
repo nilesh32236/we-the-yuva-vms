@@ -1,6 +1,7 @@
 import slugify from 'slugify';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
+import { hasSystemRole } from '../../shared/helpers';
 import { AppError } from '../../middleware/error.middleware';
 
 async function generateUniqueSlug(title: string): Promise<string> {
@@ -106,7 +107,7 @@ export async function updatePost(
     select: { id: true, authorId: true },
   });
   if (!post) throw new AppError('Post not found', 404);
-  if (post.authorId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
+  if (post.authorId !== userId && !hasSystemRole(callerRole)) throw new AppError('Forbidden', 403);
 
   const updateData: Record<string, unknown> = { ...data };
   if (data.title) {
@@ -131,7 +132,7 @@ export async function updatePost(
 }
 
 export async function publishPost(id: string, userId: string, callerRole: string) {
-  if (callerRole !== 'ADMIN') throw new AppError('Forbidden: only admins can publish', 403);
+  if (!hasSystemRole(callerRole)) throw new AppError('Forbidden: only admins can publish', 403);
   const post = await prisma.blogPost.findUnique({ where: { id } });
   if (!post) throw new AppError('Post not found', 404);
   const updated = await prisma.blogPost.update({
@@ -143,7 +144,7 @@ export async function publishPost(id: string, userId: string, callerRole: string
 }
 
 export async function archivePost(id: string, userId: string, callerRole: string) {
-  if (callerRole !== 'ADMIN') throw new AppError('Forbidden: only admins can archive', 403);
+  if (!hasSystemRole(callerRole)) throw new AppError('Forbidden: only admins can archive', 403);
   const post = await prisma.blogPost.findUnique({ where: { id } });
   if (!post) throw new AppError('Post not found', 404);
   const updated = await prisma.blogPost.update({ where: { id }, data: { status: 'ARCHIVED' } });
@@ -154,7 +155,7 @@ export async function archivePost(id: string, userId: string, callerRole: string
 export async function deletePost(id: string, userId: string, callerRole: string) {
   const post = await prisma.blogPost.findUnique({ where: { id } });
   if (!post) throw new AppError('Post not found', 404);
-  if (post.authorId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
+  if (post.authorId !== userId && !hasSystemRole(callerRole)) throw new AppError('Forbidden', 403);
   await prisma.blogPost.delete({ where: { id } });
   await logAudit({ userId, action: 'BLOG_DELETE', targetId: id, targetType: 'BlogPost' });
 }
@@ -166,7 +167,7 @@ export async function listAllPosts(page = 1, limit = 50) {
       orderBy: { createdAt: 'desc' },
       skip,
       take: limit,
-      include: { author: { select: { name: true, email: true } } },
+      include: { author: { select: { name: true } } },
     }),
     prisma.blogPost.count(),
   ]);

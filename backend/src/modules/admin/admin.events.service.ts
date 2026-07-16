@@ -29,7 +29,7 @@ export async function getEvent(id: string) {
         select: {
           title: true,
           organization: { select: { name: true } },
-          createdBy: { select: { name: true } },
+          createdBy: { select: { id: true, name: true } },
         },
       },
       _count: { select: { attendances: true } },

@@ -1,6 +1,7 @@
 import { logAudit } from '../../lib/audit';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
+import { hasSystemRole } from '../../shared/helpers';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
@@ -97,7 +98,7 @@ export async function updateStory(
     select: { id: true, userId: true },
   });
   if (!story) throw new AppError('Story not found', 404);
-  if (story.userId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
+  if (story.userId !== userId && !hasSystemRole(callerRole ?? '')) throw new AppError('Forbidden', 403);
   const updated = await prisma.story.update({
     where: { id },
     data: {
@@ -116,7 +117,7 @@ export async function deleteStory(id: string, userId: string, callerRole: string
     select: { id: true, userId: true },
   });
   if (!story) throw new AppError('Story not found', 404);
-  if (story.userId !== userId && callerRole !== 'ADMIN') throw new AppError('Forbidden', 403);
+  if (story.userId !== userId && !hasSystemRole(callerRole)) throw new AppError('Forbidden', 403);
   await prisma.story.delete({ where: { id } });
   await logAudit({ userId, action: 'STORY_DELETE', targetId: id, targetType: 'Story' });
 }
@@ -127,7 +128,7 @@ export async function moderateStory(
   callerRole: string,
   published: boolean
 ) {
-  if (callerRole !== 'ADMIN')
+  if (!hasSystemRole(callerRole))
     throw new AppError('Forbidden: only admins can moderate stories', 403);
   const story = await prisma.story.findUnique({
     where: { id },
@@ -163,7 +164,7 @@ export async function getAdminStoryById(id: string) {
   const story = await prisma.story.findUnique({
     where: { id },
     include: {
-      user: { select: { name: true, email: true } },
+      user: { select: { name: true } },
     },
   });
   if (!story) throw new AppError('Story not found', 404);
@@ -177,7 +178,7 @@ export async function listAllStories(page = 1, limit = 50) {
       orderBy: { createdAt: 'desc' },
       skip,
       take: limit,
-      include: { user: { select: { name: true, email: true } } },
+      include: { user: { select: { name: true } } },
     }),
     prisma.story.count(),
   ]);

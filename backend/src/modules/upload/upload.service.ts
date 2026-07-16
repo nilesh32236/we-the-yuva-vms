@@ -7,9 +7,8 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { AppError } from '../../middleware/error.middleware';
 import { logger } from '../../lib/logger';
 
-// TODO: use S3/cloud storage for production - local disk is not persistent
-// HF Spaces has read-only filesystem; use /tmp/uploads or cloud storage
-const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
+// HF Spaces has read-only filesystem except /tmp; use env var or /tmp/uploads
+const UPLOADS_DIR = path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads');
 
 let uploadsDirReady = false;
 
@@ -123,7 +122,12 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
       }
       return `${endpoint}/${process.env.S3_BUCKET_NAME}/${file.filename}`;
     } catch (err) {
-      await fs.promises.unlink(file.path).catch(() => {});
+      await fs.promises.unlink(file.path).catch((cleanupErr) =>
+        logger.warn('File cleanup failed after S3 error', {
+          path: file.path,
+          error: (cleanupErr as Error).message,
+        })
+      );
       throw err;
     }
   }
