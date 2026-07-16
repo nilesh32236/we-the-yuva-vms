@@ -51,8 +51,8 @@ export function usePushNotifications() {
       });
 
       await api.post('/notifications/subscribe', subscription.toJSON());
-    } catch (err) {
-      console.error('Failed to subscribe to push notifications:', err);
+    } catch {
+      console.error('Failed to subscribe to push notifications');
       setError('Failed to set up push notifications. Please try again.');
     }
   };
@@ -65,8 +65,8 @@ export function usePushNotifications() {
         await api.post('/notifications/unsubscribe', { endpoint: sub.endpoint });
         await sub.unsubscribe();
       }
-    } catch (err) {
-      console.error('Failed to unsubscribe:', err);
+    } catch {
+      console.error('Failed to unsubscribe');
     }
   };
 
