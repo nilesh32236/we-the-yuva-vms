@@ -112,7 +112,6 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
           throw new Error('Failed to queue check-in offline');
         }
         await refreshQueue();
-        if (onSuccess) onSuccess();
         return { queued: true };
       }
       return api.post(`/events/${eventId}/checkin`, body).then((r) => r.data);

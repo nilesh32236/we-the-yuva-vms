@@ -14,16 +14,29 @@ api.defaults.timeout = 30000;
 
 export async function downloadCsv(url: string, filename = 'export.csv') {
   const previouslyFocused = document.activeElement as HTMLElement | null;
-  const res = await api.get(url, { responseType: 'blob' });
-  const blob = new Blob([res.data], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(a.href);
-  previouslyFocused?.focus();
+  try {
+    const res = await api.get(url, { responseType: 'blob' });
+    const contentType = String(res.headers['content-type'] ?? '');
+    if (!contentType.includes('text/csv') && !contentType.includes('application/octet-stream')) {
+      throw new Error('Unexpected response format');
+    }
+    const blob = new Blob([res.data], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    previouslyFocused?.focus();
+  } catch (err) {
+    previouslyFocused?.focus();
+    const message =
+      err instanceof Error
+        ? err.message
+        : 'Download failed. Please try again.';
+    throw new Error(message);
+  }
 }
 
 let accessTokenMemory: string | null = null;
