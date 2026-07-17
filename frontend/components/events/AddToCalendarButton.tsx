@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { CalendarPlus } from 'lucide-react';
-import { api } from '../../lib/api';
+import { useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
+import { api } from '../../lib/api';
+import { Button } from '../ui/Button';
 
 interface Props {
   eventId: string;
@@ -47,29 +48,32 @@ export function AddToCalendarButton({
 
   if (variant === 'icon') {
     return (
-      <button
-        type="button"
+      <Button
+        variant="icon"
+        size="icon"
         onClick={handleDownload}
         disabled={downloading}
-        className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50"
+        loading={downloading}
         title={label}
         aria-label={label}
+        className="w-auto min-h-0 h-auto p-1.5 min-w-0"
       >
-        <CalendarPlus className="w-3.5 h-3.5" />
-      </button>
+        {!downloading && <CalendarPlus className="w-3.5 h-3.5" />}
+      </Button>
     );
   }
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="outline"
       onClick={handleDownload}
       disabled={downloading}
-      className="flex items-center gap-1.5 text-sm font-medium border border-brand-border text-brand-text px-4 py-2 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer disabled:opacity-50"
+      loading={downloading}
       aria-label={label}
+      className="rounded-xl px-4 py-2"
     >
-      <CalendarPlus className="w-4 h-4" />
+      {!downloading && <CalendarPlus className="w-4 h-4" />}
       {label}
-    </button>
+    </Button>
   );
 }

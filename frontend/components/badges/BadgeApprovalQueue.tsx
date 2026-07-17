@@ -1,12 +1,13 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle, FileText, Loader2, Search, X, XCircle } from 'lucide-react';
+import { CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { SkeletonCard } from '../shared/SkeletonCard';
-import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useToast } from '../../hooks/use-toast';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { api } from '../../lib/api';
+import { SkeletonCard } from '../shared/SkeletonCard';
+import { Button } from '../ui/Button';
 
 interface PendingApproval {
   id: string;
@@ -103,32 +104,32 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
         </div>
 
         <div className="flex gap-3 px-6 pb-6">
-          <button
+          <Button
             type="button"
+            variant="destructive"
             onClick={() => reviewMutation.mutate({ action: 'reject' })}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
+            loading={reviewMutation.isPending && reviewMutation.variables?.action === 'reject'}
+            className="flex-1"
           >
-            {reviewMutation.isPending && reviewMutation.variables?.action === 'reject' ? (
-              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
-            ) : (
+            {!reviewMutation.isPending || reviewMutation.variables?.action !== 'reject' ? (
               <XCircle className="w-4 h-4 inline mr-1" />
-            )}
+            ) : null}
             Reject
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="primary"
             onClick={() => reviewMutation.mutate({ action: 'approve' })}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
+            loading={reviewMutation.isPending && reviewMutation.variables?.action === 'approve'}
+            className="flex-1"
           >
-            {reviewMutation.isPending && reviewMutation.variables?.action === 'approve' ? (
-              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
-            ) : (
+            {!reviewMutation.isPending || reviewMutation.variables?.action !== 'approve' ? (
               <CheckCircle className="w-4 h-4 inline mr-1" />
-            )}
+            ) : null}
             Approve
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -213,13 +214,14 @@ export function BadgeApprovalQueue() {
                   })}
                 </p>
                 {req.status === 'PENDING' && (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer"
+                    className="text-sm font-semibold p-0 min-h-0 h-auto hover:bg-transparent hover:underline"
                   >
                     Review
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
