@@ -6,19 +6,25 @@ interface QueuedCheckin {
   qrToken?: string;
   location?: { lat: number; lng: number };
   createdAt: number;
+  retryCount?: number;
 }
 
 const DB_NAME = 'wetheyuva-offline';
 const STORE_NAME = 'checkin-queue';
 const DB_VERSION = 1;
+const MAX_RETRIES = 3;
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
       const db = request.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      const oldVersion = (event as IDBVersionChangeEvent).oldVersion;
+      switch (oldVersion) {
+        case 0:
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+          }
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -63,8 +69,8 @@ export async function removeQueuedCheckin(id: number): Promise<void> {
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
-  } catch {
-    // Silently fail — queue item will be retried on next sync
+  } catch (err) {
+    console.error('[OfflineQueue] Failed to remove queued check-in:', err);
   }
 }
 
@@ -85,9 +91,29 @@ export async function clearQueue(): Promise<void> {
 export async function syncQueuedCheckins(): Promise<{ synced: number; failed: number }> {
   try {
     const items = await getQueuedCheckins();
+
+    // Deduplicate: group by eventId+qrToken, keep most recent
+    const best = new Map<string, QueuedCheckin>();
+    for (const item of items) {
+      const key = `${item.eventId}:${item.qrToken ?? ''}`;
+      const prev = best.get(key);
+      if (!prev || item.createdAt > prev.createdAt) {
+        best.set(key, item);
+      }
+    }
+
+    // Remove duplicate entries from the queue
+    const keepIds = new Set([...best.values()].map((i) => i.id));
+    for (const item of items) {
+      if (item.id != null && !keepIds.has(item.id)) {
+        await removeQueuedCheckin(item.id).catch(() => {});
+      }
+    }
+
+    const uniqueItems = [...best.values()];
     let synced = 0;
     let failed = 0;
-    for (const item of items) {
+    for (const item of uniqueItems) {
       try {
         await api.post(`/events/${item.eventId}/checkin`, {
           qrToken: item.qrToken,
@@ -97,6 +123,18 @@ export async function syncQueuedCheckins(): Promise<{ synced: number; failed: nu
         synced++;
       } catch {
         failed++;
+        const retryCount = (item.retryCount ?? 0) + 1;
+        if (retryCount >= MAX_RETRIES) {
+          await removeQueuedCheckin(item.id!).catch(() => {});
+        } else {
+          try {
+            const db = await openDb();
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).put({ ...item, retryCount });
+          } catch {
+            // Best-effort retry tracking
+          }
+        }
       }
     }
     return { synced, failed };
