@@ -20,6 +20,6 @@ export async function logAudit(data: {
     };
     await prisma.auditLog.create({ data: createData });
   } catch (err) {
-    logger.warn('Audit log write failed', { error: (err as Error).message, action: data.action });
+    logger.warn('Audit log write failed', { error: (err as Error).message, action: data.action, userId: data.userId });
   }
 }

@@ -20,7 +20,7 @@ try {
   });
 
   redis.on('connect', () => logger.info('Redis connected'));
-  redis.on('error', (err) => logger.error('Redis error', { error: err.message }));
+  redis.on('error', (err) => logger.warn('Redis error', { error: err.message, stack: err.stack, state: redis?.status }));
 } catch (err) {
   logger.warn('Redis unavailable — running without cache/queue', { error: (err as Error).message });
 }
