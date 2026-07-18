@@ -80,8 +80,36 @@ function hashFilters(obj: Record<string, unknown>): string {
   return crypto.createHash('sha256').update(JSON.stringify(obj)).digest('hex').slice(0, 16);
 }
 
+const CachedOpportunityItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+  isRemote: z.boolean(),
+  locationId: z.string().nullable().optional(),
+  location: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      district: z.string().nullable().optional(),
+      state: z.string().nullable().optional(),
+      lat: z.number().nullable().optional(),
+      lng: z.number().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
+  status: z.string(),
+  totalSlots: z.number(),
+  startDate: z.string(),
+  endDate: z.string(),
+  createdAt: z.string(),
+  createdBy: z.object({ name: z.string() }),
+  _count: z.object({ applications: z.number() }),
+  acceptedCount: z.number(),
+});
+
 const CachedOpportunitySchema = z.object({
-  data: z.array(z.object({ id: z.string(), title: z.string() }).passthrough()),
+  data: z.array(CachedOpportunityItemSchema),
   total: z.number(),
   page: z.number(),
   limit: z.number(),

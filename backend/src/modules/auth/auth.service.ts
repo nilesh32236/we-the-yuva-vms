@@ -16,6 +16,15 @@ const otpRateMap = new Map<string, { count: number; resetAt: number }>();
 const OTP_RATE_LIMIT = 3;
 const OTP_RATE_WINDOW_MS = 60_000;
 
+// Periodic cleanup of expired OTP rate limit entries
+const OTP_RATE_CLEANUP_INTERVAL_MS = 300_000;
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of otpRateMap) {
+    if (now > entry.resetAt) otpRateMap.delete(key);
+  }
+}, OTP_RATE_CLEANUP_INTERVAL_MS).unref();
+
 export async function checkOtpRateLimit(email: string): Promise<void> {
   const now = Date.now();
   const entry = otpRateMap.get(email);
