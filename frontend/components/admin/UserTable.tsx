@@ -10,14 +10,14 @@ import * as Sentry from '@sentry/nextjs';
 const ROLE_COLORS: Record<string, string> = {
   VOLUNTEER: 'bg-brand-primary/10 text-brand-primary',
   COORDINATOR: 'bg-brand-cta/10 text-brand-cta',
-  ADMIN: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
-  OBSERVER: 'bg-slate-100 dark:bg-slate-800/50 text-slate-700 dark:text-slate-400',
+  ADMIN: 'bg-purple-100 text-purple-700',
+  OBSERVER: 'bg-slate-100 text-slate-700',
 };
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
-  PENDING: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+  ACTIVE: 'bg-green-100 text-green-700',
+  PENDING: 'bg-yellow-100 text-yellow-700',
   INACTIVE: 'bg-muted text-muted-foreground',
-  SUSPENDED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+  SUSPENDED: 'bg-red-100 text-red-700',
 };
 
 interface User {

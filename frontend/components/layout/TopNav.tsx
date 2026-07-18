@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import * as Sentry from '@sentry/nextjs';
 import { useToast } from '../../hooks/use-toast';
 
@@ -146,6 +147,7 @@ export function TopNav() {
   const unreadCount = unreadData?.count ?? 0;
   const items = notifData?.data ?? [];
   const panelRef = useRef<HTMLDivElement>(null);
+  const notifDropdownRef = useFocusTrap(open);
 
   const initials = user?.name
     ? user.name
@@ -248,8 +250,10 @@ export function TopNav() {
           {/* Dropdown panel */}
           {open && (
             <div
+              ref={notifDropdownRef}
               className="absolute right-0 top-11 w-80 bg-brand-surface rounded-2xl shadow-xl border border-brand-border overflow-hidden z-50"
               role="menu"
+              onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}
             >
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-brand-border">

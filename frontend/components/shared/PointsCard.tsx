@@ -39,11 +39,11 @@ export function PointsCard() {
   if (isError) {
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 card-hover">
-        <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center flex-shrink-0">
-          <AlertTriangle className="w-6 h-6 text-red-500" aria-hidden="true" />
+        <div className="w-12 h-12 rounded-xl bg-brand-error/10 flex items-center justify-center flex-shrink-0">
+          <AlertTriangle className="w-6 h-6 text-brand-error" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-red-600 dark:text-red-400">Failed to load points</p>
+          <p className="text-sm text-brand-error">Failed to load points</p>
           <p className="text-brand-muted text-xs mt-1">Pull to refresh</p>
         </div>
       </div>

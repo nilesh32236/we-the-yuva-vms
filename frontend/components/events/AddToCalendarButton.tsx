@@ -51,7 +51,7 @@ export function AddToCalendarButton({
         type="button"
         onClick={handleDownload}
         disabled={downloading}
-        className="p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50"
+        className="p-1.5 min-w-[44px] min-h-[44px] rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50"
         title={label}
         aria-label={label}
       >

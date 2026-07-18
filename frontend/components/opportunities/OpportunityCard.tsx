@@ -10,14 +10,14 @@ import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const CATEGORY_COLORS: Record<string, string> = {
-  EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-  HEALTH: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-  ENVIRONMENT: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
-  COMMUNITY: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
-  ARTS: 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400',
-  SPORTS: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
-  TECHNOLOGY: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400',
-  ACTIVE_CITIZENSHIP: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+  EDUCATION: 'bg-blue-100 text-blue-700',
+  HEALTH: 'bg-red-100 text-red-700',
+  ENVIRONMENT: 'bg-green-100 text-green-700',
+  COMMUNITY: 'bg-purple-100 text-purple-700',
+  ARTS: 'bg-pink-100 text-pink-700',
+  SPORTS: 'bg-orange-100 text-orange-700',
+  TECHNOLOGY: 'bg-cyan-100 text-cyan-700',
+  ACTIVE_CITIZENSHIP: 'bg-amber-100 text-amber-700',
   OTHER: 'bg-muted text-muted-foreground',
 };
 
@@ -270,7 +270,7 @@ const OpportunityCard = memo(function OpportunityCard({
           onClick={handleApply}
           disabled={applying || applied || isFull}
           loading={applying}
-          aria-label={applying ? "Applying to opportunity" : undefined}
+          aria-label="Apply to opportunity"
           fullWidth
           className={`mt-1 py-2 rounded-xl ${
               applied

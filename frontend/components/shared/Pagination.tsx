@@ -17,7 +17,7 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
         type="button"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
+        className="px-4 py-2 min-h-[44px] rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         Previous
@@ -29,7 +29,7 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
         type="button"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
+        className="px-4 py-2 min-h-[44px] rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
       >
         Next
         <ChevronRight className="w-4 h-4" aria-hidden="true" />

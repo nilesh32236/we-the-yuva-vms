@@ -84,7 +84,8 @@ export function EventForm({
   if (isRecurring) {
     return (
       <div className="space-y-5">
-        <label htmlFor="recurring-toggle-active" className="flex items-center gap-3 cursor-pointer">
+        {/* biome-ignore lint/a11y/noLabelWithoutControl: label wraps role="switch" div */}
+        <label className="flex items-center gap-3 cursor-pointer">
           <div
             id="recurring-toggle-active"
             role="switch"
@@ -218,7 +219,8 @@ export function EventForm({
       </div>
 
       {/* Virtual toggle */}
-      <label htmlFor="virtual-toggle" className="flex items-center gap-3 cursor-pointer">
+      {/* biome-ignore lint/a11y/noLabelWithoutControl: label wraps role="switch" div */}
+      <label className="flex items-center gap-3 cursor-pointer">
         <div
           id="virtual-toggle"
           role="switch"

@@ -258,7 +258,7 @@ export function EventSeriesForm({
                 key={day.value}
                 type="button"
                 onClick={() => toggleDay(day.value)}
-                className={`w-10 h-10 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                className={`w-11 h-11 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                   daysOfWeek?.includes(day.value)
                     ? 'bg-brand-primary text-white'
                     : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
