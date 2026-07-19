@@ -91,8 +91,8 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
           <span className="text-sm font-medium text-brand-text">Certifications (Optional)</span>
           <p className="text-xs text-brand-muted">Add any certifications you hold</p>
 
-          {certifications.map((cert, idx) => (
-            <div key={idx} className="flex items-center gap-2 text-sm">
+          {certifications.map((cert) => (
+            <div key={cert} className="flex items-center gap-2 text-sm">
               <span className="bg-brand-primary/10 text-brand-primary px-3 py-1 rounded-full">
                 {cert}
               </span>
