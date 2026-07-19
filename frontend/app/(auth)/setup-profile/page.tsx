@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -17,8 +16,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { OnboardingSchema } from '@/lib/shared';
-import type { OnboardingData } from '@/lib/shared';
+import { OnboardingSchema, StaffProfileSchema } from '@/lib/shared';
+import type { OnboardingData, StaffProfileInput } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
@@ -112,6 +111,16 @@ export default function SetupProfilePage() {
   useEffect(() => {
     if (!isLoading && !user) router.push('/login');
   }, [user, isLoading, router]);
+
+  // Warn on unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, []);
 
   // Persist step to sessionStorage
   useEffect(() => {
@@ -332,13 +341,7 @@ export default function SetupProfilePage() {
   );
 }
 
-const StaffProfileSchema = z.object({
-  locationName: z.string().min(1, 'Location name is required'),
-  district: z.string().optional(),
-  state: z.string().optional(),
-});
 
-type StaffProfileInput = z.infer<typeof StaffProfileSchema>;
 
 function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
   const { toast } = useToast();

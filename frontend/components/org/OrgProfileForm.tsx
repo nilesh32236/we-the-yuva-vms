@@ -74,6 +74,8 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
 
   const inputCls = (field: string) =>
     `w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background ${
+      mutation.isPending ? 'opacity-50 cursor-not-allowed' : ''
+    } ${
       errors[field as keyof typeof errors]
         ? 'border-brand-error focus:ring-brand-error/30 bg-brand-error/5'
         : 'border-brand-border focus:ring-brand-primary/30'
@@ -88,6 +90,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-name"
+            disabled={mutation.isPending}
             {...register('name')}
             className={inputCls('name')}
             placeholder="Organization name"
@@ -101,6 +104,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <textarea
             id="org-description"
+            disabled={mutation.isPending}
             {...register('description')}
             rows={3}
             className={inputCls('description')}
@@ -114,6 +118,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-logo"
+            disabled={mutation.isPending}
             value={logo}
             onChange={(e) => setLogo(e.target.value)}
             className="w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background border-brand-border focus:ring-brand-primary/30"
@@ -127,6 +132,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-phone"
+            disabled={mutation.isPending}
             {...register('phone')}
             className={inputCls('phone')}
             placeholder="+91 12345 67890"
@@ -139,6 +145,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-email"
+            disabled={mutation.isPending}
             {...register('email')}
             className={inputCls('email')}
             placeholder="contact@organization.org"
@@ -152,6 +159,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-website"
+            disabled={mutation.isPending}
             {...register('website')}
             className={inputCls('website')}
             placeholder="https://organization.org"
@@ -165,6 +173,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-address"
+            disabled={mutation.isPending}
             {...register('address')}
             className={inputCls('address')}
             placeholder="Organization address"

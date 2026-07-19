@@ -76,7 +76,7 @@ export function EventForm({
           ${errors[id] ? 'border-brand-error' : 'border-brand-border'}`}
       />
       {errors[id] && (
-        <p className="text-xs text-brand-error">{String(errors[id]?.message ?? '')}</p>
+        <p id={`${id}-error`} className="text-xs text-brand-error">{String(errors[id]?.message ?? '')}</p>
       )}
     </div>
   );
@@ -183,7 +183,7 @@ export function EventForm({
         <input
           id="eventDate"
           type="datetime-local"
-          {...register('eventDate')}
+          {...register('eventDate', { setValueAs: (v: string) => (v ? new Date(v).toISOString() : v) })}
           disabled={isSubmitting}
           aria-invalid={!!errors.eventDate}
           aria-describedby={errors.eventDate ? 'eventDate-error' : undefined}

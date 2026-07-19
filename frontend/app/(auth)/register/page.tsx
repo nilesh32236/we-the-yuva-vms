@@ -466,6 +466,7 @@ export default function RegisterPage() {
                   id="address.city"
                   type="text"
                   placeholder="Mumbai"
+                  disabled={isSubmitting}
                   aria-describedby={errors.address?.city ? 'city-error' : undefined}
                   className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 bg-background
                     focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -486,6 +487,7 @@ export default function RegisterPage() {
                   id="address.state"
                   type="text"
                   placeholder="Maharashtra"
+                  disabled={isSubmitting}
                   aria-describedby={errors.address?.state ? 'state-error' : undefined}
                   className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 bg-background
                     focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
@@ -510,6 +512,7 @@ export default function RegisterPage() {
               id="reference"
               type="text"
               placeholder="Phone number or referral code of the person who referred you"
+              disabled={isSubmitting}
               aria-describedby={errors.reference ? 'reference-error' : undefined}
               className={`w-full px-3 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                     focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
