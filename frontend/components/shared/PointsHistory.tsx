@@ -40,7 +40,7 @@ function formatReason(reason: string): string {
 }
 
 export function PointsHistory() {
-  const { data, isLoading, isError, refetch } = useQuery<PointTransaction[]>({
+  const { data, isLoading, isError, error, refetch } = useQuery<PointTransaction[]>({
     queryKey: ['my-points-history'],
     queryFn: () => api.get('/levels/users/me/points/history').then((r) => r.data),
     staleTime: 60_000,
@@ -62,7 +62,7 @@ export function PointsHistory() {
   }
 
   if (isError) {
-    Sentry.captureException(new Error('PointsHistory: failed to load'));
+    Sentry.captureException(error);
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-border">

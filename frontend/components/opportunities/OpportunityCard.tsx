@@ -79,11 +79,10 @@ const OpportunityCard = memo(function OpportunityCard({
 
       const previousQueries = qc.getQueriesData<OpportunityCacheData>({
         queryKey: ['opportunities'],
-        exact: true,
       });
 
       qc.setQueriesData<OpportunityCacheData>(
-        { queryKey: ['opportunities'], exact: true },
+        { queryKey: ['opportunities'] },
         (oldData) => {
           if (!oldData) return oldData;
 

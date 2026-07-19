@@ -34,10 +34,11 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
       });
       onClose();
     },
-    onError: (err: { response?: { data?: { error?: string } } }) => {
+    onError: (err: unknown) => {
       toast({
         title: 'Failed',
-        description: err?.response?.data?.error ?? 'Something went wrong',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Something went wrong',
         variant: 'destructive',
       });
     },
@@ -139,7 +140,7 @@ export function BadgeApprovalQueue() {
   const [search, setSearch] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<PendingApproval | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-badge-pending', search],
     queryFn: () =>
       api
@@ -166,8 +167,21 @@ export function BadgeApprovalQueue() {
         />
       </div>
 
-      {/* List */}
-      {isLoading ? (
+      {/* Error */}
+      {isError ? (
+        <div className="text-center py-12 text-brand-muted text-sm bg-brand-surface rounded-2xl border border-brand-border">
+          <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
+          <p className="font-medium text-red-600 dark:text-red-400">Failed to load approvals</p>
+          <p className="text-sm mt-1">Something went wrong. Please try again.</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="mt-3 text-sm font-medium text-brand-primary hover:underline cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      ) : isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />

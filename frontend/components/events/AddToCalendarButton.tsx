@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CalendarPlus } from 'lucide-react';
+import * as Sentry from '@sentry/nextjs';
 import { api } from '../../lib/api';
 import { useToast } from '../../hooks/use-toast';
 
@@ -34,10 +35,13 @@ export function AddToCalendarButton({
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       toast({
         title: 'Download failed',
-        description: 'Could not download calendar file.',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ??
+          'Could not download calendar file.',
         variant: 'destructive',
       });
     } finally {

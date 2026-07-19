@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Award } from 'lucide-react';
+import { useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import * as Sentry from '@sentry/nextjs';
@@ -18,9 +19,11 @@ export function PointsCard() {
     staleTime: 60_000,
   });
 
-  if (isError && error) {
-    Sentry.captureException(error);
-  }
+  useEffect(() => {
+    if (isError && error) {
+      Sentry.captureException(error);
+    }
+  }, [error, isError]);
 
   if (isLoading) {
     return (
