@@ -50,7 +50,7 @@ export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonPro
       loading={isLoading}
       className="inline-flex items-center gap-1.5 text-sm"
     >
-      <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+      <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'motion-safe:animate-spin' : ''}`} />
       {countdown > 0 ? `Resend in ${countdown}s` : 'Resend code'}
     </Button>
   );

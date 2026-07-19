@@ -21,13 +21,13 @@ export function CTA() {
         <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/register"
-            className="active-bounce rounded-xl bg-brand-surface px-7 py-3 font-semibold text-brand-text transition-colors duration-200 hover:bg-brand-bg"
+            className="active-bounce rounded-xl bg-brand-surface px-7 py-3 font-semibold text-brand-text transition-colors duration-200 hover:bg-brand-bg focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none"
           >
             Create free account
           </Link>
           <Link
             href="/register"
-            className="active-bounce rounded-xl border border-white/40 px-7 py-3 font-semibold text-white transition-colors duration-200 hover:bg-white/10"
+            className="active-bounce rounded-xl border border-white/40 px-7 py-3 font-semibold text-white transition-colors duration-200 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none"
           >
             Register organisation
           </Link>

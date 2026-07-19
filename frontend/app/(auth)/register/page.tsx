@@ -116,23 +116,35 @@ function CallAvailabilityInput({
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="specific-days-start" className="text-xs text-brand-muted">From</label>
+            <label htmlFor="specific-days-start" className="text-xs text-brand-muted">
+              From
+            </label>
             <input
               id="specific-days-start"
               type="time"
               value={value?.startTime ?? ''}
               onChange={(e) =>
-                onChange({ ...value, preference: 'specific_days' as const, startTime: e.target.value })
+                onChange({
+                  ...value,
+                  preference: 'specific_days' as const,
+                  startTime: e.target.value,
+                })
               }
               className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
-            <label htmlFor="specific-days-end" className="text-xs text-brand-muted">to</label>
+            <label htmlFor="specific-days-end" className="text-xs text-brand-muted">
+              to
+            </label>
             <input
               id="specific-days-end"
               type="time"
               value={value?.endTime ?? ''}
               onChange={(e) =>
-                onChange({ ...value, preference: 'specific_days' as const, endTime: e.target.value })
+                onChange({
+                  ...value,
+                  preference: 'specific_days' as const,
+                  endTime: e.target.value,
+                })
               }
               className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
@@ -174,7 +186,9 @@ function CallAvailabilityInput({
               />
               <Button
                 type="button"
-                variant="ghost" size="icon" onClick={() => removeSlot(i)}
+                variant="ghost"
+                size="icon"
+                onClick={() => removeSlot(i)}
                 className="text-brand-error hover:text-brand-error/80 cursor-pointer"
                 aria-label="Remove time slot"
               >
@@ -317,7 +331,9 @@ export default function RegisterPage() {
             <p className="flex-1">{formError}</p>
             <Button
               type="button"
-              variant="ghost" size="icon" onClick={() => setFormError(null)}
+              variant="ghost"
+              size="icon"
+              onClick={() => setFormError(null)}
               className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0"
               aria-label="Dismiss error"
             >

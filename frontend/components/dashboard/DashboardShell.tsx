@@ -164,7 +164,7 @@ function QuickActionsPanel({
               <p className="text-sm font-semibold">{ctaLabel}</p>
             </div>
             <ArrowRight
-              className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+              className="w-4 h-4 motion-safe:group-hover:translate-x-0.5 motion-safe:transition-transform"
               aria-hidden="true"
             />
           </Link>
@@ -196,7 +196,7 @@ function QuickActionsPanel({
               key={action.label}
               href={action.href}
               className="flex items-center justify-between p-4 rounded-xl border border-brand-border
-                hover:bg-brand-bg hover:border-brand-primary/40 transition-colors duration-200 cursor-pointer group"
+                hover:bg-brand-bg hover:border-brand-primary/40 transition-colors duration-200 cursor-pointer group focus-visible:ring-2 focus-visible:ring-brand-primary"
             >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-brand-bg flex items-center justify-center">

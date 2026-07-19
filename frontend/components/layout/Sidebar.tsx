@@ -93,7 +93,7 @@ export function Sidebar({ navItems }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 cursor-pointer group relative active-bounce
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 cursor-pointer group relative active-bounce focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none
                 ${
                   isActive
                     ? 'bg-brand-primary text-white shadow-sm'

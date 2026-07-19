@@ -202,14 +202,26 @@ export function TopNav() {
         setOpen(false);
       }
     }
-    if (open) document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    function keyHandler(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    if (open) {
+      document.addEventListener('mousedown', handler);
+      document.addEventListener('keydown', keyHandler);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('keydown', keyHandler);
+    };
   }, [open]);
 
   return (
     <header className="min-h-16 h-auto pt-safe py-2 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-4 sticky top-0 z-30 flex-shrink-0">
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
+      <Link
+        href="/"
+        className="flex items-center gap-2.5 flex-shrink-0 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+      >
         <div className="w-8 h-8 rounded-xl bg-brand-primary flex items-center justify-center shadow-sm">
           <span className="text-white font-heading font-bold text-sm">W</span>
         </div>
@@ -239,7 +251,7 @@ export function TopNav() {
           >
             <Bell className="w-4 h-4" aria-hidden="true" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-500 border-2 border-brand-surface flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-error border-2 border-brand-surface flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold leading-none">{unreadCount}</span>
               </span>
             )}

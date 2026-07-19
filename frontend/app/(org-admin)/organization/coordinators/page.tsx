@@ -118,10 +118,7 @@ export default function OrganizationCoordinatorsPage() {
           <h2 className="font-heading font-bold text-lg text-brand-text mb-4">
             Add New Coordinator
           </h2>
-          <form
-            onSubmit={handleAddCoordinator}
-            className="grid gap-4 sm:grid-cols-2"
-          >
+          <form onSubmit={handleAddCoordinator} className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <label htmlFor="name" className="text-sm font-medium text-brand-text">
                 Name

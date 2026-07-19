@@ -112,8 +112,12 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
             </div>
           ))}
 
+          <label htmlFor="cert-input" className="sr-only">
+            Certification
+          </label>
           <div className="flex gap-2">
             <input
+              id="cert-input"
               type="text"
               value={certInput}
               onChange={(e) => setCertInput(e.target.value)}
@@ -124,12 +128,12 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
                 }
               }}
               placeholder="Type a certification and press Enter or Add"
-              className="flex-1 px-3 py-2 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="flex-1 px-3 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
             <button
               type="button"
               onClick={addCertification}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer"
+              className="px-4 py-3 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer min-h-[44px]"
             >
               Add
             </button>

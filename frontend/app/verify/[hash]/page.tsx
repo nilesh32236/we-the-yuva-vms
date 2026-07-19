@@ -51,9 +51,7 @@ export default function VerifyCertificatePage() {
   return (
     <main id="main" className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div
-          className="rounded-2xl border p-8 text-center space-y-5 bg-brand-surface border-brand-border"
-        >
+        <div className="rounded-2xl border p-8 text-center space-y-5 bg-brand-surface border-brand-border">
           <div
             className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center ${
               isValid ? 'bg-brand-primary/10' : 'bg-brand-error/10'

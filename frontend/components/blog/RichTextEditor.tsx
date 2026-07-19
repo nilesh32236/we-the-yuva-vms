@@ -26,7 +26,7 @@ const ToolbarButton = ({
     onClick={onClick}
     aria-label={label}
     title={label}
-    className={`p-2 rounded-lg transition-colors duration-150 ${
+    className={`p-2.5 rounded-lg transition-colors duration-150 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary ${
       active
         ? 'bg-brand-primary/10 text-brand-primary'
         : 'text-brand-muted hover:text-brand-text hover:bg-brand-bg'

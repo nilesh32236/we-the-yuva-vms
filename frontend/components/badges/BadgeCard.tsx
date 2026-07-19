@@ -58,7 +58,7 @@ export function BadgeCard({
       <div
         className={cn(
           'absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center',
-          earned ? 'bg-emerald-500 text-white' : 'bg-brand-border text-brand-muted'
+          earned ? 'bg-brand-primary text-white' : 'bg-brand-border text-brand-muted'
         )}
       >
         {earned ? (

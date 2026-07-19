@@ -23,7 +23,7 @@ export function HoursBarChart({ data }: HoursBarChartProps) {
   return (
     <div>
       <ResponsiveContainer width="100%" height={240} aria-label="Hours served by month bar chart">
-        <BarChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#d1fae5'} />
           <XAxis dataKey="month" tick={{ fontSize: 11, fill: isDark ? '#94a3b8' : '#6b7280' }} />
           <YAxis tick={{ fontSize: 11, fill: isDark ? '#94a3b8' : '#6b7280' }} />

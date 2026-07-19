@@ -322,7 +322,10 @@ export default function YouthAssessmentPage() {
   const current = steps[step];
 
   return (
-    <form onSubmit={rhfHandleSubmit(onSubmit)} className="min-h-[80vh] flex items-center justify-center px-4">
+    <form
+      onSubmit={rhfHandleSubmit(onSubmit)}
+      className="min-h-[80vh] flex items-center justify-center px-4"
+    >
       <div className="w-full max-w-xl space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -350,7 +353,12 @@ export default function YouthAssessmentPage() {
         {/* Actions */}
         <div className="flex gap-3 pt-2">
           {step > 0 && (
-            <Button type="button" variant="outline" onClick={() => setStep((s) => s - 1)} className="flex-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStep((s) => s - 1)}
+              className="flex-1"
+            >
               Back
             </Button>
           )}

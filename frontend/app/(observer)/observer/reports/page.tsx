@@ -8,8 +8,7 @@ import dynamic from 'next/dynamic';
 import { StatsCard } from '@/components/charts/StatsCard';
 
 const CategoryPieChart = dynamic(
-  () =>
-    import('@/components/charts/CategoryPieChart').then((mod) => mod.CategoryPieChart),
+  () => import('@/components/charts/CategoryPieChart').then((mod) => mod.CategoryPieChart),
   { ssr: false }
 );
 const HoursBarChart = dynamic(

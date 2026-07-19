@@ -117,7 +117,10 @@ export function OpportunityForm({
   return (
     <form onSubmit={handleSubmit(wrappedOnSubmit)} className="space-y-5">
       {serverError && (
-        <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+        <div
+          className="rounded-xl bg-brand-error/10 border border-brand-error/20 px-4 py-3 text-sm text-brand-error"
+          role="alert"
+        >
           {serverError}
         </div>
       )}
@@ -140,7 +143,9 @@ export function OpportunityForm({
             ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.description && (
-          <p id="description-error" className="text-xs text-brand-error">{errors.description.message}</p>
+          <p id="description-error" className="text-xs text-brand-error">
+            {errors.description.message}
+          </p>
         )}
       </div>
 
@@ -165,7 +170,11 @@ export function OpportunityForm({
               </option>
             ))}
           </select>
-          {errors.category && <p id="category-error" className="text-xs text-brand-error">{errors.category.message}</p>}
+          {errors.category && (
+            <p id="category-error" className="text-xs text-brand-error">
+              {errors.category.message}
+            </p>
+          )}
         </div>
         <div className="space-y-1.5">
           <label htmlFor="hoursPerSession" className="text-sm font-medium text-brand-text">
@@ -184,7 +193,9 @@ export function OpportunityForm({
             className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.hoursPerSession ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.hoursPerSession && (
-            <p id="hoursPerSession-error" className="text-xs text-brand-error">{errors.hoursPerSession.message}</p>
+            <p id="hoursPerSession-error" className="text-xs text-brand-error">
+              {errors.hoursPerSession.message}
+            </p>
           )}
         </div>
       </div>
@@ -206,7 +217,9 @@ export function OpportunityForm({
             className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.startDate ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.startDate && (
-            <p id="startDate-error" className="text-xs text-brand-error">{errors.startDate.message as string}</p>
+            <p id="startDate-error" className="text-xs text-brand-error">
+              {errors.startDate.message as string}
+            </p>
           )}
         </div>
         <div className="space-y-1.5">
@@ -225,7 +238,9 @@ export function OpportunityForm({
             className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.endDate ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.endDate && (
-            <p id="endDate-error" className="text-xs text-brand-error">{errors.endDate.message as string}</p>
+            <p id="endDate-error" className="text-xs text-brand-error">
+              {errors.endDate.message as string}
+            </p>
           )}
         </div>
       </div>
@@ -246,7 +261,9 @@ export function OpportunityForm({
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.totalSlots ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.totalSlots && (
-          <p id="totalSlots-error" className="text-xs text-brand-error">{errors.totalSlots.message}</p>
+          <p id="totalSlots-error" className="text-xs text-brand-error">
+            {errors.totalSlots.message}
+          </p>
         )}
       </div>
 
@@ -270,7 +287,7 @@ export function OpportunityForm({
                     skills.filter((x) => x !== s)
                   )
                 }
-                className="cursor-pointer"
+                className="cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                 aria-label="Remove skill"
               >
                 <X className="w-3 h-3" />
@@ -319,11 +336,11 @@ export function OpportunityForm({
               setValue('isRemote', !isRemote);
             }
           }}
-          className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isRemote ? 'bg-brand-primary' : 'bg-brand-border'}`}
+          className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isRemote ? 'bg-brand-primary' : 'bg-brand-border'} focus-visible:ring-2 focus-visible:ring-brand-primary`}
           onClick={() => setValue('isRemote', !isRemote)}
         >
           <div
-            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRemote ? 'translate-x-5' : 'translate-x-1'}`}
+            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${isRemote ? 'translate-x-5' : 'translate-x-1'}`}
           />
         </div>
         <span className="text-sm font-medium text-brand-text">Remote opportunity</span>

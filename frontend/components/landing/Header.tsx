@@ -92,7 +92,7 @@ export function Header() {
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          className={`md:hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
+          className={`md:hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none min-w-[44px] min-h-[44px] flex items-center justify-center ${
             scrolled ? 'text-brand-text dark:text-white' : 'text-white'
           }`}
         >
@@ -131,7 +131,7 @@ export function Header() {
             <Link
               href="/register"
               onClick={() => setMobileOpen(false)}
-              className="active-bounce rounded-lg bg-brand-primary px-5 py-2 text-center text-sm font-semibold text-white transition-colors hover:brightness-110 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+              className="active-bounce rounded-lg bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:brightness-110 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
             >
               Get started
             </Link>

@@ -191,7 +191,8 @@ export function EventSeriesForm({
         id={id}
         {...register(id)}
         {...extra}
-        className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${
+        disabled={extra?.disabled ?? false}
+        className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60 ${
           errors[id] ? 'border-brand-error' : 'border-brand-border'
         }`}
       />
@@ -211,7 +212,10 @@ export function EventSeriesForm({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
-      {field('title', 'Series title', { placeholder: 'e.g. Weekly Community Clean-up' })}
+      {field('title', 'Series title', {
+        placeholder: 'e.g. Weekly Community Clean-up',
+        disabled: isSubmitting,
+      })}
 
       <div className="space-y-1.5">
         <label htmlFor="description" className="text-sm font-medium text-brand-text">
@@ -236,7 +240,7 @@ export function EventSeriesForm({
               key={f.value}
               type="button"
               onClick={() => setValue('frequency', f.value, { shouldValidate: true })}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer ${
+              className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer min-h-[44px] ${
                 frequency === f.value
                   ? 'bg-brand-primary text-white'
                   : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
@@ -346,13 +350,13 @@ export function EventSeriesForm({
               setValue('isVirtual', !isVirtual);
             }
           }}
-          className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${
+          className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${
             isVirtual ? 'bg-brand-primary' : 'bg-brand-border'
           }`}
           onClick={() => setValue('isVirtual', !isVirtual)}
         >
           <div
-            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${
+            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${
               isVirtual ? 'translate-x-5' : 'translate-x-1'
             }`}
           />

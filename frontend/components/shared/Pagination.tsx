@@ -12,12 +12,12 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <nav className="flex items-center justify-center gap-2 mt-6" aria-label="Pagination">
       <button
         type="button"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
+        className="px-4 py-3 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         Previous
@@ -29,11 +29,11 @@ export default function Pagination({ page, totalPages, setPage }: PaginationProp
         type="button"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="px-4 py-2 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover"
+        className="px-4 py-3 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
       >
         Next
         <ChevronRight className="w-4 h-4" aria-hidden="true" />
       </button>
-    </div>
+    </nav>
   );
 }

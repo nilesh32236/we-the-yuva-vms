@@ -11,6 +11,7 @@ export function PushSubscriber() {
   const { permission, subscribe } = usePushNotifications();
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -53,12 +54,16 @@ export function PushSubscriber() {
   };
 
   const handleSubscribe = async () => {
+    if (subscribing) return;
     haptic.medium();
+    setSubscribing(true);
     try {
       await subscribe();
       setShowPrompt(false);
     } catch {
       // Error handled by the hook
+    } finally {
+      setSubscribing(false);
     }
   };
 
@@ -77,7 +82,7 @@ export function PushSubscriber() {
           <button
             type="button"
             onClick={handleDismiss}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg transition-colors cursor-pointer active:scale-90"
+            className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg transition-colors cursor-pointer active:scale-90 focus-visible:ring-2 focus-visible:ring-brand-primary"
             aria-label="Not now"
           >
             <X className="w-4 h-4" />
@@ -100,7 +105,7 @@ export function PushSubscriber() {
           <button
             type="button"
             onClick={handleDismiss}
-            className="flex-1 py-2 text-[10px] font-semibold text-brand-muted hover:text-brand-text bg-brand-bg/50 hover:bg-brand-bg rounded-xl transition-colors duration-100 cursor-pointer active:scale-95 text-center"
+            className="flex-1 py-2 text-[10px] font-semibold text-brand-muted hover:text-brand-text bg-brand-bg/50 hover:bg-brand-bg rounded-xl transition-colors duration-100 cursor-pointer active:scale-95 text-center min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
             Not Now
           </button>
@@ -108,10 +113,11 @@ export function PushSubscriber() {
           <button
             type="button"
             onClick={handleSubscribe}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] py-2 rounded-xl shadow-md shadow-emerald-700/20 transition-colors duration-100 cursor-pointer text-center"
+            disabled={subscribing}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] py-2 rounded-xl shadow-md shadow-brand-primary/20 transition-colors duration-100 cursor-pointer disabled:opacity-60 text-center min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
             <Sparkles className="w-3 h-3 text-emerald-200" />
-            Enable
+            {subscribing ? 'Enabling...' : 'Enable'}
           </button>
         </div>
       </div>

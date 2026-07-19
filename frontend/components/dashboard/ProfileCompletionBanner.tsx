@@ -73,7 +73,7 @@ export function ProfileCompletionBanner() {
 
           <div className="w-full h-2 rounded-full bg-amber-200 dark:bg-amber-800 overflow-hidden">
             <div
-              className="h-full rounded-full bg-amber-500 transition-all duration-500"
+              className="h-full rounded-full bg-amber-500 motion-safe:transition-all motion-safe:duration-500"
               style={{ width: `${completionPercentage}%` }}
             />
           </div>
@@ -88,7 +88,7 @@ export function ProfileCompletionBanner() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="flex-shrink-0 p-1 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-800/40 transition-colors cursor-pointer"
+          className="flex-shrink-0 min-h-[44px] min-w-[44px] p-2.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-800/40 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500"
           aria-label="Dismiss"
         >
           <X className="w-4 h-4 text-amber-500" />

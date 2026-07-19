@@ -67,7 +67,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 haptic.light();
                 setMenuOpen(true);
               }}
-              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce text-brand-muted hover:text-brand-text"
+              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce text-brand-muted hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
               aria-label="More menu items"
               aria-expanded={menuOpen}
             >
@@ -104,7 +104,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer"
+                className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                 aria-label="Close menu"
               >
                 <X className="w-4 h-4" aria-hidden="true" />

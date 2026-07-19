@@ -96,9 +96,7 @@ export default function AboutPage() {
               <div className="w-12 h-12 rounded-xl bg-brand-secondary flex items-center justify-center mb-5">
                 <Target className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
-              <h2 className="font-heading text-2xl font-bold text-brand-text mb-3">
-                Our Mission
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-brand-text mb-3">Our Mission</h2>
               <p className="text-brand-muted leading-relaxed">
                 To build the largest, most trusted volunteer network in India — connecting every
                 young citizen with meaningful opportunities to serve, learn, and lead in their
@@ -110,9 +108,7 @@ export default function AboutPage() {
               <div className="w-12 h-12 rounded-xl bg-brand-secondary flex items-center justify-center mb-5">
                 <Eye className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
-              <h2 className="font-heading text-2xl font-bold text-brand-text mb-3">
-                Our Vision
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-brand-text mb-3">Our Vision</h2>
               <p className="text-brand-muted leading-relaxed">
                 A India where every young person is an active citizen — where volunteerism is a
                 norm, not an exception, and where youth-led civic change is the driving force behind
@@ -143,12 +139,8 @@ export default function AboutPage() {
                     {!isLast && <div className="w-px flex-1 bg-brand-border" />}
                   </div>
                   <div className={isLast ? '' : 'pb-12'}>
-                    <h3 className="text-lg font-semibold text-brand-text">
-                      {item.title}
-                    </h3>
-                    <p className="text-brand-muted mt-1.5 leading-relaxed">
-                      {item.desc}
-                    </p>
+                    <h3 className="text-lg font-semibold text-brand-text">{item.title}</h3>
+                    <p className="text-brand-muted mt-1.5 leading-relaxed">{item.desc}</p>
                   </div>
                 </div>
               );
@@ -172,14 +164,9 @@ export default function AboutPage() {
                 className="rounded-2xl border border-brand-border p-8 transition-shadow hover:shadow-lg card-hover"
               >
                 <div className="w-11 h-11 rounded-lg bg-brand-bg flex items-center justify-center mb-4">
-                  <val.icon
-                    className="w-5 h-5 text-brand-primary"
-                    aria-hidden="true"
-                  />
+                  <val.icon className="w-5 h-5 text-brand-primary" aria-hidden="true" />
                 </div>
-                <h3 className="font-heading text-xl font-bold text-brand-text mb-2">
-                  {val.title}
-                </h3>
+                <h3 className="font-heading text-xl font-bold text-brand-text mb-2">{val.title}</h3>
                 <p className="text-brand-muted leading-relaxed">{val.desc}</p>
               </div>
             ))}

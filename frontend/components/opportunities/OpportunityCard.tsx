@@ -270,15 +270,15 @@ const OpportunityCard = memo(function OpportunityCard({
           onClick={handleApply}
           disabled={applying || applied || isFull}
           loading={applying}
-          aria-label={applying ? "Applying to opportunity" : undefined}
+          aria-label={applying ? 'Applying to opportunity' : undefined}
           fullWidth
           className={`mt-1 py-2 rounded-xl ${
-              applied
-                ? 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/10 opacity-100 disabled:opacity-100 cursor-default'
-                : isFull
-                  ? 'bg-brand-border text-brand-muted hover:bg-brand-border opacity-100 cursor-not-allowed'
-                  : ''
-            }`}
+            applied
+              ? 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/10 opacity-100 disabled:opacity-100 cursor-default'
+              : isFull
+                ? 'bg-brand-border text-brand-muted hover:bg-brand-border opacity-100 cursor-not-allowed'
+                : ''
+          }`}
         >
           {applied ? 'Applied ✓' : 'Apply Now'}
         </Button>
@@ -287,7 +287,14 @@ const OpportunityCard = memo(function OpportunityCard({
   );
 
   if (detailHref) {
-    return <Link href={detailHref}>{card}</Link>;
+    return (
+      <Link
+        href={detailHref}
+        className="focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded-2xl block"
+      >
+        {card}
+      </Link>
+    );
   }
 
   return card;

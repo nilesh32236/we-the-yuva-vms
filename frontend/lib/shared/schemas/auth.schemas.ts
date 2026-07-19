@@ -71,4 +71,3 @@ export const ConsentSchema = z.object({
   }),
   mediaConsentAccepted: z.boolean(),
 });
-

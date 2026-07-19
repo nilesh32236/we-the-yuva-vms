@@ -57,7 +57,7 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
               <button
                 type="button"
                 onClick={() => removeEndorsement(index)}
-                className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:text-brand-error hover:bg-brand-error/10 transition-colors cursor-pointer"
+                className="flex-shrink-0 min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:text-brand-error hover:bg-brand-error/10 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                 aria-label={`Remove endorsement from ${end.name}`}
               >
                 <Trash2 className="w-3.5 h-3.5" />

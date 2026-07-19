@@ -93,7 +93,11 @@ export default function ConsentPage() {
 
   return (
     <div className="space-y-5">
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5"
+      >
         <div>
           <h1 className="font-heading font-bold text-2xl text-brand-text">Before you begin</h1>
           <p className="text-brand-muted text-sm mt-1">Please review and accept our policies</p>
@@ -134,9 +138,7 @@ export default function ConsentPage() {
                             : 'border-brand-border group-hover:border-brand-primary'
                       }`}
                   >
-                    {field.value && (
-                      <Check className="w-3 h-3 text-white" aria-hidden="true" />
-                    )}
+                    {field.value && <Check className="w-3 h-3 text-white" aria-hidden="true" />}
                   </div>
                 </div>
                 <div>
@@ -182,9 +184,7 @@ export default function ConsentPage() {
                           : 'border-brand-border group-hover:border-brand-primary'
                       }`}
                   >
-                    {field.value && (
-                      <Check className="w-3 h-3 text-white" aria-hidden="true" />
-                    )}
+                    {field.value && <Check className="w-3 h-3 text-white" aria-hidden="true" />}
                   </div>
                 </div>
                 <div>

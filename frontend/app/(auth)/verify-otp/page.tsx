@@ -22,7 +22,10 @@ function VerifyOtpContent() {
   const { toast } = useToast();
   const { user: authUser, isLoading: isAuthLoading, refetch } = useAuth();
 
-  const email = (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('verifyEmail') : '') ?? searchParams.get('email') ?? '';
+  const email =
+    (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('verifyEmail') : '') ??
+    searchParams.get('email') ??
+    '';
   const [isVerifying, setIsVerifying] = useState(false);
   const [devOtp, setDevOtp] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(300);

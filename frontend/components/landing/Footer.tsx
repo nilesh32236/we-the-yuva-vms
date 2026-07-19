@@ -34,7 +34,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-slate-950 text-brand-muted">
+    <footer className="bg-slate-950 dark:bg-slate-950 text-brand-muted">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main grid */}
         <div className="grid grid-cols-2 gap-8 py-16 md:grid-cols-5 lg:gap-12">
@@ -56,7 +56,7 @@ export function Footer() {
             <div className="mb-6 space-y-2.5">
               <a
                 href="mailto:hello@wetheyuva.org"
-                className="group flex items-center gap-2.5 text-xs text-brand-muted transition-colors duration-200 hover:text-brand-primary focus:outline-none focus-visible:text-brand-primary"
+                className="group flex items-center gap-2.5 text-xs text-brand-muted transition-colors duration-200 hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded"
               >
                 <Mail className="h-3.5 w-3.5 shrink-0 transition-colors group-hover:text-brand-primary" />
                 hello@wetheyuva.org
@@ -76,7 +76,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-surface text-brand-muted transition-colors duration-200 hover:bg-brand-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                  className="flex min-w-[44px] min-h-[44px] items-center justify-center rounded-lg bg-brand-surface text-brand-muted transition-colors duration-200 hover:bg-brand-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </a>
@@ -93,7 +93,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-brand-muted transition-colors duration-200 hover:text-brand-primary focus:outline-none focus-visible:text-brand-primary"
+                      className="text-sm text-brand-muted transition-colors duration-200 hover:text-brand-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                     >
                       {link.label}
                     </Link>
@@ -105,7 +105,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-brand-border py-8 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-brand-border py-8 sm:flex-row pb-safe">
           <p className="text-xs text-brand-muted">
             &copy; {new Date().getFullYear()} WeTheYuva. All rights reserved.
           </p>
