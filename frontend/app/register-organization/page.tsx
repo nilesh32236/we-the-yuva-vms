@@ -100,32 +100,6 @@ export default function RegisterOrganizationPage() {
     input.click();
   };
 
-  const retryUpload = async (doc: DocItem) => {
-    setDocs((prev) =>
-      prev.map((d) => (d === doc ? { ...d, uploading: true, error: undefined } : d))
-    );
-    try {
-      const formData = new FormData();
-      formData.append('file', doc.file);
-      const res = await api.post('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setDocs((prev) =>
-        prev.map((d) =>
-          d === doc
-            ? { ...d, fileUrl: res.data.url, fileName: res.data.filename, uploading: false }
-            : d
-        )
-      );
-    } catch {
-      setDocs((prev) =>
-        prev.map((d) =>
-          d === doc ? { ...d, uploading: false, error: 'Upload failed. Click to retry.' } : d
-        )
-      );
-    }
-  };
-
   const removeDoc = (index: number) => {
     setDocs((prev) => prev.filter((_, i) => i !== index));
   };
@@ -192,10 +166,15 @@ export default function RegisterOrganizationPage() {
           </p>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mb-10">
+        {/* biome-ignore lint/a11y/useSemanticElements: flex layout prevents using ul/li; ARIA roles added per audit requirement */}
+        <div className="flex items-center justify-center gap-2 mb-10" role="list">
           {STEPS.map((label, i) => (
-            <div key={label} className="flex items-center gap-2">
+            /* biome-ignore lint/a11y/useSemanticElements: flex layout prevents using ul/li; ARIA roles added per audit requirement */
+            <div key={label} className="flex items-center gap-2" role="listitem">
               <div
+                role="status"
+                aria-current={i === step ? 'step' : undefined}
+                aria-label={`Step ${i + 1}: ${label}`}
                 className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-colors
                   ${i < step ? 'bg-brand-primary text-white' : ''}
                   ${i === step ? 'bg-brand-primary text-white ring-4 ring-brand-primary/20' : ''}
@@ -211,6 +190,7 @@ export default function RegisterOrganizationPage() {
               {i < STEPS.length - 1 && (
                 <div
                   className={`w-8 sm:w-12 h-0.5 ${i < step ? 'bg-brand-primary' : 'bg-brand-border'}`}
+                  aria-hidden="true"
                 />
               )}
             </div>
@@ -381,19 +361,8 @@ export default function RegisterOrganizationPage() {
                   );
                 }
                 return (
-                  // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
                   <div
-                    role="button"
-                    tabIndex={d.error ? 0 : undefined}
-                    className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border focus-visible:ring-2 focus-visible:ring-brand-primary ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
-                    onClick={d.error ? () => retryUpload(d) : undefined}
-                    onKeyDown={
-                      d.error
-                        ? (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
-                          }
-                        : undefined
-                    }
+                    className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error' : 'border-brand-border'}`}
                   >
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-brand-primary" />
@@ -406,10 +375,7 @@ export default function RegisterOrganizationPage() {
                     <button
                       type="button"
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'));
-                      }}
+                      onClick={() => removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'))}
                     >
                       Remove
                     </button>
@@ -435,19 +401,8 @@ export default function RegisterOrganizationPage() {
                   );
                 }
                 return (
-                  // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
                   <div
-                    role="button"
-                    tabIndex={d.error ? 0 : undefined}
-                    className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border focus-visible:ring-2 focus-visible:ring-brand-primary ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
-                    onClick={d.error ? () => retryUpload(d) : undefined}
-                    onKeyDown={
-                      d.error
-                        ? (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
-                          }
-                        : undefined
-                    }
+                    className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error' : 'border-brand-border'}`}
                   >
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-brand-primary" />
@@ -460,10 +415,7 @@ export default function RegisterOrganizationPage() {
                     <button
                       type="button"
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'));
-                      }}
+                      onClick={() => removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'))}
                     >
                       Remove
                     </button>
@@ -488,19 +440,8 @@ export default function RegisterOrganizationPage() {
                   );
                 }
                 return (
-                  // biome-ignore lint/a11y/useSemanticElements: need div to nest Remove button
                   <div
-                    role="button"
-                    tabIndex={d.error ? 0 : undefined}
-                    className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border focus-visible:ring-2 focus-visible:ring-brand-primary ${d.error ? 'border-brand-error cursor-pointer' : 'border-brand-border'}`}
-                    onClick={d.error ? () => retryUpload(d) : undefined}
-                    onKeyDown={
-                      d.error
-                        ? (e) => {
-                            if (e.key === 'Enter' || e.key === ' ') retryUpload(d);
-                          }
-                        : undefined
-                    }
+                    className={`flex items-center justify-between p-3 rounded-xl bg-brand-bg border ${d.error ? 'border-brand-error' : 'border-brand-border'}`}
                   >
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-brand-primary" />
@@ -513,10 +454,7 @@ export default function RegisterOrganizationPage() {
                     <button
                       type="button"
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeDoc(docs.findIndex((x) => x.type === 'OTHER'));
-                      }}
+                      onClick={() => removeDoc(docs.findIndex((x) => x.type === 'OTHER'))}
                     >
                       Remove
                     </button>

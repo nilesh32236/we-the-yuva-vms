@@ -111,9 +111,12 @@ export default function EventFeedbackPage() {
             >
               <input type="hidden" id="rating" value={rating} readOnly />
               {[1, 2, 3, 4, 5].map((n) => (
+                // biome-ignore lint/a11y/useSemanticElements: review requires role=radio + aria-checked on button
                 <button
                   key={n}
                   type="button"
+                  role="radio"
+                  aria-checked={n === rating}
                   aria-label={`Rate ${n} star${n > 1 ? 's' : ''}`}
                   onClick={() => setValue('rating', n)}
                   onMouseEnter={() => setHover(n)}

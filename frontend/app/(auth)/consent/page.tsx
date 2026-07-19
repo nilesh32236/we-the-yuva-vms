@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Camera, Check, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { ConsentSchema } from '@/lib/shared';
 import type { ConsentInput } from '@/lib/shared';
@@ -41,6 +41,13 @@ export default function ConsentPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: isAuthLoading, refetch } = useAuth();
+  const policyRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (policyRef.current) {
+      policyRef.current.tabIndex = 0;
+    }
+  }, []);
 
   const {
     control,
@@ -101,6 +108,7 @@ export default function ConsentPage() {
 
         {/* Privacy policy scroll box */}
         <section
+          ref={policyRef}
           className="h-48 overflow-y-auto rounded-xl border border-brand-border bg-brand-bg p-4 text-xs text-brand-muted leading-relaxed"
           aria-label="Privacy policy text"
         >
