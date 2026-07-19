@@ -57,9 +57,8 @@ export async function listEventsByOpportunityHandler(
     const limit = page
       ? Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20))
       : undefined;
-    const pagination = page ? { page, limit: limit! } : undefined;
-    const events = await listEventsByOpportunity(req.params.opportunityId, pagination);
-    res.status(200).json(pagination ? events : { data: events });
+    const events = await listEventsByOpportunity(req.params.opportunityId, page ? { page, limit: limit! } : undefined);
+    res.status(200).json(events);
   } catch (err) {
     next(err);
   }

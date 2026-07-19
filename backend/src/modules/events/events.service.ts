@@ -119,7 +119,7 @@ export async function listEventsByOpportunity(
   pagination?: { page: number; limit: number }
 ) {
   if (!pagination) {
-    return prisma.event.findMany({
+    const data = await prisma.event.findMany({
       where: {
         opportunityId,
         status: { not: 'CANCELLED' },
@@ -127,6 +127,7 @@ export async function listEventsByOpportunity(
       take: 50,
       orderBy: { eventDate: 'asc' },
     });
+    return { data, total: data.length, page: 1, limit: 50, totalPages: 1 };
   }
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;

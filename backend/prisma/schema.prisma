@@ -348,7 +348,7 @@ model YouthProfile {
 
 model Location {
   id       String  @id @default(cuid())
-  name     String
+  name     String  @unique
   district String?
   state    String?
   lat      Float?

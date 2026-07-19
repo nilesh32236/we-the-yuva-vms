@@ -4,12 +4,10 @@ import { prisma } from '../lib/prisma';
 export async function updateStreaks() {
   logger.info('[Streak] Starting daily streak update');
 
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setHours(0, 0, 0, 0);
+  const now = new Date();
+  const yesterday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
   let updated = 0;
   let reset = 0;

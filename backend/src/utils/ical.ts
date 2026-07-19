@@ -24,6 +24,8 @@ function escapeIcalText(text: string): string {
     .replace(/;/g, '\\;');
 }
 
+const DEFAULT_ORG_EMAIL = process.env.ICAL_ORG_EMAIL || 'noreply@wetheyuva.org';
+
 export function generateIcs(event: IcalEventInput): string {
   return `${[
     'BEGIN:VCALENDAR',
@@ -37,7 +39,7 @@ export function generateIcs(event: IcalEventInput): string {
     `SUMMARY:${escapeIcalText(event.title)}`,
     `DESCRIPTION:${escapeIcalText(event.description)}`,
     `LOCATION:${escapeIcalText(event.location)}`,
-    `ORGANIZER;CN=${escapeIcalText(event.organizerName)}:mailto:${escapeIcalText(event.organizerName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase())}@wetheyuva`,
+    `ORGANIZER;CN=${escapeIcalText(event.organizerName)}:mailto:${DEFAULT_ORG_EMAIL}`,
     'END:VEVENT',
     'END:VCALENDAR',
   ].join('\r\n')}\r\n`;

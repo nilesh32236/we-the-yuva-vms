@@ -124,15 +124,17 @@ export async function checkAndAwardBadges(userId: string) {
   for (let i = 0; i < eligibleBadges.length; i++) {
     if (criteriaResults[i]) {
       const badge = eligibleBadges[i];
-      const op = (async () => {
-        if (badge.requiresApproval) {
-          await prisma.badgeApproval.upsert({
+      if (badge.requiresApproval) {
+        awardOps.push(
+          prisma.badgeApproval.upsert({
             where: { userId_badgeId: { userId, badgeId: badge.id } },
             update: { status: 'PENDING', reviewedAt: null, reviewedBy: null, reviewNote: null },
             create: { userId, badgeId: badge.id },
-          });
-        } else {
-          await prisma.$transaction([
+          })
+        );
+      } else {
+        awardOps.push(
+          prisma.$transaction([
             prisma.userBadge.create({
               data: { userId, badgeId: badge.id },
             }),
@@ -143,17 +145,13 @@ export async function checkAndAwardBadges(userId: string) {
               where: { id: userId },
               data: { points: { increment: 50 } },
             }),
-          ]);
-          if (notificationsQueue) {
-            await notificationsQueue
-              .add('badge-earned', { userId, badgeName: badge.name })
-              .catch((err) =>
-                logger.warn('Badge notification failed', { error: (err as Error).message })
-              );
-          }
-        }
-      })();
-      awardOps.push(op);
+          ]).then(async () => {
+            if (notificationsQueue) {
+              await notificationsQueue.add('badge-earned', { userId, badgeName: badge.name });
+            }
+          })
+        );
+      }
     }
   }
   const settled = await Promise.allSettled(awardOps);

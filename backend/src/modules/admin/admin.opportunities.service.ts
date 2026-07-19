@@ -47,7 +47,7 @@ export async function getOpportunity(id: string) {
       totalSlots: true,
       status: true,
       createdAt: true,
-      createdBy: { select: { name: true, email: true } },
+      createdBy: { select: { name: true } },
       organization: { select: { name: true, id: true } },
       location: true,
       _count: {
