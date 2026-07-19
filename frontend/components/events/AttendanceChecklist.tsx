@@ -246,6 +246,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
   const [approving, setApproving] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally uses length to avoid cascading re-renders
   useEffect(() => {
     setState((prev) => {
       const next = { ...prev };

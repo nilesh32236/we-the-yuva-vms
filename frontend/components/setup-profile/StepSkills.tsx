@@ -1,7 +1,7 @@
 'use client';
 
 import type { UseFormSetValue, UseFormWatch, FieldErrors } from 'react-hook-form';
-import { type OnboardingData, EXPERTISE_OPTIONS, LANGUAGES } from '@/lib/shared';
+import { EXPERTISE_OPTIONS, LANGUAGES, type OnboardingData } from '@/lib/shared';
 import { ChipSelect } from './ChipSelect';
 
 interface StepSkillsProps {
