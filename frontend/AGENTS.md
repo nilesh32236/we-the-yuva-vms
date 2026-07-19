@@ -86,4 +86,12 @@ pnpm typecheck    # tsc --noEmit
 - shadcn/ui components use `cn()` from `@/lib/utils` for class merging
 - SVG icons: prefer Lucide icons (already in deps), no emoji icons
 - Forms: react-hook-form + zod (@hookform/resolvers)
+
+## Middleware / Proxy (Next.js 16)
+
+- **Use `proxy.ts` only** — Next.js 16 replaces `middleware.ts` with `proxy.ts`
+- **NEVER create or keep `middleware.ts`** — having both `middleware.ts` and `proxy.ts` causes a fatal build error:
+  `Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts" are detected. Please use "./proxy.ts" only.`
+- The auth routing logic lives in `proxy.ts` at the project root (`frontend/proxy.ts`)
+- If you need to modify auth/routing behavior, edit `proxy.ts` — do not create a new `middleware.ts`
 <!-- END:we-the-yuva-vms-rules -->
