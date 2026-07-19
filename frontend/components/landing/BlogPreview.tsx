@@ -43,7 +43,7 @@ export async function BlogPreview() {
     );
 
   return (
-    <section className="bg-brand-bg/50 py-20 sm:py-28">
+    <section className="bg-brand-bg/50 dark:bg-brand-surface/30 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <div className="text-center max-w-2xl mx-auto">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-brand-primary">

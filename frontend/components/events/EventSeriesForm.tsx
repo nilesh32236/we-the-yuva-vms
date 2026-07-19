@@ -225,7 +225,8 @@ export function EventSeriesForm({
           id="description"
           {...register('description')}
           rows={3}
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${
+          disabled={isSubmitting}
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none disabled:opacity-60 ${
             errors.description ? 'border-brand-error' : 'border-brand-border'
           }`}
         />
@@ -295,7 +296,8 @@ export function EventSeriesForm({
           type="number"
           min={1}
           {...register('interval', { valueAsNumber: true })}
-          className="w-24 px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          disabled={isSubmitting}
+          className="w-24 px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60"
         />
       </div>
 
@@ -308,7 +310,8 @@ export function EventSeriesForm({
           id="firstEventDate"
           type="date"
           {...register('firstEventDate')}
-          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${
+          disabled={isSubmitting}
+          className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60 ${
             errors.firstEventDate ? 'border-brand-error' : 'border-brand-border'
           }`}
         />
@@ -319,8 +322,8 @@ export function EventSeriesForm({
 
       {/* Time */}
       <div className="grid grid-cols-2 gap-4">
-        {field('startTime', 'Start time', { type: 'time' })}
-        {field('endTime', 'End time', { type: 'time' })}
+        {field('startTime', 'Start time', { type: 'time', disabled: isSubmitting })}
+        {field('endTime', 'End time', { type: 'time', disabled: isSubmitting })}
       </div>
 
       {/* Capacity */}
@@ -333,7 +336,8 @@ export function EventSeriesForm({
           type="number"
           min={1}
           {...register('capacity', { valueAsNumber: true })}
-          className="w-24 px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          disabled={isSubmitting}
+          className="w-24 px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60"
         />
       </div>
 
@@ -368,8 +372,9 @@ export function EventSeriesForm({
         ? field('meetingLink', 'Meeting link', {
             type: 'url',
             placeholder: 'https://meet.google.com/...',
+            disabled: isSubmitting,
           })
-        : field('venue', 'Venue (optional)', { placeholder: 'e.g. Community Hall, Mumbai' })}
+        : field('venue', 'Venue (optional)', { placeholder: 'e.g. Community Hall, Mumbai', disabled: isSubmitting })}
 
       {/* End condition */}
       <div className="space-y-2">
