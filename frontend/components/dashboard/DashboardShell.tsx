@@ -251,13 +251,13 @@ export function DashboardShell({
 
       {/* ── Stat Cards ──────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {stats.map((stat, idx) => {
+        {stats.map((stat) => {
           const Icon = ICONS[stat.icon];
           const accent = stat.accent ?? 'text-brand-primary';
           const accentBg = stat.accentBg ?? 'bg-brand-bg';
           return (
             <div
-              key={`${stat.label}-${idx}`}
+              key={stat.label}
               className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 card-hover cursor-default"
             >
               <div
