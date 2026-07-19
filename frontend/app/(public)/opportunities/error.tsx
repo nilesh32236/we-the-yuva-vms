@@ -1,6 +1,7 @@
 'use client';
 
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export default function OpportunitiesErrorPage({
   error: _error,
@@ -19,14 +20,10 @@ export default function OpportunitiesErrorPage({
         <p className="text-sm text-brand-muted mb-6">
           Something went wrong while fetching the latest opportunities. Please try again.
         </p>
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex items-center gap-2 bg-brand-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
-        >
+        <Button onClick={reset} variant="primary" className="font-semibold px-5 py-2.5 rounded-xl">
           <RefreshCw className="w-4 h-4" aria-hidden="true" />
           Try again
-        </button>
+        </Button>
       </div>
     </div>
   );
