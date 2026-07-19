@@ -10,7 +10,7 @@ export const api = axios.create({
   },
 });
 
-api.defaults.timeout = 30000;
+api.defaults.timeout = 10000;
 
 export async function downloadCsv(url: string, filename = 'export.csv') {
   const previouslyFocused = document.activeElement as HTMLElement | null;
