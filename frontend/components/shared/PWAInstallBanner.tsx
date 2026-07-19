@@ -40,8 +40,7 @@ export function PWAInstallBanner() {
       if (success) {
         setDismissed(true);
       }
-    } catch (err) {
-      console.error('PWA install failed:', err);
+    } catch {
     } finally {
       setInstalling(false);
     }

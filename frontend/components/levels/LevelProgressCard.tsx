@@ -80,7 +80,6 @@ export function LevelProgressCard() {
 
   const level = data?.data;
   if (!level) {
-    console.warn('LevelProgressCard: no level data available');
     return null;
   }
 

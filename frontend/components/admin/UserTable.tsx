@@ -57,8 +57,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
       Sentry.captureException(err);
       toast({
         title: 'Error',
-        description:
-          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Could not update user.',
+        description: 'Could not update user.',
         variant: 'destructive',
       });
     },

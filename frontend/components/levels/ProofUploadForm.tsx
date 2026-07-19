@@ -2,6 +2,7 @@
 
 import { Loader2, Upload } from 'lucide-react';
 import { type DragEvent, useRef, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { api } from '../../lib/api';
 
 interface ProofUploadFormProps {
@@ -35,12 +36,8 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
       setFiles(newFiles);
       onFilesChange(newFiles.map((f) => f.url));
     } catch (err) {
-      console.error('Proof upload failed:', err);
-      const message =
-        (err as { normalizedMessage?: string })?.normalizedMessage ??
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-        'Upload failed. Please try again.';
-      setUploadError(message);
+      Sentry.captureException(err);
+      setUploadError('Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }

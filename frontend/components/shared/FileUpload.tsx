@@ -49,13 +49,7 @@ export function FileUpload({
       onUpload(data.url);
     } catch (err: unknown) {
       Sentry.captureException(err);
-      const serverErr = (err as { response?: { data?: { error?: string } } })?.response?.data
-        ?.error;
-      const msg =
-        serverErr ??
-        (err as { normalizedMessage?: string })?.normalizedMessage ??
-        (err instanceof Error ? err.message : 'Upload failed');
-      setError(msg);
+      setError('Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
