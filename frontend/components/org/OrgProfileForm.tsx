@@ -80,7 +80,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
     }`;
 
   return (
-    <div className="space-y-5" role="form">
+    <div className="space-y-5">
       <form onSubmit={handleSubmit(onSave)} className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="org-name" className="text-sm font-medium text-brand-text">

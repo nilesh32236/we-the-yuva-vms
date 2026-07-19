@@ -39,15 +39,12 @@ export function CelebrationOverlay({ levelName, tier, points, onClose }: Celebra
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-500"
       onClick={handleBackdropClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClose?.();
-        }
+      onKeyDown={(e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') onClose?.();
       }}
-      role="button"
-      tabIndex={-1}
-      aria-label="Close celebration"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Celebration overlay"
     >
       <div className="bg-brand-surface rounded-3xl border border-brand-border shadow-2xl p-8 md:p-12 max-w-sm mx-4 text-center relative overflow-hidden">
         <button

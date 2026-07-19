@@ -34,7 +34,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-slate-950 dark:bg-slate-950 text-brand-muted">
+    <footer className="bg-brand-surface text-brand-muted">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main grid */}
         <div className="grid grid-cols-2 gap-8 py-16 md:grid-cols-5 lg:gap-12">
@@ -112,14 +112,14 @@ export function Footer() {
           <div className="flex items-center gap-4 text-xs text-brand-muted">
             <Link
               href="/privacy"
-              className="transition-colors hover:text-brand-muted focus:outline-none focus-visible:text-brand-muted"
+              className="transition-colors hover:text-brand-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded"
             >
               Privacy Policy
             </Link>
             <span>&middot;</span>
             <Link
               href="/terms"
-              className="transition-colors hover:text-brand-muted focus:outline-none focus-visible:text-brand-muted"
+              className="transition-colors hover:text-brand-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded"
             >
               Terms of Service
             </Link>
