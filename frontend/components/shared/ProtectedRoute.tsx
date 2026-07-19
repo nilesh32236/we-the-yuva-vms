@@ -15,7 +15,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [showContent, setShowContent] = useState(false);
-  const stableRoles = useMemo(() => allowedRoles, allowedRoles);
+  const stableRoles = useMemo(() => allowedRoles, [allowedRoles]);
 
   useEffect(() => {
     if (isLoading) return;

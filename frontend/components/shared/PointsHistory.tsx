@@ -47,6 +47,19 @@ export function PointsHistory() {
     staleTime: 60_000,
   });
 
+  const formattedTx = useMemo(
+    () =>
+      (data ?? []).slice(0, 10).map((tx) => ({
+        ...tx,
+        formattedDate: new Date(tx.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+      })),
+    [data],
+  );
+
   if (isLoading) {
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -99,19 +112,6 @@ export function PointsHistory() {
       </div>
     );
   }
-
-  const formattedTx = useMemo(
-    () =>
-      data.slice(0, 10).map((tx) => ({
-        ...tx,
-        formattedDate: new Date(tx.createdAt).toLocaleDateString('en-IN', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }),
-      })),
-    [data],
-  );
 
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">

@@ -39,17 +39,17 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
 
   const colors = mounted && resolvedTheme === 'dark' ? DARK_COLORS : LIGHT_COLORS;
 
-  if (!data?.length)
-    return <p className="text-center text-brand-muted text-sm py-8">No data available</p>;
-
   const chartData = useMemo(
     () =>
-      data.map((d) => ({
+      (data ?? []).map((d) => ({
         name: d.category.charAt(0) + d.category.slice(1).toLowerCase(),
         value: d.count,
       })),
     [data],
   );
+
+  if (!data?.length)
+    return <p className="text-center text-brand-muted text-sm py-8">No data available</p>;
 
   return (
     <div>

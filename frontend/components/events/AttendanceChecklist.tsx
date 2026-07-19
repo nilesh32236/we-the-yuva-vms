@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
 import { haptic } from '../../lib/haptic';
 import { Button } from '../ui/Button';

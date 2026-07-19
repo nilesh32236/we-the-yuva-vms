@@ -45,7 +45,7 @@ export function BadgeCard({
   earned,
   earnedAt,
 }: BadgeCardProps) {
-  const IconComponent = imageUrl ? null : (BADGE_ICONS[name] ?? Award);
+  const IconComponent: React.ElementType = BADGE_ICONS[name] ?? Award;
 
   return (
     <div
