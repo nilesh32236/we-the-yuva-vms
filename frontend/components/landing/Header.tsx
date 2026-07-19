@@ -105,7 +105,7 @@ export function Header() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`${mobileOpen ? '' : 'hidden'} border-b border-brand-border bg-brand-surface pb-4 md:hidden dark:border-brand-border dark:bg-brand-bg`}>
+      <div className={`${mobileOpen ? 'block' : 'hidden'} border-b border-brand-border bg-brand-surface pb-4 md:hidden dark:border-brand-border dark:bg-brand-bg`}>
           <nav className="flex flex-col gap-3 px-6 pt-2">
             {navLinks.map((link) => (
               <Link
