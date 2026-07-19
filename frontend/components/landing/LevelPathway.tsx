@@ -44,7 +44,7 @@ export function LevelPathway() {
     <section
       id="pathway"
       ref={ref}
-      className={`bg-muted dark:bg-brand-surface/50 py-20 sm:py-28 motion-safe:transition-all motion-safe:duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+      className={`bg-muted dark:bg-brand-surface/50 py-20 sm:py-28 motion-safe:transition-opacity motion-safe:duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       <div className="mx-auto max-w-6xl px-6">
         <h2 className="text-3xl sm:text-4xl font-bold text-brand-text dark:text-white text-center">

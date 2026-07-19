@@ -8,16 +8,14 @@ import {
   Info,
   LogOut,
   Megaphone,
-  Moon,
   Star,
-  Sun,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import * as Sentry from '@sentry/nextjs';
 import { useToast } from '../../hooks/use-toast';
 
@@ -96,7 +94,7 @@ export function TopNav() {
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
     refetchInterval: 30000,
-    staleTime: 0,
+    staleTime: 30000,
   });
 
   const { data: notifData } = useQuery({
@@ -158,43 +156,6 @@ export function TopNav() {
 
   const role = ROLE_CONFIG[user?.role ?? ''];
 
-  function ThemeToggleButton() {
-    const { setTheme, resolvedTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => setMounted(true), []);
-
-    if (!mounted) {
-      return (
-        <button
-          type="button"
-          className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted cursor-pointer"
-          disabled
-          aria-label="Toggle theme"
-        >
-          <div className="w-4 h-4" />
-        </button>
-      );
-    }
-
-    const isDark = resolvedTheme === 'dark';
-
-    return (
-      <button
-        type="button"
-        onClick={() => setTheme(isDark ? 'light' : 'dark')}
-        className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer"
-        aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
-      >
-        {isDark ? (
-          <Sun className="w-4 h-4" aria-hidden="true" />
-        ) : (
-          <Moon className="w-4 h-4" aria-hidden="true" />
-        )}
-      </button>
-    );
-  }
-
   // Close panel on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -225,7 +186,7 @@ export function TopNav() {
 
       <div className="flex items-center gap-2">
         {/* Theme toggle */}
-        <ThemeToggleButton />
+        <ThemeToggle />
 
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>

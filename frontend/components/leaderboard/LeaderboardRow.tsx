@@ -56,6 +56,7 @@ export function LeaderboardRow({
             alt={name}
             width={40}
             height={40}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         ) : (

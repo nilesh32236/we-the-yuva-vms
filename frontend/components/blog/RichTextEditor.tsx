@@ -3,6 +3,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Bold, Italic, Heading1, Heading2, List, ListOrdered, Quote, Code } from 'lucide-react';
+import { memo, useCallback } from 'react';
 import styles from './RichTextEditor.module.css';
 
 interface RichTextEditorProps {
@@ -10,7 +11,7 @@ interface RichTextEditorProps {
   onChange: (html: string) => void;
 }
 
-const ToolbarButton = ({
+const ToolbarButton = memo(function ToolbarButton({
   onClick,
   active,
   label,
@@ -20,23 +21,32 @@ const ToolbarButton = ({
   active: boolean;
   label: string;
   children: React.ReactNode;
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    aria-label={label}
-    title={label}
-    className={`p-2 rounded-lg transition-colors duration-150 ${
-      active
-        ? 'bg-brand-primary/10 text-brand-primary'
-        : 'text-brand-muted hover:text-brand-text hover:bg-brand-bg'
-    }`}
-  >
-    {children}
-  </button>
-);
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`p-2 rounded-lg transition-colors duration-150 ${
+        active
+          ? 'bg-brand-primary/10 text-brand-primary'
+          : 'text-brand-muted hover:text-brand-text hover:bg-brand-bg'
+      }`}
+    >
+      {children}
+    </button>
+  );
+});
 
 export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
+  const handleUpdate = useCallback(
+    ({ editor: ed }: { editor: { getHTML: () => string } }) => {
+      onChange(ed.getHTML());
+    },
+    [onChange],
+  );
+
   const editor = useEditor({
     extensions: [StarterKit],
     content,
@@ -45,9 +55,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         class: styles.editor,
       },
     },
-    onUpdate: ({ editor: ed }) => {
-      onChange(ed.getHTML());
-    },
+    onUpdate: handleUpdate,
   });
 
   if (!editor)

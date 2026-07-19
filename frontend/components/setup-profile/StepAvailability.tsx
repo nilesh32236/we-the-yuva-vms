@@ -1,8 +1,7 @@
 'use client';
 
 import type { UseFormSetValue, UseFormWatch, FieldErrors } from 'react-hook-form';
-import type { OnboardingData } from '@/lib/shared';
-import { VOLUNTEER_TYPES, AVAILABILITY_PATTERNS } from '@/lib/shared';
+import { type OnboardingData, VOLUNTEER_TYPES, AVAILABILITY_PATTERNS } from '@/lib/shared';
 import { ChipSelect } from './ChipSelect';
 
 interface StepAvailabilityProps {

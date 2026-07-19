@@ -168,9 +168,24 @@ export function EventSeriesForm({
   const isVirtual = watch('isVirtual');
   const endType = watch('endType');
   const daysOfWeek = watch('daysOfWeek');
-  const formValues = watch();
+  const interval = watch('interval');
+  const firstEventDate = watch('firstEventDate');
+  const maxOccurrences = watch('maxOccurrences');
+  const endDate = watch('endDate');
 
-  const previewDates = useMemo(() => calculatePreviewDates(formValues), [formValues]);
+  const previewDates = useMemo(
+    () =>
+      calculatePreviewDates({
+        frequency,
+        daysOfWeek,
+        interval,
+        firstEventDate,
+        endType,
+        maxOccurrences,
+        endDate,
+      } as EventSeriesFormData),
+    [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate],
+  );
 
   const toggleDay = (day: number) => {
     const current = daysOfWeek ?? [];

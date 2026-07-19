@@ -45,6 +45,8 @@ export function BadgeCard({
   earned,
   earnedAt,
 }: BadgeCardProps) {
+  const IconComponent = imageUrl ? null : (BADGE_ICONS[name] ?? Award);
+
   return (
     <div
       className={cn(
@@ -81,20 +83,13 @@ export function BadgeCard({
             alt={title}
             width={48}
             height={48}
+            loading="lazy"
             className="w-12 h-12 object-contain"
           />
         ) : (
-          (() => {
-            const IconComponent = BADGE_ICONS[name];
-            if (IconComponent) {
-              return (
-                <IconComponent
-                  className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')}
-                />
-              );
-            }
-            return <Award className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')} />;
-          })()
+          <IconComponent
+            className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')}
+          />
         )}
       </div>
 

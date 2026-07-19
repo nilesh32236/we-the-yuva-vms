@@ -22,8 +22,8 @@ export function CelebrationOverlay({ levelName, tier, points }: CelebrationOverl
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-500">
       <div className="bg-brand-surface rounded-3xl border border-brand-border shadow-2xl p-8 md:p-12 max-w-sm mx-4 text-center relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-600/20 blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-600/20 blur-3xl" />
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-600/20 blur-xl" />
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-600/20 blur-xl" />
 
         <div className="relative z-10 space-y-6">
           <div className="flex justify-center gap-2">

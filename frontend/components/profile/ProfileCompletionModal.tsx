@@ -61,8 +61,8 @@ export function ProfileCompletionModal({
             </div>
             <div className="w-full h-2 rounded-full bg-brand-border overflow-hidden">
               <div
-                className="h-full rounded-full bg-brand-primary transition-all duration-500"
-                style={{ width: `${completionPercentage}%` }}
+                className="h-full rounded-full bg-brand-primary origin-left transition-transform duration-500"
+                style={{ transform: `scaleX(${completionPercentage / 100})` }}
               />
             </div>
           </div>

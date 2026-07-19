@@ -124,8 +124,8 @@ export function LevelProgressCard() {
               </div>
               <div className="h-2 bg-brand-border rounded-full overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary transition-width duration-700"
-                  style={{ width: `${progressPct}%` }}
+                  className="h-full rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary origin-left transition-transform duration-700"
+                  style={{ transform: `scaleX(${progressPct / 100})` }}
                 />
               </div>
               {level.nextLevel && (

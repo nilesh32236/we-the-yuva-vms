@@ -55,6 +55,11 @@ export function TierPathVisualizer({
   const badgePx = size === 'sm' ? 36 : 48;
   const completionPct = calcCompletion(levels, currentLevelId);
 
+  const currentTier = currentLevelId
+    ? levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)
+        ?.tier ?? 0
+    : 0;
+
   return (
     <nav className="w-full" aria-label="Tier progression path">
       <div className="relative flex items-center justify-between">
@@ -62,17 +67,12 @@ export function TierPathVisualizer({
         <div className="absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2 bg-brand-border rounded-full" />
 
         {/* Connection line fill */}
-        <div
-          className="absolute top-1/2 left-0 h-1 -translate-y-1/2 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full transition-width duration-700"
-          style={{ width: `${completionPct}%` }}
+        <div className="absolute top-1/2 left-0 h-1 -translate-y-1/2 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full origin-left transition-transform duration-700"
+          style={{ transform: `scaleX(${completionPct / 100})` }}
         />
 
         {levels.map((level, _index) => {
-          const isEarned = currentLevelId
-            ? level.tier <=
-              (levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)
-                ?.tier ?? 0)
-            : false;
+          const isEarned = level.tier <= currentTier;
           const isCurrent =
             level.tier.toString() === currentLevelId || level.name === currentLevelId;
           const Icon = ICON_MAP[level.badgeIcon] ?? ICON_MAP.Sprout;

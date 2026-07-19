@@ -27,10 +27,10 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
       api.post(`/badges/${request.user.id}/${request.badge.id}/${action}`, {
         reviewNote: reviewNote || undefined,
       }),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['admin-badge-pending'] });
       toast({
-        title: `Request ${reviewMutation.variables?.action === 'approve' ? 'approved' : 'rejected'}`,
+        title: `Request ${variables.action === 'approve' ? 'approved' : 'rejected'}`,
       });
       onClose();
     },
