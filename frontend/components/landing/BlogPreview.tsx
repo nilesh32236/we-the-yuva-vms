@@ -35,7 +35,7 @@ export async function BlogPreview() {
 
   if (posts.length === 0)
     return (
-      <section className="bg-brand-bg/50 py-20 sm:py-28">
+      <section className="bg-brand-bg/50 dark:bg-brand-surface/30 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6 text-center">
           <p className="text-brand-muted">Unable to load blog posts. Please try again later.</p>
         </div>
@@ -43,7 +43,7 @@ export async function BlogPreview() {
     );
 
   return (
-    <section className="bg-brand-bg/50 py-20 sm:py-28">
+    <section className="bg-brand-bg/50 dark:bg-brand-surface/30 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-6">
         <div className="text-center max-w-2xl mx-auto">
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-brand-primary">
@@ -62,7 +62,7 @@ export async function BlogPreview() {
             <Link
               key={post.id}
               href={`/blog/${post.slug}`}
-              className={`card-hover group rounded-2xl border border-brand-border bg-brand-surface overflow-hidden ${i < 3 ? 'motion-safe:animate-fade-in-up' : ''}`}
+              className={`card-hover group rounded-2xl border border-brand-border bg-brand-surface overflow-hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${i < 3 ? 'motion-safe:animate-fade-in-up' : ''}`}
               style={{ animationDelay: `${i * 100}ms` }}
             >
               {post.featuredImage ? (

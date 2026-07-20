@@ -202,5 +202,3 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
     </div>
   );
 }
-
-

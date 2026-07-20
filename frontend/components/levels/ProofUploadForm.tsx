@@ -75,7 +75,7 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
           setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
-        className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+        className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
           dragOver
             ? 'border-brand-primary bg-brand-primary/5'
             : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'
@@ -118,7 +118,7 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
               <button
                 type="button"
                 onClick={() => removeFile(f.url)}
-                className="text-xs text-brand-error hover:underline cursor-pointer"
+                className="text-xs text-brand-error hover:underline cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 Remove
               </button>

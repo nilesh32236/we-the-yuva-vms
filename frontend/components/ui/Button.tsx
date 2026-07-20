@@ -57,7 +57,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       {...props}
     >
       {loading ? (
-        <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+        <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full motion-safe:animate-spin" />
       ) : (
         children
       )}

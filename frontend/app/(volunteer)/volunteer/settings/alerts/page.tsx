@@ -252,12 +252,7 @@ export default function AlertSubscriptionsPage() {
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="sm"
-                  loading={createMut.isPending}
-                >
+                <Button type="submit" variant="primary" size="sm" loading={createMut.isPending}>
                   <BellRing className="w-3.5 h-3.5" /> Create Alert
                 </Button>
               </div>

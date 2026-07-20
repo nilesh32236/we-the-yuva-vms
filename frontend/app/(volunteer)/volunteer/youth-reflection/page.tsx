@@ -304,12 +304,7 @@ export default function YouthReflectionPage() {
         </div>
       </div>
 
-      <Button
-        type="submit"
-        loading={mutation.isPending}
-        disabled={!canSubmit}
-        className="w-full"
-      >
+      <Button type="submit" loading={mutation.isPending} disabled={!canSubmit} className="w-full">
         {alreadyReflected ? 'Update Reflection' : 'Submit Reflection'}{' '}
         <ArrowRight className="w-4 h-4 ml-1" />
       </Button>

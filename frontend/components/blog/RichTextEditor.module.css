@@ -6,6 +6,11 @@
   line-height: 1.7;
 }
 
+.editor:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: -2px;
+}
+
 .editor p {
   margin: 0.5em 0;
 }

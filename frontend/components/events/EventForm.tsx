@@ -173,7 +173,9 @@ export function EventForm({
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none ${errors.description ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.description && (
-          <p id="description-error" className="text-xs text-brand-error">{errors.description.message as string}</p>
+          <p id="description-error" className="text-xs text-brand-error">
+            {errors.description.message as string}
+          </p>
         )}
       </div>
 
@@ -191,7 +193,9 @@ export function EventForm({
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.eventDate ? 'border-brand-error' : 'border-brand-border'}`}
         />
         {errors.eventDate && (
-          <p id="eventDate-error" className="text-xs text-brand-error">{errors.eventDate.message as string}</p>
+          <p id="eventDate-error" className="text-xs text-brand-error">
+            {errors.eventDate.message as string}
+          </p>
         )}
       </div>
 
@@ -215,7 +219,11 @@ export function EventForm({
           aria-describedby={errors.capacity ? 'capacity-error' : undefined}
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.capacity ? 'border-brand-error' : 'border-brand-border'}`}
         />
-        {errors.capacity && <p id="capacity-error" className="text-xs text-brand-error">{errors.capacity.message}</p>}
+        {errors.capacity && (
+          <p id="capacity-error" className="text-xs text-brand-error">
+            {errors.capacity.message}
+          </p>
+        )}
       </div>
 
       {/* Virtual toggle */}
@@ -232,11 +240,11 @@ export function EventForm({
               setValue('isVirtual', !isVirtual);
             }
           }}
-          className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isVirtual ? 'bg-brand-primary' : 'bg-brand-border'}`}
+          className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isVirtual ? 'bg-brand-primary' : 'bg-brand-border'}`}
           onClick={() => setValue('isVirtual', !isVirtual)}
         >
           <div
-            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isVirtual ? 'translate-x-5' : 'translate-x-1'}`}
+            className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${isVirtual ? 'translate-x-5' : 'translate-x-1'}`}
           />
         </div>
         <span className="text-sm font-medium text-brand-text">Virtual event</span>

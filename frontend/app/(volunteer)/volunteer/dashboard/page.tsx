@@ -55,9 +55,7 @@ export default function VolunteerDashboardPage() {
         <div className="absolute -bottom-10 -right-4 w-28 h-28 rounded-full bg-brand-bg/10" />
         <div className="relative z-10 flex items-start justify-between gap-4">
           <div>
-            <p className="text-white/90 text-sm font-medium mb-1">
-              {greeting}
-            </p>
+            <p className="text-brand-bg/70 text-sm font-medium mb-1">{greeting}</p>
             <h1 className="font-heading font-bold text-2xl md:text-3xl text-brand-bg">
               {user?.name?.split(' ')?.[0]}!
             </h1>

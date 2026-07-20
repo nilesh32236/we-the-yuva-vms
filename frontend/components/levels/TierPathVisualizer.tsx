@@ -83,7 +83,7 @@ export function TierPathVisualizer({
             ? `bg-gradient-to-br ${level.gradient} text-white shadow-md`
             : 'bg-brand-border text-brand-muted';
           const pulseClass = isCurrent
-            ? 'animate-pulse ring-2 ring-brand-primary ring-offset-2 ring-offset-brand-surface'
+            ? 'motion-safe:animate-pulse ring-2 ring-brand-primary ring-offset-2 ring-offset-brand-surface'
             : '';
 
           return (

@@ -88,13 +88,13 @@ export function ProfileCompletionModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg bg-background cursor-pointer transition-colors"
+            className="flex-1 py-3 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg bg-background cursor-pointer transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             Maybe Later
           </button>
           <Link
             href="/setup-profile"
-            className="flex-1 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold text-center hover:bg-brand-secondary transition-colors cursor-pointer"
+            className="flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold text-center hover:bg-brand-secondary transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             Complete Profile
           </Link>

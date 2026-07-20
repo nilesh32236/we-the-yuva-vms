@@ -29,7 +29,10 @@ export default function AdminOrganizationsPage() {
     staleTime: 30_000,
   });
 
-  const handleStatusChange = (s: string) => { setStatus(s); setPage(1); };
+  const handleStatusChange = (s: string) => {
+    setStatus(s);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-6 max-w-6xl">

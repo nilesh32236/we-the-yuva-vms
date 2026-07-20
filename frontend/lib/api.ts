@@ -31,10 +31,7 @@ export async function downloadCsv(url: string, filename = 'export.csv') {
     previouslyFocused?.focus();
   } catch (err) {
     previouslyFocused?.focus();
-    const message =
-      err instanceof Error
-        ? err.message
-        : 'Download failed. Please try again.';
+    const message = err instanceof Error ? err.message : 'Download failed. Please try again.';
     throw new Error(message);
   }
 }
@@ -54,9 +51,7 @@ let lastRefreshAccessToken: string | null = null;
 
 function checkTokenRotation(token: string) {
   if (token === lastRefreshAccessToken) {
-    console.warn(
-      '[Auth] Refresh returned same access token — refresh token may not be rotating',
-    );
+    console.warn('[Auth] Refresh returned same access token — refresh token may not be rotating');
   }
   lastRefreshAccessToken = token;
 }

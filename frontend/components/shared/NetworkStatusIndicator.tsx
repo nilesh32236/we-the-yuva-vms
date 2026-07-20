@@ -54,7 +54,7 @@ export function NetworkStatusIndicator() {
 
   return (
     <div
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-xs px-4"
+      className="fixed top-[calc(env(safe-area-inset-top)+1rem)] left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-xs px-4"
       aria-live="polite"
       role="status"
     >

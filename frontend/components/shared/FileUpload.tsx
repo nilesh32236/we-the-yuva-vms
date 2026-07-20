@@ -102,7 +102,7 @@ export function FileUpload({
             variant="destructive"
             onClick={remove}
             aria-label="Remove file"
-            className="absolute -top-2 -right-2 rounded-full w-8 h-8 min-h-0 min-w-0 flex items-center justify-center p-0"
+            className="absolute -top-2 -right-2 min-w-[44px] min-h-[44px] rounded-full bg-brand-error text-white flex items-center justify-center hover:bg-brand-error/80 transition-colors active-bounce"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -121,7 +121,7 @@ export function FileUpload({
               inputRef.current?.click();
             }
           }}
-          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors active-bounce ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
+          className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors active-bounce focus-visible:ring-2 focus-visible:ring-brand-primary ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
         >
           {uploading ? (
             <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />

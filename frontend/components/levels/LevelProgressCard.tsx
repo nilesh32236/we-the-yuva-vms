@@ -63,9 +63,9 @@ export function LevelProgressCard() {
 
   if (isError) {
     return (
-      <div className="bg-brand-surface rounded-2xl border border-red-200 dark:border-red-900/50 p-5">
+      <div className="bg-brand-surface rounded-2xl border border-brand-error/20 p-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-red-700 dark:text-red-300">Failed to load level data</p>
+          <p className="text-sm text-brand-error">Failed to load level data</p>
           <button
             type="button"
             onClick={() => refetch()}
@@ -90,7 +90,10 @@ export function LevelProgressCard() {
   const isMaxLevel = level.tier >= TIER_DATA.length;
 
   return (
-    <Link href="/volunteer/levels" className="block group">
+    <Link
+      href="/volunteer/levels"
+      className="block group focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded-2xl"
+    >
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden hover:shadow-md hover:border-brand-primary/30 transition-shadow duration-200">
         <div className="p-5 space-y-5">
           {/* Current level header */}
@@ -137,7 +140,7 @@ export function LevelProgressCard() {
           )}
 
           {isMaxLevel && (
-            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400">
+            <div className="flex items-center gap-2 text-sm text-brand-accent">
               <Star className="w-4 h-4" />
               <span className="font-medium">Maximum level reached!</span>
             </div>

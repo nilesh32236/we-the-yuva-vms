@@ -35,7 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const userQuery = useQuery<AuthUser | null>({
     queryKey: ['auth-user'],
     queryFn: async () => {
-      if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true') {
+      if (
+        typeof sessionStorage !== 'undefined' &&
+        sessionStorage.getItem('logged_out') === 'true'
+      ) {
         sessionStorage.removeItem('logged_out');
         return null;
       }

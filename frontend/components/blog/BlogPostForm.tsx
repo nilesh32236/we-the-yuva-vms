@@ -67,7 +67,9 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
           {...register('excerpt')}
         />
         {errors.excerpt && (
-          <p id="excerpt-error" className="text-xs text-brand-error">{errors.excerpt.message}</p>
+          <p id="excerpt-error" className="text-xs text-brand-error">
+            {errors.excerpt.message}
+          </p>
         )}
       </div>
 
@@ -106,7 +108,9 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
           {...register('featuredImage')}
         />
         {errors.featuredImage && (
-          <p id="featuredImage-error" className="text-xs text-brand-error">{errors.featuredImage.message}</p>
+          <p id="featuredImage-error" className="text-xs text-brand-error">
+            {errors.featuredImage.message}
+          </p>
         )}
       </div>
 
@@ -135,7 +139,9 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
             className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.tags ? 'border-brand-error' : 'border-brand-border'}`}
           />
           {errors.tags && (
-            <p id="tags-error" className="text-xs text-brand-error">{errors.tags.message}</p>
+            <p id="tags-error" className="text-xs text-brand-error">
+              {errors.tags.message}
+            </p>
           )}
         </div>
         <div className="space-y-1.5">
@@ -153,7 +159,9 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
             {...register('category')}
           />
           {errors.category && (
-            <p id="category-error" className="text-xs text-brand-error">{errors.category.message}</p>
+            <p id="category-error" className="text-xs text-brand-error">
+              {errors.category.message}
+            </p>
           )}
         </div>
       </div>

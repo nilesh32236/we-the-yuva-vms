@@ -171,7 +171,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
             haptic.light();
             setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, true])));
           }}
-          className="text-xs text-brand-primary hover:underline cursor-pointer"
+          className="text-xs text-brand-primary hover:underline cursor-pointer px-3 py-2.5 min-h-[44px]"
         >
           Mark all
         </button>
@@ -290,7 +290,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                       onChange={(e) =>
                         setHoursInputs((s) => ({ ...s, [v.volunteerId]: e.target.value }))
                       }
-                      className={`w-full px-3 py-1.5 text-sm rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30 ${
+                      className={`w-full px-3 py-2.5 text-sm rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30 ${
                         hoursInputs[v.volunteerId] !== undefined &&
                         hoursInputs[v.volunteerId] !== '' &&
                         (
@@ -332,7 +332,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
                             haptic.light();
                             setRatings((s) => ({ ...s, [v.volunteerId]: star }));
                           }}
-                          className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5"
+                          className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5 focus-visible:ring-2 focus-visible:ring-brand-primary"
                           aria-label={`${star} star(s)`}
                         >
                           <Star

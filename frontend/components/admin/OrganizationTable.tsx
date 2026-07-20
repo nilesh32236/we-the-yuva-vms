@@ -30,19 +30,34 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-brand-border bg-brand-bg">
-              <th className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">
+              <th
+                scope="col"
+                className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+              >
                 Organization
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">
+              <th
+                scope="col"
+                className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide"
+              >
                 Status
               </th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell">
+              <th
+                scope="col"
+                className="text-center px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden sm:table-cell"
+              >
                 Staff
               </th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell">
+              <th
+                scope="col"
+                className="text-center px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden md:table-cell"
+              >
                 Docs
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden lg:table-cell">
+              <th
+                scope="col"
+                className="text-left px-4 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide hidden lg:table-cell"
+              >
                 Registered
               </th>
               <th className="px-4 py-3 w-20" />
@@ -100,7 +115,7 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
                   <td className="px-4 py-4 text-right">
                     <Link
                       href={`/admin/organizations/${org.id}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-secondary transition-colors bg-brand-primary/5 px-3 py-1.5 rounded-lg border border-brand-primary/10"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-secondary transition-colors bg-brand-primary/5 px-3 py-3 rounded-lg border border-brand-primary/10 min-h-[44px]"
                     >
                       Manage
                       <ExternalLink className="w-3 h-3" />

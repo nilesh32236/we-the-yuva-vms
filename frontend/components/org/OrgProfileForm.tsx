@@ -80,7 +80,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
     }`;
 
   return (
-    <div className="space-y-5" data-profile-editor>
+    <div className="space-y-5">
       <form onSubmit={handleSubmit(onSave)} className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="org-name" className="text-sm font-medium text-brand-text">
@@ -88,11 +88,19 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-name"
-            {...register('name')}
+            {...register('name', {
+              setValueAs: (v: string) => v,
+            })}
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? 'org-name-error' : undefined}
             className={inputCls('name')}
             placeholder="Organization name"
           />
-          {errors.name && <p className="text-xs text-brand-error">{errors.name.message}</p>}
+          {errors.name && (
+            <p id="org-name-error" className="text-xs text-brand-error">
+              {errors.name.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -143,7 +151,11 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
             className={inputCls('email')}
             placeholder="contact@organization.org"
           />
-          {errors.email && <p className="text-xs text-brand-error">{errors.email.message}</p>}
+          {errors.email && (
+            <p className="text-xs text-brand-error" role="alert">
+              {errors.email.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">

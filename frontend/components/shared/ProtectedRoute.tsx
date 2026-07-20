@@ -30,8 +30,12 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   if (!showContent) {
     if (isLoading && !user) {
       return (
-        <div className="flex items-center justify-center h-dvh" role="status" aria-label="Checking authentication">
-          <div className="w-8 h-8 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
+        <div className="flex items-center justify-center h-dvh">
+          <div
+            className="w-8 h-8 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin"
+            role="status"
+            aria-label="Loading your profile"
+          />
         </div>
       );
     }

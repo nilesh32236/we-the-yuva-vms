@@ -351,10 +351,7 @@ export default function VolunteerLevelsPage() {
               Requirements for {level.nextLevel.name}
             </h2>
             {allRequirementsMet && !hasPendingRequest && (
-              <Button
-                size="sm"
-                onClick={handleOpenRequestDialog}
-              >
+              <Button size="sm" onClick={handleOpenRequestDialog}>
                 <ArrowUp className="w-4 h-4" /> Request Level-Up
               </Button>
             )}

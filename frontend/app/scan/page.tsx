@@ -204,7 +204,11 @@ function ScanInner() {
       ) : (
         <>
           {/* Mode toggle */}
-          <div className="flex gap-2 bg-brand-muted/10 dark:bg-brand-muted/20 rounded-xl p-1" role="tablist" aria-label="Scan mode">
+          <div
+            className="flex gap-2 bg-brand-muted/10 dark:bg-brand-muted/20 rounded-xl p-1"
+            role="tablist"
+            aria-label="Scan mode"
+          >
             <button
               type="button"
               role="tab"

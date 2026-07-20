@@ -222,10 +222,7 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
                       </p>
                       <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-xs text-brand-muted">
                         <span className="flex items-center gap-1">
-                          <LogIn
-                            className="w-3 h-3 text-brand-success"
-                            aria-hidden="true"
-                          />
+                          <LogIn className="w-3 h-3 text-brand-success" aria-hidden="true" />
                           {new Date(a.checkedInAt!).toLocaleTimeString('en-IN', {
                             hour: '2-digit',
                             minute: '2-digit',

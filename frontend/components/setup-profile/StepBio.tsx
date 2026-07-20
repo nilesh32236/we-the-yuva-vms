@@ -45,7 +45,9 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
           }`}
         />
         {fieldError && (
-          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">{fieldError.message}</p>
+          <p id={`${id}-error`} className="text-brand-error text-xs" role="alert">
+            {fieldError.message}
+          </p>
         )}
       </div>
     );
@@ -105,12 +107,16 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
             aria-invalid={!!errors.step5?.avatarUrl}
             aria-describedby={errors.step5?.avatarUrl ? 'avatarUrl-error' : undefined}
             className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-              errors.step5?.avatarUrl ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'
+              errors.step5?.avatarUrl
+                ? 'border-brand-error focus:ring-brand-error'
+                : 'border-brand-border'
             }`}
             {...register('step5.avatarUrl')}
           />
           {errors.step5?.avatarUrl && (
-            <p id="avatarUrl-error" className="text-brand-error text-xs" role="alert">{errors.step5.avatarUrl.message}</p>
+            <p id="avatarUrl-error" className="text-brand-error text-xs" role="alert">
+              {errors.step5.avatarUrl.message}
+            </p>
           )}
         </div>
 

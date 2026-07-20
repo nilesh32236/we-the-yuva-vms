@@ -111,17 +111,13 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
               </div>
 
               <div className="bg-brand-surface dark:bg-brand-primary/10 rounded-2xl p-8">
-                <h2 className="font-heading text-2xl font-bold text-brand-text mb-4">
-                  Stats
-                </h2>
+                <h2 className="font-heading text-2xl font-bold text-brand-text mb-4">Stats</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-xl bg-brand-surface p-5 text-center">
                     <p className="text-3xl font-bold text-brand-primary">
                       {org._count.opportunities}
                     </p>
-                    <p className="text-sm text-brand-muted mt-1">
-                      Opportunities posted
-                    </p>
+                    <p className="text-sm text-brand-muted mt-1">Opportunities posted</p>
                   </div>
                   <div className="rounded-xl bg-brand-surface p-5 text-center">
                     <p className="text-3xl font-bold text-brand-primary">
@@ -136,9 +132,7 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
 
             <div className="space-y-6">
               <div className="bg-brand-surface dark:bg-brand-surface rounded-2xl p-6">
-                <h3 className="font-heading text-lg font-bold text-brand-text mb-4">
-                  Contact
-                </h3>
+                <h3 className="font-heading text-lg font-bold text-brand-text mb-4">Contact</h3>
                 <ul className="space-y-3">
                   {org.email && (
                     <li>
@@ -180,10 +174,8 @@ export default async function OrgProfilePage({ params }: { params: Promise<{ slu
               </div>
 
               {socialLinks.length > 0 && (
-              <div className="bg-brand-surface rounded-2xl p-6">
-                  <h3 className="font-heading text-lg font-bold text-brand-text mb-4">
-                    Social
-                  </h3>
+                <div className="bg-brand-surface rounded-2xl p-6">
+                  <h3 className="font-heading text-lg font-bold text-brand-text mb-4">Social</h3>
                   <ul className="space-y-3">
                     {socialLinks.map(([platform, url]) => (
                       <li key={platform}>

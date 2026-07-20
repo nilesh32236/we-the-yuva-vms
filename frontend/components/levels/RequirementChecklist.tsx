@@ -44,7 +44,7 @@ export function RequirementChecklist({
             <li key={key} className="flex items-start gap-3">
               <div className="mt-0.5 flex-shrink-0">
                 {met ? (
-                  <CheckCircle className="w-5 h-5 text-green-500 dark:text-green-400" />
+                  <CheckCircle className="w-5 h-5 text-brand-success" />
                 ) : (
                   <Circle className="w-5 h-5 text-brand-muted" />
                 )}
@@ -55,14 +55,14 @@ export function RequirementChecklist({
                     {getRequirementLabel(key)}
                   </span>
                   <span
-                    className={`text-xs font-medium flex-shrink-0 ${met ? 'text-green-500 dark:text-green-400' : 'text-brand-muted'}`}
+                    className={`text-xs font-medium flex-shrink-0 ${met ? 'text-brand-success' : 'text-brand-muted'}`}
                   >
                     {current}/{required}
                   </span>
                 </div>
                 <div className="mt-1 h-1.5 bg-brand-border rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-colors duration-500 ${met ? 'bg-green-500' : 'bg-brand-primary'}`}
+                    className={`h-full rounded-full transition-colors duration-500 ${met ? 'bg-brand-success' : 'bg-brand-primary'}`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>

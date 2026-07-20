@@ -58,7 +58,7 @@ export function AddToCalendarButton({
         onClick={handleDownload}
         disabled={downloading}
         loading={downloading}
-        className="p-1.5 min-w-[44px] min-h-[44px] rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50"
+        className="min-h-[44px] min-w-[44px] p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center"
         title={label}
         aria-label={label}
       >
@@ -73,8 +73,8 @@ export function AddToCalendarButton({
       onClick={handleDownload}
       disabled={downloading}
       loading={downloading}
+      className="flex items-center gap-1.5 text-sm font-medium border border-brand-border text-brand-text px-4 py-2 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer disabled:opacity-50 min-h-[44px]"
       aria-label={label}
-      className="rounded-xl px-4 py-2"
     >
       {!downloading && <CalendarPlus className="w-4 h-4" />}
       {label}

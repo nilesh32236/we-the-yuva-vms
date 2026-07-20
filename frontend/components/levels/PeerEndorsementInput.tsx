@@ -59,7 +59,7 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
                 variant="ghost"
                 size="icon"
                 onClick={() => removeEndorsement(index)}
-                className="flex-shrink-0 text-brand-muted hover:text-brand-error hover:bg-brand-error/10 w-8 h-8 p-0"
+                className="flex-shrink-0 min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:text-brand-error hover:bg-brand-error/10 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                 aria-label={`Remove endorsement from ${end.name}`}
               >
                 <Trash2 className="w-4 h-4" />

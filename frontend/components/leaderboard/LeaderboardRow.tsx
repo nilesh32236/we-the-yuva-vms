@@ -15,7 +15,10 @@ interface LeaderboardRowProps {
   sortBy?: 'points' | 'hours';
 }
 
-const MEDALS = ['', '🥇', '🥈', '🥉'];
+import { Trophy, Award, Medal } from 'lucide-react';
+
+const MEDAL_ICONS = ['', Trophy, Award, Medal];
+const MEDAL_COLORS = ['', 'text-yellow-500', 'text-gray-400', 'text-amber-700'];
 
 export function LeaderboardRow({
   rank,
@@ -40,9 +43,12 @@ export function LeaderboardRow({
       {/* Rank */}
       <div className="w-8 flex-shrink-0 text-center">
         {isTop3 ? (
-          <span className="text-lg" role="img" aria-label={`Rank ${rank}`}>
-            {MEDALS[rank]}
-          </span>
+          (() => {
+            const MedIcon = MEDAL_ICONS[rank];
+            return (
+              <MedIcon className={`w-5 h-5 ${MEDAL_COLORS[rank]}`} aria-label={`Rank ${rank}`} />
+            );
+          })()
         ) : (
           <span className="text-sm font-semibold text-brand-muted">{rank}</span>
         )}

@@ -94,7 +94,7 @@ export function AppUpdatePrompt() {
           <button
             type="button"
             onClick={handleUpdate}
-            className="mt-2.5 flex items-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] px-3.5 py-2 rounded-lg cursor-pointer transition-colors duration-100"
+            className="mt-2.5 flex items-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] px-3.5 py-3 rounded-lg cursor-pointer transition-colors duration-100 min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
           >
             <RefreshCw className="w-3 h-3 animate-spin-slow" />
             Reload & Update
@@ -104,7 +104,7 @@ export function AppUpdatePrompt() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg transition-colors cursor-pointer active:scale-90"
+          className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg transition-colors cursor-pointer active:scale-90 focus-visible:ring-2 focus-visible:ring-brand-primary"
           aria-label="Dismiss notification"
         >
           <X className="w-3.5 h-3.5" />

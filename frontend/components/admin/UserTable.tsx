@@ -190,7 +190,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     <button
                       type="button"
                       onClick={(e) => handleMenuClick(u.id, e)}
-                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer"
+                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
                       disabled={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
                     >
@@ -217,7 +217,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
           />
           <div
             ref={menuRef}
-            className="fixed z-50 bg-brand-surface border border-brand-border rounded-xl shadow-xl py-1.5 min-w-[180px] animate-in fade-in zoom-in-95 duration-150"
+            className="fixed z-50 bg-brand-surface border border-brand-border rounded-xl shadow-xl py-1.5 min-w-[180px] motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 duration-150"
             style={{ top: menuPosition.top, right: menuPosition.right }}
             role="menu"
           >
@@ -232,7 +232,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                       onClick={() =>
                         updateMutation.mutate({ id: user.id, data: { status: 'ACTIVE' } })
                       }
-                      className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
                       aria-label={`Activate ${user.name}`}
                       role="menuitem"
                     >
@@ -246,7 +246,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                       onClick={() =>
                         updateMutation.mutate({ id: user.id, data: { status: 'SUSPENDED' } })
                       }
-                      className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
+                      className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
                       aria-label={`Suspend ${user.name}`}
                       role="menuitem"
                     >
@@ -261,7 +261,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                           type="button"
                           key={role}
                           onClick={() => updateMutation.mutate({ id: user.id, data: { role } })}
-                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
                           aria-label={`Change role to ${role}`}
                           role="menuitem"
                         >

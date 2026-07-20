@@ -65,7 +65,7 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
+            className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
           >
             <X className="w-4 h-4 text-brand-muted" />
           </button>
@@ -110,8 +110,7 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
             variant="destructive"
             onClick={() => reviewMutation.mutate({ action: 'reject' })}
             disabled={reviewMutation.isPending}
-            loading={reviewMutation.isPending && reviewMutation.variables?.action === 'reject'}
-            className="flex-1"
+            className="flex-1 min-h-[44px] py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
           >
             {!reviewMutation.isPending || reviewMutation.variables?.action !== 'reject' ? (
               <XCircle className="w-4 h-4 inline mr-1" />
@@ -123,8 +122,7 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
             variant="primary"
             onClick={() => reviewMutation.mutate({ action: 'approve' })}
             disabled={reviewMutation.isPending}
-            loading={reviewMutation.isPending && reviewMutation.variables?.action === 'approve'}
-            className="flex-1"
+            className="flex-1 min-h-[44px] py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
           >
             {!reviewMutation.isPending || reviewMutation.variables?.action !== 'approve' ? (
               <CheckCircle className="w-4 h-4 inline mr-1" />
@@ -164,7 +162,7 @@ export function BadgeApprovalQueue() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by volunteer name or email…"
           aria-label="Search badge approvals"
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          className="w-full pl-9 pr-4 py-3 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
         />
       </div>
 
@@ -232,7 +230,7 @@ export function BadgeApprovalQueue() {
                     type="button"
                     variant="ghost"
                     onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold p-0 min-h-0 h-auto hover:bg-transparent hover:underline"
+                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
                     Review
                   </Button>
