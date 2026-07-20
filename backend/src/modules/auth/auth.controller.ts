@@ -127,7 +127,9 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
 
     await checkOtpRateLimit(email);
     const otp = await generateAndStoreOtp(email);
-    await enqueueOtpEmail(email, otp);
+    enqueueOtpEmail(email, otp).catch((err) =>
+      logger.warn('Failed to send OTP email', { error: (err as Error).message })
+    );
     logAudit({ userId: user.id, action: 'OTP_SENT' }).catch((err) =>
       logger.warn('Audit log failed', { error: (err as Error).message })
     );
