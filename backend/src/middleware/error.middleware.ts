@@ -40,79 +40,26 @@ export function errorMiddleware(
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    switch (err.code) {
-      case 'P2000':
-        res.status(400).json({ error: 'Value too long for column' });
-        return;
-      case 'P2001':
-        Sentry.captureException(err);
-        res.status(404).json({ error: 'Record not found' });
-        return;
-      case 'P2030':
-        Sentry.captureException(err);
-        res.status(400).json({ error: 'Database query error' });
-        return;
-      case 'P2002':
-        res.status(409).json({ error: 'Resource already exists' });
-        return;
-      case 'P2003':
-        res.status(400).json({ error: 'Referenced resource does not exist' });
-        return;
-      case 'P2004':
-      case 'P2005':
-      case 'P2006':
-      case 'P2007':
-      case 'P2008':
-      case 'P2009':
-      case 'P2010':
-      case 'P2011':
-      case 'P2012':
-      case 'P2013':
-        res.status(400).json({ error: 'Database constraint error' });
-        return;
-      case 'P2014':
-        res.status(400).json({ error: 'Required relation would be violated' });
-        return;
-      case 'P2015':
-      case 'P2016':
-      case 'P2017':
-      case 'P2018':
-      case 'P2019':
-      case 'P2020':
-        res.status(404).json({ error: 'Related record not found' });
-        return;
-      case 'P2021':
-        logger.error('Prisma: Table not found - check migrations', { err });
-        Sentry.captureException(err);
-        res.status(500).json({ error: 'Internal server error' });
-        return;
-      case 'P2022':
-        logger.error('Prisma: Column not found - check schema', { err });
-        Sentry.captureException(err);
-        res.status(500).json({ error: 'Internal server error' });
-        return;
-      case 'P2023':
-      case 'P2024':
-        res.status(503).json({ error: 'Database temporarily unavailable' });
-        return;
-      case 'P2025':
-        res.status(404).json({ error: 'Resource not found' });
-        return;
-      case 'P2026':
-        res.status(400).json({ error: 'Unsupported database operation' });
-        return;
-      case 'P2027':
-      case 'P2028':
-        logger.error('Prisma: Internal database error', { err, code: err.code });
-        Sentry.captureException(err);
-        res.status(500).json({ error: 'Internal server error' });
-        return;
-      default:
-        logger.error('Unhandled Prisma error', { err, code: err.code });
-        Sentry.captureException(err);
-        res.status(500).json({ error: 'Internal server error' });
-        return;
+    const code = err.code;
+    const is5xx = ['P2021', 'P2022', 'P2027', 'P2028'].includes(code);
+    if (is5xx) {
+      logger.error('Prisma error', { err, code });
+      Sentry.captureException(err);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
     }
+    const is404 = ['P2001', 'P2015', 'P2016', 'P2017', 'P2018', 'P2019', 'P2020', 'P2025'].includes(code);
+    if (is404) {
+      res.status(404).json({ error: 'Resource not found' });
+      return;
+    }
+    const is503 = ['P2023', 'P2024'].includes(code);
+    if (is503) {
+      res.status(503).json({ error: 'Database temporarily unavailable' });
+      return;
+    }
+    res.status(400).json({ error: 'Database request error' });
+    return;
   }
 
   if (err instanceof Prisma.PrismaClientValidationError) {

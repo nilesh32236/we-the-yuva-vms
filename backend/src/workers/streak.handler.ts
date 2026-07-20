@@ -16,6 +16,12 @@ export async function updateStreaks() {
 
   while (true) {
     const profiles = await prisma.volunteerProfile.findMany({
+      where: {
+        OR: [
+          { lastActiveAt: { gte: yesterday } },
+          { currentStreak: { gt: 0 } },
+        ],
+      },
       select: { userId: true, currentStreak: true, longestStreak: true, lastActiveAt: true },
       take: PAGE_SIZE,
       ...(cursor ? { skip: 1, cursor: { userId: cursor } } : {}),

@@ -6,7 +6,7 @@ import { hasSystemRole } from '../../shared/helpers';
 import { invalidateCache } from '../leaderboard/leaderboard.service';
 import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
 import { logAudit } from '../../lib/audit';
-import { sendEmail } from '../../lib/email';
+
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -60,54 +60,26 @@ export async function createEvent(
     metadata: { opportunityId },
   });
 
-  // Enqueue event-invitation jobs for all ACCEPTED volunteers
+  // Enqueue event-invitation jobs for all ACCEPTED volunteers (batched via addBulk)
   const acceptedApplications = await prisma.application.findMany({
     where: { opportunityId, status: 'ACCEPTED' },
     select: { volunteerId: true },
   });
 
-  // Batch-fetch all volunteer emails in a single query
-  const volunteerIds = acceptedApplications.map((a) => a.volunteerId);
-  const volunteers = await prisma.user.findMany({
-    where: { id: { in: volunteerIds } },
-    select: { id: true, email: true },
-  });
-  const emailMap = new Map(volunteers.map((v) => [v.id, v.email]));
-
-  for (const { volunteerId } of acceptedApplications) {
-    const send = async () => {
-      if (notificationsQueue) {
-        try {
-          await notificationsQueue.add('event-invitation', {
-            volunteerId,
-            eventId: event.id,
-            eventTitle: event.title,
-            eventDate: event.eventDate,
-            venue: event.venue ?? event.meetingLink,
-          });
-          return;
-        } catch (err) {
-          logger.warn('Failed to enqueue event invitation, trying direct', {
-            error: (err as Error).message,
-          });
-        }
-      }
-
-      const email = emailMap.get(volunteerId);
-      if (email) {
-        await sendEmail(
-          email,
-          `You're invited — ${event.title}`,
-          `<h2>You're invited!</h2><p>You have been invited to <strong>${event.title}</strong>.</p><p><strong>Date:</strong> ${event.eventDate.toISOString()}${event.venue ? `<br><strong>Venue:</strong> ${event.venue}` : ''}</p>`,
-          `You're invited to "${event.title}" on ${event.eventDate.toISOString()}${event.venue ? ` at ${event.venue}` : ''}.`
-        ).catch((err) =>
-          logger.warn('Failed to send direct event invitation', { error: (err as Error).message })
-        );
-      }
-    };
-
-    send().catch((err) =>
-      logger.warn('Event invitation send failed', { error: (err as Error).message })
+  if (notificationsQueue) {
+    await notificationsQueue.addBulk(
+      acceptedApplications.map(({ volunteerId }) => ({
+        name: 'event-invitation',
+        data: {
+          volunteerId,
+          eventId: event.id,
+          eventTitle: event.title,
+          eventDate: event.eventDate,
+          venue: event.venue ?? event.meetingLink,
+        },
+      }))
+    ).catch((err) =>
+      logger.warn('Failed to enqueue event invitations via queue', { error: (err as Error).message })
     );
   }
 

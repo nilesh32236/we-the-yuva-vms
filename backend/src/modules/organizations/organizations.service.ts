@@ -4,15 +4,22 @@ import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
+let _coordinatorRoleId: string | null = null;
+let _volunteerRoleId: string | null = null;
+
 async function getCoordinatorRoleId(): Promise<string> {
+  if (_coordinatorRoleId) return _coordinatorRoleId;
   const role = await prisma.role.findUnique({ where: { name: 'COORDINATOR' } });
   if (!role) throw new AppError('COORDINATOR role not found', 500);
+  _coordinatorRoleId = role.id;
   return role.id;
 }
 
 async function getVolunteerRoleId(): Promise<string> {
+  if (_volunteerRoleId) return _volunteerRoleId;
   const role = await prisma.role.findUnique({ where: { name: 'VOLUNTEER' } });
   if (!role) throw new AppError('VOLUNTEER role not found', 500);
+  _volunteerRoleId = role.id;
   return role.id;
 }
 
