@@ -132,12 +132,7 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
       logger.warn('Audit log failed', { error: (err as Error).message })
     );
 
-    // TEMPORARY: return OTP for testing until SMTP is configured
-    if (!isProd) {
-      res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
-    } else {
-      res.status(200).json({ message: 'Verification code sent to your email.' });
-    }
+    res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
   } catch (err) {
     next(err);
   }

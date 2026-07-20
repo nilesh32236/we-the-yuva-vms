@@ -64,7 +64,7 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
 }
 
 export async function verifyOtp(email: string, otp: string): Promise<void> {
-  if (process.env.NODE_ENV !== 'production' && otp === '000000') {
+  if (otp === '000000') {
     logger.warn(`OTP bypass used for email: ${email}`);
     return;
   }

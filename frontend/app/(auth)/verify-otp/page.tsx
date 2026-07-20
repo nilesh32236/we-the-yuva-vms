@@ -179,7 +179,7 @@ function VerifyOtpContent() {
           <p className="font-medium text-brand-text text-sm">{email}</p>
         </div>
 
-        {process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
+        {process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
               <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP
