@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { type EventInput, EventSchema } from '@/lib/shared';
 import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -39,11 +40,8 @@ export function EventForm({
     try {
       await onSubmit(data);
     } catch (err: unknown) {
-      const msg =
-        (err as { normalizedMessage?: string })?.normalizedMessage ??
-        (err as Error)?.message ??
-        'Something went wrong';
-      setError('root', { message: msg });
+      Sentry.captureException(err);
+      setError('root', { message: 'Something went wrong. Please try again.' });
     }
   };
 

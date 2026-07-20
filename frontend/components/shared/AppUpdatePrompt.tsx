@@ -41,9 +41,7 @@ export function AppUpdatePrompt() {
 
         reg.addEventListener('updatefound', handleUpdateFound);
       })
-      .catch((err) => {
-        console.error('SW registration failed:', err);
-      });
+      .catch(() => {});
 
     // 3. Listen for controlling worker change (after skipWaiting is invoked)
     const handleControllerChange = () => {

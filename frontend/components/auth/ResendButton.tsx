@@ -2,6 +2,7 @@
 
 import { RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { Button } from '../ui/Button';
 import { useToast } from '../../hooks/use-toast';
 
@@ -34,9 +35,8 @@ export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonPro
       await onResend();
       setCountdown(cooldownSeconds);
     } catch (err) {
-      const msg =
-        (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to resend code';
-      toast({ title: 'Error', description: msg, variant: 'destructive' });
+      Sentry.captureException(err);
+      toast({ title: 'Error', description: 'Request failed. Please try again.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }

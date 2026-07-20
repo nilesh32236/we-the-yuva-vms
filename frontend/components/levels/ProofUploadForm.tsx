@@ -37,11 +37,7 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
       onFilesChange(newFiles.map((f) => f.url));
     } catch (err) {
       Sentry.captureException(err);
-      const message =
-        (err as { normalizedMessage?: string })?.normalizedMessage ??
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-        'Upload failed. Please try again.';
-      setUploadError(message);
+      setUploadError('Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
