@@ -24,7 +24,7 @@ const connect = () => {
 
     redis.on('connect', () => logger.info('Redis connected'));
     redis.on('ready', () => logger.info('Redis ready'));
-    redis.on('error', (err) => logger.error('Redis error', { error: err.message }));
+    redis.on('error', (err) => logger.warn('Redis error', { error: err.message, stack: err.stack, state: redis?.status }));
     redis.on('close', () => logger.warn('Redis connection closed — will retry'));
     redis.on('reconnecting', (delay: number) => logger.info(`Redis reconnecting in ${delay}ms`));
   } catch (err) {

@@ -17,7 +17,8 @@ async function ensureUploadsDir() {
   try {
     await fs.promises.mkdir(UPLOADS_DIR, { recursive: true });
     uploadsDirReady = true;
-  } catch {
+  } catch (err) {
+    logger.error('Failed to create uploads directory', { error: (err as Error).message });
     throw new AppError(`Uploads directory not writable at ${UPLOADS_DIR}`, 500);
   }
 }

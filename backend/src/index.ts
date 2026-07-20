@@ -90,15 +90,17 @@ async function main() {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
 
-  process.on('unhandledRejection', (reason) => {
+  process.on('unhandledRejection', async (reason) => {
     logger.error('UNHANDLED REJECTION', { err: reason });
     Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)));
+    await Sentry.flush(2000);
     process.exit(1);
   });
 
   process.on('uncaughtException', async (error) => {
     logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
     Sentry.captureException(error);
+    await prisma.$disconnect();
     await Sentry.flush(2000);
     process.exit(1);
   });

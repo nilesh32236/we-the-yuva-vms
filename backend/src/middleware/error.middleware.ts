@@ -29,7 +29,7 @@ export function errorMiddleware(
   }
 
   if (err instanceof AppError) {
-    if (err.status >= 500) {
+    if (err.status >= 500 || err.status === 429 || err.status === 403) {
       Sentry.captureException(err);
     }
     const response: Record<string, unknown> = { error: err.message };
