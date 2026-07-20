@@ -204,10 +204,9 @@ export function EventSeriesForm({
       </label>
       <input
         id={id}
-        disabled={isSubmitting}
         {...register(id)}
         {...extra}
-        disabled={extra?.disabled ?? false}
+        disabled={extra?.disabled ?? isSubmitting}
         className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60 ${
           errors[id] ? 'border-brand-error' : 'border-brand-border'
         }`}

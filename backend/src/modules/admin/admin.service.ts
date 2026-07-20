@@ -1,4 +1,4 @@
-import { type Prisma, type User } from '@prisma/client';
+import { type Prisma, type User, UserStatus } from '@prisma/client';
 import type { AdminUserUpdateInput } from '@/shared';
 import { logAudit } from '../../lib/audit';
 import { sendEmail } from '../../lib/email';
@@ -88,7 +88,7 @@ export async function listUsers(filters: ListUsersFilters, pagination: Paginatio
   // Build where clause
   const where: Prisma.UserWhereInput = {};
   if (role) where.roleRef = { name: role };
-  if (status) where.status = status;
+  if (status) where.status = status as UserStatus;
   if (search) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' } },

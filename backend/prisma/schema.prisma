@@ -152,12 +152,14 @@ enum LevelRequestStatus {
   APPROVED
   REJECTED
   AUTO_APPROVED
+  CANCELLED
 }
 
 enum MentorshipStatus {
   PENDING
   ACTIVE
   COMPLETED
+  CANCELLED
 }
 
 enum PostStatus {

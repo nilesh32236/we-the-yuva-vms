@@ -31,7 +31,7 @@ export default function RegisterOrganizationPage() {
   const [docs, setDocs] = useState<DocItem[]>([]);
 
   useEffect(() => {
-    if (!isAuthLoading && (!user || user.role !== 'ORGANIZATION_ADMIN')) {
+    if (!isAuthLoading && user?.role !== 'ORGANIZATION_ADMIN') {
       if (!user) router.push('/login');
       else router.push('/');
     }

@@ -67,7 +67,7 @@ export async function getLeaderboard(params: {
 }) {
   const cacheKey = getCacheKey(params);
   const cached = cache.get(cacheKey);
-  if (cached?.expiresAt > Date.now()) {
+  if (cached && cached.expiresAt > Date.now()) {
     return cached.data;
   }
 

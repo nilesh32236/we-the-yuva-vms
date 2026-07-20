@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client';
+import type { Level, Prisma } from '@prisma/client';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { redis } from '../../lib/redis';
@@ -10,7 +10,7 @@ import { checkAndAwardBadges } from '../badges/badge-engine.service';
 const LEVELS_CACHE_KEY = 'levels:all';
 const LEVELS_CACHE_TTL = 300;
 
-async function getCachedLevels() {
+async function getCachedLevels(): Promise<Level[]> {
   if (redis) {
     try {
       const cached = await redis.get(LEVELS_CACHE_KEY);
