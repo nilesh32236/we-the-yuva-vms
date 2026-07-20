@@ -1,11 +1,13 @@
 import { api } from './api';
 
+import { CheckInSchema } from '@/lib/shared';
+
 interface QueuedCheckin {
   id?: number;
   eventId: string;
   qrToken?: string;
   location?: { lat: number; lng: number };
-  createdAt: number;
+  createdAt: string;
   retryCount?: number;
 }
 
@@ -32,12 +34,18 @@ function openDb(): Promise<IDBDatabase> {
   });
 }
 
-export async function queueCheckin(data: Omit<QueuedCheckin, 'id' | 'createdAt'>): Promise<void> {
+export async function queueCheckin(
+  data: Omit<QueuedCheckin, 'id' | 'createdAt'>
+): Promise<void> {
+  const parsed = CheckInSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error(`Invalid check-in data: ${parsed.error.errors.map((e) => e.message).join(', ')}`);
+  }
   try {
     const db = await openDb();
     return new Promise((resolve, reject) => {
       const tx = db.transaction(STORE_NAME, 'readwrite');
-      tx.objectStore(STORE_NAME).add({ ...data, createdAt: Date.now() });
+      tx.objectStore(STORE_NAME).add({ ...data, createdAt: new Date().toISOString() });
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });

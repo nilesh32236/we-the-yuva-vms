@@ -87,6 +87,13 @@ export type UpdateCourseInput = z.infer<typeof UpdateCourseSchema>;
 export type CreateLessonInput = z.infer<typeof CreateLessonSchema>;
 export type UpdateLessonInput = z.infer<typeof UpdateLessonSchema>;
 
+export interface AssessmentInput {
+  aspirations: string[];
+  learningGoals?: string;
+  skills: string[];
+  interests: string[];
+}
+
 export interface AuthUser {
   id: string;
   name: string;

@@ -16,6 +16,7 @@ import {
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { z } from 'zod';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { StatsCard } from '@/components/charts/StatsCard';
 import { useToast } from '@/hooks/use-toast';
@@ -34,25 +35,26 @@ const APP_STATUS_COLORS: Record<string, string> = {
   WITHDRAWN: 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400',
 };
 
-interface OpportunityDetail {
-  id: string;
-  title: string;
-  description: string | null;
-  category: string;
-  type: string;
-  totalSlots: number;
-  status: string;
-  startDate: string;
-  endDate: string;
-  deadline: string | null;
-  isRemote: boolean;
-  skills: string[];
-  createdBy: { name: string; email: string } | null;
-  organization: { name: string; id: string } | null;
-  location: { name: string } | null;
-  _count: { applications: number; events: number };
-  applicationStats: { status: string; _count: number }[];
-}
+const OpportunityDetailSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  category: z.string(),
+  type: z.string(),
+  totalSlots: z.number(),
+  status: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  deadline: z.string().nullable(),
+  isRemote: z.boolean(),
+  skills: z.array(z.string()),
+  createdBy: z.object({ name: z.string(), email: z.string() }).nullable(),
+  organization: z.object({ name: z.string(), id: z.string() }).nullable(),
+  location: z.object({ name: z.string() }).nullable(),
+  _count: z.object({ applications: z.number(), events: z.number() }),
+  applicationStats: z.array(z.object({ status: z.string(), _count: z.number() })),
+});
+type OpportunityDetail = z.infer<typeof OpportunityDetailSchema>;
 
 export default function AdminOpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -68,7 +70,8 @@ export default function AdminOpportunityDetailPage() {
     refetch,
   } = useQuery({
     queryKey: ['admin-opportunity-detail', id],
-    queryFn: () => api.get(`/admin/opportunities/${id}`).then((r) => r.data as OpportunityDetail),
+    queryFn: () =>
+      api.get(`/admin/opportunities/${id}`).then((r) => OpportunityDetailSchema.parse(r.data)),
     enabled: !!id,
   });
 

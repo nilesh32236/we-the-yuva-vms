@@ -10,14 +10,7 @@ import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import type { ApiError } from '@/lib/shared';
-
-const storySchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  content: z.string().min(1, 'Story content is required'),
-  mediaUrl: z.string().optional(),
-});
+import { CreateStorySchema, type ApiError } from '@/lib/shared';
 
 export default function NewStoryPage() {
   const router = useRouter();
@@ -29,7 +22,7 @@ export default function NewStoryPage() {
     control,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(storySchema),
+    resolver: zodResolver(CreateStorySchema),
     defaultValues: { title: '', content: '', mediaUrl: '' },
   });
 

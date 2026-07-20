@@ -17,8 +17,8 @@ import { z } from 'zod';
 
 const requestSchema = z.object({
   selectedLevel: z.string().min(1, 'Please select a level'),
-  notes: z.string().optional(),
-  proofUrls: z.array(z.string()).optional(),
+  notes: z.string().max(1000).optional(),
+  proofUrls: z.array(z.string().url()).optional(),
 });
 
 type RequestForm = z.infer<typeof requestSchema>;

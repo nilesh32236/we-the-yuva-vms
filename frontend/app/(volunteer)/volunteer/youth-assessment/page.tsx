@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
-import type { ApiError } from '@/lib/shared';
+import type { ApiError, AssessmentInput } from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -296,7 +296,7 @@ export default function YouthAssessmentPage() {
     },
   ];
 
-  const onSubmit = async (data: z.infer<typeof assessmentSchema>) => {
+  const onSubmit = async (data: AssessmentInput) => {
     setLoading(true);
     try {
       await api.post('/youth-profiles/me/initial', {

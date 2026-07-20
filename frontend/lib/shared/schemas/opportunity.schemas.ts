@@ -66,7 +66,7 @@ export const EventSchema = z
 export const ApplySchema = z.object({}).optional();
 
 export const ApplicationStatusSchema = z.object({
-  status: z.enum(['ACCEPTED', 'REJECTED']),
+  status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'WITHDRAWN']),
 });
 
 export const AttendanceSchema = z.object({

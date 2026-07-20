@@ -31,6 +31,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
+// Deliberately diverges from shared VolunteerProfileSchema:
+// skills/interests use comma-separated strings for the form input (split to arrays on submit)
 const profileSchema = z
   .object({
     volunteerType: z.string().min(1, 'Please select a volunteer type'),

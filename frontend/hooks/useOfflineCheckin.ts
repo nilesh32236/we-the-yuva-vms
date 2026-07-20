@@ -8,6 +8,7 @@ import {
   syncQueuedCheckins,
   clearQueue,
 } from '@/lib/offline-queue';
+import { CheckInSchema } from '@/lib/shared';
 import { useAuth } from '@/hooks/useAuth';
 
 interface UseOfflineCheckinOptions {
@@ -106,6 +107,12 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
+      const parsed = CheckInSchema.safeParse(body);
+      if (!parsed.success) {
+        throw new Error(
+          `Invalid check-in data: ${parsed.error.errors.map((e) => e.message).join(', ')}`
+        );
+      }
       if (!isOnline) {
         try {
           await queueCheckin({

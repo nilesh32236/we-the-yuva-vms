@@ -6,20 +6,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { z } from 'zod';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 
-interface StoryDetail {
-  id: string;
-  title: string;
-  content: string;
-  mediaUrl: string | null;
-  published: boolean;
-  createdAt: string;
-  user: { name: string; email: string };
-}
+const StoryDetailSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  content: z.string(),
+  mediaUrl: z.string().nullable(),
+  published: z.boolean(),
+  createdAt: z.string(),
+  user: z.object({ name: z.string(), email: z.string() }),
+});
+type StoryDetail = z.infer<typeof StoryDetailSchema>;
 
 export default function AdminStoryDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -36,7 +38,8 @@ export default function AdminStoryDetailPage() {
     refetch,
   } = useQuery({
     queryKey: ['admin-story-detail', id],
-    queryFn: () => api.get(`/admin/stories/${id}`).then((r) => r.data as StoryDetail),
+    queryFn: () =>
+      api.get(`/admin/stories/${id}`).then((r) => StoryDetailSchema.parse(r.data)),
     enabled: !!id,
   });
 
