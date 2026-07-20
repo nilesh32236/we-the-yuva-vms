@@ -58,12 +58,14 @@ export function ContactForm() {
           id="name"
           type="text"
           {...register('name')}
+          disabled={isSubmitting}
           aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? 'name-error' : undefined}
           className={`w-full rounded-xl border p-3 bg-background text-base text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.name ? 'border-brand-error' : 'border-brand-border'}`}
           placeholder="Your name"
         />
         {errors.name && (
-          <p className="mt-1 text-xs text-brand-error" role="alert">
+          <p id="name-error" className="mt-1 text-xs text-brand-error" role="alert">
             {errors.name.message}
           </p>
         )}
@@ -77,12 +79,14 @@ export function ContactForm() {
           id="email"
           type="email"
           {...register('email')}
+          disabled={isSubmitting}
           aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? 'email-error' : undefined}
           className={`w-full rounded-xl border p-3 bg-background text-base text-brand-text placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.email ? 'border-brand-error' : 'border-brand-border'}`}
           placeholder="you@example.com"
         />
         {errors.email && (
-          <p className="mt-1 text-xs text-brand-error" role="alert">
+          <p id="email-error" className="mt-1 text-xs text-brand-error" role="alert">
             {errors.email.message}
           </p>
         )}
@@ -95,7 +99,9 @@ export function ContactForm() {
         <select
           id="subject"
           {...register('subject')}
+          disabled={isSubmitting}
           aria-invalid={!!errors.subject}
+          aria-describedby={errors.subject ? 'subject-error' : undefined}
           className={`w-full rounded-xl border p-3 bg-background text-base text-brand-text focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.subject ? 'border-brand-error' : 'border-brand-border'}`}
         >
           <option value="" disabled>
@@ -108,7 +114,7 @@ export function ContactForm() {
           ))}
         </select>
         {errors.subject && (
-          <p className="mt-1 text-xs text-brand-error" role="alert">
+          <p id="subject-error" className="mt-1 text-xs text-brand-error" role="alert">
             {errors.subject.message}
           </p>
         )}
@@ -122,12 +128,14 @@ export function ContactForm() {
           id="message"
           rows={5}
           {...register('message')}
+          disabled={isSubmitting}
           aria-invalid={!!errors.message}
+          aria-describedby={errors.message ? 'message-error' : undefined}
           className={`w-full rounded-xl border p-3 bg-background text-base text-brand-text placeholder:text-brand-muted resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary ${errors.message ? 'border-brand-error' : 'border-brand-border'}`}
           placeholder="Tell us what's on your mind..."
         />
         {errors.message && (
-          <p className="mt-1 text-xs text-brand-error" role="alert">
+          <p id="message-error" className="mt-1 text-xs text-brand-error" role="alert">
             {errors.message.message}
           </p>
         )}

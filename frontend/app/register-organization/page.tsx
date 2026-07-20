@@ -226,11 +226,13 @@ export default function RegisterOrganizationPage() {
                 type="text"
                 placeholder="e.g. Yuva Foundation"
                 disabled={isSubmitting}
+                aria-describedby={errors.name ? 'name-error' : undefined}
+                aria-invalid={!!errors.name}
                 className={`w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-50 ${errors.name ? 'border-brand-error' : 'border-brand-border'}`}
                 {...register('name')}
               />
               {errors.name && (
-                <p className="text-xs text-brand-error" role="alert">
+                <p id="name-error" className="text-xs text-brand-error" role="alert">
                   {errors.name.message}
                 </p>
               )}
@@ -287,11 +289,13 @@ export default function RegisterOrganizationPage() {
                   type="email"
                   placeholder="org@example.com"
                   disabled={isSubmitting}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
+                  aria-invalid={!!errors.email}
                   className="w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border disabled:opacity-50"
                   {...register('email')}
                 />
                 {errors.email && (
-                  <p className="text-xs text-brand-error" role="alert">
+                  <p id="email-error" className="text-xs text-brand-error" role="alert">
                     {errors.email.message}
                   </p>
                 )}
@@ -307,11 +311,13 @@ export default function RegisterOrganizationPage() {
                 type="url"
                 placeholder="https://example.org"
                 disabled={isSubmitting}
+                aria-describedby={errors.website ? 'website-error' : undefined}
+                aria-invalid={!!errors.website}
                 className="w-full px-3 py-2.5 rounded-xl border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border disabled:opacity-50"
                 {...register('website')}
               />
               {errors.website && (
-                <p className="text-xs text-brand-error" role="alert">
+                <p id="website-error" className="text-xs text-brand-error" role="alert">
                   {errors.website.message}
                 </p>
               )}

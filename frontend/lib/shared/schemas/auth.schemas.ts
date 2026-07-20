@@ -66,8 +66,8 @@ export const VerifyOtpSchema = z.object({
 });
 
 export const ConsentSchema = z.object({
-  privacyPolicyAccepted: z.literal(true, {
-    errorMap: () => ({ message: 'You must accept the privacy policy to continue' }),
+  privacyPolicyAccepted: z.boolean().refine((v) => v === true, {
+    message: 'You must accept the privacy policy to continue',
   }),
   mediaConsentAccepted: z.boolean(),
 });

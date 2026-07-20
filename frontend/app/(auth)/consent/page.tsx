@@ -56,7 +56,7 @@ export default function ConsentPage() {
   } = useForm<ConsentInput>({
     resolver: zodResolver(ConsentSchema),
     defaultValues: {
-      privacyPolicyAccepted: false as never,
+      privacyPolicyAccepted: false,
       mediaConsentAccepted: false,
     },
   });

@@ -189,6 +189,7 @@ export function EventSeriesForm({
       </label>
       <input
         id={id}
+        disabled={isSubmitting}
         {...register(id)}
         {...extra}
         disabled={extra?.disabled ?? false}

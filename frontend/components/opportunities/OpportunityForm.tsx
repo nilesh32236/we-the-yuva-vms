@@ -299,6 +299,7 @@ export function OpportunityForm({
           <input
             id="opp-skill-input"
             value={skillInput}
+            disabled={isSubmitting}
             onChange={(e) => setSkillInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ',') {
@@ -309,7 +310,7 @@ export function OpportunityForm({
             placeholder="Add skill, press Enter"
             className="flex-1 px-3 py-2 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
-          <Button type="button" variant="outline" onClick={addSkill}>
+          <Button type="button" variant="outline" onClick={addSkill} disabled={isSubmitting}>
             <Plus className="w-4 h-4" />
           </Button>
         </div>
