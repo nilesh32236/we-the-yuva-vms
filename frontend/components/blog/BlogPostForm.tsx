@@ -5,7 +5,11 @@ import { useForm } from 'react-hook-form';
 import type { CreateBlogPostInput } from '@/lib/shared';
 import { CreateBlogPostSchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
-import { RichTextEditor } from './RichTextEditor';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(() => import('./RichTextEditor').then((m) => m.RichTextEditor), {
+  ssr: false,
+});
 
 interface BlogPostFormProps {
   defaultValues?: Partial<CreateBlogPostInput>;

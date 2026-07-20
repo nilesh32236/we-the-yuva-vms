@@ -7,7 +7,12 @@ import * as Sentry from '@sentry/nextjs';
 import { type EventInput, EventSchema } from '@/lib/shared';
 import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { EventSeriesForm, type EventSeriesOutput } from './EventSeriesForm';
+import dynamic from 'next/dynamic';
+import type { EventSeriesOutput } from './EventSeriesForm';
+
+const EventSeriesForm = dynamic(() => import('./EventSeriesForm').then((m) => m.EventSeriesForm), {
+  ssr: false,
+});
 
 interface EventFormProps {
   defaultValues?: Partial<EventInput>;

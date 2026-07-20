@@ -1,8 +1,7 @@
 'use client';
 
 import type { UseFormSetValue, UseFormWatch, FieldErrors } from 'react-hook-form';
-import type { OnboardingData } from '@/lib/shared';
-import { CAUSES, INTEREST_OPTIONS, PREFERRED_ACTIVITIES } from '@/lib/shared';
+import { CAUSES, INTEREST_OPTIONS, PREFERRED_ACTIVITIES, type OnboardingData } from '@/lib/shared';
 import { ChipSelect } from './ChipSelect';
 
 interface StepInterestsProps {

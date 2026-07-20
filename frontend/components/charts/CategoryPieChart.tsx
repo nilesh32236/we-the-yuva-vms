@@ -3,7 +3,7 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 const LIGHT_COLORS = [
@@ -39,13 +39,17 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
 
   const colors = mounted && resolvedTheme === 'dark' ? DARK_COLORS : LIGHT_COLORS;
 
+  const chartData = useMemo(
+    () =>
+      (data ?? []).map((d) => ({
+        name: d.category.charAt(0) + d.category.slice(1).toLowerCase(),
+        value: d.count,
+      })),
+    [data],
+  );
+
   if (!data?.length)
     return <p className="text-center text-brand-muted text-sm py-8">No data available</p>;
-
-  const chartData = data.map((d) => ({
-    name: d.category.charAt(0) + d.category.slice(1).toLowerCase(),
-    value: d.count,
-  }));
 
   return (
     <div>

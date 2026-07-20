@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import * as Sentry from '@sentry/nextjs';
@@ -95,6 +95,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const pendingId = updateMutation.isPending
     ? (updateMutation.variables as { id?: string })?.id
     : null;
+  const selectedUser = useMemo(() => users.find((u) => u.id === openMenu), [users, openMenu]);
 
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -220,58 +221,56 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
             style={{ top: menuPosition.top, right: menuPosition.right }}
             role="menu"
           >
-            {(() => {
-              const user = users.find((u) => u.id === openMenu);
-              if (!user) return null;
-              return (
-                <>
-                  {user.status !== 'ACTIVE' && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateMutation.mutate({ id: user.id, data: { status: 'ACTIVE' } })
-                      }
-                      className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                      aria-label={`Activate ${user.name}`}
-                      role="menuitem"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                      Activate
-                    </button>
-                  )}
-                  {user.status !== 'SUSPENDED' && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateMutation.mutate({ id: user.id, data: { status: 'SUSPENDED' } })
-                      }
-                      className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                      aria-label={`Suspend ${user.name}`}
-                      role="menuitem"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                      Suspend
-                    </button>
-                  )}
-                  {(['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
-                    (role) =>
-                      user.roleRef.name !== role && (
-                        <button
-                          type="button"
-                          key={role}
-                          onClick={() => updateMutation.mutate({ id: user.id, data: { role } })}
-                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                          aria-label={`Change role to ${role}`}
-                          role="menuitem"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-                          Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                        </button>
-                      )
-                  )}
-                </>
-              );
-            })()}
+            {selectedUser && (
+              <>
+                {selectedUser.status !== 'ACTIVE' && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
+                    }
+                    className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                    aria-label={`Activate ${selectedUser.name}`}
+                    role="menuitem"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Activate
+                  </button>
+                )}
+                {selectedUser.status !== 'SUSPENDED' && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
+                    }
+                    className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                    aria-label={`Suspend ${selectedUser.name}`}
+                    role="menuitem"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    Suspend
+                  </button>
+                )}
+                {(['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
+                  (role) =>
+                    selectedUser.roleRef.name !== role && (
+                      <button
+                        type="button"
+                        key={role}
+                        onClick={() =>
+                          updateMutation.mutate({ id: selectedUser.id, data: { role } })
+                        }
+                        className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                        aria-label={`Change role to ${role}`}
+                        role="menuitem"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                        Make {role.charAt(0) + role.slice(1).toLowerCase()}
+                      </button>
+                    )
+                )}
+              </>
+            )}
           </div>
         </>
       )}

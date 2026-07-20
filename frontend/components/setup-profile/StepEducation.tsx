@@ -16,8 +16,9 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
   const [certInput, setCertInput] = useState('');
 
   const addCertification = () => {
-    if (certInput.trim()) {
-      setValue('step4.certifications', [...certifications, certInput.trim()], {
+    const trimmed = certInput.trim();
+    if (trimmed && !certifications.includes(trimmed)) {
+      setValue('step4.certifications', [...certifications, trimmed], {
         shouldValidate: true,
       });
       setCertInput('');

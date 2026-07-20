@@ -10,7 +10,7 @@ export function CTA() {
     <section className="bg-brand-primary py-20 sm:py-28 dark:bg-brand-primary">
       <div
         ref={ref}
-        className={`mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8 motion-safe:transition-all motion-safe:duration-700 ${
+        className={`mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8 motion-safe:transition-opacity motion-safe:duration-700 ${
           inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
       >

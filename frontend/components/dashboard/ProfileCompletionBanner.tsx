@@ -73,8 +73,8 @@ export function ProfileCompletionBanner() {
 
           <div className="w-full h-2 rounded-full bg-amber-200 overflow-hidden">
             <div
-              className="h-full rounded-full bg-amber-500 motion-safe:transition-all motion-safe:duration-500"
-              style={{ width: `${completionPercentage}%` }}
+              className="h-full rounded-full bg-amber-500 origin-left motion-safe:transition-transform motion-safe:duration-500"
+              style={{ transform: `scaleX(${completionPercentage / 100})` }}
             />
           </div>
 

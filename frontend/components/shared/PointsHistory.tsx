@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Award, Clock } from 'lucide-react';
+import { useMemo } from 'react';
 import { api } from '@/lib/api';
 import { SkeletonCard } from './SkeletonCard';
 import * as Sentry from '@sentry/nextjs';
@@ -45,6 +46,19 @@ export function PointsHistory() {
     queryFn: () => api.get('/levels/users/me/points/history').then((r) => r.data),
     staleTime: 60_000,
   });
+
+  const formattedTx = useMemo(
+    () =>
+      (data ?? []).slice(0, 10).map((tx) => ({
+        ...tx,
+        formattedDate: new Date(tx.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+      })),
+    [data],
+  );
 
   if (isLoading) {
     return (
@@ -107,7 +121,7 @@ export function PointsHistory() {
         </h2>
       </div>
       <div className="divide-y divide-brand-border">
-        {data.slice(0, 10).map((tx) => (
+        {formattedTx.map((tx) => (
           <div key={tx.id} className="px-5 py-3.5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center">
@@ -117,13 +131,7 @@ export function PointsHistory() {
                 <p className="text-sm font-medium text-brand-text truncate">
                   {formatReason(tx.reason)}
                 </p>
-                <p className="text-xs text-brand-muted">
-                  {new Date(tx.createdAt).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                </p>
+                <p className="text-xs text-brand-muted">{tx.formattedDate}</p>
               </div>
             </div>
             <span className="text-sm font-semibold text-brand-primary flex-shrink-0">

@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Clock, ExternalLink, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
@@ -24,6 +25,19 @@ interface OrganizationTableProps {
 }
 
 export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
+  const formattedOrgs = useMemo(
+    () =>
+      orgs.map((org) => ({
+        ...org,
+        formattedCreatedAt: new Date(org.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
+      })),
+    [orgs],
+  );
+
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
       <div className="overflow-x-auto">
@@ -64,14 +78,14 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border">
-            {orgs.length === 0 ? (
+            {formattedOrgs.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-brand-muted text-sm">
                   No organizations found
                 </td>
               </tr>
             ) : (
-              orgs.map((org) => (
+              formattedOrgs.map((org) => (
                 <tr key={org.id} className="hover:bg-brand-bg/50 transition-colors">
                   <td className="px-4 py-4">
                     <div className="flex flex-col">
@@ -106,11 +120,7 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
                     </span>
                   </td>
                   <td className="px-4 py-4 text-brand-muted text-xs hidden lg:table-cell">
-                    {new Date(org.createdAt).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
+                    {org.formattedCreatedAt}
                   </td>
                   <td className="px-4 py-4 text-right">
                     <Link
