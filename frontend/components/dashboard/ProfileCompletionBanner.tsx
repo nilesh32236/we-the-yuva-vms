@@ -57,21 +57,21 @@ export function ProfileCompletionBanner() {
   const { completionPercentage, missingFields } = profileStatus;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-5">
+    <div className="relative overflow-hidden rounded-2xl bg-amber-50 border border-amber-200 p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-3 min-w-0 flex-1">
           <div>
-            <p className="font-heading font-semibold text-sm text-amber-800 dark:text-amber-200">
+            <p className="font-heading font-semibold text-sm text-amber-800">
               Complete your profile to unlock all features
             </p>
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
+            <p className="text-xs text-amber-600 mt-0.5">
               {completionPercentage}% complete
               {missingFields.length > 0 &&
                 ` — Missing: ${missingFields.map((f) => fieldLabels[f] ?? f).join(', ')}`}
             </p>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-amber-200 dark:bg-amber-800 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-amber-200 overflow-hidden">
             <div
               className="h-full rounded-full bg-amber-500 transition-all duration-500"
               style={{ width: `${completionPercentage}%` }}
@@ -88,7 +88,7 @@ export function ProfileCompletionBanner() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="flex-shrink-0 p-1 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-800/40 transition-colors cursor-pointer"
+          className="flex-shrink-0 p-1 rounded-lg hover:bg-amber-100 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
           aria-label="Dismiss"
         >
           <X className="w-4 h-4 text-amber-500" />

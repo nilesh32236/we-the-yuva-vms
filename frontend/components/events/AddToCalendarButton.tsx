@@ -58,9 +58,9 @@ export function AddToCalendarButton({
         onClick={handleDownload}
         disabled={downloading}
         loading={downloading}
+        className="p-1.5 min-w-[44px] min-h-[44px] rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50"
         title={label}
         aria-label={label}
-        className="w-auto min-h-0 h-auto p-1.5 min-w-0"
       >
         {!downloading && <CalendarPlus className="w-3.5 h-3.5" />}
       </Button>

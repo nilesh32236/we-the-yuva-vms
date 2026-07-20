@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { BellRing, Sparkles, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { haptic } from '@/lib/haptic';
 
@@ -42,6 +43,8 @@ export function PushSubscriber() {
     return () => clearTimeout(timer);
   }, [user, permission, mounted]);
 
+  const pushPromptRef = useFocusTrap(showPrompt);
+
   if (!mounted || !user || !showPrompt) {
     return null;
   }
@@ -64,7 +67,10 @@ export function PushSubscriber() {
 
   return (
     <div className="fixed bottom-20 md:bottom-6 right-6 z-40 pointer-events-none w-full max-w-sm px-4">
-      <div className="flex flex-col gap-3 bg-brand-surface/98 backdrop-blur-md text-brand-text p-4 md:p-5 rounded-2xl shadow-2xl border border-brand-border animate-in slide-in-from-bottom-6 duration-300 pointer-events-auto">
+      <div
+        ref={pushPromptRef}
+        className="flex flex-col gap-3 bg-brand-surface/98 backdrop-blur-md text-brand-text p-4 md:p-5 rounded-2xl shadow-2xl border border-brand-border animate-in slide-in-from-bottom-6 duration-300 pointer-events-auto"
+      >
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">

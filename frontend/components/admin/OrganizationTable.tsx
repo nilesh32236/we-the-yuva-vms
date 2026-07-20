@@ -4,9 +4,9 @@ import { CheckCircle2, Clock, ExternalLink, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
-  PENDING: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
-  SUSPENDED: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+  ACTIVE: 'bg-green-100 text-green-700',
+  PENDING: 'bg-yellow-100 text-yellow-700',
+  SUSPENDED: 'bg-red-100 text-red-700',
 };
 
 interface Organization {
@@ -67,11 +67,11 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-1.5">
                       {org.status === 'ACTIVE' ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
                       ) : org.status === 'PENDING' ? (
-                        <Clock className="w-3.5 h-3.5 text-yellow-600 dark:text-yellow-400" />
+                        <Clock className="w-3.5 h-3.5 text-yellow-600" />
                       ) : (
-                        <ShieldAlert className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                        <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
                       )}
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${STATUS_COLORS[org.status] ?? ''}`}

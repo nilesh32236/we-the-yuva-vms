@@ -129,7 +129,7 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
             <button
               type="button"
               onClick={addCertification}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer"
+              className="px-4 py-2 min-h-[44px] rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer"
             >
               Add
             </button>
