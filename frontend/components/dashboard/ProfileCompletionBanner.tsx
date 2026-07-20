@@ -85,14 +85,15 @@ export function ProfileCompletionBanner() {
           </Link>
         </div>
 
-        <button
-          type="button"
+        <Button
           onClick={handleDismiss}
-          className="flex-shrink-0 min-h-[44px] min-w-[44px] p-2.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-800/40 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-amber-500"
+          variant="icon"
+          size="icon"
+          className="flex-shrink-0 p-1 hover:bg-amber-100 dark:hover:bg-amber-800/40 w-8 h-8 min-h-0 min-w-0"
           aria-label="Dismiss"
         >
           <X className="w-4 h-4 text-amber-500" />
-        </button>
+        </Button>
       </div>
     </div>
   );

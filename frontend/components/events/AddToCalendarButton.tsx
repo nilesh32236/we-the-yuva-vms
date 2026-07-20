@@ -1,8 +1,8 @@
 'use client';
 
+import * as Sentry from '@sentry/nextjs';
 import { CalendarPlus } from 'lucide-react';
 import { useState } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { useToast } from '../../hooks/use-toast';
 import { api } from '../../lib/api';
 import { Button } from '../ui/Button';
@@ -53,27 +53,25 @@ export function AddToCalendarButton({
   if (variant === 'icon') {
     return (
       <Button
+        onClick={handleDownload}
+        loading={downloading}
         variant="icon"
         size="icon"
-        onClick={handleDownload}
-        disabled={downloading}
-        loading={downloading}
-        className="min-h-[44px] min-w-[44px] p-1.5 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center"
+        className="w-8 h-8 min-h-0 min-w-0 p-1.5"
         title={label}
         aria-label={label}
       >
-        {!downloading && <CalendarPlus className="w-3.5 h-3.5" />}
+        <CalendarPlus className="w-3.5 h-3.5" />
       </Button>
     );
   }
 
   return (
-    <Button
-      variant="outline"
-      onClick={handleDownload}
-      disabled={downloading}
-      loading={downloading}
-      className="flex items-center gap-1.5 text-sm font-medium border border-brand-border text-brand-text px-4 py-2 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer disabled:opacity-50 min-h-[44px]"
+      <Button
+        onClick={handleDownload}
+        loading={downloading}
+        variant="outline"
+        className="gap-1.5 text-sm font-medium px-4 py-2 rounded-xl"
       aria-label={label}
     >
       {!downloading && <CalendarPlus className="w-4 h-4" />}

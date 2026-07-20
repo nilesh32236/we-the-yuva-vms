@@ -61,14 +61,15 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
           <h2 id="review-title" className="font-heading font-bold text-lg text-brand-text">
             Review Badge
           </h2>
-          <button
-            type="button"
+          <Button
             onClick={onClose}
+            variant="icon"
+            size="icon"
             aria-label="Close dialog"
-            className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
+            className="w-8 h-8 min-h-0 min-w-0"
           >
             <X className="w-4 h-4 text-brand-muted" />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6 space-y-4">
@@ -106,27 +107,27 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
 
         <div className="flex gap-3 px-6 pb-6">
           <Button
-            type="button"
-            variant="destructive"
             onClick={() => reviewMutation.mutate({ action: 'reject' })}
-            disabled={reviewMutation.isPending}
-            className="flex-1 min-h-[44px] py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
+            loading={reviewMutation.isPending && reviewMutation.variables?.action === 'reject'}
+            disabled={reviewMutation.isPending && reviewMutation.variables?.action !== 'reject'}
+            variant="outline"
+            className="flex-1 border-brand-error text-brand-error hover:bg-brand-error/5"
           >
-            {!reviewMutation.isPending || reviewMutation.variables?.action !== 'reject' ? (
-              <XCircle className="w-4 h-4 inline mr-1" />
-            ) : null}
+            {!(reviewMutation.isPending && reviewMutation.variables?.action === 'reject') && (
+              <XCircle className="w-4 h-4 mr-1" />
+            )}
             Reject
           </Button>
           <Button
-            type="button"
-            variant="primary"
             onClick={() => reviewMutation.mutate({ action: 'approve' })}
-            disabled={reviewMutation.isPending}
-            className="flex-1 min-h-[44px] py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
+            loading={reviewMutation.isPending && reviewMutation.variables?.action === 'approve'}
+            disabled={reviewMutation.isPending && reviewMutation.variables?.action !== 'approve'}
+            variant="primary"
+            className="flex-1"
           >
-            {!reviewMutation.isPending || reviewMutation.variables?.action !== 'approve' ? (
-              <CheckCircle className="w-4 h-4 inline mr-1" />
-            ) : null}
+            {!(reviewMutation.isPending && reviewMutation.variables?.action === 'approve') && (
+              <CheckCircle className="w-4 h-4 mr-1" />
+            )}
             Approve
           </Button>
         </div>
@@ -172,13 +173,9 @@ export function BadgeApprovalQueue() {
           <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
           <p className="font-medium text-red-600 dark:text-red-400">Failed to load approvals</p>
           <p className="text-sm mt-1">Something went wrong. Please try again.</p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="mt-3 text-sm font-medium text-brand-primary hover:underline cursor-pointer"
-          >
+          <Button onClick={() => refetch()} variant="ghost" size="sm" className="mt-3">
             Retry
-          </button>
+          </Button>
         </div>
       ) : isLoading ? (
         <div className="space-y-3">
@@ -227,10 +224,10 @@ export function BadgeApprovalQueue() {
                 </p>
                 {req.status === 'PENDING' && (
                   <Button
-                    type="button"
-                    variant="ghost"
                     onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-0 hover:bg-transparent hover:underline"
                   >
                     Review
                   </Button>

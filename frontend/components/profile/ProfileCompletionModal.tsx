@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { Button } from '../ui/Button';
 
 interface ProfileCompletionModalProps {
   open: boolean;
@@ -85,13 +86,9 @@ export function ProfileCompletionModal({
         </div>
 
         <div className="flex gap-3 px-6 pb-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg bg-background cursor-pointer transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
-          >
+          <Button onClick={onClose} variant="outline" className="flex-1">
             Maybe Later
-          </button>
+          </Button>
           <Link
             href="/setup-profile"
             className="flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold text-center hover:bg-brand-secondary transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
