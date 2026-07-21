@@ -5,13 +5,13 @@ import { CheckCircle, Handshake, MessageSquare, UserPlus, XCircle } from 'lucide
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { useAuth } from '@/hooks/useAuth';
+import { CreateMentorshipSchema } from '@/lib/shared';
 
 interface MentorshipRelation {
   id: string;
@@ -178,10 +178,7 @@ function MentorshipCard({
   );
 }
 
-const requestSchema = z.object({
-  menteeId: z.string().trim().min(1, 'Please enter a mentor email or name'),
-  message: z.string().optional(),
-});
+const requestSchema = CreateMentorshipSchema;
 
 function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient();

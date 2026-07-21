@@ -88,8 +88,12 @@ export default function SetupProfilePage() {
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved) as OnboardingData;
-        reset(parsed);
+        const parsed = OnboardingSchema.safeParse(JSON.parse(saved));
+        if (parsed.success) {
+          reset(parsed.data);
+        } else {
+          localStorage.removeItem(DRAFT_KEY);
+        }
       }
     } catch {
       localStorage.removeItem(DRAFT_KEY);

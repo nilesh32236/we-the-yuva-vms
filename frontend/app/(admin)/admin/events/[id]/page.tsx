@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { z } from 'zod';
 import { StatsCard } from '@/components/charts/StatsCard';
 import { api } from '@/lib/api';
 
@@ -31,25 +32,26 @@ const STATUS_ICONS: Record<string, typeof Clock> = {
   CANCELLED: XCircle,
 };
 
-interface EventDetail {
-  id: string;
-  title: string;
-  description: string | null;
-  eventDate: string;
-  startTime: string | null;
-  endTime: string | null;
-  venue: string | null;
-  meetingLink: string | null;
-  isVirtual: boolean;
-  capacity: number;
-  status: string;
-  opportunity: {
-    title: string;
-    organization: { name: string } | null;
-    createdBy: { name: string } | null;
-  };
-  _count: { attendances: number };
-}
+const EventDetailSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  eventDate: z.string(),
+  startTime: z.string().nullable(),
+  endTime: z.string().nullable(),
+  venue: z.string().nullable(),
+  meetingLink: z.string().nullable(),
+  isVirtual: z.boolean(),
+  capacity: z.number(),
+  status: z.string(),
+  opportunity: z.object({
+    title: z.string(),
+    organization: z.object({ name: z.string() }).nullable(),
+    createdBy: z.object({ name: z.string() }).nullable(),
+  }),
+  _count: z.object({ attendances: z.number() }),
+});
+type EventDetail = z.infer<typeof EventDetailSchema>;
 
 export default function AdminEventDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -61,7 +63,7 @@ export default function AdminEventDetailPage() {
     refetch,
   } = useQuery({
     queryKey: ['admin-event-detail', id],
-    queryFn: () => api.get(`/admin/events/${id}`).then((r) => r.data as EventDetail),
+    queryFn: () => api.get(`/admin/events/${id}`).then((r) => EventDetailSchema.parse(r.data)),
     enabled: !!id,
   });
 

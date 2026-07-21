@@ -16,8 +16,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const alertSchema = z.object({
-  categories: z.array(z.string()),
-  skills: z.array(z.string()),
+  categories: z.array(z.string().min(1)).max(20),
+  skills: z.array(z.string().min(1)).max(20),
 });
 
 const CATEGORIES = [

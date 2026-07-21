@@ -4,26 +4,28 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { z } from 'zod';
 import Pagination from '@/components/shared/Pagination';
 import { EventCard } from '@/components/events/EventCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 
-interface ObserverEvent {
-  id: string;
-  title: string;
-  eventDate: string;
-  startTime: string;
-  endTime: string;
-  status: string;
-  isVirtual: boolean;
-  venue?: string | null;
-  meetingLink?: string | null;
-  capacity: number;
-  opportunity: { title: string };
-  _count: { attendances: number };
-  attendance?: { attended: boolean } | null;
-}
+const ObserverEventSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  eventDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  status: z.string(),
+  isVirtual: z.boolean(),
+  venue: z.string().nullable().optional(),
+  meetingLink: z.string().nullable().optional(),
+  capacity: z.number(),
+  opportunity: z.object({ title: z.string() }),
+  _count: z.object({ attendances: z.number() }),
+  attendance: z.object({ attended: z.boolean() }).nullable().optional(),
+});
+type ObserverEvent = z.infer<typeof ObserverEventSchema>;
 
 export default function ObserverEventsPage() {
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming');
@@ -37,7 +39,8 @@ export default function ObserverEventsPage() {
   });
 
   const now = new Date();
-  const all = (data?.data ?? []) as ObserverEvent[];
+  const raw = (data?.data ?? []) as unknown[];
+  const all = raw.map((item) => ObserverEventSchema.parse(item));
   const upcoming = all.filter((e) => new Date(e.eventDate) >= now);
   const past = all.filter((e) => new Date(e.eventDate) < now);
   const shown = tab === 'upcoming' ? upcoming : past;

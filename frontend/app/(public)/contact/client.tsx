@@ -9,10 +9,10 @@ import { toast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
 const ContactSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
   email: z.string().email('Invalid email address'),
-  subject: z.string().min(1, 'Please select a subject'),
-  message: z.string().min(1, 'Message is required'),
+  subject: z.string().min(1, 'Please select a subject').max(100, 'Subject too long'),
+  message: z.string().min(1, 'Message is required').max(5000, 'Message too long'),
 });
 type ContactInput = z.infer<typeof ContactSchema>;
 

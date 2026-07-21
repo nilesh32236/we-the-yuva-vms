@@ -7,18 +7,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { FeedbackSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-
-const feedbackSchema = z.object({
-  rating: z.number().min(1, 'Please select a rating').max(5),
-  comments: z.string().optional(),
-  learnings: z.string().optional(),
-  confidence: z.number().min(0).max(5),
-});
 
 export default function EventFeedbackPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,12 +21,12 @@ export default function EventFeedbackPage() {
   const [hover, setHover] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const form = useForm({
-    resolver: zodResolver(feedbackSchema),
+    resolver: zodResolver(FeedbackSchema),
     defaultValues: {
       rating: 0,
       comments: '',
       learnings: '',
-      confidence: 0,
+      confidenceLevel: 0,
     },
   });
   const {
@@ -44,7 +37,7 @@ export default function EventFeedbackPage() {
     formState: { errors },
   } = form;
   const rating = watch('rating');
-  const confidence = watch('confidence');
+  const confidence = watch('confidenceLevel');
 
   const { data: event } = useQuery({
     queryKey: ['event', id],
@@ -52,7 +45,7 @@ export default function EventFeedbackPage() {
     enabled: !!id,
   });
 
-  const handleFormSubmit = async (data: z.infer<typeof feedbackSchema>) => {
+  const handleFormSubmit = async (data: { rating: number; comments?: string; learnings?: string; confidenceLevel?: number }) => {
     haptic.medium();
     setSubmitting(true);
     try {
@@ -60,7 +53,7 @@ export default function EventFeedbackPage() {
         rating: data.rating,
         comments: data.comments?.trim() || undefined,
         learnings: data.learnings?.trim() || undefined,
-        confidenceLevel: data.confidence || undefined,
+        confidenceLevel: data.confidenceLevel || undefined,
       });
       toast({
         title: 'Feedback submitted!',
@@ -188,7 +181,7 @@ export default function EventFeedbackPage() {
 
           {/* Confidence level */}
           <div className="space-y-2">
-            <label htmlFor="confidence" className="text-sm font-medium text-brand-text">
+            <label htmlFor="confidenceLevel" className="text-sm font-medium text-brand-text">
               Confidence level after this event (optional)
             </label>
             <div className="flex items-center gap-3">
@@ -196,9 +189,9 @@ export default function EventFeedbackPage() {
                 <button
                   key={n}
                   type="button"
-                  onClick={() => setValue('confidence', n === confidence ? 0 : n)}
+                  onClick={() => setValue('confidenceLevel', n === confidence ? 0 : n)}
                   disabled={submitting}
-                  aria-invalid={!!errors.confidence}
+                  aria-invalid={!!errors.confidenceLevel}
                   className={`w-11 h-11 rounded-xl text-sm font-semibold border transition-colors cursor-pointer
                     ${n <= confidence ? 'bg-brand-primary text-white border-brand-primary' : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary'}`}
                 >
@@ -206,9 +199,9 @@ export default function EventFeedbackPage() {
                 </button>
               ))}
             </div>
-            {errors.confidence && (
+            {errors.confidenceLevel && (
               <p role="alert" className="text-xs text-brand-error">
-                {errors.confidence.message}
+                {errors.confidenceLevel.message}
               </p>
             )}
             <p className="text-xs text-brand-muted">1 = Low confidence · 5 = Very confident</p>

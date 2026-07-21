@@ -354,18 +354,20 @@ export function OpportunityForm({
   );
 }
 
-interface Location {
-  id: string;
-  name: string;
-  district: string | null;
-  state: string | null;
-}
+const LocationSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  district: z.string().nullable(),
+  state: z.string().nullable(),
+});
+const LocationArraySchema = z.array(LocationSchema);
 
 function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const queryClient = useQueryClient();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['locations'],
-    queryFn: () => api.get('/locations').then((r) => r.data.data as Location[]),
+    queryFn: () =>
+      api.get('/locations').then((r) => LocationArraySchema.parse(r.data.data)),
     staleTime: 300_000,
   });
 
@@ -408,7 +410,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
     setCreateError(null);
     try {
       const res = await api.post('/locations', parsed.data);
-      const loc = res.data.data as Location;
+      const loc = LocationSchema.parse(res.data.data);
       onChange(loc.id);
       setNewName('');
       setNewDistrict('');

@@ -35,7 +35,7 @@ const EventSeriesFormSchema = z
     venue: z.string().max(200).optional(),
     isVirtual: z.boolean(),
     meetingLink: z.string().url().optional().or(z.literal('')),
-    capacity: z.number().int().positive(),
+    capacity: z.number().int().positive().max(100000),
     endType: z.enum(['never', 'after', 'on_date']),
     maxOccurrences: z.number().int().positive().optional(),
     endDate: z.string().optional(),
