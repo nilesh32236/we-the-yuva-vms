@@ -9,6 +9,7 @@ import { AddToCalendarButton } from '../../../../../components/events/AddToCalen
 import { EventForm } from '../../../../../components/events/EventForm';
 import { useToast } from '../../../../../hooks/use-toast';
 import { api } from '../../../../../lib/api';
+import { Permissions } from '@/lib/shared/permissions';
 
 export default function NewEventPage() {
   const { toast } = useToast();
@@ -91,7 +92,12 @@ export default function NewEventPage() {
         </div>
 
         {opportunityId && !createdEventId && !createdSeriesId && (
-          <EventForm onSubmit={handleSubmit} submitLabel="Create Event" showRecurringOption />
+          <EventForm
+            onSubmit={handleSubmit}
+            submitLabel="Create Event"
+            showRecurringOption
+            requiredPermission={Permissions.EVENT_CREATE}
+          />
         )}
 
         {createdEventId && (

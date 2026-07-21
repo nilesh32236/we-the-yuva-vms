@@ -8,6 +8,7 @@ import type { EventInput, EventSeriesInput } from '@/lib/shared';
 import { EventForm } from '@/components/events/EventForm';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Permissions } from '@/lib/shared/permissions';
 
 export default function AdminEditEventPage() {
   const { id } = useParams<{ id: string }>();
@@ -95,6 +96,7 @@ export default function AdminEditEventPage() {
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Update Event"
+          requiredPermission={Permissions.EVENT_EDIT}
         />
       </div>
     </div>
