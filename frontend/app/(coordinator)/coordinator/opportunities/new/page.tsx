@@ -7,6 +7,7 @@ import type { OpportunityInput } from '@/lib/shared';
 import { OpportunityForm } from '@/components/opportunities/OpportunityForm';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Permissions } from '@/lib/shared/permissions';
 
 export default function NewOpportunityPage() {
   const router = useRouter();
@@ -36,7 +37,11 @@ export default function NewOpportunityPage() {
       </Link>
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 card-hover">
         <h1 className="font-heading font-bold text-xl text-brand-text mb-5">Create Opportunity</h1>
-        <OpportunityForm onSubmit={handleSubmit} submitLabel="Create Opportunity" />
+        <OpportunityForm
+          onSubmit={handleSubmit}
+          submitLabel="Create Opportunity"
+          requiredPermission={Permissions.OPPORTUNITY_CREATE}
+        />
       </div>
     </div>
   );

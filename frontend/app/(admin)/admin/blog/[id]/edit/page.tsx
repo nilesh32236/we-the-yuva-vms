@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import type { CreateBlogPostInput } from '@/lib/shared';
+import { Permissions } from '@/lib/shared/permissions';
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
@@ -152,6 +153,7 @@ export default function EditBlogPostPage() {
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Update Post"
+          requiredPermission={Permissions.BLOG_EDIT}
         />
 
         <hr className="my-6 border-brand-border" />

@@ -97,6 +97,10 @@ export const ROLE_HIERARCHY: Record<string, number> = {
   PLATFORM_MANAGER: 4,
 };
 
+export function hasPermission(user: { permissions?: string[] } | null, permission: string): boolean {
+  return user?.permissions?.includes(permission) ?? false;
+}
+
 export function canAccess(userRole: string, minimumRole: string): boolean {
   const userLevel = ROLE_HIERARCHY[userRole] ?? -1;
   const requiredLevel = ROLE_HIERARCHY[minimumRole] ?? -1;

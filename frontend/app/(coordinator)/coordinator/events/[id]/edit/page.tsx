@@ -9,6 +9,7 @@ import { EventForm } from '../../../../../../components/events/EventForm';
 import { haptic } from '../../../../../../lib/haptic';
 import { useToast } from '../../../../../../hooks/use-toast';
 import { api } from '../../../../../../lib/api';
+import { Permissions } from '@/lib/shared/permissions';
 
 export default function EditEventPage() {
   const { id } = useParams<{ id: string }>();
@@ -99,6 +100,7 @@ export default function EditEventPage() {
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Update Event"
+          requiredPermission={Permissions.EVENT_EDIT}
         />
       </div>
     </div>

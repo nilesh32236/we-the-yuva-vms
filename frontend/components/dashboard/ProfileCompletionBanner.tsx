@@ -38,7 +38,7 @@ const fieldLabels: Record<string, string> = {
 };
 
 export function ProfileCompletionBanner() {
-  const { profileStatus } = useAuth();
+  const { user, profileStatus } = useAuth();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -52,9 +52,13 @@ export function ProfileCompletionBanner() {
     setVisible(false);
   }, []);
 
-  if (!visible || !profileStatus) return null;
+  if (!visible || !profileStatus || !user) return null;
 
   const { completionPercentage, missingFields } = profileStatus;
+  const isVolunteer = user.role === 'VOLUNTEER';
+  const bannerTitle = isVolunteer
+    ? 'Complete your profile to unlock all features'
+    : 'Complete setup to get started';
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-amber-50 border border-amber-200 p-5">
@@ -62,7 +66,7 @@ export function ProfileCompletionBanner() {
         <div className="space-y-3 min-w-0 flex-1">
           <div>
             <p className="font-heading font-semibold text-sm text-amber-800">
-              Complete your profile to unlock all features
+              {bannerTitle}
             </p>
             <p className="text-xs text-amber-600 mt-0.5">
               {completionPercentage}% complete
@@ -80,7 +84,7 @@ export function ProfileCompletionBanner() {
 
           <Link href="/setup-profile">
             <Button variant="primary" size="sm">
-              Complete Now
+              {isVolunteer ? 'Complete Now' : 'Complete Setup'}
             </Button>
           </Link>
         </div>

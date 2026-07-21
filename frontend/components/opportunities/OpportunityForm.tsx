@@ -9,6 +9,8 @@ import { z } from 'zod';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
 const CreateLocationSchema = z.object({
@@ -33,13 +35,17 @@ interface OpportunityFormProps {
   defaultValues?: Partial<OpportunityInput>;
   onSubmit: (data: OpportunityInput) => Promise<void>;
   submitLabel?: string;
+  requiredPermission?: string;
 }
 
 export function OpportunityForm({
   defaultValues,
   onSubmit,
   submitLabel = 'Save',
+  requiredPermission,
 }: OpportunityFormProps) {
+  const { user } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -62,6 +68,10 @@ export function OpportunityForm({
 
   const [skillInput, setSkillInput] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
+
+  if (requiredPermission && !hasPermission(user, requiredPermission)) {
+    return null;
+  }
 
   const wrappedOnSubmit = async (data: OpportunityInput) => {
     setServerError(null);

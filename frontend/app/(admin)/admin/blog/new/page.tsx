@@ -8,6 +8,7 @@ import { BlogPostForm } from '@/components/blog/BlogPostForm';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import type { CreateBlogPostInput } from '@/lib/shared';
+import { Permissions } from '@/lib/shared/permissions';
 
 export default function NewBlogPostPage() {
   const router = useRouter();
@@ -47,7 +48,11 @@ export default function NewBlogPostPage() {
 
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6">
         <h1 className="font-heading font-bold text-xl text-brand-text mb-5">New Blog Post</h1>
-        <BlogPostForm onSubmit={handleSubmit} submitLabel="Save Draft" />
+        <BlogPostForm
+          onSubmit={handleSubmit}
+          submitLabel="Save Draft"
+          requiredPermission={Permissions.BLOG_CREATE}
+        />
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import type { OpportunityInput } from '@/lib/shared';
 import { OpportunityForm } from '@/components/opportunities/OpportunityForm';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Permissions } from '@/lib/shared/permissions';
 
 export default function AdminEditOpportunityPage() {
   const { id } = useParams<{ id: string }>();
@@ -105,6 +106,7 @@ export default function AdminEditOpportunityPage() {
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Update Opportunity"
+          requiredPermission={Permissions.OPPORTUNITY_EDIT}
         />
       </div>
     </div>
