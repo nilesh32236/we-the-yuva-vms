@@ -37,13 +37,15 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   useEffect(() => {
     if (prevUserRef.current != null && user == null) {
-      try {
-        clearQueue();
-      } catch {
-        // Queue clear failed silently — UI will reset below
-      } finally {
-        setQueuedCount(0);
-      }
+      (async () => {
+        try {
+          await clearQueue();
+        } catch (err) {
+          console.warn('[OfflineCheckin] Failed to clear offline queue:', err);
+        }
+        const remaining = await getQueuedCheckins();
+        setQueuedCount(remaining.length);
+      })();
     }
     prevUserRef.current = user;
   }, [user]);
