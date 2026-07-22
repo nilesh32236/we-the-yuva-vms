@@ -21,8 +21,6 @@ export const blogRouter: IRouter = Router();
 // Admin-only routes
 blogRouter.get('/all', requireAuth, requirePermission(Permissions.BLOG_VIEW_ALL), listAllHandler);
 
-// Single param route handles both slug and ID lookups
-blogRouter.get('/:param', getPublishedByParamHandler);
 blogRouter.post(
   '/',
   requireAuth,
@@ -50,6 +48,9 @@ blogRouter.patch(
   requirePermission(Permissions.BLOG_EDIT),
   archiveHandler
 );
+
+// Single param route handles both slug and ID lookups
+blogRouter.get('/:param', getPublishedByParamHandler);
 
 // Public
 blogRouter.get('/', listPublishedHandler);
