@@ -142,7 +142,7 @@ function VerifyOtpContent() {
   const handleResend = async () => {
     try {
       const res = await api.post('/auth/send-otp', { email });
-      if (res.data?.devOtp) {
+      if (res.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') {
         sessionStorage.setItem('devOtp', res.data.devOtp);
         setDevOtp(res.data.devOtp);
       }
