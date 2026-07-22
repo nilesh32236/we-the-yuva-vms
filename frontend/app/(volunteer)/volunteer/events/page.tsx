@@ -14,12 +14,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { api } from '../../../../lib/api';
 import { haptic } from '@/lib/haptic';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
+import Pagination from '../../../../components/shared/Pagination';
+import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
+import { Button } from '../../../../components/ui/Button';
+import { useToast } from '../../../../hooks/use-toast';
+import { api } from '../../../../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-brand-cta/10 text-brand-cta',
@@ -253,26 +254,16 @@ function EventRow({ event }: { event: VolunteerEvent }) {
       {!isCancelled && !isPast && (
         <div className="flex gap-2 pt-1">
           {!isCheckedIn && (
-            <button
-              type="button"
-              onClick={handleCheckIn}
-              disabled={busy}
-              className="flex items-center gap-1.5 text-sm font-medium bg-brand-primary text-white px-4 py-3 min-h-[44px] rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-ring"
-            >
+            <Button type="button" variant="primary" onClick={handleCheckIn} loading={busy}>
               <LogIn className="w-4 h-4" />
-              {busy ? 'Locating…' : 'Check In'}
-            </button>
+              Check In
+            </Button>
           )}
           {isCheckedIn && !isCheckedOut && (
-            <button
-              type="button"
-              onClick={handleCheckOut}
-              disabled={busy}
-              className="flex items-center gap-1.5 text-sm font-medium bg-brand-error text-white px-4 py-3 min-h-[44px] rounded-xl hover:bg-brand-error/80 transition-colors cursor-pointer disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-ring"
-            >
+            <Button type="button" variant="destructive" onClick={handleCheckOut} loading={busy}>
               <LogOut className="w-4 h-4" />
-              {busy ? 'Locating…' : 'Check Out'}
-            </button>
+              Check Out
+            </Button>
           )}
           {event.isVirtual && event.meetingLink && (
             <a
