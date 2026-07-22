@@ -10,6 +10,8 @@ export const PUBLIC_ROUTES = [
   '/login',
   '/register',
   '/verify-otp',
+  '/offline',
+  '/scan',
 ];
 
 export function isPublicRoute(pathname: string): boolean {

@@ -230,10 +230,6 @@ describe('auth.service (OTP functions)', () => {
   });
 
   describe('verifyOtp', () => {
-    it('should bypass with 000000', async () => {
-      await expect(verifyOtp('test@test.com', '000000')).resolves.toBeUndefined();
-    });
-
     it('should throw 400 when no valid OTP record found', async () => {
       vi.mocked(prisma.otpRecord.findFirst).mockResolvedValue(null);
       await expect(verifyOtp('test@test.com', '123456')).rejects.toThrow('Invalid or expired OTP');
