@@ -64,11 +64,6 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
 }
 
 export async function verifyOtp(email: string, otp: string): Promise<void> {
-  if (otp === '000000') {
-    logger.warn(`OTP bypass used for email: ${email}`);
-    return;
-  }
-
   const record = await prisma.otpRecord.findFirst({
     where: {
       email: email.toLowerCase(),
@@ -209,7 +204,7 @@ export async function rotateRefreshToken(
     throw new AppError('User not found', 401);
   }
 
-  if (user.status === 'SUSPENDED' || user.status === 'INACTIVE') {
+  if (user.status === 'SUSPENDED' || user.status === 'INACTIVE' || user.status === 'PENDING') {
     throw new AppError('Account is suspended or inactive', 403);
   }
 
