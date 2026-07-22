@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -23,18 +24,18 @@ export async function awardPoints(
   userId: string,
   amount: number,
   reason: string,
-  reference?: string
+  reference?: string,
+  tx?: Prisma.TransactionClient
 ) {
-  await prisma.$transaction([
-    prisma.pointTransaction.create({
-      data: { userId, amount, reason, reference },
-    }),
-    prisma.user.update({
-      where: { id: userId },
-      data: { points: { increment: amount } },
-    }),
-  ]);
-  invalidateCache();
+  const client = tx ?? prisma;
+  await client.pointTransaction.create({
+    data: { userId, amount, reason, reference },
+  });
+  await client.user.update({
+    where: { id: userId },
+    data: { points: { increment: amount } },
+  });
+  if (!tx) invalidateCache();
 }
 
 interface BatchData {
@@ -281,8 +282,12 @@ export async function onFeedbackSubmitted(userId: string, eventId: string) {
   }
 }
 
-export async function onApplicationAccepted(userId: string, opportunityId: string) {
-  await awardPoints(userId, 20, 'OPPORTUNITY_ACCEPTED', opportunityId);
+export async function onApplicationAccepted(
+  userId: string,
+  opportunityId: string,
+  tx?: Prisma.TransactionClient
+) {
+  await awardPoints(userId, 20, 'OPPORTUNITY_ACCEPTED', opportunityId, tx);
   try {
     await checkAndAwardBadges(userId);
   } catch (err) {

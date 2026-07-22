@@ -40,6 +40,10 @@ const ApproveAttendanceSchema = z.object({
   rating: z.number().min(1, 'Rating must be at least 1').max(5, 'Rating cannot exceed 5'),
 });
 
+const EventIdParamsSchema = z.object({
+  params: z.object({ id: z.string().min(1, 'Event ID is required') }),
+});
+
 // ─── Router: /opportunities/:opportunityId/events ─────────────────
 // Mount at: /api/v1/opportunities/:opportunityId/events
 
@@ -167,7 +171,7 @@ eventsRouter.get(
   downloadIcalHandler
 );
 
-eventsRouter.get('/:id', requireAuth, getEventHandler);
+eventsRouter.get('/:id', requireAuth, requirePermission(Permissions.EVENT_VIEW), validate(EventIdParamsSchema), getEventHandler);
 
 /**
  * @openapi

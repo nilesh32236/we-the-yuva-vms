@@ -13,6 +13,13 @@ const TestPushSchema = z.object({
   body: z.string().max(500).optional(),
   link: z.string().max(500).optional(),
 });
+
+const ListNotificationsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  }),
+});
 import {
   deleteNotificationHandler,
   getNotificationHandler,
@@ -75,7 +82,7 @@ notificationsRouter.post(
  *       200:
  *         description: List of notifications
  */
-notificationsRouter.get('/', requireAuth, listNotificationsHandler);
+notificationsRouter.get('/', requireAuth, validate(ListNotificationsQuerySchema), listNotificationsHandler);
 
 /**
  * @openapi
