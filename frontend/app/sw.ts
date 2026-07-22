@@ -14,7 +14,7 @@ declare const self: ServiceWorkerGlobalScope;
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  // skipWaiting intentionally omitted — AppUpdatePrompt handles this via SKIP_WAITING postMessage
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: defaultCache,
@@ -50,7 +50,7 @@ self.addEventListener('push', (event) => {
 
     event.waitUntil(self.registration.showNotification(title, options));
   } catch {
-    // payload wasn't JSON — ignore
+    console.warn('Push event received non-JSON payload');
   }
 });
 
