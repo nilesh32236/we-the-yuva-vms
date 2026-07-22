@@ -37,14 +37,19 @@ const jwtVerify: (
 ) => Promise<JwtPayload>;
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const authHeader = req.headers.authorization;
+  let token: string | undefined;
 
-  if (!authHeader?.startsWith('Bearer ')) {
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  } else if (req.cookies?.access_token) {
+    token = req.cookies.access_token;
+  }
+
+  if (!token) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
-
-  const token = authHeader.split(' ')[1];
 
   try {
     const payload = await jwtVerify(token, env.JWT_ACCESS_SECRET, {

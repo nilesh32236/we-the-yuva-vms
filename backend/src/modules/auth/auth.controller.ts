@@ -134,7 +134,10 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
       logger.warn('Audit log failed', { error: (err as Error).message })
     );
 
-    res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
+    res.status(200).json({
+      message: 'Verification code sent to your email.',
+      ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
+    });
   } catch (err) {
     next(err);
   }

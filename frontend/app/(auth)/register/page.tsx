@@ -235,12 +235,6 @@ export default function RegisterPage() {
         }
       } else {
         sessionStorage.removeItem('logged_out');
-        // Check for access_token cookie using proper boundary matching
-        const hasAccessCookie = /(?:^|;)\s*access_token\s*=/.test(document.cookie);
-        if (hasAccessCookie) {
-          // biome-ignore lint/suspicious/noDocumentCookie: clearing stale cookie
-          document.cookie = 'access_token=; path=/; max-age=0; SameSite=Strict';
-        }
         setReady(true);
       }
     }
@@ -272,7 +266,7 @@ export default function RegisterPage() {
         description: 'Check your email for the verification code.',
       });
       const otpRes = await api.post('/auth/send-otp', { email: data.email });
-      if (otpRes.data?.devOtp) sessionStorage.setItem('devOtp', otpRes.data.devOtp);
+      if (otpRes.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') sessionStorage.setItem('devOtp', otpRes.data.devOtp);
       sessionStorage.setItem('verifyEmail', data.email);
       router.push('/verify-otp');
     } catch (error) {
