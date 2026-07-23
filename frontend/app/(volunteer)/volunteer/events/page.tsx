@@ -14,10 +14,10 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { useToast } from '../../../../hooks/use-toast';
-import { api } from '../../../../lib/api';
+import { Pagination } from '@/components/shared/Pagination';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
 

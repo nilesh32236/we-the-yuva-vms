@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { MapPin, Calendar, Search, Wifi } from 'lucide-react';
 import Link from 'next/link';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 
 const CATEGORY_LABELS: Record<string, string> = {
   ENVIRONMENT: 'Environment',

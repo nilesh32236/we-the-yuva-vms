@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { UserTable } from '@/components/admin/UserTable';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';

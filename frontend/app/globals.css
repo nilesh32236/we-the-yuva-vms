@@ -49,6 +49,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
+  /* Chart colors */
+  --color-chart-1: var(--clr-chart-1);
+  --color-chart-2: var(--clr-chart-2);
+  --color-chart-3: var(--clr-chart-3);
+  --color-chart-4: var(--clr-chart-4);
+  --color-chart-5: var(--clr-chart-5);
+  --color-chart-6: var(--clr-chart-6);
+  --color-chart-7: var(--clr-chart-7);
+  --color-chart-8: var(--clr-chart-8);
+
   /* Animations */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -90,6 +100,15 @@
   --clr-input: #b4d4c2;
   --clr-ring: #047857;
   --clr-shadow: rgba(0, 0, 0, 0.08);
+
+  --clr-chart-1: #047857;
+  --clr-chart-2: #0891b2;
+  --clr-chart-3: #7c3aed;
+  --clr-chart-4: #d97706;
+  --clr-chart-5: #dc2626;
+  --clr-chart-6: #0d9488;
+  --clr-chart-7: #6366f1;
+  --clr-chart-8: #64748b;
 }
 
 /* ─── Dark Theme ────────────────────────────────────────────────── */
@@ -124,6 +143,16 @@
   --clr-input: #3a4a6a;
   --clr-ring: #34d399;
   --clr-shadow: rgba(0, 0, 0, 0.2);
+
+  --clr-chart-1: #34d399;
+  --clr-chart-2: #22d3ee;
+  --clr-chart-3: #a78bfa;
+  --clr-chart-4: #fbbf24;
+  --clr-chart-5: #f87171;
+  --clr-chart-6: #2dd4bf;
+  --clr-chart-7: #818cf8;
+  --clr-chart-8: #94a3b8;
+
   color-scheme: dark;
 }
 

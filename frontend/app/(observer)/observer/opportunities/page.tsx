@@ -5,7 +5,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { OpportunityCard } from '@/components/opportunities/OpportunityCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';

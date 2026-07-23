@@ -16,7 +16,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { SkeletonCard } from '../shared/SkeletonCard';
 
 const ICONS = {
