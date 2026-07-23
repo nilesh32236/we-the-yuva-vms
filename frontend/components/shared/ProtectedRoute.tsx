@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth-context';
 import { ROLE_ROUTES } from '@/lib/shared/permissions';
 import type { UserRole } from '@/lib/shared/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [showContent, setShowContent] = useState(false);
-  const rolesKey = allowedRoles.join(',');
+  const rolesKey = useMemo(() => allowedRoles.join(','), [allowedRoles]);
 
   useEffect(() => {
     if (isLoading) return;

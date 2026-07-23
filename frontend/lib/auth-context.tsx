@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { api } from './api';
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw err;
       }
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30_000,
     retry: 1,
     refetchOnWindowFocus: true,
   });
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30_000,
     retry: 1,
   });
 
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // pathname is in deps so redirects re-evaluate when the route changes.
-  // The underlying userQuery uses a 5-min staleTime, so this does NOT
+  // The underlying userQuery uses a 30s staleTime, so this does NOT
   // trigger API calls on every navigation — it relies on cached query data.
   useEffect(() => {
     if (isLoading) return;
@@ -130,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, isLoading, fetchError, pathname, router]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout');
     } catch {
@@ -149,10 +149,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         window.location.href = '/login';
       }
     }
-  };
+  }, []);
+
+  const providerValue = useMemo(
+    () => ({ user, isLoading, fetchError, profileStatus, refetch, logout }),
+    [user, isLoading, fetchError, profileStatus, refetch, logout],
+  );
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, fetchError, profileStatus, refetch, logout }}>
+    <AuthContext.Provider value={providerValue}>
       {children}
     </AuthContext.Provider>
   );
