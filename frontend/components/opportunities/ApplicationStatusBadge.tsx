@@ -1,8 +1,7 @@
 const CONFIG = {
   PENDING: {
     label: 'Pending',
-    className:
-      'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
+    className: 'bg-brand-accent/10 text-brand-accent border-brand-accent/20',
   },
   ACCEPTED: {
     label: 'Accepted',
@@ -10,8 +9,7 @@ const CONFIG = {
   },
   REJECTED: {
     label: 'Rejected',
-    className:
-      'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-800',
+    className: 'bg-brand-error/10 text-brand-error border-brand-error/20',
   },
 } as const;
 

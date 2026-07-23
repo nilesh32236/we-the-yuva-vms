@@ -241,10 +241,17 @@ export function EventSeriesForm({
           {...register('description')}
           rows={3}
           disabled={isSubmitting}
+          aria-invalid={!!errors.description}
+          aria-describedby={errors.description ? 'description-error' : undefined}
           className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none disabled:opacity-60 ${
             errors.description ? 'border-brand-error' : 'border-brand-border'
           }`}
         />
+        {errors.description && (
+          <p id="description-error" className="text-xs text-brand-error">
+            {errors.description.message as string}
+          </p>
+        )}
       </div>
 
       {/* Frequency */}

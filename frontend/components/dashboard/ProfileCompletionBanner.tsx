@@ -57,23 +57,23 @@ export function ProfileCompletionBanner() {
   const { completionPercentage, missingFields } = profileStatus;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-amber-50 border border-amber-200 p-5">
+    <div className="relative overflow-hidden rounded-2xl bg-brand-accent/10 border border-brand-accent/20 p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-3 min-w-0 flex-1">
           <div>
-            <p className="font-heading font-semibold text-sm text-amber-800">
+            <p className="font-heading font-semibold text-sm text-brand-accent">
               Complete your profile to unlock all features
             </p>
-            <p className="text-xs text-amber-600 mt-0.5">
+            <p className="text-xs text-brand-accent mt-0.5">
               {completionPercentage}% complete
               {missingFields.length > 0 &&
                 ` — Missing: ${missingFields.map((f) => fieldLabels[f] ?? f).join(', ')}`}
             </p>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-amber-200 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-brand-accent/20 overflow-hidden">
             <div
-              className="h-full rounded-full bg-amber-500 origin-left motion-safe:transition-transform motion-safe:duration-500"
+              className="h-full rounded-full bg-brand-accent origin-left motion-safe:transition-transform motion-safe:duration-500"
               style={{ transform: `scaleX(${completionPercentage / 100})` }}
             />
           </div>
@@ -89,10 +89,10 @@ export function ProfileCompletionBanner() {
           onClick={handleDismiss}
           variant="icon"
           size="icon"
-          className="flex-shrink-0 p-1 hover:bg-amber-100 dark:hover:bg-amber-800/40 w-8 h-8 min-h-0 min-w-0"
+          className="flex-shrink-0 hover:bg-brand-accent/10"
           aria-label="Dismiss"
         >
-          <X className="w-4 h-4 text-amber-500" />
+          <X className="w-4 h-4 text-brand-accent" />
         </Button>
       </div>
     </div>

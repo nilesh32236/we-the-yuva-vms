@@ -93,7 +93,6 @@ export function LeaderboardRow({
         {level && (
           <div className="flex items-center gap-1 mt-0.5">
             <LevelBadge
-              tier={0}
               name={level.name}
               badgeIcon={level.badgeIcon}
               color={level.color}

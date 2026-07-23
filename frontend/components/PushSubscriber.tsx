@@ -6,10 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { haptic } from '@/lib/haptic';
+import { useToast } from '@/hooks/use-toast';
 
 export function PushSubscriber() {
   const { user } = useAuth();
   const { permission, subscribe } = usePushNotifications();
+  const { toast } = useToast();
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
@@ -64,7 +66,7 @@ export function PushSubscriber() {
       await subscribe();
       setShowPrompt(false);
     } catch {
-      // Error handled by the hook
+      toast({ title: 'Could not enable notifications', variant: 'destructive' });
     } finally {
       setSubscribing(false);
     }
@@ -74,13 +76,17 @@ export function PushSubscriber() {
     <div className="fixed bottom-20 md:bottom-6 right-6 z-40 pointer-events-none w-full max-w-sm px-4">
       <div
         ref={pushPromptRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="push-title"
+        aria-describedby="push-desc"
         className="flex flex-col gap-3 bg-brand-surface/98 backdrop-blur-md text-brand-text p-4 md:p-5 rounded-2xl shadow-2xl border border-brand-border animate-in slide-in-from-bottom-6 duration-300 pointer-events-auto"
       >
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <span className="flex items-center justify-center w-7 h-7 rounded-xl bg-brand-bg text-brand-primary">
-              <BellRing className="w-4 h-4 animate-bounce" />
+              <BellRing className="w-4 h-4 motion-safe:animate-bounce" />
             </span>
             <span className="text-xs font-bold font-heading text-brand-text">Enable Updates</span>
           </div>
@@ -97,10 +103,10 @@ export function PushSubscriber() {
 
         {/* Content */}
         <div className="space-y-1">
-          <h3 className="text-xs font-bold text-brand-text leading-snug">
+          <h3 id="push-title" className="text-xs font-bold text-brand-text leading-snug">
             Get instant alerts on volunteering matches!
           </h3>
-          <p className="text-[10px] text-brand-muted leading-relaxed">
+          <p id="push-desc" className="text-[10px] text-brand-muted leading-relaxed">
             Receive real-time notifications for event confirmations, organizer feedback, and new
             opportunities that match your skills.
           </p>

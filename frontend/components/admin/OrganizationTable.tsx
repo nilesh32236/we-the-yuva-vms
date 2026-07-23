@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  SUSPENDED: 'bg-red-100 text-red-700',
+  ACTIVE: 'bg-brand-primary/10 text-brand-primary',
+  PENDING: 'bg-brand-accent/10 text-brand-accent',
+  SUSPENDED: 'bg-brand-error/10 text-brand-error',
 };
 
 interface Organization {
@@ -96,11 +96,11 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-1.5">
                       {org.status === 'ACTIVE' ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-brand-primary" />
                       ) : org.status === 'PENDING' ? (
-                        <Clock className="w-3.5 h-3.5 text-yellow-600" />
+                        <Clock className="w-3.5 h-3.5 text-brand-accent" />
                       ) : (
-                        <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+                        <ShieldAlert className="w-3.5 h-3.5 text-brand-error" />
                       )}
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${STATUS_COLORS[org.status] ?? ''}`}
@@ -125,7 +125,7 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
                   <td className="px-4 py-4 text-right">
                     <Link
                       href={`/admin/organizations/${org.id}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-secondary transition-colors bg-brand-primary/5 px-3 py-3 rounded-lg border border-brand-primary/10 min-h-[44px]"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-primary hover:text-brand-secondary transition-colors bg-brand-primary/5 px-3 py-3 rounded-lg border border-brand-primary/10 min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                     >
                       Manage
                       <ExternalLink className="w-3 h-3" />
