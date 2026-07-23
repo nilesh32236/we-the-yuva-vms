@@ -3,8 +3,8 @@
 import { RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
-import { Button } from '../ui/Button';
-import { useToast } from '../../hooks/use-toast';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
 
 interface ResendButtonProps {
   onResend: () => Promise<void>;

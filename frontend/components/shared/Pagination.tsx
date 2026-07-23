@@ -8,7 +8,7 @@ interface PaginationProps {
   setPage: (page: number) => void;
 }
 
-export default function Pagination({ page, totalPages, setPage }: PaginationProps) {
+export function Pagination({ page, totalPages, setPage }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   return (
