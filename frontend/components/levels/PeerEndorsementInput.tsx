@@ -106,6 +106,7 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
                 setNewName('');
                 setNewStatement('');
               }}
+              className="focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
             >
               Cancel
             </Button>
@@ -114,6 +115,7 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
               size="sm"
               onClick={addEndorsement}
               disabled={!newName.trim() || !newStatement.trim()}
+              className="focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
             >
               Add
             </Button>

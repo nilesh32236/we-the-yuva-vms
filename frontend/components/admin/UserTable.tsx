@@ -220,6 +220,26 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
             className="fixed z-50 bg-brand-surface border border-brand-border rounded-xl shadow-xl py-1.5 min-w-[180px] motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 duration-150"
             style={{ top: menuPosition.top, right: menuPosition.right }}
             role="menu"
+            onKeyDown={(e) => {
+              const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+              if (!items || items.length === 0) return;
+              const currentIndex = Array.from(items).indexOf(document.activeElement as HTMLElement);
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const next = (currentIndex + 1) % items.length;
+                items[next]?.focus();
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prev = (currentIndex - 1 + items.length) % items.length;
+                items[prev]?.focus();
+              } else if (e.key === 'Home') {
+                e.preventDefault();
+                items[0]?.focus();
+              } else if (e.key === 'End') {
+                e.preventDefault();
+                items[items.length - 1]?.focus();
+              }
+            }}
           >
             {selectedUser && (
               <>

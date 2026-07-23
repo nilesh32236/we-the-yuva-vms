@@ -142,8 +142,8 @@ export function ContactForm() {
       </div>
 
       <Button type="submit" loading={isSubmitting} className="px-6">
-        {!isSubmitting && <Send className="h-4 w-4" aria-hidden="true" />}
-        {isSubmitting ? 'Sending...' : 'Send message'}
+        <Send className="h-4 w-4" aria-hidden="true" />
+        Send message
       </Button>
     </form>
   );
