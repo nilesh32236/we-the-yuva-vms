@@ -77,7 +77,7 @@ export default function SetupProfilePage() {
     setValue,
     trigger,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<OnboardingData>({
     resolver: zodResolver(OnboardingSchema),
     defaultValues,
@@ -122,19 +122,15 @@ export default function SetupProfilePage() {
       e.preventDefault();
       e.returnValue = '';
     };
-    const sub = watch((data) => {
-      const isDirty = JSON.stringify(data) !== JSON.stringify(defaultValues);
-      if (isDirty) {
-        window.addEventListener('beforeunload', handler);
-      } else {
-        window.removeEventListener('beforeunload', handler);
-      }
-    });
+    if (isDirty) {
+      window.addEventListener('beforeunload', handler);
+    } else {
+      window.removeEventListener('beforeunload', handler);
+    }
     return () => {
-      sub.unsubscribe();
       window.removeEventListener('beforeunload', handler);
     };
-  }, [watch]);
+  }, [isDirty]);
 
   // Persist step to sessionStorage
   useEffect(() => {

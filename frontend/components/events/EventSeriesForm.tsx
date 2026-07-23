@@ -267,7 +267,7 @@ export function EventSeriesForm({
               type="button"
               onClick={() => setValue('frequency', f.value, { shouldValidate: true })}
               disabled={isSubmitting}
-              className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
+              className={`px-4 py-3 rounded-xl text-sm font-medium motion-safe:transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
                 frequency === f.value
                   ? 'bg-brand-primary text-white'
                   : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
@@ -290,7 +290,7 @@ export function EventSeriesForm({
                 type="button"
                 onClick={() => toggleDay(day.value)}
                 disabled={isSubmitting}
-                className={`w-11 h-11 rounded-xl text-xs font-medium transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
+                className={`w-11 h-11 rounded-xl text-xs font-medium motion-safe:transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
                   daysOfWeek?.includes(day.value)
                     ? 'bg-brand-primary text-white'
                     : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
