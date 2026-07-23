@@ -86,7 +86,7 @@ export function PointsHistory() {
         </div>
         <div className="p-4">
           <div className="flex flex-col items-center gap-3 py-4">
-            <p className="text-sm text-red-600 dark:text-red-400">Failed to load points history</p>
+            <p className="text-sm text-brand-error">Failed to load points history</p>
             <button
               type="button"
               onClick={() => refetch()}

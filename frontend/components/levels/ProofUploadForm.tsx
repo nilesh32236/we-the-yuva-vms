@@ -105,7 +105,7 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
         }}
       />
 
-      {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+      {uploadError && <p className="text-sm text-destructive" role="alert">{uploadError}</p>}
 
       {files.length > 0 && (
         <ul className="space-y-2">

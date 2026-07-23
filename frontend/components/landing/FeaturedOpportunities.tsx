@@ -57,7 +57,7 @@ export async function FeaturedOpportunities() {
             <Link
               key={opp.id}
               href={`/opportunities/${opp.id}`}
-              className={`card-hover group rounded-2xl border border-brand-border bg-brand-surface p-6 ${i < 3 ? 'motion-safe:animate-fade-in-up' : ''}`}
+              className={`card-hover group rounded-2xl border border-brand-border bg-brand-surface p-6 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${i < 3 ? 'motion-safe:animate-fade-in-up' : ''}`}
               style={{ animationDelay: `${i * 100}ms` }}
             >
               <span className="inline-block rounded-full bg-brand-bg px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-brand-primary">
