@@ -16,6 +16,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
+import { memo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { SkeletonCard } from '../shared/SkeletonCard';
 
@@ -120,6 +121,23 @@ function HeroBanner({
     </div>
   );
 }
+
+const StatCard = memo(function StatCard({ stat }: { stat: StatCard }) {
+  const Icon = ICONS[stat.icon];
+  const accent = stat.accent ?? 'text-brand-primary';
+  const accentBg = stat.accentBg ?? 'bg-brand-bg';
+  return (
+    <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 card-hover cursor-default">
+      <div className={`w-12 h-12 rounded-xl ${accentBg} flex items-center justify-center flex-shrink-0`}>
+        <Icon className={`w-6 h-6 ${accent}`} aria-hidden="true" />
+      </div>
+      <div className="min-w-0">
+        <p className="font-heading font-bold text-2xl text-brand-text leading-none">{stat.value}</p>
+        <p className="text-brand-muted text-xs mt-1 truncate">{stat.label}</p>
+      </div>
+    </div>
+  );
+});
 
 function QuickActionsPanel({
   ctaLabel,
@@ -251,29 +269,9 @@ export function DashboardShell({
 
       {/* ── Stat Cards ──────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {stats.map((stat) => {
-          const Icon = ICONS[stat.icon];
-          const accent = stat.accent ?? 'text-brand-primary';
-          const accentBg = stat.accentBg ?? 'bg-brand-bg';
-          return (
-            <div
-              key={stat.label}
-              className="bg-brand-surface rounded-2xl border border-brand-border p-5 flex items-center gap-4 card-hover cursor-default"
-            >
-              <div
-                className={`w-12 h-12 rounded-xl ${accentBg} flex items-center justify-center flex-shrink-0`}
-              >
-                <Icon className={`w-6 h-6 ${accent}`} aria-hidden="true" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-heading font-bold text-2xl text-brand-text leading-none">
-                  {stat.value}
-                </p>
-                <p className="text-brand-muted text-xs mt-1 truncate">{stat.label}</p>
-              </div>
-            </div>
-          );
-        })}
+        {stats.map((stat) => (
+          <StatCard key={stat.label} stat={stat} />
+        ))}
       </div>
 
       <QuickActionsPanel

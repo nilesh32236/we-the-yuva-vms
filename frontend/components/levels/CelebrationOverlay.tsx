@@ -63,8 +63,8 @@ export function CelebrationOverlay({ levelName, tier, points, onClose }: Celebra
         >
           <X className="w-5 h-5" />
         </button>
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-600/20 blur-xl will-change-transform" />
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-600/20 blur-xl will-change-transform" />
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-600/20 blur-xl" />
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-600/20 blur-xl" />
 
         <div className="relative z-10 space-y-6">
           <div className="flex justify-center gap-2">
