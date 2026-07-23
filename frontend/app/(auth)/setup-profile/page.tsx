@@ -122,9 +122,19 @@ export default function SetupProfilePage() {
       e.preventDefault();
       e.returnValue = '';
     };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, []);
+    const sub = watch((data) => {
+      const isDirty = JSON.stringify(data) !== JSON.stringify(defaultValues);
+      if (isDirty) {
+        window.addEventListener('beforeunload', handler);
+      } else {
+        window.removeEventListener('beforeunload', handler);
+      }
+    });
+    return () => {
+      sub.unsubscribe();
+      window.removeEventListener('beforeunload', handler);
+    };
+  }, [watch]);
 
   // Persist step to sessionStorage
   useEffect(() => {

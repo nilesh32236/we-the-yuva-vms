@@ -100,11 +100,11 @@ export function EventForm({
                 setIsRecurring(false);
               }
             }}
-            className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
+            className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
             onClick={() => setIsRecurring(false)}
           >
             <div
-              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
+              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
             />
           </div>
           <span className="text-sm font-medium text-brand-text flex items-center gap-1.5">
@@ -147,11 +147,11 @@ export function EventForm({
                 setIsRecurring(true);
               }
             }}
-            className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
+            className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
             onClick={() => setIsRecurring(true)}
           >
             <div
-              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
+              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
             />
           </div>
           <span className="text-sm font-medium text-brand-text flex items-center gap-1.5">
