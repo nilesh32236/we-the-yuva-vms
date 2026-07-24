@@ -19,6 +19,7 @@ import { useParams } from 'next/navigation';
 import { z } from 'zod';
 import { StatsCard } from '@/components/charts/StatsCard';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 const STATUS_STYLES: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
@@ -51,7 +52,6 @@ const EventDetailSchema = z.object({
   }),
   _count: z.object({ attendances: z.number() }),
 });
-type EventDetail = z.infer<typeof EventDetailSchema>;
 
 export default function AdminEventDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -87,13 +87,9 @@ export default function AdminEventDetailPage() {
       <div role="alert" className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load event</p>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-11 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm mt-4"
-        >
+        <Button onClick={() => refetch()} className="mt-4">
           Try Again
-        </button>
+        </Button>
       </div>
     );
   }
