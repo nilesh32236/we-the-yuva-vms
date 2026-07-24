@@ -85,12 +85,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (userQuery.error as { response?: { status?: number } }).response?.status &&
       (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
     ) {
-      const msg = 'Server error. Please try logging in again.';
-      toast({ title: 'Authentication error', description: msg, variant: 'destructive' });
-      return msg;
+      return 'Server error. Please try logging in again.';
     }
     return null;
   })();
+
+  useEffect(() => {
+    if (
+      userQuery.error &&
+      typeof userQuery.error === 'object' &&
+      'response' in userQuery.error &&
+      (userQuery.error as { response?: { status?: number } }).response?.status &&
+      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
+    ) {
+      toast({
+        title: 'Authentication error',
+        description: 'Server error. Please try again.',
+        variant: 'destructive',
+        role: 'alert',
+      });
+    }
+  }, [userQuery.error]);
   const profileStatus = profileStatusQuery.data ?? null;
 
   const refetch = useCallback(async () => {

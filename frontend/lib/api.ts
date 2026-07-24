@@ -150,7 +150,7 @@ api.interceptors.response.use(
         error.normalizedMessage = data;
       } else {
         error.normalizedMessage =
-          data?.error ?? data?.message ?? 'Something went wrong. Please try again.';
+          data?.error ?? data?.message ?? `Request failed (status ${error.response.status}). Please try again.`;
       }
     }
     return Promise.reject(error);

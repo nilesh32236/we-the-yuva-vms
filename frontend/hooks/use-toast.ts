@@ -10,6 +10,7 @@ type ToastProps = {
   title?: string;
   description?: string;
   variant?: 'default' | 'destructive';
+  role?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   action?: React.ReactNode;
