@@ -14,6 +14,15 @@ const variants = {
     'bg-brand-error text-white hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
 };
 
+const spinnerColors: Record<string, string> = {
+  primary: 'border-white/30 border-t-white',
+  cta: 'border-white/30 border-t-white',
+  outline: 'border-current/30 border-t-current',
+  ghost: 'border-current/30 border-t-current',
+  icon: 'border-current/30 border-t-current',
+  destructive: 'border-white/30 border-t-white',
+};
+
 const sizes = {
   sm: 'text-sm px-3 py-2 min-h-[44px]',
   md: 'text-sm px-4 py-3 min-h-[44px]',
@@ -48,7 +57,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       type={type}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'inline-flex items-center justify-center gap-2 font-medium rounded-lg motion-safe:transition-colors motion-safe:duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         variants[variant],
         sizes[size],
         fullWidth && 'w-full',
@@ -57,7 +66,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       {...props}
     >
       {loading ? (
-        <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full motion-safe:animate-spin" />
+        <span className={`w-4 h-4 border-2 rounded-full motion-safe:animate-spin ${spinnerColors[variant]}`} />
       ) : (
         children
       )}

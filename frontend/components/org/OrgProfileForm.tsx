@@ -100,7 +100,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
             placeholder="Organization name"
           />
           {errors.name && (
-            <p id="org-name-error" className="text-xs text-brand-error">
+            <p id="org-name-error" className="text-xs text-brand-error" role="alert">
               {errors.name.message}
             </p>
           )}
@@ -155,11 +155,13 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
             id="org-email"
             disabled={mutation.isPending}
             {...register('email')}
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? 'org-email-error' : undefined}
             className={inputCls('email')}
             placeholder="contact@organization.org"
           />
           {errors.email && (
-            <p className="text-xs text-brand-error" role="alert">
+            <p id="org-email-error" className="text-xs text-brand-error" role="alert">
               {errors.email.message}
             </p>
           )}
@@ -176,7 +178,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
             className={inputCls('website')}
             placeholder="https://organization.org"
           />
-          {errors.website && <p className="text-xs text-brand-error">{errors.website.message}</p>}
+          {errors.website && <p className="text-xs text-brand-error" role="alert">{errors.website.message}</p>}
         </div>
 
         <div className="space-y-2">

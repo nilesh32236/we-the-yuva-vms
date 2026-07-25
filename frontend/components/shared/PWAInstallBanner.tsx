@@ -56,7 +56,7 @@ export function PWAInstallBanner() {
       <button
         type="button"
         onClick={handleDismiss}
-        className="absolute top-3 right-3 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors cursor-pointer text-white/80 active:scale-90 focus-visible:ring-2 focus-visible:ring-white/50"
+        className="absolute top-3 right-3 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors cursor-pointer text-white/80 active:scale-90         focus-visible:ring-2 focus-visible:ring-white/70"
         aria-label="Dismiss banner"
       >
         <X className="w-4 h-4" />
@@ -108,7 +108,7 @@ export function PWAInstallBanner() {
           type="button"
           onClick={handleInstall}
           disabled={installing}
-          className="flex items-center justify-center gap-2.5 bg-white hover:bg-white/90 active:scale-95 text-brand-primary font-heading font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-black/20 transition-colors duration-150 cursor-pointer w-full md:w-auto flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-white/50"
+          className="flex items-center justify-center gap-2.5 bg-white hover:bg-white/90 active:scale-95 text-brand-primary font-heading font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-black/20 transition-colors duration-150 cursor-pointer w-full md:w-auto flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed         focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
           {installing ? (
             <span className="w-4 h-4 border-2 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />

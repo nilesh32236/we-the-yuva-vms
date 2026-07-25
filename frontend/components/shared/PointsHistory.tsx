@@ -90,7 +90,7 @@ export function PointsHistory() {
             <button
               type="button"
               onClick={() => refetch()}
-              className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded"
+              className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-md"
             >
               Retry
             </button>

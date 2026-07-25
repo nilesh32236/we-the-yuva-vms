@@ -76,7 +76,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex min-w-[44px] min-h-[44px] items-center justify-center rounded-lg bg-brand-surface text-brand-muted transition-colors duration-200 hover:bg-brand-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                  className="flex min-w-[44px] min-h-[44px] items-center justify-center rounded-lg bg-brand-surface text-brand-muted border border-brand-border transition-colors duration-200 hover:bg-brand-primary hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </a>

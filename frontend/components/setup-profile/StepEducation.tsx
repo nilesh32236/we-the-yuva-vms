@@ -106,7 +106,7 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
                     { shouldValidate: true }
                   );
                 }}
-                className="text-brand-muted hover:text-red-500 text-xs cursor-pointer px-3 py-2 min-h-11"
+                className="text-brand-muted hover:text-brand-error text-xs cursor-pointer px-3 py-2 min-h-11"
               >
                 Remove
               </button>
@@ -129,12 +129,12 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
                 }
               }}
               placeholder="Type a certification and press Enter or Add"
-              className="flex-1 px-3 py-2.5 rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="flex-1 px-3 py-2.5 min-h-[44px] rounded-lg border border-brand-border text-base bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
             <button
               type="button"
               onClick={addCertification}
-              className="px-4 py-3 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer min-h-[44px]"
+              className="px-4 py-3 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
             >
               Add
             </button>

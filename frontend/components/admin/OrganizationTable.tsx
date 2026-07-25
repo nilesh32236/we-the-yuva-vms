@@ -74,7 +74,7 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
               >
                 Registered
               </th>
-              <th className="px-4 py-3 w-20" />
+              <th scope="col" className="px-4 py-3 w-20" />
             </tr>
           </thead>
           <tbody className="divide-y divide-brand-border">
