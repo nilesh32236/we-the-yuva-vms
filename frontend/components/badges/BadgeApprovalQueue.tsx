@@ -3,9 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '../../hooks/use-toast';
-import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { api } from '../../lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api } from '@/lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { Button } from '../ui/Button';
 

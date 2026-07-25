@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { useState } from 'react';
 import { OrganizationTable } from '@/components/admin/OrganizationTable';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';

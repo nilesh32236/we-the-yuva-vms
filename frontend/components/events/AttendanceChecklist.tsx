@@ -2,9 +2,9 @@
 
 import { memo, useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
-import { haptic } from '../../lib/haptic';
-import { Button } from '../ui/Button';
-import { useToast } from '../../hooks/use-toast';
+import { haptic } from '@/lib/haptic';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
 import * as Sentry from '@sentry/nextjs';
 
 interface Volunteer {

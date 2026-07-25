@@ -3,8 +3,8 @@
 import * as Sentry from '@sentry/nextjs';
 import { CalendarPlus } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '../../hooks/use-toast';
-import { api } from '../../lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
 
 interface Props {

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Download, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api, downloadCsv } from '@/lib/api';

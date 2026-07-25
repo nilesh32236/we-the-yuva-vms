@@ -5,7 +5,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { z } from 'zod';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { EventCard } from '@/components/events/EventCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';

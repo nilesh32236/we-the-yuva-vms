@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { LevelBadge } from '../levels/LevelBadge';
-import { cn } from '../../lib/utils';
+import { LevelBadge } from '@/components/levels/LevelBadge';
+import { cn } from '@/lib/utils';
 
 interface LeaderboardRowProps {
   rank: number;

@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useState } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';

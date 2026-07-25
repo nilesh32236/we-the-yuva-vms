@@ -16,11 +16,11 @@ export function HoursBarChart({ data }: HoursBarChartProps) {
     <div>
       <ResponsiveContainer width="100%" height={240} aria-label="Hours served by month bar chart">
         <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-brand-border)" />
-          <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-brand-muted)' }} />
-          <YAxis tick={{ fontSize: 11, fill: 'var(--color-brand-muted)' }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-8)" strokeOpacity={0.3} />
+          <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-chart-8)' }} />
+          <YAxis tick={{ fontSize: 11, fill: 'var(--color-chart-8)' }} />
           <Tooltip />
-          <Bar dataKey="hours" fill="var(--color-brand-primary)" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="hours" fill="var(--color-chart-1)" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
       <table className="sr-only">

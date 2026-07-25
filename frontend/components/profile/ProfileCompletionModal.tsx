@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { Button } from '../ui/Button';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { Button } from '@/components/ui/Button';
 
 interface ProfileCompletionModalProps {
   open: boolean;

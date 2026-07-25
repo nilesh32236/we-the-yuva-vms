@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';

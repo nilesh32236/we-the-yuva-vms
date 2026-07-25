@@ -18,7 +18,7 @@ import { api } from '@/lib/api';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import * as Sentry from '@sentry/nextjs';
-import { useToast } from '../../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },

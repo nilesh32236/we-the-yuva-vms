@@ -14,13 +14,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Pagination } from '@/components/shared/Pagination';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { AddToCalendarButton } from '../../../../components/events/AddToCalendarButton';
-import Pagination from '../../../../components/shared/Pagination';
-import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
-import { Button } from '../../../../components/ui/Button';
-import { useToast } from '../../../../hooks/use-toast';
-import { api } from '../../../../lib/api';
+import { AddToCalendarButton } from '@/components/events/AddToCalendarButton';
+import { Button } from '@/components/ui/Button';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-brand-cta/10 text-brand-cta',

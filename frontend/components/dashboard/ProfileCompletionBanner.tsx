@@ -3,7 +3,7 @@
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '../ui/Button';
 
 const DISMISS_KEY = 'profile-banner-dismissed';

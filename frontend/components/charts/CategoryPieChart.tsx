@@ -6,12 +6,14 @@ import { useMemo } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 const CHART_COLORS = [
-  'var(--color-brand-primary)',
-  'var(--color-brand-cta)',
-  'var(--color-brand-accent)',
-  'var(--color-brand-error)',
-  'var(--color-brand-secondary)',
-  'var(--color-brand-muted)',
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+  'var(--color-chart-4)',
+  'var(--color-chart-5)',
+  'var(--color-chart-6)',
+  'var(--color-chart-7)',
+  'var(--color-chart-8)',
 ];
 
 interface CategoryPieChartProps {
