@@ -1,16 +1,16 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, CheckCircle, Keyboard, QrCode, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { Button } from '@/components/ui/Button';
 
 const ManualTokenSchema = z.object({
   token: z.string().min(1, 'Please enter a check-in code'),
