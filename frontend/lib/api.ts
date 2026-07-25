@@ -36,10 +36,32 @@ export async function downloadCsv(url: string, filename = 'export.csv') {
   }
 }
 
-let accessTokenMemory: string | null = null;
+const STORAGE_KEY = 'accessToken';
+
+function hydrateToken(): string | null {
+  if (typeof sessionStorage === 'undefined') return null;
+  try {
+    return sessionStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+let accessTokenMemory: string | null = hydrateToken();
 
 export function setAccessToken(token: string | null) {
   accessTokenMemory = token;
+  if (typeof sessionStorage !== 'undefined') {
+    try {
+      if (token) {
+        sessionStorage.setItem(STORAGE_KEY, token);
+      } else {
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      // sessionStorage may be unavailable
+    }
+  }
 }
 
 function getAccessToken(): string | null {
