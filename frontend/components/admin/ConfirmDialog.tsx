@@ -54,6 +54,7 @@ export function ConfirmDialog({
             variant="outline"
             onClick={onCancel}
             disabled={loading}
+            autoFocus
             className="flex-1"
           >
             {cancelLabel}

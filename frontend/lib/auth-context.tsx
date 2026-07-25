@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { api } from './api';
@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const userQuery = useQuery<AuthUser | null>({
     queryKey: ['auth-user'],
+    enabled: !isPublicRoute(pathname),
     queryFn: async () => {
       if (
         typeof sessionStorage !== 'undefined' &&
@@ -55,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw err;
       }
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30_000,
     retry: 1,
     refetchOnWindowFocus: true,
   });
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30_000,
     retry: 1,
   });
 
@@ -100,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // pathname is in deps so redirects re-evaluate when the route changes.
-  // The underlying userQuery uses a 5-min staleTime, so this does NOT
+  // The underlying userQuery uses a 30s staleTime, so this does NOT
   // trigger API calls on every navigation — it relies on cached query data.
   useEffect(() => {
     if (isLoading) return;
@@ -121,6 +122,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isPublic && !isOnboarding) {
       if (!user.consent) {
         router.replace('/consent');
+      } else if (user.role === 'VOLUNTEER' && !user.profile) {
+        router.replace('/setup-profile');
+      } else if (
+        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
+          user.role
+        ) &&
+        !user.locationId
+      ) {
+        router.replace('/setup-profile');
       } else if (!ONBOARDING_ROUTES.some((r) => pathname.startsWith(r))) {
         const allowedPrefixes = ROLE_ROUTE_PREFIXES[user.role];
         if (allowedPrefixes && !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
@@ -130,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, isLoading, fetchError, pathname, router]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await api.post('/auth/logout');
     } catch {
@@ -138,21 +148,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       queryClient.clear();
       clearQueue();
-      if (typeof document !== 'undefined') {
-        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-        // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-        document.cookie = `access_token=; path=/; max-age=0; SameSite=Strict${secure}`;
-      }
       // Flag to prevent auto-refresh from re-authenticating after redirect
       sessionStorage.setItem('logged_out', 'true');
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }
     }
-  };
+  }, []);
+
+  const providerValue = useMemo(
+    () => ({ user, isLoading, fetchError, profileStatus, refetch, logout }),
+    [user, isLoading, fetchError, profileStatus, refetch, logout],
+  );
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, fetchError, profileStatus, refetch, logout }}>
+    <AuthContext.Provider value={providerValue}>
       {children}
     </AuthContext.Provider>
   );

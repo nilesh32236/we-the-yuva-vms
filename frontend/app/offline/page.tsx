@@ -1,7 +1,22 @@
+'use client';
+
 import { WifiOff } from 'lucide-react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function OfflinePage() {
+  const router = useRouter();
+
+  const handleRetry = () => {
+    const swDestination = sessionStorage.getItem('offline-intended-destination');
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const destination = swDestination || (currentUrl !== '' && currentUrl !== `${window.location.origin}/offline` ? currentUrl : null);
+    if (destination) {
+      router.push(destination);
+    } else {
+      router.back();
+    }
+  };
+
   return (
     <main
       id="main"
@@ -17,12 +32,13 @@ export default function OfflinePage() {
         again.
       </p>
 
-      <Link
-        href="/"
+      <button
+        type="button"
+        onClick={handleRetry}
         className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
       >
         Try again
-      </Link>
+      </button>
 
       <p className="text-brand-muted text-xs mt-8">WeTheYuva VMS · Volunteer Management System</p>
     </main>

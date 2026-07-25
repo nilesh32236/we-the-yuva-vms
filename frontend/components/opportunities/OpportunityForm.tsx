@@ -9,6 +9,8 @@ import { z } from 'zod';
 import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
 const CreateLocationSchema = z.object({
@@ -33,13 +35,17 @@ interface OpportunityFormProps {
   defaultValues?: Partial<OpportunityInput>;
   onSubmit: (data: OpportunityInput) => Promise<void>;
   submitLabel?: string;
+  requiredPermission?: string;
 }
 
 export function OpportunityForm({
   defaultValues,
   onSubmit,
   submitLabel = 'Save',
+  requiredPermission,
 }: OpportunityFormProps) {
+  const { user } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -62,6 +68,10 @@ export function OpportunityForm({
 
   const [skillInput, setSkillInput] = useState('');
   const [serverError, setServerError] = useState<string | null>(null);
+
+  if (requiredPermission && !hasPermission(user, requiredPermission)) {
+    return null;
+  }
 
   const wrappedOnSubmit = async (data: OpportunityInput) => {
     setServerError(null);
@@ -382,7 +392,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
     return (
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-brand-text">Location</p>
-        <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 px-4 py-3 text-sm text-red-700 dark:text-red-300 flex items-center justify-between">
+        <div className="rounded-xl bg-brand-error/10 border border-brand-error/20 px-4 py-3 text-sm text-brand-error flex items-center justify-between">
           <span>Failed to load locations</span>
           <button
             type="button"
