@@ -21,7 +21,6 @@ const StoryDetailSchema = z.object({
   createdAt: z.string(),
   user: z.object({ name: z.string(), email: z.string() }),
 });
-type StoryDetail = z.infer<typeof StoryDetailSchema>;
 
 export default function AdminStoryDetailPage() {
   const { id } = useParams<{ id: string }>();

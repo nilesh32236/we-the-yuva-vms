@@ -21,6 +21,7 @@ import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { StatsCard } from '@/components/charts/StatsCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 const STATUS_STYLES: Record<string, string> = {
   ACTIVE: 'bg-brand-primary/10 text-brand-primary',
@@ -54,7 +55,6 @@ const OpportunityDetailSchema = z.object({
   _count: z.object({ applications: z.number(), events: z.number() }),
   applicationStats: z.array(z.object({ status: z.string(), _count: z.number() })),
 });
-type OpportunityDetail = z.infer<typeof OpportunityDetailSchema>;
 
 export default function AdminOpportunityDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -105,13 +105,9 @@ export default function AdminOpportunityDetailPage() {
       <div role="alert" className="text-center py-20">
         <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4 opacity-40" />
         <p className="font-medium text-brand-text mb-1">Failed to load opportunity</p>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 min-h-11 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors shadow-sm mt-4"
-        >
+        <Button onClick={() => refetch()} className="mt-4">
           Try Again
-        </button>
+        </Button>
       </div>
     );
   }
@@ -267,15 +263,14 @@ export default function AdminOpportunityDetailPage() {
             Edit Opportunity
           </Link>
           {opp.status === 'ACTIVE' && (
-            <button
-              type="button"
+            <Button
               onClick={() => setShowCloseConfirm(true)}
-              disabled={closeMut.isPending}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
+              variant="destructive"
+              loading={closeMut.isPending}
             >
               <Trash2 className="w-4 h-4" />
               Close Opportunity
-            </button>
+            </Button>
           )}
         </div>
       </div>
