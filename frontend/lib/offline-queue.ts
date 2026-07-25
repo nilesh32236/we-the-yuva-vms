@@ -22,8 +22,13 @@ function openDb(): Promise<IDBDatabase> {
     request.onupgradeneeded = (event) => {
       const db = request.result;
       const oldVersion = (event as IDBVersionChangeEvent).oldVersion;
+      // Schema migration pattern:
+      // - case 0: initial creation
+      // - case N: alter schema from version N to N+1
+      // Always fall through to handle cumulative migrations.
       switch (oldVersion) {
         case 0:
+        case 1:
           if (!db.objectStoreNames.contains(STORE_NAME)) {
             db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
           }
