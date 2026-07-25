@@ -5,19 +5,21 @@ import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
 const ROLE_COLORS: Record<string, string> = {
   VOLUNTEER: 'bg-brand-primary/10 text-brand-primary',
   COORDINATOR: 'bg-brand-cta/10 text-brand-cta',
-  ADMIN: 'bg-purple-100 text-purple-700',
-  OBSERVER: 'bg-slate-100 text-slate-700',
+  ADMIN: 'bg-brand-error/10 text-brand-error',
+  OBSERVER: 'bg-brand-muted/10 text-brand-muted',
 };
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  INACTIVE: 'bg-muted text-muted-foreground',
-  SUSPENDED: 'bg-red-100 text-red-700',
+  ACTIVE: 'bg-brand-primary/10 text-brand-primary',
+  PENDING: 'bg-brand-accent/10 text-brand-accent',
+  INACTIVE: 'bg-brand-muted/10 text-brand-muted',
+  SUSPENDED: 'bg-brand-error/10 text-brand-error',
 };
 
 interface User {
@@ -37,6 +39,7 @@ interface UserTableProps {
 
 export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
   const qc = useQueryClient();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
@@ -220,6 +223,31 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
             className="fixed z-50 bg-brand-surface border border-brand-border rounded-xl shadow-xl py-1.5 min-w-[180px] motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 duration-150"
             style={{ top: menuPosition.top, right: menuPosition.right }}
             role="menu"
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setOpenMenu(null);
+                setMenuPosition(null);
+                return;
+              }
+              const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+              if (!items || items.length === 0) return;
+              const currentIndex = Array.from(items).indexOf(document.activeElement as HTMLElement);
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const next = (currentIndex + 1) % items.length;
+                items[next]?.focus();
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const prev = (currentIndex - 1 + items.length) % items.length;
+                items[prev]?.focus();
+              } else if (e.key === 'Home') {
+                e.preventDefault();
+                items[0]?.focus();
+              } else if (e.key === 'End') {
+                e.preventDefault();
+                items[items.length - 1]?.focus();
+              }
+            }}
           >
             {selectedUser && (
               <>
@@ -251,24 +279,25 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     Suspend
                   </button>
                 )}
-                {(['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
-                  (role) =>
-                    selectedUser.roleRef.name !== role && (
-                      <button
-                        type="button"
-                        key={role}
-                        onClick={() =>
-                          updateMutation.mutate({ id: selectedUser.id, data: { role } })
-                        }
-                        className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                        aria-label={`Change role to ${role}`}
-                        role="menuitem"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-                        Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                      </button>
-                    )
-                )}
+                {hasPermission(currentUser, Permissions.USER_MANAGE) &&
+                  (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
+                    (role) =>
+                      selectedUser.roleRef.name !== role && (
+                        <button
+                          type="button"
+                          key={role}
+                          onClick={() =>
+                            updateMutation.mutate({ id: selectedUser.id, data: { role } })
+                          }
+                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                          aria-label={`Change role to ${role}`}
+                          role="menuitem"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                          Make {role.charAt(0) + role.slice(1).toLowerCase()}
+                        </button>
+                      )
+                  )}
               </>
             )}
           </div>

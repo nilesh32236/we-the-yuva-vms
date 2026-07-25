@@ -133,7 +133,7 @@ export default function OrganizationCoordinatorsPage() {
                 className="w-full px-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               {errors.name && (
-                <p id="name-error" role="alert" className="text-sm text-red-500 mt-1">
+                <p id="name-error" role="alert" className="text-sm text-brand-error mt-1">
                   {errors.name.message}
                 </p>
               )}
@@ -153,7 +153,7 @@ export default function OrganizationCoordinatorsPage() {
                 className="w-full px-4 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
               {errors.email && (
-                <p id="email-error" role="alert" className="text-sm text-red-500 mt-1">
+                <p id="email-error" role="alert" className="text-sm text-brand-error mt-1">
                   {errors.email.message}
                 </p>
               )}

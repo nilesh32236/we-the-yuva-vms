@@ -8,8 +8,22 @@ import {
   syncQueuedCheckins,
   clearQueue,
 } from '@/lib/offline-queue';
-import { CheckInSchema } from '@/lib/shared';
 import { useAuth } from '@/hooks/useAuth';
+
+const errorMap: Record<string, string> = {
+  'Event not found': 'Check-in failed',
+  'Event is not active': 'Check-in failed',
+  'Invalid QR code': 'Check-in failed',
+  'QR code expired': 'Check-in failed',
+  'Already checked in': 'Already checked in',
+  'Check-in not allowed': 'Check-in not allowed',
+  'Volunteer not registered': 'Check-in failed',
+};
+
+function mapApiError(backendError?: string): string {
+  if (!backendError) return 'Check-in failed';
+  return errorMap[backendError] ?? 'An error occurred';
+}
 
 interface UseOfflineCheckinOptions {
   eventId: string;
@@ -27,6 +41,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
   const prevUserRef = useRef(user);
+  const userIdRef = useRef(user?.id);
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);
 
@@ -36,21 +51,27 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   }, [onSuccess, onError]);
 
   useEffect(() => {
+    userIdRef.current = user?.id;
+  }, [user?.id]);
+
+  useEffect(() => {
     if (prevUserRef.current != null && user == null) {
-      try {
-        clearQueue();
-      } catch {
-        // Queue clear failed silently — UI will reset below
-      } finally {
-        setQueuedCount(0);
-      }
+      (async () => {
+        try {
+          await clearQueue();
+        } catch (err) {
+          console.warn('[OfflineCheckin] Failed to clear offline queue:', err);
+        }
+        const remaining = await getQueuedCheckins();
+        setQueuedCount(remaining.length);
+      })();
     }
     prevUserRef.current = user;
   }, [user]);
 
   const sync = useCallback(async () => {
     setIsSyncing(true);
-    const result = await syncQueuedCheckins();
+    const result = await syncQueuedCheckins(userIdRef.current);
     if (result.failed === 0) {
       retryAttemptRef.current = 0;
       if (onSuccessRef.current) onSuccessRef.current();
@@ -107,19 +128,14 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
-      const parsed = CheckInSchema.safeParse(body);
-      if (!parsed.success) {
-        throw new Error(
-          `Invalid check-in data: ${parsed.error.errors.map((e) => e.message).join(', ')}`
-        );
-      }
+
       if (!isOnline) {
         try {
           await queueCheckin({
             eventId,
             qrToken: body.qrToken,
             location: body.lat != null ? { lat: body.lat, lng: body.lng ?? 0 } : undefined,
-          });
+          }, userIdRef.current);
         } catch {
           throw new Error('Failed to queue check-in offline');
         }
@@ -137,10 +153,14 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
         const message =
           err instanceof Error
             ? err.message
-            : ((err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-              'Check-in failed');
+            : mapApiError(
+                (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+              );
         onError(message);
       }
+    },
+    onSettled: () => {
+      // Mutations always settle — isPending resets automatically at this point
     },
   });
 

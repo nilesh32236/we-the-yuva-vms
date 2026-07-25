@@ -9,6 +9,7 @@ import { OpportunityForm } from '@/components/opportunities/OpportunityForm';
 import { haptic } from '@/lib/haptic';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Permissions } from '@/lib/shared/permissions';
 
 export default function EditOpportunityPage() {
   const { id } = useParams<{ id: string }>();
@@ -101,6 +102,7 @@ export default function EditOpportunityPage() {
           defaultValues={defaultValues}
           onSubmit={handleSubmit}
           submitLabel="Update Opportunity"
+          requiredPermission={Permissions.OPPORTUNITY_EDIT}
         />
       </div>
     </div>

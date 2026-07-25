@@ -157,7 +157,7 @@ function QuickActionsPanel({
       </div>
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {ctaDisabled ? (
-          <div className="flex items-center justify-between p-4 rounded-xl bg-brand-bg border border-brand-border opacity-60">
+          <div className="flex items-center justify-between p-4 rounded-xl bg-brand-bg border border-brand-border opacity-60" aria-disabled="true">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-brand-border flex items-center justify-center">
                 <Lock className="w-4 h-4 text-brand-muted" aria-hidden="true" />
@@ -173,7 +173,7 @@ function QuickActionsPanel({
           <Link
             href={ctaHref}
             className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white
-              hover:bg-brand-secondary transition-colors duration-200 cursor-pointer group active-bounce"
+              hover:bg-brand-secondary transition-colors duration-200 cursor-pointer group active-bounce focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
@@ -195,6 +195,7 @@ function QuickActionsPanel({
               <div
                 key={action.label}
                 className="flex items-center justify-between p-4 rounded-xl bg-brand-bg border border-brand-border opacity-60"
+                aria-disabled="true"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-brand-border flex items-center justify-center">
@@ -223,7 +224,7 @@ function QuickActionsPanel({
                 <p className="text-sm font-medium text-brand-text">{action.label}</p>
               </div>
               <ArrowRight
-                className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-colors"
+                className="w-4 h-4 text-brand-muted group-hover:text-brand-primary motion-safe:group-hover:translate-x-0.5 motion-safe:transition-colors"
                 aria-hidden="true"
               />
             </Link>
@@ -247,7 +248,8 @@ export function DashboardShell({
 
   if (isLoading) {
     return (
-      <div className="space-y-5 max-w-5xl">
+      <div className="space-y-5 max-w-5xl" aria-busy="true" role="status">
+        <span className="sr-only">Loading dashboard…</span>
         <SkeletonCard />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <SkeletonCard />

@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/auth-context';
 import { ROLE_ROUTES } from '@/lib/shared/permissions';
 import type { UserRole } from '@/lib/shared/types';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,18 +15,17 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [showContent, setShowContent] = useState(false);
-  const rolesKey = useMemo(() => allowedRoles.join(','), [allowedRoles]);
 
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
       router.replace('/login');
-    } else if (!rolesKey.includes(user.role)) {
+    } else if (!allowedRoles.includes(user.role as UserRole)) {
       router.replace(ROLE_ROUTES[user.role] ?? '/login');
     } else {
       setShowContent(true);
     }
-  }, [user, isLoading, rolesKey, router]);
+  }, [user, isLoading, allowedRoles, router]);
 
   if (!showContent) {
     if (isLoading && !user) {
