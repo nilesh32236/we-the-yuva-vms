@@ -12,14 +12,14 @@ import * as Sentry from '@sentry/nextjs';
 const ROLE_COLORS: Record<string, string> = {
   VOLUNTEER: 'bg-brand-primary/10 text-brand-primary',
   COORDINATOR: 'bg-brand-cta/10 text-brand-cta',
-  ADMIN: 'bg-purple-100 text-purple-700',
-  OBSERVER: 'bg-slate-100 text-slate-700',
+  ADMIN: 'bg-brand-error/10 text-brand-error',
+  OBSERVER: 'bg-brand-muted/10 text-brand-muted',
 };
 const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: 'bg-green-100 text-green-700',
-  PENDING: 'bg-yellow-100 text-yellow-700',
-  INACTIVE: 'bg-muted text-muted-foreground',
-  SUSPENDED: 'bg-red-100 text-red-700',
+  ACTIVE: 'bg-brand-primary/10 text-brand-primary',
+  PENDING: 'bg-brand-accent/10 text-brand-accent',
+  INACTIVE: 'bg-brand-muted/10 text-brand-muted',
+  SUSPENDED: 'bg-brand-error/10 text-brand-error',
 };
 
 interface User {
@@ -224,6 +224,11 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
             style={{ top: menuPosition.top, right: menuPosition.right }}
             role="menu"
             onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setOpenMenu(null);
+                setMenuPosition(null);
+                return;
+              }
               const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
               if (!items || items.length === 0) return;
               const currentIndex = Array.from(items).indexOf(document.activeElement as HTMLElement);

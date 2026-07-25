@@ -47,7 +47,7 @@ export function PWAInstallBanner() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary/90 to-brand-secondary/90 text-white p-5 md:p-6 shadow-xl border border-brand-border/50 animate-in fade-in slide-in-from-bottom-5 duration-300 dark:from-brand-primary/80 dark:to-brand-secondary/80 dark:border-brand-border/30">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-primary/90 to-brand-secondary/90 text-white p-5 md:p-6 shadow-xl border border-brand-border/50 animate-in fade-in slide-in-from-bottom-5 duration-300 dark:from-brand-primary/80 dark:to-brand-secondary/80 dark:border-brand-border/30" role="alert">
       {/* Background patterns */}
       <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
       <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-white/10 blur-xl pointer-events-none" />
@@ -85,19 +85,19 @@ export function PWAInstallBanner() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
             <div className="flex items-center gap-2 text-xs text-white/80">
               <div className="w-5 h-5 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-3 h-3 text-white/80" />
+                <Sparkles className="w-3 h-3 text-white/80" aria-hidden="true" />
               </div>
               <span>One-tap Launch</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-white/80">
               <div className="w-5 h-5 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <WifiOff className="w-3 h-3 text-white/80" />
+                <WifiOff className="w-3 h-3 text-white/80" aria-hidden="true" />
               </div>
               <span>Offline Mode</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-white/80">
               <div className="w-5 h-5 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                <Bell className="w-3 h-3 text-white/80" />
+                <Bell className="w-3 h-3 text-white/80" aria-hidden="true" />
               </div>
               <span>Real-time Alerts</span>
             </div>

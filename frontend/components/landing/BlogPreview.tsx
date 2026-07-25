@@ -62,7 +62,6 @@ export async function BlogPreview() {
               key={post.id}
               href={`/blog/${post.slug}`}
               className={`card-hover group rounded-2xl border border-brand-border bg-brand-surface overflow-hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${i < 3 ? 'motion-safe:animate-fade-in-up' : ''}`}
-              style={{ animationDelay: `${i * 100}ms` }}
             >
               {post.featuredImage ? (
                 <div className="relative h-48 overflow-hidden">

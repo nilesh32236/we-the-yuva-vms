@@ -79,9 +79,9 @@ export function AppUpdatePrompt() {
 
   return (
     <div className="fixed bottom-20 md:bottom-6 right-6 z-50 pointer-events-none w-full max-w-sm px-4">
-      <div className="flex items-start gap-3 bg-brand-surface/95 backdrop-blur-md text-brand-text p-4 rounded-2xl shadow-2xl border border-brand-border animate-in slide-in-from-bottom-4 duration-300 pointer-events-auto">
+      <div className="flex items-start gap-3 bg-brand-surface/95 backdrop-blur-md text-brand-text p-4 rounded-2xl shadow-2xl border border-brand-border animate-in slide-in-from-bottom-4 duration-300 pointer-events-auto" role="alert">
         <div className="w-9 h-9 rounded-xl bg-brand-bg flex items-center justify-center flex-shrink-0">
-          <Sparkles className="w-4 h-4 text-brand-primary" />
+          <Sparkles className="w-4 h-4 text-brand-primary" aria-hidden="true" />
         </div>
 
         <div className="flex-1 min-w-0 pr-2">
@@ -94,7 +94,7 @@ export function AppUpdatePrompt() {
             onClick={handleUpdate}
             className="mt-2.5 flex items-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] px-3.5 py-3 rounded-lg cursor-pointer transition-colors duration-100 min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
           >
-            <RefreshCw className="w-3 h-3 animate-spin-slow" />
+            <RefreshCw className="w-3 h-3 animate-spin-slow" aria-hidden="true" />
             Reload & Update
           </button>
         </div>

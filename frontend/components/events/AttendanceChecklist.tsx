@@ -87,7 +87,7 @@ const VolunteerRow = memo(function VolunteerRow({
         <div className="flex flex-col items-end gap-0.5 text-xs text-brand-muted flex-shrink-0">
           {volunteer.checkedInAt && (
             <span className="flex items-center gap-1">
-              <LogIn className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              <LogIn className="w-3 h-3 text-brand-primary" />
               {new Date(volunteer.checkedInAt).toLocaleTimeString('en-IN', {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -96,7 +96,7 @@ const VolunteerRow = memo(function VolunteerRow({
           )}
           {volunteer.checkedOutAt && (
             <span className="flex items-center gap-1">
-              <LogOut className="w-3 h-3 text-red-500 dark:text-red-400" />
+              <LogOut className="w-3 h-3 text-brand-error" />
               {new Date(volunteer.checkedOutAt).toLocaleTimeString('en-IN', {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -115,14 +115,14 @@ const VolunteerRow = memo(function VolunteerRow({
 
         {/* Not checked out badge */}
         {volunteer.checkedInAt && !volunteer.checkedOutAt && (
-          <span className="text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full flex-shrink-0">
+          <span className="text-xs font-semibold bg-brand-accent/10 text-brand-accent px-2 py-0.5 rounded-full flex-shrink-0">
             Active
           </span>
         )}
 
         {/* Approved badge */}
         {isApproved && (
-          <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full flex-shrink-0">
+          <span className="flex items-center gap-1 text-xs font-semibold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full flex-shrink-0">
             <CheckCircle className="w-3 h-3" />
             {volunteer.approvedHours}h · {volunteer.rating}★
           </span>
@@ -348,11 +348,11 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       {/* Summary bar */}
       <div className="flex items-center gap-4 text-xs text-brand-muted">
         <span className="flex items-center gap-1">
-          <LogIn className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          <LogIn className="w-3.5 h-3.5 text-brand-primary" />
           {checkedIn} checked in
         </span>
         <span className="flex items-center gap-1">
-          <LogOut className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
+          <LogOut className="w-3.5 h-3.5 text-brand-error" />
           {checkedOut} checked out
         </span>
         <span className="flex items-center gap-1">

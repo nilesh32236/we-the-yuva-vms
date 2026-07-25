@@ -75,6 +75,7 @@ export function Sidebar({ navItems }: SidebarProps) {
             return (
               <div
                 key={item.href}
+                tabIndex={-1}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-40 cursor-not-allowed select-none card-hover"
                 aria-disabled="true"
               >

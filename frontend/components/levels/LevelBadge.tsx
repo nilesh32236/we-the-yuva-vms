@@ -3,7 +3,7 @@
 import { Crown, Sprout, Users, Wrench } from 'lucide-react';
 
 interface LevelBadgeProps {
-  tier: number;
+  tier?: number;
   name: string;
   badgeIcon: string;
   color: string;
@@ -55,7 +55,7 @@ export function LevelBadge({
     <div
       className="flex flex-col items-center gap-1"
       role="img"
-      aria-label={`${name} level ${tier}`}
+      aria-label={tier != null ? `${name} level ${tier}` : name}
     >
       <div
         className={`${shapeClass} flex items-center justify-center text-white shadow-lg bg-gradient-to-br ${color}`}
