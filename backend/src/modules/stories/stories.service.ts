@@ -47,6 +47,7 @@ function stripHtml(value: string): string {
   return decoded
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
     .replace(/<[^>]*>/g, '')
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional sanitization of control chars
     .replace(/[<>\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
     .trim();
 }

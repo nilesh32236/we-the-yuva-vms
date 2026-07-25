@@ -33,7 +33,7 @@ export const RegisterSchema = z.object({
     .string()
     .min(10, 'Phone number must be at least 10 characters')
     .max(15, 'Phone number too long')
-    .regex(/^\+?\d{1,3}[\s\-]?\d{6,14}$/, 'Invalid phone number format'),
+    .regex(/^\+?\d{1,3}[\s-]?\d{6,14}$/, 'Invalid phone number format'),
   dateOfBirth: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in ISO format (YYYY-MM-DD)')

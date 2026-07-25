@@ -1,4 +1,4 @@
-import { type Prisma, type User, UserStatus } from '@prisma/client';
+import type { Prisma, User, UserStatus } from '@prisma/client';
 import type { AdminUserUpdateInput } from '@/shared';
 import { logAudit } from '../../lib/audit';
 import { sendEmail } from '../../lib/email';

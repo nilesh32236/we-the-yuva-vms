@@ -18,7 +18,11 @@
       "!apps/api/dist",
       "!apps/api/prisma/migrations",
       "!**/*.css",
-      "!next-env.d.ts"
+      "!next-env.d.ts",
+      "!**/__tests__/**",
+      "!**/*.test.ts",
+      "!**/*.test.tsx",
+      "!**/*.spec.ts"
     ]
   },
   "formatter": {

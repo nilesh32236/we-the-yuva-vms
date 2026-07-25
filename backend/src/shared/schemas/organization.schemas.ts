@@ -14,7 +14,7 @@ export const RegisterOrganizationSchema = z.object({
     .string()
     .min(10)
     .max(15)
-    .regex(/^\+?\d{1,3}[\s\-]?\d{6,14}$/, 'Invalid phone number format')
+    .regex(/^\+?\d{1,3}[\s-]?\d{6,14}$/, 'Invalid phone number format')
     .optional(),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   website: z.string().url('Invalid website URL').optional().or(z.literal('')),
