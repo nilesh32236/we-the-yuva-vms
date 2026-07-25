@@ -57,8 +57,9 @@ export function Gallery() {
         <div
           className={`stagger-group mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 ${inView ? 'in-view' : ''}`}
         >
-          {images.map((img) => (
-            <div key={img.alt} className="group relative aspect-square overflow-hidden rounded-xl">
+          {images.map((img, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static image array never reorders
+            <div key={index} className="group relative aspect-square overflow-hidden rounded-xl">
               <Image
                 src={img.src}
                 alt={img.alt}
