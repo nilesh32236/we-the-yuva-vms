@@ -1,15 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  AlertTriangle,
-  Bell,
-  CheckCheck,
-  Info,
-  LogOut,
-  Megaphone,
-  Star,
-} from 'lucide-react';
+import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -227,7 +219,9 @@ export function TopNav() {
               className="absolute right-0 top-11 w-80 bg-brand-surface rounded-2xl shadow-xl border border-brand-border overflow-hidden z-50"
               role="dialog"
               aria-label="Notifications"
-              onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setOpen(false);
+              }}
             >
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-brand-border">

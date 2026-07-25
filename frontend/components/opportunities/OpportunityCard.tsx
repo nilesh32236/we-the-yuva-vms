@@ -81,51 +81,30 @@ const OpportunityCard = memo(function OpportunityCard({
         queryKey: ['opportunities'],
       });
 
-      qc.setQueriesData<OpportunityCacheData>(
-        { queryKey: ['opportunities'] },
-        (oldData) => {
-          if (!oldData) return oldData;
+      qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] }, (oldData) => {
+        if (!oldData) return oldData;
 
-          if (Array.isArray(oldData)) {
-            return oldData.map((item) => {
-              if (item.id === opp.id) {
-                return {
-                  ...item,
-                  userApplication: { status: 'PENDING' },
-                  acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
-                  _count: {
-                    ...item._count,
-                    applications: (item._count?.applications ?? 0) + 1,
-                  },
-                };
-              }
-              return item;
-            });
-          }
+        const isArray = Array.isArray(oldData);
+        const items = isArray ? oldData : (oldData as OpportunityListData).data;
+        if (!Array.isArray(items)) return oldData;
 
-          if (oldData && Array.isArray(oldData.data)) {
+        const updated = items.map((item) => {
+          if (item.id === opp.id) {
             return {
-              ...oldData,
-              data: oldData.data.map((item) => {
-                if (item.id === opp.id) {
-                  return {
-                    ...item,
-                    userApplication: { status: 'PENDING' },
-                    acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
-                    _count: {
-                      ...item._count,
-                      applications: (item._count?.applications ?? 0) + 1,
-                    },
-                  };
-                }
-                return item;
-              }),
+              ...item,
+              userApplication: { status: 'PENDING' },
+              acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
+              _count: {
+                ...item._count,
+                applications: (item._count?.applications ?? 0) + 1,
+              },
             };
           }
+          return item;
+        });
 
-          return oldData;
-        }
-      );
+        return isArray ? updated : { ...(oldData as OpportunityListData), data: updated };
+      });
 
       return { previousQueries };
     },

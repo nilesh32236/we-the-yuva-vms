@@ -408,7 +408,10 @@ export function EventSeriesForm({
             placeholder: 'https://meet.google.com/...',
             disabled: isSubmitting,
           })
-        : field('venue', 'Venue (optional)', { placeholder: 'e.g. Community Hall, Mumbai', disabled: isSubmitting })}
+        : field('venue', 'Venue (optional)', {
+            placeholder: 'e.g. Community Hall, Mumbai',
+            disabled: isSubmitting,
+          })}
 
       {/* End condition */}
       <div className="space-y-2">

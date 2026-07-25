@@ -27,7 +27,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
         name: d.category.charAt(0) + d.category.slice(1).toLowerCase(),
         value: d.count,
       })),
-    [data],
+    [data]
   );
 
   if (!data?.length)

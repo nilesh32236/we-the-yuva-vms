@@ -45,7 +45,12 @@ export default function EventFeedbackPage() {
     enabled: !!id,
   });
 
-  const handleFormSubmit = async (data: { rating: number; comments?: string; learnings?: string; confidenceLevel?: number }) => {
+  const handleFormSubmit = async (data: {
+    rating: number;
+    comments?: string;
+    learnings?: string;
+    confidenceLevel?: number;
+  }) => {
     haptic.medium();
     setSubmitting(true);
     try {

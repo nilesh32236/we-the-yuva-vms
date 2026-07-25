@@ -376,8 +376,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
   const queryClient = useQueryClient();
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['locations'],
-    queryFn: () =>
-      api.get('/locations').then((r) => LocationArraySchema.parse(r.data.data)),
+    queryFn: () => api.get('/locations').then((r) => LocationArraySchema.parse(r.data.data)),
     staleTime: 300_000,
   });
 

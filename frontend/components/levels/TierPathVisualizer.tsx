@@ -56,8 +56,8 @@ export function TierPathVisualizer({
   const completionPct = calcCompletion(levels, currentLevelId);
 
   const currentTier = currentLevelId
-    ? levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)
-        ?.tier ?? 0
+    ? (levels.find((l) => l.tier.toString() === currentLevelId || l.name === currentLevelId)
+        ?.tier ?? 0)
     : 0;
 
   return (
@@ -67,7 +67,8 @@ export function TierPathVisualizer({
         <div className="absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2 bg-brand-border rounded-full" />
 
         {/* Connection line fill */}
-        <div className="absolute top-1/2 left-0 h-1 -translate-y-1/2 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full origin-left transition-transform duration-700"
+        <div
+          className="absolute top-1/2 left-0 h-1 -translate-y-1/2 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full origin-left transition-transform duration-700"
           style={{ transform: `scaleX(${completionPct / 100})` }}
         />
 

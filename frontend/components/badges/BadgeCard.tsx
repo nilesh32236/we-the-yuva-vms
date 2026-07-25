@@ -87,9 +87,7 @@ export function BadgeCard({
             className="w-12 h-12 object-contain"
           />
         ) : (
-          <IconComponent
-            className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')}
-          />
+          <IconComponent className={cn('w-8 h-8', earned ? 'text-white' : 'text-brand-muted')} />
         )}
       </div>
 

@@ -57,7 +57,7 @@ export function PointsHistory() {
           year: 'numeric',
         }),
       })),
-    [data],
+    [data]
   );
 
   if (isLoading) {

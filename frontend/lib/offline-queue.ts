@@ -76,7 +76,10 @@ export async function queueCheckin(
 ): Promise<void> {
   const parsed = CheckInSchema.safeParse(data);
   if (!parsed.success) {
-    throw new Error('Invalid check-in data');
+    throw new Error(
+      `Invalid check-in data: ${parsed.error.errors.map((e) => e.message).join(', ')}`
+    );
+
   }
   try {
     const db = await openDb();

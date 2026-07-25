@@ -105,37 +105,39 @@ export function Header() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`${mobileOpen ? 'block' : 'hidden'} border-b border-brand-border bg-brand-surface pb-4 md:hidden dark:border-brand-border dark:bg-brand-bg`}>
-          <nav className="flex flex-col gap-3 px-6 pt-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="text-sm font-medium text-brand-muted hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none dark:text-brand-muted dark:hover:text-white"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="mt-4 flex flex-col gap-3 px-6">
+      <div
+        className={`${mobileOpen ? 'block' : 'hidden'} border-b border-brand-border bg-brand-surface pb-4 md:hidden dark:border-brand-border dark:bg-brand-bg`}
+      >
+        <nav className="flex flex-col gap-3 px-6 pt-2">
+          {navLinks.map((link) => (
             <Link
-              href="/login"
+              key={link.href}
+              href={link.href}
               onClick={() => setMobileOpen(false)}
               className="text-sm font-medium text-brand-muted hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none dark:text-brand-muted dark:hover:text-white"
             >
-              Sign in
+              {link.label}
             </Link>
-            <Link
-              href="/register"
-              onClick={() => setMobileOpen(false)}
-              className="active-bounce rounded-lg bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:brightness-110 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
-            >
-              Get started
-            </Link>
-          </div>
+          ))}
+        </nav>
+
+        <div className="mt-4 flex flex-col gap-3 px-6">
+          <Link
+            href="/login"
+            onClick={() => setMobileOpen(false)}
+            className="text-sm font-medium text-brand-muted hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none dark:text-brand-muted dark:hover:text-white"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/register"
+            onClick={() => setMobileOpen(false)}
+            className="active-bounce rounded-lg bg-brand-primary px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:brightness-110 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+          >
+            Get started
+          </Link>
         </div>
+      </div>
     </header>
   );
 }
