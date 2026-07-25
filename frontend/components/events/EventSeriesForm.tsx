@@ -82,7 +82,17 @@ interface EventSeriesFormProps {
   submitLabel?: string;
 }
 
-function calculatePreviewDates(data: EventSeriesFormData): string[] {
+function calculatePreviewDates(
+  data: Partial<EventSeriesFormData> & {
+    frequency: EventSeriesFormData['frequency'];
+    daysOfWeek: EventSeriesFormData['daysOfWeek'];
+    interval: EventSeriesFormData['interval'];
+    firstEventDate?: string;
+    endType: EventSeriesFormData['endType'];
+    maxOccurrences?: number;
+    endDate?: string;
+  }
+): string[] {
   const dates: string[] = [];
   const start = data.firstEventDate ? new Date(data.firstEventDate) : new Date();
   const dayOfMonth = start.getDate();
@@ -183,7 +193,7 @@ export function EventSeriesForm({
         endType,
         maxOccurrences,
         endDate,
-      } as EventSeriesFormData),
+      }),
     [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate],
   );
 
@@ -263,7 +273,8 @@ export function EventSeriesForm({
               key={f.value}
               type="button"
               onClick={() => setValue('frequency', f.value, { shouldValidate: true })}
-              className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer min-h-[44px] ${
+              disabled={isSubmitting}
+              className={`px-4 py-3 rounded-xl text-sm font-medium motion-safe:transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
                 frequency === f.value
                   ? 'bg-brand-primary text-white'
                   : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
@@ -285,7 +296,8 @@ export function EventSeriesForm({
                 key={day.value}
                 type="button"
                 onClick={() => toggleDay(day.value)}
-                className={`w-11 h-11 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                disabled={isSubmitting}
+                className={`w-11 h-11 rounded-xl text-xs font-medium motion-safe:transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
                   daysOfWeek?.includes(day.value)
                     ? 'bg-brand-primary text-white'
                     : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
@@ -378,7 +390,7 @@ export function EventSeriesForm({
           }}
           className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${
             isVirtual ? 'bg-brand-primary' : 'bg-brand-border'
-          }`}
+          } ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
           onClick={() => setValue('isVirtual', !isVirtual)}
         >
           <div
@@ -411,11 +423,12 @@ export function EventSeriesForm({
             />
             <span className="text-sm text-brand-text">Never</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}>
             <input
               type="radio"
               value="after"
               {...register('endType')}
+              disabled={isSubmitting}
               className="text-brand-primary focus:ring-brand-primary"
             />
             <span className="text-sm text-brand-text">After</span>
@@ -425,16 +438,18 @@ export function EventSeriesForm({
                 min={1}
                 placeholder="events"
                 {...register('maxOccurrences', { valueAsNumber: true })}
-                className="w-20 px-2 py-1 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                disabled={isSubmitting}
+                className="w-20 px-2 py-1 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60"
               />
             )}
             <span className="text-sm text-brand-muted">events</span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}>
             <input
               type="radio"
               value="on_date"
               {...register('endType')}
+              disabled={isSubmitting}
               className="text-brand-primary focus:ring-brand-primary"
             />
             <span className="text-sm text-brand-text">On date</span>
@@ -442,7 +457,8 @@ export function EventSeriesForm({
               <input
                 type="date"
                 {...register('endDate')}
-                className="px-2 py-1 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                disabled={isSubmitting}
+                className="px-2 py-1 rounded-lg border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60"
               />
             )}
           </label>

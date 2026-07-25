@@ -25,8 +25,7 @@ export function usePWAInstall() {
       const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
         ('standalone' in navigator &&
-          (navigator as Navigator & { standalone?: boolean }).standalone === true) ||
-        document.referrer.includes('android-app://');
+          (navigator as Navigator & { standalone?: boolean }).standalone === true);
       setIsStandalone(isStandaloneMode);
     };
 

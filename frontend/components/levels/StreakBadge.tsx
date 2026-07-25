@@ -17,12 +17,12 @@ export function StreakBadge({ streak, size = 'sm' }: StreakBadgeProps) {
 
   return (
     <div
-      className={`inline-flex items-center ${classes.container} rounded-full bg-brand-accent/10`}
+      className={`inline-flex items-center ${classes.container} rounded-full bg-brand-accent/10 dark:bg-brand-accent/20`}
       role="status"
       aria-label={`${streak} day streak`}
     >
       <Flame className={`${classes.icon} text-brand-accent`} />
-      <span className={`${classes.text} font-semibold text-brand-accent`}>
+      <span className={`${classes.text} font-semibold text-brand-accent/80 dark:text-brand-accent`}>
         {streak}
       </span>
     </div>

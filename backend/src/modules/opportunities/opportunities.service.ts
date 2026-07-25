@@ -596,18 +596,19 @@ export async function updateApplicationStatus(
         targetId: applicationId,
         metadata: { status, opportunityId: application.opportunityId },
       });
+      if (status === 'ACCEPTED') {
+        try {
+          await onApplicationAccepted(application.volunteerId, application.opportunityId, tx);
+        } catch (err) {
+          logger.warn('Failed to award application points/badges', {
+            error: (err as Error).message,
+          });
+        }
+      }
       return updatedApplication;
     },
     { isolationLevel: 'Serializable' }
   );
-
-  if (status === 'ACCEPTED') {
-    try {
-      await onApplicationAccepted(application.volunteerId, application.opportunityId);
-    } catch (err) {
-      logger.warn('Failed to award application points/badges', { error: (err as Error).message });
-    }
-  }
 
   // Enqueue notification (non-blocking)
   notificationsQueue

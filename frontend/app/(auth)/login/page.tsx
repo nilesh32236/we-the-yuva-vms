@@ -58,7 +58,7 @@ export default function LoginPage() {
     try {
       const res = await api.post('/auth/send-otp', data);
       // TEMPORARY: store dev OTP so verify page can display it
-      if (res.data?.devOtp) {
+      if (res.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') {
         sessionStorage.setItem('devOtp', res.data.devOtp);
       }
       sessionStorage.setItem('verifyEmail', data.email);

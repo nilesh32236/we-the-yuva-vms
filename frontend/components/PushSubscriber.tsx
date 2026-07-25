@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export function PushSubscriber() {
   const { user } = useAuth();
-  const { permission, subscribe } = usePushNotifications();
+  const { permission, subscribe, error } = usePushNotifications();
   const { toast } = useToast();
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -112,6 +112,11 @@ export function PushSubscriber() {
           </p>
         </div>
 
+        {/* Error feedback */}
+        {error && (
+          <p className="text-[10px] text-brand-error text-center">{error}</p>
+        )}
+
         {/* Action Buttons */}
         <div className="flex items-center gap-2 pt-1.5">
           <button
@@ -125,7 +130,7 @@ export function PushSubscriber() {
           <button
             type="button"
             onClick={handleSubscribe}
-            disabled={subscribing}
+            disabled={subscribing || !!error}
             className="flex-1 flex items-center justify-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] py-2 rounded-xl shadow-md shadow-brand-primary/20 transition-colors duration-100 cursor-pointer disabled:opacity-60 text-center min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
             <Sparkles className="w-3 h-3 text-emerald-200" />

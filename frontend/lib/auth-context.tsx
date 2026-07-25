@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const userQuery = useQuery<AuthUser | null>({
     queryKey: ['auth-user'],
+    enabled: !isPublicRoute(pathname),
     queryFn: async () => {
       if (
         typeof sessionStorage !== 'undefined' &&
@@ -121,6 +122,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isPublic && !isOnboarding) {
       if (!user.consent) {
         router.replace('/consent');
+      } else if (user.role === 'VOLUNTEER' && !user.profile) {
+        router.replace('/setup-profile');
+      } else if (
+        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
+          user.role
+        ) &&
+        !user.locationId
+      ) {
+        router.replace('/setup-profile');
       } else if (!ONBOARDING_ROUTES.some((r) => pathname.startsWith(r))) {
         const allowedPrefixes = ROLE_ROUTE_PREFIXES[user.role];
         if (allowedPrefixes && !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
@@ -138,11 +148,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       queryClient.clear();
       clearQueue();
-      if (typeof document !== 'undefined') {
-        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-        // biome-ignore lint/suspicious/noDocumentCookie: required for Edge middleware access
-        document.cookie = `access_token=; path=/; max-age=0; SameSite=Strict${secure}`;
-      }
       // Flag to prevent auto-refresh from re-authenticating after redirect
       sessionStorage.setItem('logged_out', 'true');
       if (typeof window !== 'undefined') {

@@ -5,6 +5,8 @@ import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -37,6 +39,7 @@ interface UserTableProps {
 
 export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
   const qc = useQueryClient();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
@@ -226,10 +229,9 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                 setMenuPosition(null);
                 return;
               }
-              const items = Array.from(
-                menuRef.current?.querySelectorAll('[role="menuitem"]') ?? []
-              ) as HTMLElement[];
-              const currentIndex = items.indexOf(document.activeElement as HTMLElement);
+              const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+              if (!items || items.length === 0) return;
+              const currentIndex = Array.from(items).indexOf(document.activeElement as HTMLElement);
               if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 const next = (currentIndex + 1) % items.length;
@@ -238,6 +240,12 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                 e.preventDefault();
                 const prev = (currentIndex - 1 + items.length) % items.length;
                 items[prev]?.focus();
+              } else if (e.key === 'Home') {
+                e.preventDefault();
+                items[0]?.focus();
+              } else if (e.key === 'End') {
+                e.preventDefault();
+                items[items.length - 1]?.focus();
               }
             }}
           >
@@ -271,24 +279,25 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     Suspend
                   </button>
                 )}
-                {(['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
-                  (role) =>
-                    selectedUser.roleRef.name !== role && (
-                      <button
-                        type="button"
-                        key={role}
-                        onClick={() =>
-                          updateMutation.mutate({ id: selectedUser.id, data: { role } })
-                        }
-                        className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                        aria-label={`Change role to ${role}`}
-                        role="menuitem"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-                        Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                      </button>
-                    )
-                )}
+                {hasPermission(currentUser, Permissions.USER_MANAGE) &&
+                  (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
+                    (role) =>
+                      selectedUser.roleRef.name !== role && (
+                        <button
+                          type="button"
+                          key={role}
+                          onClick={() =>
+                            updateMutation.mutate({ id: selectedUser.id, data: { role } })
+                          }
+                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                          aria-label={`Change role to ${role}`}
+                          role="menuitem"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                          Make {role.charAt(0) + role.slice(1).toLowerCase()}
+                        </button>
+                      )
+                  )}
               </>
             )}
           </div>
