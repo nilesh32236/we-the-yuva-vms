@@ -13,7 +13,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';

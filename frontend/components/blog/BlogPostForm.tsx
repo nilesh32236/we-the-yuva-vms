@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import type { CreateBlogPostInput } from '@/lib/shared';
 import { CreateBlogPostSchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission } from '@/lib/shared/permissions';
 import dynamic from 'next/dynamic';
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor').then((m) => m.RichTextEditor), {
@@ -15,9 +17,12 @@ interface BlogPostFormProps {
   defaultValues?: Partial<CreateBlogPostInput>;
   onSubmit: (data: CreateBlogPostInput) => Promise<void>;
   submitLabel?: string;
+  requiredPermission?: string;
 }
 
-export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: BlogPostFormProps) {
+export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save', requiredPermission }: BlogPostFormProps) {
+  const { user } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -32,6 +37,10 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save' }: 
 
   const tagsString = (watch('tags') ?? []).join(', ');
   const contentValue = watch('content');
+
+  if (requiredPermission && !hasPermission(user, requiredPermission)) {
+    return null;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

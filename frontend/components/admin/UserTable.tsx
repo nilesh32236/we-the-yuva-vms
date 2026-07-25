@@ -5,6 +5,8 @@ import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -37,6 +39,7 @@ interface UserTableProps {
 
 export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
   const qc = useQueryClient();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
@@ -251,24 +254,25 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     Suspend
                   </button>
                 )}
-                {(['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
-                  (role) =>
-                    selectedUser.roleRef.name !== role && (
-                      <button
-                        type="button"
-                        key={role}
-                        onClick={() =>
-                          updateMutation.mutate({ id: selectedUser.id, data: { role } })
-                        }
-                        className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                        aria-label={`Change role to ${role}`}
-                        role="menuitem"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-                        Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                      </button>
-                    )
-                )}
+                {hasPermission(currentUser, Permissions.USER_MANAGE) &&
+                  (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
+                    (role) =>
+                      selectedUser.roleRef.name !== role && (
+                        <button
+                          type="button"
+                          key={role}
+                          onClick={() =>
+                            updateMutation.mutate({ id: selectedUser.id, data: { role } })
+                          }
+                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                          aria-label={`Change role to ${role}`}
+                          role="menuitem"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                          Make {role.charAt(0) + role.slice(1).toLowerCase()}
+                        </button>
+                      )
+                  )}
               </>
             )}
           </div>

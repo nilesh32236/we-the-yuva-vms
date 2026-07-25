@@ -167,7 +167,7 @@ eventsRouter.get(
   downloadIcalHandler
 );
 
-eventsRouter.get('/:id', requireAuth, getEventHandler);
+eventsRouter.get('/:id', requireAuth, requirePermission(Permissions.EVENT_VIEW), getEventHandler);
 
 /**
  * @openapi
