@@ -5,12 +5,12 @@ import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Star } from '
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import * as Sentry from '@sentry/nextjs';
-import { useToast } from '../../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
@@ -217,7 +217,8 @@ export function TopNav() {
             <div
               ref={notifDropdownRef}
               className="absolute right-0 top-11 w-80 bg-brand-surface rounded-2xl shadow-xl border border-brand-border overflow-hidden z-50"
-              role="menu"
+              role="dialog"
+              aria-label="Notifications"
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setOpen(false);
               }}
@@ -256,7 +257,6 @@ export function TopNav() {
                           if (n.link) router.push(n.link);
                         }}
                         className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-brand-primary/5' : ''}`}
-                        role="menuitem"
                       >
                         <div
                           className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}

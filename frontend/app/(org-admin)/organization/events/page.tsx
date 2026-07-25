@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
 import { useState } from 'react';
-import Pagination from '@/components/shared/Pagination';
+import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api, downloadCsv } from '@/lib/api';
 import { Button } from '@/components/ui/Button';

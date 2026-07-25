@@ -10,15 +10,15 @@ import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const CATEGORY_COLORS: Record<string, string> = {
-  EDUCATION: 'bg-blue-100 text-blue-700',
-  HEALTH: 'bg-red-100 text-red-700',
-  ENVIRONMENT: 'bg-green-100 text-green-700',
-  COMMUNITY: 'bg-purple-100 text-purple-700',
-  ARTS: 'bg-pink-100 text-pink-700',
-  SPORTS: 'bg-orange-100 text-orange-700',
-  TECHNOLOGY: 'bg-cyan-100 text-cyan-700',
-  ACTIVE_CITIZENSHIP: 'bg-amber-100 text-amber-700',
-  OTHER: 'bg-muted text-muted-foreground',
+  EDUCATION: 'bg-brand-primary/10 text-brand-primary',
+  HEALTH: 'bg-brand-error/10 text-brand-error',
+  ENVIRONMENT: 'bg-brand-primary/10 text-brand-primary',
+  COMMUNITY: 'bg-brand-accent/10 text-brand-accent',
+  ARTS: 'bg-brand-accent/10 text-brand-accent',
+  SPORTS: 'bg-brand-cta/10 text-brand-cta',
+  TECHNOLOGY: 'bg-brand-secondary/10 text-brand-secondary',
+  ACTIVE_CITIZENSHIP: 'bg-brand-accent/10 text-brand-accent',
+  OTHER: 'bg-brand-muted/10 text-brand-muted',
 };
 
 interface OpportunityCardProps {

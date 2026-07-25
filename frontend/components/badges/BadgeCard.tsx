@@ -13,7 +13,7 @@ import {
   BookOpen,
   Users,
 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn } from '@/lib/utils';
 
 interface BadgeCardProps {
   name: string;
@@ -45,7 +45,7 @@ export function BadgeCard({
   earned,
   earnedAt,
 }: BadgeCardProps) {
-  const IconComponent: React.ElementType = BADGE_ICONS[name] ?? Award;
+  const IconComponent: React.ComponentType<{ className?: string }> = BADGE_ICONS[name] ?? Award;
 
   return (
     <div
@@ -60,7 +60,7 @@ export function BadgeCard({
       <div
         className={cn(
           'absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center',
-          earned ? 'bg-brand-primary text-white' : 'bg-brand-border text-brand-muted'
+          earned ? 'bg-brand-primary text-white dark:text-white' : 'bg-brand-border text-brand-muted'
         )}
       >
         {earned ? (

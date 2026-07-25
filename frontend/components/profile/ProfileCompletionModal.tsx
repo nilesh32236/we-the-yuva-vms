@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { Button } from '../ui/Button';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { Button } from '@/components/ui/Button';
 
 interface ProfileCompletionModalProps {
   open: boolean;
@@ -62,7 +62,7 @@ export function ProfileCompletionModal({
             </div>
             <div className="w-full h-2 rounded-full bg-brand-border overflow-hidden">
               <div
-                className="h-full rounded-full bg-brand-primary origin-left transition-transform duration-500"
+                className="h-full rounded-full bg-brand-primary origin-left motion-safe:transition-transform motion-safe:duration-500"
                 style={{ transform: `scaleX(${completionPercentage / 100})` }}
               />
             </div>

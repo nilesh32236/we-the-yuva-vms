@@ -3,9 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '../../hooks/use-toast';
-import { useFocusTrap } from '../../hooks/useFocusTrap';
-import { api } from '../../lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api } from '@/lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { Button } from '../ui/Button';
 
@@ -171,7 +171,7 @@ export function BadgeApprovalQueue() {
       {isError ? (
         <div className="text-center py-12 text-brand-muted text-sm bg-brand-surface rounded-2xl border border-brand-border">
           <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
-          <p className="font-medium text-red-600 dark:text-red-400">Failed to load approvals</p>
+          <p className="font-medium text-brand-error">Failed to load approvals</p>
           <p className="text-sm mt-1">Something went wrong. Please try again.</p>
           <Button onClick={() => refetch()} variant="ghost" size="sm" className="mt-3">
             Retry
@@ -201,7 +201,7 @@ export function BadgeApprovalQueue() {
                   <p className="font-heading font-semibold text-brand-text">{req.user.name}</p>
                   <p className="text-sm text-brand-muted">{req.user.email}</p>
                 </div>
-                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-accent/10 text-brand-accent">
                   {req.status}
                 </span>
               </div>

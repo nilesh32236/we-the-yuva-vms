@@ -3,8 +3,8 @@
 import * as Sentry from '@sentry/nextjs';
 import { CalendarPlus } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '../../hooks/use-toast';
-import { api } from '../../lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
 
 interface Props {
@@ -57,7 +57,7 @@ export function AddToCalendarButton({
         loading={downloading}
         variant="icon"
         size="icon"
-        className="w-8 h-8 min-h-0 min-w-0 p-1.5"
+        className="min-h-[44px] min-w-[44px] p-1.5"
         title={label}
         aria-label={label}
       >

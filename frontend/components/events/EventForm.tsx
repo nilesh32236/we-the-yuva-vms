@@ -7,6 +7,8 @@ import * as Sentry from '@sentry/nextjs';
 import { type EventInput, EventSchema } from '@/lib/shared';
 import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission } from '@/lib/shared/permissions';
 import dynamic from 'next/dynamic';
 import type { EventSeriesOutput } from './EventSeriesForm';
 
@@ -19,6 +21,7 @@ interface EventFormProps {
   onSubmit: (data: EventInput | EventSeriesOutput) => Promise<void>;
   submitLabel?: string;
   showRecurringOption?: boolean;
+  requiredPermission?: string;
 }
 
 export function EventForm({
@@ -26,7 +29,9 @@ export function EventForm({
   onSubmit,
   submitLabel = 'Save',
   showRecurringOption = false,
+  requiredPermission,
 }: EventFormProps) {
+  const { user } = useAuth();
   const [isRecurring, setIsRecurring] = useState(false);
 
   const {
@@ -58,6 +63,10 @@ export function EventForm({
       setValue('eventDate', sliced);
     }
   }, [defaultValues, setValue]);
+
+  if (requiredPermission && !hasPermission(user, requiredPermission)) {
+    return null;
+  }
 
   const field = (
     id: keyof EventInput,
@@ -102,11 +111,11 @@ export function EventForm({
                 setIsRecurring(false);
               }
             }}
-            className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
+            className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
             onClick={() => setIsRecurring(false)}
           >
             <div
-              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
+              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
             />
           </div>
           <span className="text-sm font-medium text-brand-text flex items-center gap-1.5">
@@ -149,11 +158,11 @@ export function EventForm({
                 setIsRecurring(true);
               }
             }}
-            className={`w-10 h-6 rounded-full transition-colors duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
+            className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isRecurring ? 'bg-brand-primary' : 'bg-brand-border'}`}
             onClick={() => setIsRecurring(true)}
           >
             <div
-              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow transition-transform duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
+              className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${isRecurring ? 'translate-x-5' : 'translate-x-1'}`}
             />
           </div>
           <span className="text-sm font-medium text-brand-text flex items-center gap-1.5">

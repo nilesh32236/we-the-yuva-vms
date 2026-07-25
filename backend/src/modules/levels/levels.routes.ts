@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -7,6 +8,14 @@ import {
   CreateLevelRequestSchema,
   ReviewLevelRequestSchema,
 } from '../../shared/schemas/levels.schemas';
+
+const ListPendingRequestsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    search: z.string().optional(),
+  }),
+});
 import {
   listLevelsHandler,
   getLevelHandler,
@@ -68,6 +77,7 @@ levelsRouter.get(
   '/admin/level-requests',
   requireAuth,
   requirePermission(Permissions.LEVEL_REVIEW),
+  validate(ListPendingRequestsQuerySchema),
   listPendingRequestsHandler
 );
 levelsRouter.patch(

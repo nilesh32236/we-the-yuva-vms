@@ -1,9 +1,18 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import { CreateStorySchema, ModerateStorySchema, UpdateStorySchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import { Permissions } from '../../shared/permissions';
+
+const PublishedStoriesQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(50).optional(),
+    userId: z.string().optional(),
+  }),
+});
 import {
   createStoryHandler,
   deleteStoryHandler,
@@ -26,7 +35,7 @@ export const storiesRouter: IRouter = Router();
  *       200:
  *         description: List of published stories
  */
-storiesRouter.get('/published', listPublishedStoriesHandler);
+storiesRouter.get('/published', validate(PublishedStoriesQuerySchema), listPublishedStoriesHandler);
 
 /**
  * @openapi

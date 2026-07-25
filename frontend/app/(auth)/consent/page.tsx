@@ -130,7 +130,7 @@ export default function ConsentPage() {
                 <div className="relative mt-0.5">
                   <input
                     type="checkbox"
-                    checked={field.value as unknown as boolean}
+                    checked={field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
                     className="sr-only"
                     aria-describedby="privacy-desc"

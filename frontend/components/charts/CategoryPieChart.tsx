@@ -2,30 +2,18 @@
 // See /issues/PHASE2_SCOPE.md
 'use client';
 
-import { useTheme } from 'next-themes';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
-const LIGHT_COLORS = [
-  '#059669',
-  '#0891b2',
-  '#7c3aed',
-  '#d97706',
-  '#dc2626',
-  '#0d9488',
-  '#6366f1',
-  '#64748b',
-];
-
-const DARK_COLORS = [
-  '#34d399',
-  '#22d3ee',
-  '#a78bfa',
-  '#fbbf24',
-  '#f87171',
-  '#2dd4bf',
-  '#818cf8',
-  '#94a3b8',
+const CHART_COLORS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+  'var(--color-chart-4)',
+  'var(--color-chart-5)',
+  'var(--color-chart-6)',
+  'var(--color-chart-7)',
+  'var(--color-chart-8)',
 ];
 
 interface CategoryPieChartProps {
@@ -33,12 +21,6 @@ interface CategoryPieChartProps {
 }
 
 export function CategoryPieChart({ data }: CategoryPieChartProps) {
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  const colors = mounted && resolvedTheme === 'dark' ? DARK_COLORS : LIGHT_COLORS;
-
   const chartData = useMemo(
     () =>
       (data ?? []).map((d) => ({
@@ -69,7 +51,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
             labelLine={false}
           >
             {chartData.map((_, i) => (
-              <Cell key={chartData[i].name} fill={colors[i % colors.length]} />
+              <Cell key={chartData[i].name} fill={CHART_COLORS[i % CHART_COLORS.length]} />
             ))}
           </Pie>
           <Tooltip />

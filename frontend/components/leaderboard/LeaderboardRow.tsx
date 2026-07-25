@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { LevelBadge } from '../levels/LevelBadge';
-import { cn } from '../../lib/utils';
+import { LevelBadge } from '@/components/levels/LevelBadge';
+import { cn } from '@/lib/utils';
 
 interface LeaderboardRowProps {
   rank: number;
@@ -93,7 +93,6 @@ export function LeaderboardRow({
         {level && (
           <div className="flex items-center gap-1 mt-0.5">
             <LevelBadge
-              tier={0}
               name={level.name}
               badgeIcon={level.badgeIcon}
               color={level.color}

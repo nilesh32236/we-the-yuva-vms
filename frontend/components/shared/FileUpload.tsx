@@ -4,8 +4,8 @@ import * as Sentry from '@sentry/nextjs';
 import { Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
-import { api } from '../../lib/api';
-import { Button } from '../ui/Button';
+import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 interface FileUploadProps {
   onUpload: (url: string) => void;

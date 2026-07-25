@@ -15,18 +15,17 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [showContent, setShowContent] = useState(false);
-  const rolesKey = allowedRoles.join(',');
 
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
       router.replace('/login');
-    } else if (!rolesKey.includes(user.role)) {
+    } else if (!allowedRoles.includes(user.role as UserRole)) {
       router.replace(ROLE_ROUTES[user.role] ?? '/login');
     } else {
       setShowContent(true);
     }
-  }, [user, isLoading, rolesKey, router]);
+  }, [user, isLoading, allowedRoles, router]);
 
   if (!showContent) {
     if (isLoading && !user) {
