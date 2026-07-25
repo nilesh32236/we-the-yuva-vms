@@ -8,7 +8,6 @@ import {
   syncQueuedCheckins,
   clearQueue,
 } from '@/lib/offline-queue';
-import { CheckInSchema } from '@/lib/shared';
 import { useAuth } from '@/hooks/useAuth';
 
 const errorMap: Record<string, string> = {
@@ -57,13 +56,15 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   useEffect(() => {
     if (prevUserRef.current != null && user == null) {
-      try {
-        clearQueue();
-      } catch {
-        // Queue clear failed silently — UI will reset below
-      } finally {
-        setQueuedCount(0);
-      }
+      (async () => {
+        try {
+          await clearQueue();
+        } catch (err) {
+          console.warn('[OfflineCheckin] Failed to clear offline queue:', err);
+        }
+        const remaining = await getQueuedCheckins();
+        setQueuedCount(remaining.length);
+      })();
     }
     prevUserRef.current = user;
   }, [user]);
@@ -127,10 +128,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
-      const parsed = CheckInSchema.safeParse(body);
-      if (!parsed.success) {
-        throw new Error('Invalid check-in data');
-      }
+
       if (!isOnline) {
         try {
           await queueCheckin({
@@ -160,6 +158,9 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
               );
         onError(message);
       }
+    },
+    onSettled: () => {
+      // Mutations always settle — isPending resets automatically at this point
     },
   });
 

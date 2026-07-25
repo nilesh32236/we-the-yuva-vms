@@ -7,6 +7,8 @@ import * as Sentry from '@sentry/nextjs';
 import { type EventInput, EventSchema } from '@/lib/shared';
 import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission } from '@/lib/shared/permissions';
 import dynamic from 'next/dynamic';
 import type { EventSeriesOutput } from './EventSeriesForm';
 
@@ -19,6 +21,7 @@ interface EventFormProps {
   onSubmit: (data: EventInput | EventSeriesOutput) => Promise<void>;
   submitLabel?: string;
   showRecurringOption?: boolean;
+  requiredPermission?: string;
 }
 
 export function EventForm({
@@ -26,7 +29,9 @@ export function EventForm({
   onSubmit,
   submitLabel = 'Save',
   showRecurringOption = false,
+  requiredPermission,
 }: EventFormProps) {
+  const { user } = useAuth();
   const [isRecurring, setIsRecurring] = useState(false);
 
   const {
@@ -58,6 +63,10 @@ export function EventForm({
       setValue('eventDate', sliced);
     }
   }, [defaultValues, setValue]);
+
+  if (requiredPermission && !hasPermission(user, requiredPermission)) {
+    return null;
+  }
 
   const field = (
     id: keyof EventInput,

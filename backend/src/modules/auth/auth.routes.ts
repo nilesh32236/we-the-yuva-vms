@@ -124,7 +124,7 @@ authRouter.post('/refresh', refreshLimiter, refresh);
  *       204:
  *         description: Logged out
  */
-authRouter.post('/logout', logout);
+authRouter.post('/logout', requireAuth, logout);
 
 // Protected routes
 /**
