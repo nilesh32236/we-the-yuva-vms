@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import * as Sentry from '@sentry/nextjs';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -57,6 +58,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
       onCancel();
     },
     onError: (err: unknown) => {
+      Sentry.captureException(err);
       const axiosErr = err as { normalizedMessage?: string };
       toast({
         title: 'Error',

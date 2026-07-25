@@ -3,6 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { RefreshCw, Sparkles, X } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
 
@@ -41,7 +42,7 @@ export function AppUpdatePrompt() {
 
         reg.addEventListener('updatefound', handleUpdateFound);
       })
-      .catch(() => {});
+      .catch((err) => { Sentry.captureException(err); });
 
     // 3. Listen for controlling worker change (after skipWaiting is invoked)
     const handleControllerChange = () => {

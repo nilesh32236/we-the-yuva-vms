@@ -39,7 +39,11 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
         </div>
       );
     }
-    return null;
+    return (
+      <div className="flex items-center justify-center h-dvh">
+        <p className="text-sm text-brand-muted">Redirecting…</p>
+      </div>
+    );
   }
 
   return <>{children}</>;

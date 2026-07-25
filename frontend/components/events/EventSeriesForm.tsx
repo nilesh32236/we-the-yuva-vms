@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as Sentry from '@sentry/nextjs';
 import { z } from 'zod';
 import { useMemo } from 'react';
 import { Button } from '../ui/Button';
@@ -151,6 +152,7 @@ export function EventSeriesForm({
     watch,
     setValue,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<EventSeriesFormData>({
     resolver: zodResolver(EventSeriesFormSchema),
     defaultValues: {
@@ -215,14 +217,19 @@ export function EventSeriesForm({
     </div>
   );
 
-  const handleFormSubmit = (data: EventSeriesFormData) => {
-    const formattedData: EventSeriesOutput = {
-      ...data,
-      firstEventDate: data.firstEventDate
-        ? `${data.firstEventDate}T${data.startTime}:00.000Z`
-        : undefined,
-    };
-    return onSubmit(formattedData);
+  const handleFormSubmit = async (data: EventSeriesFormData) => {
+    try {
+      const formattedData: EventSeriesOutput = {
+        ...data,
+        firstEventDate: data.firstEventDate
+          ? `${data.firstEventDate}T${data.startTime}:00.000Z`
+          : undefined,
+      };
+      await onSubmit(formattedData);
+    } catch (err) {
+      Sentry.captureException(err);
+      setError('root', { message: 'Something went wrong.' });
+    }
   };
 
   return (
@@ -459,6 +466,7 @@ export function EventSeriesForm({
         </div>
       )}
 
+      {errors.root && <p className="text-xs text-brand-error text-center">{errors.root.message}</p>}
       <Button type="submit" variant="primary" fullWidth loading={isSubmitting}>
         {submitLabel}
       </Button>
