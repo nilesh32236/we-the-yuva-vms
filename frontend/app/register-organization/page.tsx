@@ -381,7 +381,9 @@ export default function RegisterOrganizationPage() {
                     <button
                       type="button"
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
-                      onClick={() => removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'))}
+                      onClick={() =>
+                        removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'))
+                      }
                     >
                       Remove
                     </button>

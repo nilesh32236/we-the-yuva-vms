@@ -35,7 +35,7 @@ export function OrganizationTable({ orgs = [] }: OrganizationTableProps) {
           year: 'numeric',
         }),
       })),
-    [orgs],
+    [orgs]
   );
 
   return (

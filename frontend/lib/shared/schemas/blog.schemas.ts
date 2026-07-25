@@ -1,9 +1,12 @@
 import { z } from 'zod';
 
-const ContentSchema = z.string().min(1, 'Content is required').max(50000, 'Content too long').refine(
-  (val) => val.replace(/<[^>]*>/g, '').trim().length > 0,
-  { message: 'Content is required' },
-);
+const ContentSchema = z
+  .string()
+  .min(1, 'Content is required')
+  .max(50000, 'Content too long')
+  .refine((val) => val.replace(/<[^>]*>/g, '').trim().length > 0, {
+    message: 'Content is required',
+  });
 
 export const CreateBlogPostSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),

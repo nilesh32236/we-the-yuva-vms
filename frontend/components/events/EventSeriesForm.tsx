@@ -184,7 +184,7 @@ export function EventSeriesForm({
         maxOccurrences,
         endDate,
       } as EventSeriesFormData),
-    [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate],
+    [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate]
   );
 
   const toggleDay = (day: number) => {
@@ -389,7 +389,10 @@ export function EventSeriesForm({
             placeholder: 'https://meet.google.com/...',
             disabled: isSubmitting,
           })
-        : field('venue', 'Venue (optional)', { placeholder: 'e.g. Community Hall, Mumbai', disabled: isSubmitting })}
+        : field('venue', 'Venue (optional)', {
+            placeholder: 'e.g. Community Hall, Mumbai',
+            disabled: isSubmitting,
+          })}
 
       {/* End condition */}
       <div className="space-y-2">

@@ -38,8 +38,7 @@ export default function AdminStoryDetailPage() {
     refetch,
   } = useQuery({
     queryKey: ['admin-story-detail', id],
-    queryFn: () =>
-      api.get(`/admin/stories/${id}`).then((r) => StoryDetailSchema.parse(r.data)),
+    queryFn: () => api.get(`/admin/stories/${id}`).then((r) => StoryDetailSchema.parse(r.data)),
     enabled: !!id,
   });
 

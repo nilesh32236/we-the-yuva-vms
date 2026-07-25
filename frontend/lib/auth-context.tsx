@@ -57,7 +57,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     staleTime: 5 * 60 * 1000,
     retry: 1,
-    refetchOnWindowFocus: true,
   });
 
   const profileStatusQuery = useQuery<ProfileStatus | null>({

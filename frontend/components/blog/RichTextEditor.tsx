@@ -44,7 +44,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     ({ editor: ed }: { editor: { getHTML: () => string } }) => {
       onChange(ed.getHTML());
     },
-    [onChange],
+    [onChange]
   );
 
   const editor = useEditor({
@@ -62,18 +62,24 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   const handleItalic = useCallback(() => editor.chain().focus().toggleItalic().run(), [editor]);
   const handleHeading1 = useCallback(
     () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
-    [editor],
+    [editor]
   );
   const handleHeading2 = useCallback(
     () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
-    [editor],
+    [editor]
   );
-  const handleBulletList = useCallback(() => editor.chain().focus().toggleBulletList().run(), [editor]);
+  const handleBulletList = useCallback(
+    () => editor.chain().focus().toggleBulletList().run(),
+    [editor]
+  );
   const handleOrderedList = useCallback(
     () => editor.chain().focus().toggleOrderedList().run(),
-    [editor],
+    [editor]
   );
-  const handleBlockquote = useCallback(() => editor.chain().focus().toggleBlockquote().run(), [editor]);
+  const handleBlockquote = useCallback(
+    () => editor.chain().focus().toggleBlockquote().run(),
+    [editor]
+  );
   const handleCode = useCallback(() => editor.chain().focus().toggleCode().run(), [editor]);
 
   if (!editor)
@@ -96,27 +102,47 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
 
         <span className="w-px h-5 bg-brand-border mx-1" aria-hidden="true" />
 
-        <ToolbarButton onClick={handleHeading1} active={editor.isActive('heading', { level: 1 })} label="Heading 1">
+        <ToolbarButton
+          onClick={handleHeading1}
+          active={editor.isActive('heading', { level: 1 })}
+          label="Heading 1"
+        >
           <Heading1 className="w-4 h-4" />
         </ToolbarButton>
 
-        <ToolbarButton onClick={handleHeading2} active={editor.isActive('heading', { level: 2 })} label="Heading 2">
+        <ToolbarButton
+          onClick={handleHeading2}
+          active={editor.isActive('heading', { level: 2 })}
+          label="Heading 2"
+        >
           <Heading2 className="w-4 h-4" />
         </ToolbarButton>
 
         <span className="w-px h-5 bg-brand-border mx-1" aria-hidden="true" />
 
-        <ToolbarButton onClick={handleBulletList} active={editor.isActive('bulletList')} label="Bullet List">
+        <ToolbarButton
+          onClick={handleBulletList}
+          active={editor.isActive('bulletList')}
+          label="Bullet List"
+        >
           <List className="w-4 h-4" />
         </ToolbarButton>
 
-        <ToolbarButton onClick={handleOrderedList} active={editor.isActive('orderedList')} label="Ordered List">
+        <ToolbarButton
+          onClick={handleOrderedList}
+          active={editor.isActive('orderedList')}
+          label="Ordered List"
+        >
           <ListOrdered className="w-4 h-4" />
         </ToolbarButton>
 
         <span className="w-px h-5 bg-brand-border mx-1" aria-hidden="true" />
 
-        <ToolbarButton onClick={handleBlockquote} active={editor.isActive('blockquote')} label="Blockquote">
+        <ToolbarButton
+          onClick={handleBlockquote}
+          active={editor.isActive('blockquote')}
+          label="Blockquote"
+        >
           <Quote className="w-4 h-4" />
         </ToolbarButton>
 

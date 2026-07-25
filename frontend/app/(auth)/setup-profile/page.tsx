@@ -345,8 +345,6 @@ export default function SetupProfilePage() {
   );
 }
 
-
-
 function StaffProfileForm({ onComplete }: { onComplete: () => void }) {
   const { toast } = useToast();
 

@@ -36,7 +36,11 @@ export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonPro
       setCountdown(cooldownSeconds);
     } catch (err) {
       Sentry.captureException(err);
-      toast({ title: 'Error', description: 'Request failed. Please try again.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Request failed. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
     }

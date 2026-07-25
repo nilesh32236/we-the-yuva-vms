@@ -50,7 +50,10 @@ export function FileUpload({
       onUpload(data.url);
     } catch (err: unknown) {
       Sentry.captureException(err);
-      setError('Upload failed. Please try again.');
+      const msg =
+        (err as { normalizedMessage?: string })?.normalizedMessage ??
+        'Upload failed. Please try again.';
+      setError(msg);
     } finally {
       setUploading(false);
     }

@@ -67,11 +67,11 @@ export function AddToCalendarButton({
   }
 
   return (
-      <Button
-        onClick={handleDownload}
-        loading={downloading}
-        variant="outline"
-        className="gap-1.5 text-sm font-medium px-4 py-2 rounded-xl"
+    <Button
+      onClick={handleDownload}
+      loading={downloading}
+      variant="outline"
+      className="gap-1.5 text-sm font-medium px-4 py-2 rounded-xl"
       aria-label={label}
     >
       {!downloading && <CalendarPlus className="w-4 h-4" />}

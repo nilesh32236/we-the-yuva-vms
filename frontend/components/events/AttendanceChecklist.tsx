@@ -148,16 +148,14 @@ const VolunteerRow = memo(function VolunteerRow({
               aria-invalid={
                 hoursValue !== undefined &&
                 hoursValue !== '' &&
-                (Number.isNaN(parseFloat(hoursValue)) ||
-                  parseFloat(hoursValue) <= 0)
+                (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0)
                   ? true
                   : undefined
               }
               aria-describedby={
                 hoursValue !== undefined &&
                 hoursValue !== '' &&
-                (Number.isNaN(parseFloat(hoursValue)) ||
-                  parseFloat(hoursValue) <= 0)
+                (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0)
                   ? `hours-error-${volunteer.volunteerId}`
                   : undefined
               }
@@ -166,10 +164,7 @@ const VolunteerRow = memo(function VolunteerRow({
               className={`w-full px-3 py-1.5 text-sm rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30 ${
                 hoursValue !== undefined &&
                 hoursValue !== '' &&
-                (
-                  Number.isNaN(parseFloat(hoursValue)) ||
-                    parseFloat(hoursValue) <= 0
-                )
+                (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0)
                   ? 'border-brand-error'
                   : 'border-brand-border'
               }`}
@@ -177,8 +172,7 @@ const VolunteerRow = memo(function VolunteerRow({
             />
             {hoursValue !== undefined &&
               hoursValue !== '' &&
-              (Number.isNaN(parseFloat(hoursValue)) ||
-                parseFloat(hoursValue) <= 0) && (
+              (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0) && (
                 <p
                   id={`hours-error-${volunteer.volunteerId}`}
                   className="text-xs text-brand-error mt-1"
@@ -221,11 +215,7 @@ const VolunteerRow = memo(function VolunteerRow({
           <Button
             size="sm"
             loading={isApproving}
-            disabled={
-              !hoursValue ||
-              parseFloat(hoursValue || '0') <= 0 ||
-              !ratingValue
-            }
+            disabled={!hoursValue || parseFloat(hoursValue || '0') <= 0 || !ratingValue}
             onClick={onApprove}
           >
             Approve
@@ -390,9 +380,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
               haptic.light();
               setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }));
             }}
-            onHoursChange={(value) =>
-              setHoursInputs((s) => ({ ...s, [v.volunteerId]: value }))
-            }
+            onHoursChange={(value) => setHoursInputs((s) => ({ ...s, [v.volunteerId]: value }))}
             onRatingChange={(star) => {
               haptic.light();
               setRatings((s) => ({ ...s, [v.volunteerId]: star }));
