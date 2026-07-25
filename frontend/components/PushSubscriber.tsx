@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { BellRing, Sparkles, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
@@ -25,7 +26,7 @@ export function PushSubscriber() {
     if (!mounted || !user || permission !== 'granted') return;
 
     // Fire silent background subscription to refresh registration on backend
-    subscribe().catch(() => {});
+    subscribe().catch((err) => { Sentry.captureException(err); });
   }, [user, permission, mounted, subscribe]);
 
   // 2. Handle soft permission prompt presentation
