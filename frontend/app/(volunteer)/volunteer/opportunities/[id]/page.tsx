@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { use, useState } from 'react';
 import { ProfileCompletionModal } from '@/components/profile/ProfileCompletionModal';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
@@ -289,19 +290,20 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                 )}
               </div>
               {myApp.status === 'PENDING' && (
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => {
                     if (window.confirm('Withdraw your application?')) {
                       haptic.error();
                       withdraw.mutate(undefined);
                     }
                   }}
-                  disabled={withdraw.isPending}
-                  className="px-4 py-2.5 min-h-[44px] text-sm font-medium text-brand-error border border-brand-error/30 rounded-xl hover:bg-brand-error/5 transition-colors cursor-pointer disabled:opacity-50"
+                  loading={withdraw.isPending}
+                  className="text-brand-error border-brand-error/30 hover:bg-brand-error/5 disabled:opacity-50"
                 >
-                  {withdraw.isPending ? 'Withdrawing…' : 'Withdraw Application'}
-                </button>
+                  Withdraw Application
+                </Button>
               )}
             </div>
           ) : isClosed ? (
@@ -313,8 +315,9 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
               No slots available
             </span>
           ) : (
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={() => {
                 haptic.medium();
                 if (profileStatus && !profileStatus.isComplete) {
@@ -323,11 +326,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
                 }
                 apply.mutate(undefined);
               }}
-              disabled={apply.isPending}
-              className="bg-brand-primary text-white px-6 py-3 min-h-[44px] rounded-xl text-sm font-semibold hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60"
+              loading={apply.isPending}
             >
-              {apply.isPending ? 'Applying…' : 'Apply Now'}
-            </button>
+              Apply Now
+            </Button>
           )}
         </div>
       </div>
