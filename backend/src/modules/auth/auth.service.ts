@@ -64,6 +64,7 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
 }
 
 export async function verifyOtp(email: string, otp: string): Promise<void> {
+
   const record = await prisma.otpRecord.findFirst({
     where: {
       email: email.toLowerCase(),
