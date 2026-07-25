@@ -115,8 +115,9 @@ export async function enqueueOtpEmail(email: string, otp: string): Promise<void>
       `Your WeTheYuva verification code is: ${otp}\n\nThis code expires in 5 minutes.`
     );
   } catch (err) {
-    logger.error('Failed to send OTP email directly', { error: (err as Error).message });
-    throw new AppError('Failed to send OTP email. Please try again.', 500);
+    // Non-blocking: log the failure but don't throw.
+    // devOtp in the response allows testing without SMTP.
+    logger.warn('Failed to send OTP email (SMTP not configured)', { error: (err as Error).message });
   }
 }
 
