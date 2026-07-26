@@ -3,17 +3,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { Award, Clock } from 'lucide-react';
 import { useMemo } from 'react';
+import { z } from 'zod';
 import { api } from '@/lib/api';
 import { SkeletonCard } from './SkeletonCard';
 import * as Sentry from '@sentry/nextjs';
 
-interface PointTransaction {
-  id: string;
-  amount: number;
-  reason: string;
-  reference: string | null;
-  createdAt: string;
-}
+const PointTransactionSchema = z.object({
+  id: z.string(),
+  amount: z.number(),
+  reason: z.string(),
+  reference: z.string().nullable(),
+  createdAt: z.string(),
+});
+
+const PointTransactionArraySchema = z.array(PointTransactionSchema);
 
 const REASON_LABELS: Record<string, string> = {
   EVENT_CHECKIN: 'Event Check-in',
@@ -41,9 +44,12 @@ function formatReason(reason: string): string {
 }
 
 export function PointsHistory() {
-  const { data, isLoading, isError, error, refetch } = useQuery<PointTransaction[]>({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['my-points-history'],
-    queryFn: () => api.get('/levels/users/me/points/history').then((r) => r.data),
+    queryFn: async () => {
+      const res = await api.get('/levels/users/me/points/history');
+      return PointTransactionArraySchema.parse(res.data);
+    },
     staleTime: 60_000,
   });
 

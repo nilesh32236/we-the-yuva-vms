@@ -10,6 +10,8 @@ export const VOLUNTEER_TYPES = [
   'REMOTE',
   'EMERGENCY',
 ] as const;
+// VERIFY: These values must match backend/prisma/schema.prisma volunteerType enum exactly.
+// Add a CI test to keep frontend VOLUNTEER_TYPES in sync with the backend Prisma schema.
 
 export const TIME_SLOTS = ['Morning', 'Afternoon', 'Evening', 'Weekend'] as const;
 

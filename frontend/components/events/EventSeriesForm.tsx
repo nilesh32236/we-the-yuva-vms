@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/nextjs';
 import { z } from 'zod';
 import { useMemo } from 'react';
 import { Button } from '../ui/Button';
+import { EventSeriesSchemaBase } from '@/lib/shared';
 
 const DAYS = [
   { value: 0, label: 'Sun' },
@@ -24,24 +25,16 @@ const FREQUENCIES = [
   { value: 'CUSTOM', label: 'Custom' },
 ] as const;
 
-const EventSeriesFormSchema = z
-  .object({
-    title: z.string().min(5).max(200),
-    description: z.string().max(1000).optional(),
-    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM']),
-    daysOfWeek: z.array(z.number()),
-    interval: z.number().int().min(1),
-    startTime: z.string().regex(/^\d{2}:\d{2}$/),
-    endTime: z.string().regex(/^\d{2}:\d{2}$/),
-    venue: z.string().max(200).optional(),
-    isVirtual: z.boolean(),
-    meetingLink: z.string().url().optional().or(z.literal('')),
-    capacity: z.number().int().positive().max(100000),
-    endType: z.enum(['never', 'after', 'on_date']),
-    maxOccurrences: z.number().int().positive().optional(),
-    endDate: z.string().optional(),
-    firstEventDate: z.string().min(1, 'First event date is required'),
-  })
+const EventSeriesFormSchema = EventSeriesSchemaBase.extend({
+  daysOfWeek: z.array(z.number()),
+  endType: z.enum(['never', 'after', 'on_date']),
+  firstEventDate: z.string().min(1, 'First event date is required'),
+  meetingLink: z.string().url().optional().or(z.literal('')),
+  capacity: z.number().int().positive().max(100000),
+  endDate: z.string().optional(),
+  maxOccurrences: z.number().int().positive().optional(),
+})
+  .omit({ customRule: true })
   .refine((data) => !data.isVirtual || data.meetingLink, {
     message: 'Meeting link is required for virtual events',
     path: ['meetingLink'],
@@ -52,7 +45,7 @@ const EventSeriesFormSchema = z
   })
   .refine(
     (data) => {
-      if (data.frequency === 'WEEKLY') return data.daysOfWeek.length > 0;
+      if (data.frequency === 'WEEKLY') return (data.daysOfWeek ?? []).length > 0;
       return true;
     },
     { message: 'Select at least one day', path: ['daysOfWeek'] }
@@ -60,22 +53,7 @@ const EventSeriesFormSchema = z
 
 type EventSeriesFormData = z.infer<typeof EventSeriesFormSchema>;
 
-export interface EventSeriesOutput {
-  title: string;
-  description?: string;
-  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'CUSTOM';
-  daysOfWeek?: number[];
-  interval: number;
-  startTime: string;
-  endTime: string;
-  venue?: string;
-  isVirtual: boolean;
-  meetingLink?: string;
-  capacity: number;
-  maxOccurrences?: number;
-  endDate?: string;
-  firstEventDate?: string;
-}
+export type EventSeriesOutput = z.infer<typeof EventSeriesSchemaBase>;
 
 interface EventSeriesFormProps {
   defaultValues?: Partial<EventSeriesFormData>;
@@ -229,8 +207,9 @@ export function EventSeriesForm({
 
   const handleFormSubmit = async (data: EventSeriesFormData) => {
     try {
+      const { endType, ...rest } = data;
       const formattedData: EventSeriesOutput = {
-        ...data,
+        ...rest,
         firstEventDate: data.firstEventDate
           ? `${data.firstEventDate}T${data.startTime}:00.000Z`
           : undefined,

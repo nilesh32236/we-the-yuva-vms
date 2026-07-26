@@ -9,6 +9,7 @@ import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
 import { ROLE_ROUTES, ROLE_ROUTE_PREFIXES, ONBOARDING_ROUTES } from './shared/permissions';
 import type { AuthUser } from './shared/types';
+import { AuthUserSchema } from './shared/schemas/auth.schemas';
 import { toast } from '@/hooks/use-toast';
 
 export interface ProfileStatus {
@@ -44,8 +45,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
       try {
-        const res = await api.get<AuthUser>('/users/me');
-        return res.data;
+        const res = await api.get('/users/me');
+        const parsed = AuthUserSchema.safeParse(res.data);
+        if (!parsed.success) {
+          console.error('[Auth] Failed to validate auth user response:', parsed.error);
+          return null;
+        }
+        return parsed.data;
       } catch (err) {
         if (err && typeof err === 'object' && 'response' in err) {
           const axiosErr = err as { response?: { status?: number } };

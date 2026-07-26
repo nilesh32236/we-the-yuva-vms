@@ -3,11 +3,34 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { Button } from '../ui/Button';
+
+const PendingApprovalSchema = z.object({
+  id: z.string(),
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+  }),
+  badge: z.object({
+    id: z.string(),
+    name: z.string(),
+    title: z.string(),
+    description: z.string(),
+    imageUrl: z.string(),
+  }),
+  status: z.string(),
+  requestedAt: z.string(),
+});
+
+const PendingApprovalResponseSchema = z.object({
+  data: z.array(PendingApprovalSchema),
+});
 
 interface PendingApproval {
   id: string;
@@ -142,12 +165,12 @@ export function BadgeApprovalQueue() {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-badge-pending', search],
-    queryFn: () =>
-      api
-        .get('/badges/pending', {
-          params: { search: search || undefined },
-        })
-        .then((r) => r.data),
+    queryFn: async () => {
+      const res = await api.get('/badges/pending', {
+        params: { search: search || undefined },
+      });
+      return PendingApprovalResponseSchema.parse(res.data);
+    },
     staleTime: 30_000,
   });
 

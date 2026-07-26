@@ -3,19 +3,23 @@
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Award } from 'lucide-react';
 import { useEffect } from 'react';
+import { z } from 'zod';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import * as Sentry from '@sentry/nextjs';
 
-interface PointsResponse {
-  currentPoints: number;
-  totalEarned: number;
-}
+const PointsResponseSchema = z.object({
+  currentPoints: z.number(),
+  totalEarned: z.number(),
+});
 
 export function PointsCard() {
-  const { data, isLoading, isError, error } = useQuery<PointsResponse>({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['my-points'],
-    queryFn: () => api.get('/levels/users/me/points').then((r) => r.data),
+    queryFn: async () => {
+      const res = await api.get('/levels/users/me/points');
+      return PointsResponseSchema.parse(res.data);
+    },
     staleTime: 60_000,
   });
 

@@ -3,10 +3,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Clock, Star, Trophy } from 'lucide-react';
 import Link from 'next/link';
+import { z } from 'zod';
 import { api } from '@/lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { StreakBadge } from './StreakBadge';
 import { TierPathVisualizer } from './TierPathVisualizer';
+
+const LevelDataSchema = z.object({
+  tier: z.number(),
+  points: z.number(),
+  pointsToNext: z.number(),
+  streak: z.number(),
+  hoursVolunteered: z.number(),
+  nextLevel: z.object({
+    name: z.string(),
+    pointsRequired: z.number(),
+  }).nullable(),
+});
+
+const LevelDataResponseSchema = z.object({
+  data: LevelDataSchema,
+});
 
 const TIER_DATA = [
   {
@@ -43,19 +60,13 @@ const TIER_DATA = [
   },
 ];
 
-interface LevelData {
-  tier: number;
-  points: number;
-  pointsToNext: number;
-  streak: number;
-  hoursVolunteered: number;
-  nextLevel: { name: string; pointsRequired: number } | null;
-}
-
 export function LevelProgressCard() {
-  const { data, isLoading, isError, refetch } = useQuery<{ data: LevelData }>({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
+    queryFn: async () => {
+      const res = await api.get('/levels/users/me/level');
+      return LevelDataResponseSchema.parse(res.data);
+    },
     staleTime: 60000,
   });
 

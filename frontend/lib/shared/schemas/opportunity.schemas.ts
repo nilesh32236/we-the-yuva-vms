@@ -84,31 +84,35 @@ export const CheckInSchema = z.object({
   lat: z.coerce.number().optional(),
   lng: z.coerce.number().optional(),
   qrToken: z.string().optional(),
-});
+}).refine(
+  (data) => data.qrToken || (data.lat !== undefined && data.lng !== undefined),
+  { message: 'Provide either a QR token or location coordinates' }
+);
 
 export const CheckOutSchema = z.object({
   lat: z.coerce.number().optional(),
   lng: z.coerce.number().optional(),
 });
 
-export const EventSeriesSchema = z
-  .object({
-    title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
-    description: z.string().max(1000, 'Description too long').optional(),
-    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM']),
-    daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
-    interval: z.number().int().min(1).default(1),
-    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    venue: z.string().max(200, 'Venue name too long').optional(),
-    isVirtual: z.boolean().default(false),
-    meetingLink: z.string().url('Must be a valid URL').optional(),
-    capacity: z.number().int().positive('Capacity must be a positive integer'),
-    endDate: z.string().datetime().optional(),
-    maxOccurrences: z.number().int().positive().optional(),
-    customRule: z.any().optional(),
-    firstEventDate: z.string().datetime().optional(),
-  })
+export const EventSeriesSchemaBase = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
+  description: z.string().max(1000, 'Description too long').optional(),
+  frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM']),
+  daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
+  interval: z.number().int().min(1).default(1),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  venue: z.string().max(200, 'Venue name too long').optional(),
+  isVirtual: z.boolean().default(false),
+  meetingLink: z.string().url('Must be a valid URL').optional(),
+  capacity: z.number().int().positive('Capacity must be a positive integer'),
+  endDate: z.string().datetime().optional(),
+  maxOccurrences: z.number().int().positive().optional(),
+  customRule: z.record(z.unknown()).optional(),
+  firstEventDate: z.string().datetime().optional(),
+});
+
+export const EventSeriesSchema = EventSeriesSchemaBase
   .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
     message: 'Meeting link is required for virtual events',
     path: ['meetingLink'],

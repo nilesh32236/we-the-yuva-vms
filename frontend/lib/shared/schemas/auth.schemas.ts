@@ -45,7 +45,7 @@ export const RegisterSchema = z.object({
         monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate()) ? age - 1 : age;
       return actualAge >= 14;
     },
-    { message: 'You must be at least 14 years old' }
+    { message: 'You must be at least 14 years old', path: ['dateOfBirth'] }
   ),
   address: AddressSchema,
   reference: z.string().optional(),
@@ -63,6 +63,34 @@ export const VerifyOtpSchema = z.object({
     .string()
     .length(6, 'OTP must be exactly 6 digits')
     .regex(/^\d{6}$/, 'OTP must contain only digits'),
+});
+
+export const AuthUserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().nullable(),
+  role: z.enum(['VOLUNTEER', 'COORDINATOR', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER', 'ADMIN', 'OBSERVER']),
+  permissions: z.array(z.string()).optional(),
+  organizationId: z.string().nullable().optional(),
+  status: z.string(),
+  profile: z.object({
+    skills: z.array(z.string()),
+    interests: z.array(z.string()),
+    availability: z.object({
+      days: z.array(z.string()),
+      timeSlots: z.array(z.string()),
+    }),
+    bio: z.string().nullable().optional(),
+    avatarUrl: z.string().nullable().optional(),
+    totalHours: z.number(),
+  }).nullable().optional(),
+  consent: z.object({
+    privacyPolicyAccepted: z.boolean(),
+    mediaConsentAccepted: z.boolean(),
+    acceptedAt: z.string(),
+  }).nullable().optional(),
+  locationId: z.string().nullable().optional(),
+  volunteerType: z.string().nullable().optional(),
 });
 
 export const ConsentSchema = z.object({

@@ -5,12 +5,31 @@ import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Star } from '
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { z } from 'zod';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import * as Sentry from '@sentry/nextjs';
 import { useToast } from '@/hooks/use-toast';
+
+const NotificationUnreadCountSchema = z.object({
+  count: z.number(),
+});
+
+const BackendNotificationSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  body: z.string(),
+  type: z.string(),
+  link: z.string().nullable(),
+  read: z.boolean(),
+  createdAt: z.string(),
+});
+
+const NotificationResponseSchema = z.object({
+  data: z.array(BackendNotificationSchema),
+});
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
@@ -66,16 +85,6 @@ function timeAgo(date: string): string {
   return new Date(date).toLocaleDateString();
 }
 
-interface BackendNotification {
-  id: string;
-  title: string;
-  body: string;
-  type: string;
-  link: string | null;
-  read: boolean;
-  createdAt: string;
-}
-
 export function TopNav() {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -85,15 +94,20 @@ export function TopNav() {
 
   const { data: unreadData } = useQuery({
     queryKey: ['notifications', 'unread-count'],
-    queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
+    queryFn: async () => {
+      const res = await api.get('/notifications/unread-count');
+      return NotificationUnreadCountSchema.parse(res.data);
+    },
     refetchInterval: 30000,
     staleTime: 30000,
   });
 
   const { data: notifData } = useQuery({
     queryKey: ['notifications', 'recent'],
-    queryFn: () =>
-      api.get<{ data: BackendNotification[] }>('/notifications?limit=5').then((r) => r.data),
+    queryFn: async () => {
+      const res = await api.get('/notifications?limit=5');
+      return NotificationResponseSchema.parse(res.data);
+    },
     enabled: open,
     staleTime: 0,
   });

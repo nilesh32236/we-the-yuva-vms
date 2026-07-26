@@ -12,6 +12,7 @@ interface QueuedCheckin {
   encryptedLocation?: string;
   createdAt: string;
   retryCount?: number;
+  serverTimestamp?: string;
 }
 
 function encodeLocation(loc: { lat: number; lng: number }): string {
@@ -154,10 +155,13 @@ export async function syncQueuedCheckins(userId?: string): Promise<{ synced: num
       items = await Promise.all(items.map((item) => decryptCheckin(item, userId)));
     }
 
-    // Deduplicate: group by eventId+qrToken, keep most recent
+    // Deduplicate: group by eventId+qrToken for QR check-ins,
+    // use eventId+loc+createdAt for location-based to avoid collapsing all location entries
     const best = new Map<string, QueuedCheckin>();
     for (const item of items) {
-      const key = `${item.eventId}:${item.qrToken ?? ''}`;
+      const key = item.qrToken
+        ? `${item.eventId}:${item.qrToken}`
+        : `${item.eventId}:loc:${item.createdAt}`;
       const prev = best.get(key);
       if (!prev || item.createdAt > prev.createdAt) {
         best.set(key, item);

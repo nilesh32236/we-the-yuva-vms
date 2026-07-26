@@ -7,6 +7,9 @@ const ContentSchema = z
   .refine((val) => val.replace(/<[^>]*>/g, '').trim().length > 0, {
     message: 'Content is required',
   });
+// NOTE: HTML tags count toward the 50k character limit.
+// The .max() validates raw string length including tags.
+// The .refine() strips HTML to ensure visible text exists.
 
 export const CreateBlogPostSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
