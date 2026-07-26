@@ -81,13 +81,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (
       userQuery.error &&
       typeof userQuery.error === 'object' &&
-      'response' in userQuery.error &&
-      (userQuery.error as { response?: { status?: number } }).response?.status &&
-      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
+      'response' in userQuery.error
     ) {
-      return 'Server error. Please try logging in again.';
+      const axiosErr = userQuery.error as { response?: { status?: number } };
+      if (axiosErr.response?.status === 401) return null;
+      if (axiosErr.response?.status && axiosErr.response.status >= 500) {
+        return 'Server error. Please try logging in again.';
+      }
     }
-    return null;
+    // Non-401, non-500 errors (network error, timeout, etc.)
+    return 'Unable to connect. Please check your connection.';
   })();
 
   useEffect(() => {

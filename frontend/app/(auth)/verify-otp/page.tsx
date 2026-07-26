@@ -42,15 +42,6 @@ function VerifyOtpContent() {
     defaultValues: { email, otp: '' },
   });
 
-  // TEMPORARY: read dev OTP from sessionStorage
-  useEffect(() => {
-    const stored = sessionStorage.getItem('devOtp');
-    if (stored) {
-      setDevOtp(stored);
-      sessionStorage.removeItem('devOtp');
-    }
-  }, []);
-
   // Countdown timer for OTP expiry
   useEffect(() => {
     if (countdown <= 0) return;
@@ -142,8 +133,7 @@ function VerifyOtpContent() {
   const handleResend = async () => {
     try {
       const res = await api.post('/auth/send-otp', { email });
-      if (res.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') {
-        sessionStorage.setItem('devOtp', res.data.devOtp);
+      if (process.env.NEXT_PUBLIC_DEV_OTP === 'true' && res.data?.devOtp) {
         setDevOtp(res.data.devOtp);
       }
       setCountdown(300);
@@ -179,7 +169,7 @@ function VerifyOtpContent() {
           <p className="font-medium text-brand-text text-sm">{email}</p>
         </div>
 
-        {process.env.NEXT_PUBLIC_DEV_OTP && devOtp && (
+        {process.env.NEXT_PUBLIC_DEV_OTP === 'true' && devOtp && (
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 text-center">
             <p className="text-yellow-900 dark:text-yellow-100 text-sm font-medium">
               <AlertTriangle className="w-4 h-4 inline-block -mt-0.5" aria-hidden="true" /> Dev OTP

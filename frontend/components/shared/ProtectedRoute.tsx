@@ -28,20 +28,17 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }, [user, isLoading, allowedRoles, router]);
 
   if (!showContent) {
-    if (isLoading && !user) {
-      return (
-        <div className="flex items-center justify-center h-dvh">
-          <div
-            className="w-8 h-8 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin"
-            role="status"
-            aria-label="Loading your profile"
-          />
-        </div>
-      );
-    }
     return (
       <div className="flex items-center justify-center h-dvh">
-        <p className="text-sm text-brand-muted">Redirecting…</p>
+        <div
+          className="w-8 h-8 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin"
+          role="status"
+          aria-label={
+            isLoading && !user
+              ? 'Loading your profile'
+              : 'Redirecting to your dashboard'
+          }
+        />
       </div>
     );
   }

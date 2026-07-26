@@ -18,7 +18,6 @@ const PUBLIC_ROUTES = [
 ];
 // Truly public informational pages — no redirect even when authenticated
 const TRULY_PUBLIC = ['/about', '/contact', '/faq', '/privacy', '/terms', '/opportunities', '/blog'];
-const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
 
 const ROLE_ROUTES: Record<string, string> = {
   VOLUNTEER: '/volunteer',
