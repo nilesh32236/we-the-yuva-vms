@@ -8,7 +8,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
-import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
+import type { RegisterOrganizationInput } from '@/lib/shared';
+import { RegisterOrganizationSchema } from '@/lib/shared/schemas/organization.schemas';
 import { Button } from '../ui/Button';
 
 interface OrgData {

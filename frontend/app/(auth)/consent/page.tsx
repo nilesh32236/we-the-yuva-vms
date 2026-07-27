@@ -5,7 +5,7 @@ import { ArrowRight, Camera, Check, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { ConsentSchema } from '@/lib/shared';
+import { ConsentSchema } from '@/lib/shared/schemas/auth.schemas';
 import type { ConsentInput } from '@/lib/shared';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';

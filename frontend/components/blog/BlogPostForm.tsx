@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import type { CreateBlogPostInput } from '@/lib/shared';
-import { CreateBlogPostSchema } from '@/lib/shared';
+import { CreateBlogPostSchema } from '@/lib/shared/schemas/blog.schemas';
 import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission } from '@/lib/shared/permissions';

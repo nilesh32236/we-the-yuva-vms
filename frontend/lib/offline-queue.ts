@@ -1,7 +1,7 @@
 import { api } from './api';
 import { encrypt, decrypt } from './crypto-utils';
 
-import { CheckInSchema } from '@/lib/shared';
+import { CheckInSchema } from '@/lib/shared/schemas/opportunity.schemas';
 
 interface QueuedCheckin {
   id?: number;
@@ -175,27 +175,42 @@ export async function syncQueuedCheckins(userId?: string): Promise<{ synced: num
     const uniqueItems = [...best.values()];
     let synced = 0;
     let failed = 0;
-    for (const item of uniqueItems) {
-      try {
-        await api.post(`/events/${item.eventId}/checkin`, {
-          qrToken: item.qrToken,
-          ...(item.location ? { lat: item.location.lat, lng: item.location.lng } : {}),
-        });
-        await removeQueuedCheckin(item.id!);
-        synced++;
-      } catch {
-        failed++;
-        const retryCount = (item.retryCount ?? 0) + 1;
-        if (retryCount >= MAX_RETRIES) {
-          await removeQueuedCheckin(item.id!).catch(() => {});
+    const BATCH_SIZE = 5;
+    const todo = [...uniqueItems];
+
+    async function syncItem(item: QueuedCheckin): Promise<'synced'> {
+      await api.post(`/events/${item.eventId}/checkin`, {
+        qrToken: item.qrToken,
+        ...(item.location ? { lat: item.location.lat, lng: item.location.lng } : {}),
+      });
+      await removeQueuedCheckin(item.id!);
+      return 'synced';
+    }
+
+    async function handleFailedItem(item: QueuedCheckin): Promise<void> {
+      const retryCount = (item.retryCount ?? 0) + 1;
+      if (retryCount >= MAX_RETRIES) {
+        await removeQueuedCheckin(item.id!).catch(() => {});
+      } else {
+        try {
+          const db = await openDb();
+          const tx = db.transaction(STORE_NAME, 'readwrite');
+          tx.objectStore(STORE_NAME).put({ ...item, retryCount });
+        } catch {
+          // Best-effort retry tracking
+        }
+      }
+    }
+
+    while (todo.length) {
+      const batch = todo.splice(0, BATCH_SIZE);
+      const results = await Promise.allSettled(batch.map(syncItem));
+      for (let i = 0; i < results.length; i++) {
+        if (results[i].status === 'fulfilled') {
+          synced++;
         } else {
-          try {
-            const db = await openDb();
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            tx.objectStore(STORE_NAME).put({ ...item, retryCount });
-          } catch {
-            // Best-effort retry tracking
-          }
+          failed++;
+          await handleFailedItem(batch[i]);
         }
       }
     }

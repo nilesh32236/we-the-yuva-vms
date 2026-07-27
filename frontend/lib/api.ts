@@ -48,9 +48,11 @@ function hydrateToken(): string | null {
 }
 
 let accessTokenMemory: string | null = hydrateToken();
+let cachedTokenDecoded: { exp?: number } | null = null;
 
 export function setAccessToken(token: string | null) {
   accessTokenMemory = token;
+  cachedTokenDecoded = token ? decodeJwt(token) : null;
   if (typeof sessionStorage !== 'undefined') {
     try {
       if (token) {
@@ -86,7 +88,7 @@ api.interceptors.request.use(async (config) => {
   const token = getAccessToken();
   if (token) {
     try {
-      const payload = decodeJwt(token);
+      const payload = cachedTokenDecoded ?? decodeJwt(token);
       if (payload.exp && payload.exp * 1000 < Date.now()) {
         if (!refreshPromise) {
           refreshPromise = axios

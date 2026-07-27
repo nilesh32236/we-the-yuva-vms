@@ -1,17 +1,61 @@
-export * from './schemas/admin.schemas';
-export * from './schemas/alerts.schemas';
-export * from './schemas/auth.schemas';
-export * from './schemas/onboarding.schemas';
-export * from './schemas/blog.schemas';
-export * from './schemas/feedback.schemas';
-export * from './schemas/levels.schemas';
-export * from './schemas/mentorship.schemas';
-export * from './schemas/notifications.schemas';
-export * from './schemas/opportunity.schemas';
-export * from './schemas/organization.schemas';
-export * from './schemas/profile.schemas';
-export * from './schemas/stories.schemas';
-export * from './schemas/training.schemas';
-export * from './schemas/youth.schemas';
 export * from './helpers';
-export * from './types/index';
+
+export type {
+  AuthUser,
+  UserRole,
+  UserStatus,
+  VolunteerType,
+  OrganizationStatus,
+  ApiError,
+  AssessmentInput,
+  RegisterInput,
+  SendOtpInput,
+  VerifyOtpInput,
+  ConsentInput,
+  VolunteerProfileInput,
+  StaffProfileInput,
+  UpdateMeInput,
+  OpportunityInput,
+  EventInput,
+  EventSeriesInput,
+  ApplicationStatusInput,
+  AttendanceInput,
+  AdminCreateUserInput,
+  AdminUserUpdateInput,
+  OrganizationDocumentInput,
+  RegisterOrganizationInput,
+  CreateBlogPostInput,
+  UpdateBlogPostInput,
+  CreateStoryInput,
+  UpdateStoryInput,
+  ModerateStoryInput,
+  FeedbackInput,
+  UpdateFeedbackInput,
+  PushSubscriptionInput,
+  PushUnsubscribeInput,
+  NotificationPreferenceInput,
+  AlertSubscriptionInput,
+  AlertSubscriptionUpdateInput,
+  CheckInInput,
+  CheckOutInput,
+  ApplyInput,
+  CompleteLessonInput,
+  CreateCourseInput,
+  UpdateCourseInput,
+  CreateLessonInput,
+  UpdateLessonInput,
+} from './types/index';
+
+export type { OnboardingData } from './schemas/onboarding.schemas';
+
+export { OPPORTUNITY_CATEGORIES } from './schemas/opportunity.schemas';
+export { ASPIRATIONS, GROWTH_AREAS } from './schemas/youth.schemas';
+export { DAYS, TIME_SLOTS, VOLUNTEER_TYPES } from './schemas/profile.schemas';
+export {
+  EXPERTISE_OPTIONS,
+  LANGUAGES,
+  CAUSES,
+  INTEREST_OPTIONS,
+  PREFERRED_ACTIVITIES,
+  AVAILABILITY_PATTERNS,
+} from './schemas/onboarding.schemas';

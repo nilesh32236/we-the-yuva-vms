@@ -16,8 +16,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { OnboardingSchema, StaffProfileSchema } from '@/lib/shared';
 import type { OnboardingData, StaffProfileInput } from '@/lib/shared';
+import { OnboardingSchema } from '@/lib/shared/schemas/onboarding.schemas';
+import { StaffProfileSchema } from '@/lib/shared/schemas/profile.schemas';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';

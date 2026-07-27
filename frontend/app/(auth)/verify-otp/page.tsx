@@ -12,8 +12,8 @@ import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api, setAccessToken } from '../../../lib/api';
-import { VerifyOtpSchema } from '../../../lib/shared';
 import type { VerifyOtpInput } from '../../../lib/shared';
+import { VerifyOtpSchema } from '../../../lib/shared/schemas/auth.schemas';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 function VerifyOtpContent() {

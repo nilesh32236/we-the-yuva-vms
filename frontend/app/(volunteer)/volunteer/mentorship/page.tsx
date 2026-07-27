@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { useAuth } from '@/hooks/useAuth';
-import { CreateMentorshipSchema } from '@/lib/shared';
+import { CreateMentorshipSchema } from '@/lib/shared/schemas/mentorship.schemas';
 
 interface MentorshipRelation {
   id: string;

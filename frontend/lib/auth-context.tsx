@@ -28,6 +28,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function isServerError(err: unknown): boolean {
+  if (typeof err !== 'object' || err === null) return false;
+  if (!('response' in err)) return false;
+  const response = (err as { response?: { status?: number } }).response;
+  return response?.status !== undefined && response.status >= 500;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -76,28 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const user = userQuery.data ?? null;
   const isLoading = userQuery.isLoading;
-  const fetchError = (() => {
-    if (!userQuery.error) return null;
-    if (
-      userQuery.error &&
-      typeof userQuery.error === 'object' &&
-      'response' in userQuery.error &&
-      (userQuery.error as { response?: { status?: number } }).response?.status &&
-      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
-    ) {
-      return 'Server error. Please try logging in again.';
-    }
-    return null;
-  })();
+  const fetchError: string | null =
+    userQuery.error && isServerError(userQuery.error)
+      ? 'Server error. Please try logging in again.'
+      : null;
 
   useEffect(() => {
-    if (
-      userQuery.error &&
-      typeof userQuery.error === 'object' &&
-      'response' in userQuery.error &&
-      (userQuery.error as { response?: { status?: number } }).response?.status &&
-      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
-    ) {
+    if (userQuery.error && isServerError(userQuery.error)) {
       toast({
         title: 'Authentication error',
         description: 'Server error. Please try again.',

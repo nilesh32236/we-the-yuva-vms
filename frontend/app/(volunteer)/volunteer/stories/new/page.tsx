@@ -10,7 +10,8 @@ import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CreateStorySchema, type ApiError } from '@/lib/shared';
+import type { ApiError } from '@/lib/shared';
+import { CreateStorySchema } from '@/lib/shared/schemas/stories.schemas';
 
 export default function NewStoryPage() {
   const router = useRouter();
