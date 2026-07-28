@@ -6,11 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from './api';
 import { clearQueue } from './offline-queue';
 import { queryClient } from './query-client';
+import * as Sentry from '@sentry/nextjs';
 import { isPublicRoute } from './public-routes';
 import { ROLE_ROUTES, ROLE_ROUTE_PREFIXES, ONBOARDING_ROUTES } from './shared/permissions';
 import type { AuthUser } from './shared/types';
-import { toast } from '@/hooks/use-toast';
-
 export interface ProfileStatus {
   isComplete: boolean;
   missingFields: string[];
@@ -57,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     },
     staleTime: 30_000,
-    retry: 1,
+    retry: 0,
   });
 
   const profileStatusQuery = useQuery<ProfileStatus | null>({
@@ -66,7 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const res = await api.get<ProfileStatus>('/users/me/profile-status');
         return res.data;
-      } catch {
+      } catch (err) {
+        Sentry.captureException(err);
         return null;
       }
     },
@@ -90,22 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   })();
 
-  useEffect(() => {
-    if (
-      userQuery.error &&
-      typeof userQuery.error === 'object' &&
-      'response' in userQuery.error &&
-      (userQuery.error as { response?: { status?: number } }).response?.status &&
-      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
-    ) {
-      toast({
-        title: 'Authentication error',
-        description: 'Server error. Please try again.',
-        variant: 'destructive',
-        role: 'alert',
-      });
-    }
-  }, [userQuery.error]);
   const profileStatus = profileStatusQuery.data ?? null;
 
   const refetch = useCallback(async () => {

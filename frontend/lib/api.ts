@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { decodeJwt } from 'jose';
 import { isPublicRoute } from './public-routes';
+import * as Sentry from '@sentry/nextjs';
 
 export const api = axios.create({
   baseURL: '/api/v1',
@@ -73,7 +74,7 @@ let lastRefreshAccessToken: string | null = null;
 
 function checkTokenRotation(token: string) {
   if (token === lastRefreshAccessToken) {
-    console.warn('[Auth] Refresh returned same access token — refresh token may not be rotating');
+    Sentry.captureMessage('[Auth] Refresh returned same access token — refresh token may not be rotating', 'warning');
   }
   lastRefreshAccessToken = token;
 }

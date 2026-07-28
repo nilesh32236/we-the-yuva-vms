@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import * as Sentry from '@sentry/nextjs';
 
 export function usePushNotifications() {
   const { user } = useAuth();
@@ -55,8 +56,8 @@ export function usePushNotifications() {
       });
 
       await api.post('/notifications/subscribe', subscription.toJSON());
-    } catch {
-      console.error('Failed to subscribe to push notifications');
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error('Failed to subscribe to push notifications'));
       setError('Failed to set up push notifications. Please try again.');
     }
   };
@@ -69,8 +70,8 @@ export function usePushNotifications() {
         await api.post('/notifications/unsubscribe', { endpoint: sub.endpoint });
         await sub.unsubscribe();
       }
-    } catch {
-      console.error('Failed to unsubscribe');
+    } catch (err) {
+      Sentry.captureException(err instanceof Error ? err : new Error('Failed to unsubscribe'));
     }
   };
 

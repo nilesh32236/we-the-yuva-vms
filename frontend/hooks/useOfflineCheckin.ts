@@ -9,6 +9,8 @@ import {
   clearQueue,
 } from '@/lib/offline-queue';
 import { useAuth } from '@/hooks/useAuth';
+import * as Sentry from '@sentry/nextjs';
+import { toast } from '@/hooks/use-toast';
 
 const errorMap: Record<string, string> = {
   'Event not found': 'Check-in failed',
@@ -60,6 +62,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
         try {
           await clearQueue();
         } catch (err) {
+          Sentry.captureException(err);
           console.warn('[OfflineCheckin] Failed to clear offline queue:', err);
         }
         const remaining = await getQueuedCheckins();
@@ -113,7 +116,6 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
     }
-    retryAttemptRef.current = 0;
     sync();
   }, [sync]);
 
@@ -149,14 +151,17 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       if (onSuccess) onSuccess();
     },
     onError: (err: unknown) => {
+      Sentry.captureException(err);
+      const message =
+        err instanceof Error
+          ? err.message
+          : mapApiError(
+              (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+            );
       if (onError) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : mapApiError(
-                (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-              );
         onError(message);
+      } else {
+        toast({ title: 'Check-in failed', description: message, variant: 'destructive' });
       }
     },
     onSettled: () => {
