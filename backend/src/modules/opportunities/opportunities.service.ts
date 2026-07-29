@@ -13,17 +13,13 @@ import { redis } from '../../lib/redis';
 import { getProfileStatus } from '../users/users.service';
 import { AppError } from '../../middleware/error.middleware';
 
-const CACHE_KEY_SET = 'opportunities:list:keys';
+const CACHE_VERSION_KEY = 'opportunities:list:version';
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
 async function invalidateListCache(): Promise<void> {
   if (!redis) return;
-  const keys = await redis.smembers(CACHE_KEY_SET);
-  if (keys.length > 0) {
-    await redis.del(...keys);
-    await redis.del(CACHE_KEY_SET);
-  }
+  await redis.incr(CACHE_VERSION_KEY);
 }
 
 // ─── Opportunity CRUD ─────────────────────────────────────────────
@@ -121,7 +117,8 @@ export async function listOpportunities(
   pagination: PaginationParams,
   userId?: string
 ) {
-  const cacheKey = `opportunities:list:${hashFilters({ filters, pagination })}`;
+  const version = redis ? (await redis.get(CACHE_VERSION_KEY)) ?? '0' : '0';
+  const cacheKey = `opportunities:list:v${version}:${hashFilters({ filters, pagination })}`;
 
   if (redis && !userId) {
     const cached = await redis.get(cacheKey);
@@ -230,11 +227,7 @@ export async function listOpportunities(
   };
 
   if (redis && !userId) {
-    await redis
-      .multi()
-      .sadd(CACHE_KEY_SET, cacheKey)
-      .set(cacheKey, JSON.stringify(result), 'EX', 300)
-      .exec();
+    await redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
   }
 
   return result;
@@ -558,7 +551,7 @@ export async function updateApplicationStatus(
 ) {
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
-    include: { opportunity: true },
+    include: { opportunity: true, volunteer: { select: { email: true } } },
   });
 
   if (!application) {
@@ -614,6 +607,7 @@ export async function updateApplicationStatus(
   notificationsQueue
     ?.add(`application-${status.toLowerCase()}`, {
       volunteerId: application.volunteerId,
+      email: application.volunteer?.email,
       opportunityTitle: application.opportunity.title,
       opportunityId: application.opportunityId,
     })

@@ -105,12 +105,30 @@ export async function getMyProgress(userId: string) {
   };
 }
 
-export async function getMyLevelRequests(userId: string) {
-  return prisma.userLevel.findMany({
-    where: { userId },
-    include: { level: true, reviewer: { select: { id: true, name: true } } },
-    orderBy: { createdAt: 'desc' },
-  });
+export async function getMyLevelRequests(
+  userId: string,
+  pagination?: { page: number; limit: number }
+) {
+  if (!pagination) {
+    return prisma.userLevel.findMany({
+      where: { userId },
+      include: { level: true, reviewer: { select: { id: true, name: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.userLevel.findMany({
+      where: { userId },
+      skip,
+      take: limit,
+      include: { level: true, reviewer: { select: { id: true, name: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.userLevel.count({ where: { userId } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }
 
 export async function createLevelRequest(
@@ -341,10 +359,28 @@ export async function getMyPoints(userId: string) {
   };
 }
 
-export async function getMyPointsHistory(userId: string) {
-  return prisma.pointTransaction.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' },
-    take: 100,
-  });
+export async function getMyPointsHistory(
+  userId: string,
+  pagination?: { page: number; limit: number }
+) {
+  if (!pagination) {
+    const data = await prisma.pointTransaction.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+    return { data, total: data.length, page: 1, limit: 100, totalPages: 1 };
+  }
+  const { page, limit } = pagination;
+  const skip = (page - 1) * limit;
+  const [data, total] = await Promise.all([
+    prisma.pointTransaction.findMany({
+      where: { userId },
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.pointTransaction.count({ where: { userId } }),
+  ]);
+  return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
 }

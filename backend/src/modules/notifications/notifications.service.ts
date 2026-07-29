@@ -66,6 +66,7 @@ export async function sendPushToUser(
     )
   );
 
+  const failedEndpoints: string[] = [];
   for (let i = 0; i < subs.length; i++) {
     if (results[i].status === 'rejected') {
       const reason = (results[i] as PromiseRejectedResult).reason;
@@ -73,12 +74,16 @@ export async function sendPushToUser(
         endpoint: subs[i].endpoint.slice(0, 30),
         error: (reason as Error).message,
       });
-      await prisma.pushSubscription
-        .deleteMany({ where: { endpoint: subs[i].endpoint } })
-        .catch((err) =>
-          logger.warn('Failed to clean up push subscription', { error: (err as Error).message })
-        );
+      failedEndpoints.push(subs[i].endpoint);
     }
+  }
+
+  if (failedEndpoints.length > 0) {
+    await prisma.pushSubscription
+      .deleteMany({ where: { endpoint: { in: failedEndpoints } } })
+      .catch((err) =>
+        logger.warn('Failed to clean up push subscriptions', { error: (err as Error).message })
+      );
   }
 }
 

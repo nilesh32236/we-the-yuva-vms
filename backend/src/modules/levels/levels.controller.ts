@@ -71,7 +71,10 @@ export async function getMyLevelRequestsHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const requests = await getMyLevelRequests(req.user!.id);
+    const page = req.query.page ? Number(req.query.page) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const pagination = page && limit ? { page, limit } : undefined;
+    const requests = await getMyLevelRequests(req.user!.id, pagination);
     res.status(200).json(requests);
   } catch (err) {
     next(err);
@@ -152,7 +155,10 @@ export async function getMyPointsHistoryHandler(
   next: NextFunction
 ): Promise<void> {
   try {
-    const history = await getMyPointsHistory(req.user!.id);
+    const page = req.query.page ? Number(req.query.page) : undefined;
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const pagination = page && limit ? { page, limit } : undefined;
+    const history = await getMyPointsHistory(req.user!.id, pagination);
     res.status(200).json(history);
   } catch (err) {
     next(err);

@@ -6,9 +6,13 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+const dbUrl = new URL(env.DATABASE_URL);
+dbUrl.searchParams.set('statement_timeout', '10000');
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    datasources: { db: { url: dbUrl.toString() } },
     log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 

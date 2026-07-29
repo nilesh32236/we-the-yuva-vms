@@ -6,26 +6,32 @@ import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
+import { redis } from '../../lib/redis';
 import { AppError } from '../../middleware/error.middleware';
 
 // ─── OTP ─────────────────────────────────────────────────────────
 
 const OTP_TTL_MINUTES = 5;
 
-const otpRateMap = new Map<string, { count: number; resetAt: number }>();
 const OTP_RATE_LIMIT = 3;
 const OTP_RATE_WINDOW_MS = 60_000;
 
-// Periodic cleanup of expired OTP rate limit entries
-const OTP_RATE_CLEANUP_INTERVAL_MS = 300_000;
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of otpRateMap) {
-    if (now > entry.resetAt) otpRateMap.delete(key);
-  }
-}, OTP_RATE_CLEANUP_INTERVAL_MS).unref();
+const otpRateMap = new Map<string, { count: number; resetAt: number }>();
 
 export async function checkOtpRateLimit(email: string): Promise<void> {
+  if (redis) {
+    const key = `otp:rate:${email.toLowerCase()}`;
+    const current = await redis.incr(key);
+    if (current === 1) {
+      await redis.pexpire(key, OTP_RATE_WINDOW_MS);
+    }
+    if (current > OTP_RATE_LIMIT) {
+      throw new AppError('Too many OTP requests. Please try again later.', 429);
+    }
+    return;
+  }
+
+  // Fallback: in-memory rate limiting when Redis is unavailable
   const now = Date.now();
   const entry = otpRateMap.get(email);
   if (!entry || now > entry.resetAt) {

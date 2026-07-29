@@ -63,15 +63,16 @@ export async function createEvent(
   // Enqueue event-invitation jobs for all ACCEPTED volunteers (batched via addBulk)
   const acceptedApplications = await prisma.application.findMany({
     where: { opportunityId, status: 'ACCEPTED' },
-    select: { volunteerId: true },
+    select: { volunteerId: true, volunteer: { select: { email: true } } },
   });
 
   if (notificationsQueue) {
     await notificationsQueue.addBulk(
-      acceptedApplications.map(({ volunteerId }) => ({
+      acceptedApplications.map(({ volunteerId, volunteer }) => ({
         name: 'event-invitation',
         data: {
           volunteerId,
+          email: volunteer?.email,
           eventId: event.id,
           eventTitle: event.title,
           eventDate: event.eventDate,
@@ -91,15 +92,12 @@ export async function listEventsByOpportunity(
   pagination?: { page: number; limit: number }
 ) {
   if (!pagination) {
-    const data = await prisma.event.findMany({
-      where: {
-        opportunityId,
-        status: { not: 'CANCELLED' },
-      },
-      take: 50,
-      orderBy: { eventDate: 'asc' },
-    });
-    return { data, total: data.length, page: 1, limit: 50, totalPages: 1 };
+    const where = { opportunityId, status: { not: 'CANCELLED' as const } };
+    const [data, total] = await Promise.all([
+      prisma.event.findMany({ where, take: 50, orderBy: { eventDate: 'asc' } }),
+      prisma.event.count({ where }),
+    ]);
+    return { data, total, page: 1, limit: 50, totalPages: Math.ceil(total / 50) };
   }
   const { page, limit } = pagination;
   const skip = (page - 1) * limit;

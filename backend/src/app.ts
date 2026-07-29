@@ -14,6 +14,7 @@ import { logger } from './lib/logger';
 import { prisma } from './lib/prisma';
 import { swaggerSpec } from './lib/swagger';
 import { errorMiddleware } from './middleware/error.middleware';
+import { requireAuth } from './middleware/auth.middleware';
 import { adminRouter } from './modules/admin/admin.routes';
 import { alertsRouter } from './modules/alerts/alerts.routes';
 import { authRouter } from './modules/auth/auth.routes';
@@ -165,6 +166,7 @@ export function createApp(): Express {
   // Serve uploaded files
   app.use(
     '/uploads',
+    requireAuth,
     express.static(path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads'), { maxAge: '1d', etag: true })
   );
 

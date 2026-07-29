@@ -372,21 +372,18 @@ if (redis && notificationsQueue) {
 
         logger.info('OTP email sent', { emailTo: email.substring(0, 3) + '***', jobId: job.id });
       } else if (job.name === 'application-accepted') {
-        const { volunteerId, opportunityTitle } = job.data as {
+        const { volunteerId, opportunityTitle, email } = job.data as {
           volunteerId: string;
           opportunityTitle: string;
           opportunityId: string;
+          email?: string;
         };
 
-        const user = await prisma.user.findUnique({
-          where: { id: volunteerId },
-          select: { email: true },
-        });
-        if (!user?.email) return;
+        if (!email) return;
 
         await Promise.allSettled([
           sendEmail(
-            user.email,
+            email,
             `You've been accepted — ${opportunityTitle}`,
             applicationAcceptedTemplate(opportunityTitle),
             `Congratulations! Your application for "${opportunityTitle}" has been accepted.`
@@ -409,20 +406,17 @@ if (redis && notificationsQueue) {
 
         logger.info('Application accepted email sent', { volunteerId, jobId: job.id });
       } else if (job.name === 'application-rejected') {
-        const { volunteerId, opportunityTitle } = job.data as {
+        const { volunteerId, opportunityTitle, email } = job.data as {
           volunteerId: string;
           opportunityTitle: string;
+          email?: string;
         };
 
-        const user = await prisma.user.findUnique({
-          where: { id: volunteerId },
-          select: { email: true },
-        });
-        if (!user?.email) return;
+        if (!email) return;
 
         await Promise.allSettled([
           sendEmail(
-            user.email,
+            email,
             `Application update — ${opportunityTitle}`,
             applicationRejectedTemplate(opportunityTitle),
             `Thank you for applying to "${opportunityTitle}". Unfortunately, we are unable to move forward with your application at this time.`
@@ -672,23 +666,20 @@ if (redis && notificationsQueue) {
 
         logger.info('Story published notification sent', { userId, jobId: job.id });
       } else if (job.name === 'event-invitation') {
-        const { volunteerId, eventTitle, eventDate, venue } = job.data as {
+        const { volunteerId, eventTitle, eventDate, venue, email } = job.data as {
           volunteerId: string;
           eventId: string;
           eventTitle: string;
           eventDate: string;
           venue?: string;
+          email?: string;
         };
 
-        const user = await prisma.user.findUnique({
-          where: { id: volunteerId },
-          select: { email: true },
-        });
-        if (!user?.email) return;
+        if (!email) return;
 
         await Promise.allSettled([
           sendEmail(
-            user.email,
+            email,
             `You're invited — ${eventTitle}`,
             eventInvitationTemplate(eventTitle, eventDate, venue),
             `You have been invited to "${eventTitle}" on ${eventDate}${venue ? ` at ${venue}` : ''}.`
@@ -711,23 +702,20 @@ if (redis && notificationsQueue) {
 
         logger.info('Event invitation email sent', { volunteerId, jobId: job.id });
       } else if (job.name === 'event-reminder') {
-        const { volunteerId, eventTitle, eventDate, venue } = job.data as {
+        const { volunteerId, eventTitle, eventDate, venue, email } = job.data as {
           volunteerId: string;
           eventId: string;
           eventTitle: string;
           eventDate: string;
           venue?: string;
+          email?: string;
         };
 
-        const user = await prisma.user.findUnique({
-          where: { id: volunteerId },
-          select: { email: true },
-        });
-        if (!user?.email) return;
+        if (!email) return;
 
         await Promise.allSettled([
           sendEmail(
-            user.email,
+            email,
             `Reminder: ${eventTitle} is tomorrow`,
             eventReminderTemplate(eventTitle, eventDate, venue),
             `Reminder: "${eventTitle}" is happening tomorrow on ${eventDate}${venue ? ` at ${venue}` : ''}.`
@@ -886,13 +874,13 @@ if (redis && notificationsQueue) {
             opportunityId: { in: allUpcomingEvents.map((e) => e.opportunityId) },
             status: 'ACCEPTED',
           },
-          select: { volunteerId: true, opportunityId: true },
+          select: { volunteerId: true, opportunityId: true, volunteer: { select: { email: true } } },
         });
 
-        const appsByOpportunity = new Map<string, string[]>();
+        const appsByOpportunity = new Map<string, { volunteerId: string; email?: string }[]>();
         for (const app of allAcceptedApps) {
           const list = appsByOpportunity.get(app.opportunityId) ?? [];
-          list.push(app.volunteerId);
+          list.push({ volunteerId: app.volunteerId, email: app.volunteer?.email });
           appsByOpportunity.set(app.opportunityId, list);
         }
 
@@ -902,12 +890,13 @@ if (redis && notificationsQueue) {
           opts?: { jobId: string };
         }[] = [];
         for (const event of allUpcomingEvents) {
-          const volunteerIds = appsByOpportunity.get(event.opportunityId) ?? [];
-          for (const volunteerId of volunteerIds) {
+          const volunteers = appsByOpportunity.get(event.opportunityId) ?? [];
+          for (const { volunteerId, email } of volunteers) {
             reminderJobs.push({
               name: 'event-reminder',
               data: {
                 volunteerId,
+                email,
                 eventId: event.id,
                 eventTitle: event.title,
                 eventDate: event.eventDate.toISOString(),
