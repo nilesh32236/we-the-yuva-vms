@@ -5,37 +5,41 @@ import { env } from '../../config/env';
 import { sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
+import { redis } from '../../lib/redis';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
 
 // ─── OTP ─────────────────────────────────────────────────────────
 
 const OTP_TTL_MINUTES = 5;
-
-const otpRateMap = new Map<string, { count: number; resetAt: number }>();
 const OTP_RATE_LIMIT = 3;
-const OTP_RATE_WINDOW_MS = 60_000;
+const OTP_RATE_WINDOW_SEC = 60;
+const OTP_FAIL_LIMIT = 5;
+const OTP_FAIL_WINDOW_SEC = 900; // 15 minutes
 
-// Periodic cleanup of expired OTP rate limit entries
-const OTP_RATE_CLEANUP_INTERVAL_MS = 300_000;
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of otpRateMap) {
-    if (now > entry.resetAt) otpRateMap.delete(key);
-  }
-}, OTP_RATE_CLEANUP_INTERVAL_MS).unref();
+// In-memory fallback for OTP rate limiting (used when Redis is unavailable)
+const otpRateMap = new Map<string, { count: number; resetAt: number }>();
 
 export async function checkOtpRateLimit(email: string): Promise<void> {
-  const now = Date.now();
-  const entry = otpRateMap.get(email);
-  if (!entry || now > entry.resetAt) {
-    otpRateMap.set(email, { count: 1, resetAt: now + OTP_RATE_WINDOW_MS });
-    return;
+  const key = `otp:rate:${email.toLowerCase()}`;
+  if (redis) {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, OTP_RATE_WINDOW_SEC);
+    if (count > OTP_RATE_LIMIT) {
+      throw new AppError('Too many OTP requests. Please try again later.', 429);
+    }
+  } else {
+    // Fallback to in-memory when Redis is unavailable
+    const fallback = otpRateMap.get(email);
+    const now = Date.now();
+    if (!fallback || now > fallback.resetAt) {
+      otpRateMap.set(email, { count: 1, resetAt: now + OTP_RATE_WINDOW_SEC * 1000 });
+    } else if (fallback.count >= OTP_RATE_LIMIT) {
+      throw new AppError('Too many OTP requests. Please try again later.', 429);
+    } else {
+      fallback.count++;
+    }
   }
-  if (entry.count >= OTP_RATE_LIMIT) {
-    throw new AppError('Too many OTP requests. Please try again later.', 429);
-  }
-  entry.count++;
 }
 
 export async function generateAndStoreOtp(email: string): Promise<string> {
@@ -63,11 +67,27 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
   return otp;
 }
 
+const otpFailMap = new Map<string, { count: number; resetAt: number }>();
+
 export async function verifyOtp(email: string, otp: string): Promise<void> {
+  const emailKey = email.toLowerCase();
+  const failKey = `otp:fail:${emailKey}`;
+
+  if (redis) {
+    const failCount = await redis.get(failKey);
+    if (failCount && Number(failCount) >= OTP_FAIL_LIMIT) {
+      throw new AppError('Too many failed attempts. Please try again later.', 429);
+    }
+  } else {
+    const failEntry = otpFailMap.get(emailKey);
+    if (failEntry && Date.now() < failEntry.resetAt && failEntry.count >= OTP_FAIL_LIMIT) {
+      throw new AppError('Too many failed attempts. Please try again later.', 429);
+    }
+  }
 
   const record = await prisma.otpRecord.findFirst({
     where: {
-      email: email.toLowerCase(),
+      email: emailKey,
       used: false,
       expiresAt: { gt: new Date() },
     },
@@ -75,12 +95,21 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
   });
 
   if (!record) {
+    await recordFailedAttempt(emailKey, failKey);
     throw new AppError('Invalid or expired OTP', 400);
   }
 
   const isValid = await bcrypt.compare(otp, record.otpHash);
   if (!isValid) {
+    await recordFailedAttempt(emailKey, failKey);
     throw new AppError('Invalid or expired OTP', 400);
+  }
+
+  // Clear failed attempts on success
+  if (redis) {
+    await redis.del(failKey);
+  } else {
+    otpFailMap.delete(emailKey);
   }
 
   // Mark OTP as used
@@ -88,6 +117,21 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
     where: { id: record.id },
     data: { used: true },
   });
+}
+
+async function recordFailedAttempt(emailKey: string, failKey: string): Promise<void> {
+  if (redis) {
+    const count = await redis.incr(failKey);
+    if (count === 1) await redis.expire(failKey, OTP_FAIL_WINDOW_SEC);
+  } else {
+    const now = Date.now();
+    const entry = otpFailMap.get(emailKey);
+    if (!entry || now > entry.resetAt) {
+      otpFailMap.set(emailKey, { count: 1, resetAt: now + OTP_FAIL_WINDOW_SEC * 1000 });
+    } else {
+      entry.count++;
+    }
+  }
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {

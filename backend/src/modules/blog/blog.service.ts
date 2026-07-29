@@ -1,8 +1,24 @@
+import sanitizeHtml from 'sanitize-html';
 import slugify from 'slugify';
 import { logAudit } from '../../lib/audit';
 import { prisma } from '../../lib/prisma';
 import { hasSystemRole } from '../../shared/helpers';
 import { AppError } from '../../middleware/error.middleware';
+
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+    'img', 'figure', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'span', 'div', 'br', 'hr', 'pre', 'code', 'blockquote', 'p', 'ul', 'ol', 'li',
+    'a', 'strong', 'em', 'u', 's', 'sub', 'sup',
+  ]),
+  allowedAttributes: {
+    a: ['href', 'target', 'rel'],
+    img: ['src', 'alt', 'title', 'width', 'height'],
+    '*': ['class', 'id', 'style'],
+  },
+  allowedSchemes: ['http', 'https', 'mailto'],
+  disallowedTagsMode: 'discard',
+};
 
 async function generateUniqueSlug(title: string): Promise<string> {
   const base = slugify(title, { lower: true, strict: true });
@@ -37,8 +53,9 @@ export async function createPost(
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const slug = await generateUniqueSlug(data.title);
     try {
+      const sanitizedContent = sanitizeHtml(data.content, SANITIZE_OPTIONS);
       const post = await prisma.blogPost.create({
-        data: { ...data, slug, authorId, tags: data.tags ?? [] },
+        data: { ...data, content: sanitizedContent, slug, authorId, tags: data.tags ?? [] },
       });
       await logAudit({
         userId: authorId,
@@ -109,7 +126,10 @@ export async function updatePost(
   if (!post) throw new AppError('Post not found', 404);
   if (post.authorId !== userId && !hasSystemRole(callerRole)) throw new AppError('Forbidden', 403);
 
-  const updateData: Record<string, unknown> = { ...data };
+  const updateData: Record<string, unknown> = {
+    ...data,
+    ...(data.content ? { content: sanitizeHtml(data.content, SANITIZE_OPTIONS) } : {}),
+  };
   if (data.title) {
     const maxRetries = 3;
     for (let attempt = 0; attempt < maxRetries; attempt++) {

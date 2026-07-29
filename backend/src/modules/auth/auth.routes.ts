@@ -92,7 +92,16 @@ authRouter.post('/send-otp', otpLimiter, validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
-authRouter.post('/verify-otp', otpLimiter, validate(VerifyOtpSchema), verifyOtpHandler);
+const otpVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => req.body?.email || req.ip,
+  message: { error: 'Too many verification attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+authRouter.post('/verify-otp', otpLimiter, otpVerifyLimiter, validate(VerifyOtpSchema), verifyOtpHandler);
 
 /**
  * @openapi

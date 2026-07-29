@@ -40,7 +40,6 @@ const ALLOWED_MIMES = new Set([
   'image/png',
   'image/gif',
   'image/webp',
-  'image/svg+xml',
   'video/mp4',
   'video/webm',
   'application/pdf',
@@ -51,14 +50,14 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  const extAllowed = /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|pdf)$/i.test(
+  const extAllowed = /\.(jpg|jpeg|png|gif|webp|mp4|webm|pdf)$/i.test(
     path.extname(file.originalname)
   );
   const mimeAllowed = ALLOWED_MIMES.has(file.mimetype);
   if (extAllowed && mimeAllowed) return cb(null, true);
   cb(
     new AppError(
-      'Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed',
+      'Only images (jpg, png, gif, webp), videos (mp4, webm), and PDFs are allowed',
       400
     )
   );

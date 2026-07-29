@@ -66,7 +66,7 @@ export function createApp(): Express {
       origin: (origin, callback) => {
         // Allow requests without Origin (HF Spaces reverse proxy, curl, health checks)
         if (!origin) {
-          return callback(null, true);
+          return callback(null, !isProd);
         }
         if (isProd) {
           if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
@@ -163,6 +163,10 @@ export function createApp(): Express {
   app.use('/api/v1/upload', uploadRouter);
 
   // Serve uploaded files
+  app.use('/uploads', (_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+  });
   app.use(
     '/uploads',
     express.static(path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads'), { maxAge: '1d', etag: true })

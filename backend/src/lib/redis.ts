@@ -17,7 +17,7 @@ const connect = () => {
       retryStrategy: (times) => Math.min(times * 100, 3000),
       ...(isTLS && {
         tls: {
-          rejectUnauthorized: false, // Upstash uses a self-signed cert on some regions
+          rejectUnauthorized: true,
         },
       }),
     });
