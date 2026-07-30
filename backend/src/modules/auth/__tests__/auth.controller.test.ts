@@ -117,7 +117,7 @@ describe('auth.controller', () => {
 
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          whyVoluntary: 'I want to help my community.',
+          whyVolunteer: 'I want to help my community.',
           callAvailability: { preference: 'anytime' },
         }),
       });

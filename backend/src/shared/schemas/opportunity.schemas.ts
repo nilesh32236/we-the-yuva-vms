@@ -69,13 +69,19 @@ export const UpdateOpportunitySchema = z
 const eventBaseFields = {
   title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
   description: z.string().max(1000, 'Description too long').optional(),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  startTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, 'Must be HH:MM format'),
+  endTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, 'Must be HH:MM format'),
   venue: z.string().max(200, 'Venue name too long').optional(),
   capacity: z.number().int().positive('Capacity must be a positive integer'),
   isVirtual: z.boolean(),
   meetingLink: z.string().url('Must be a valid URL').optional(),
 } as const;
+
+function isAfterTime(start: string, end: string): boolean {
+  const [startH, startM] = start.split(':').map(Number);
+  const [endH, endM] = end.split(':').map(Number);
+  return endH * 60 + endM > startH * 60 + startM;
+}
 
 function addEventRefinements<T extends z.ZodRawShape>(shape: T) {
   return z.object(shape)
@@ -83,11 +89,11 @@ function addEventRefinements<T extends z.ZodRawShape>(shape: T) {
       message: 'Meeting link is required for virtual events',
       path: ['meetingLink'],
     })
-    .refine((data) => {
-      const [startH, startM] = data.startTime.split(':').map(Number);
-      const [endH, endM] = data.endTime.split(':').map(Number);
-      return endH * 60 + endM > startH * 60 + startM;
-    }, {
+    .refine((data) => data.isVirtual || !data.meetingLink, {
+      message: 'Meeting link should not be provided for in-person events',
+      path: ['meetingLink'],
+    })
+    .refine((data) => isAfterTime(data.startTime, data.endTime), {
       message: 'End time must be after start time',
       path: ['endTime'],
     });
@@ -142,8 +148,8 @@ const EventSeriesBaseSchema = z.object({
   frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM']),
   daysOfWeek: z.array(z.number().int().min(0).max(6)).optional(),
   interval: z.number().int().min(1).default(1),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  startTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, 'Must be HH:MM format'),
+  endTime: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, 'Must be HH:MM format'),
   venue: z.string().max(200, 'Venue name too long').optional(),
   isVirtual: z.boolean().default(false),
   meetingLink: z.string().url('Must be a valid URL').optional(),
@@ -161,11 +167,7 @@ export const EventSeriesSchema = EventSeriesBaseSchema.refine(
     path: ['meetingLink'],
   }
 )
-  .refine((data) => {
-    const [startH, startM] = data.startTime.split(':').map(Number);
-    const [endH, endM] = data.endTime.split(':').map(Number);
-    return endH * 60 + endM > startH * 60 + startM;
-  }, {
+  .refine((data) => isAfterTime(data.startTime, data.endTime), {
     message: 'End time must be after start time',
     path: ['endTime'],
   })

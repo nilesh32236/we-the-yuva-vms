@@ -7,7 +7,7 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() }, reconfigureLogger: vi.fn() }));
 
 const { prisma } = await import('@/lib/prisma');
 

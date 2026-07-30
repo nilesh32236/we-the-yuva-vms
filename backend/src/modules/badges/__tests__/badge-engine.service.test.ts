@@ -211,7 +211,7 @@ describe('badge-engine.service', () => {
 
       // Only events met, hours not met
       vi.mocked(prisma.attendance.count).mockResolvedValue(3);
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 5 } as never);
+      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({} as never);
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         totalHours: 5,
         createdAt: new Date(),
@@ -242,7 +242,7 @@ describe('badge-engine.service', () => {
 
       // All three met
       vi.mocked(prisma.attendance.count).mockResolvedValue(5);
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 25 } as never);
+      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({} as never);
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         totalHours: 25,
         createdAt: new Date(),
@@ -272,7 +272,7 @@ describe('badge-engine.service', () => {
       vi.mocked(prisma.badgeApproval.findMany).mockResolvedValue([]);
 
       vi.mocked(prisma.attendance.count).mockResolvedValue(5);
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 25 } as never);
+      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({} as never);
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         totalHours: 25,
         createdAt: new Date(),
@@ -304,7 +304,7 @@ describe('badge-engine.service', () => {
 
       // Only events and hours met, but not mentees
       vi.mocked(prisma.attendance.count).mockResolvedValue(10);
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 60 } as never);
+      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({} as never);
       vi.mocked(prisma.user.findUnique).mockResolvedValue({
         totalHours: 60,
         createdAt: new Date(),

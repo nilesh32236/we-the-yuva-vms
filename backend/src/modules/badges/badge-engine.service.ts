@@ -39,7 +39,7 @@ export async function awardPoints(
 }
 
 interface BatchData {
-  profile: { bio: string | null; totalHours: number; currentStreak: number } | null;
+  profile: { bio: string | null; currentStreak: number } | null;
   attendanceCount: number;
   referralCount: number;
   menteeCount: number;

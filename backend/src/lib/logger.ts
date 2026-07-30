@@ -20,3 +20,11 @@ export const logger = winston.createLogger({
   format: nodeEnv === 'production' ? prodFormat : devFormat,
   transports: [new winston.transports.Console()],
 });
+
+export function reconfigureLogger(envNodeEnv: string) {
+  const format = envNodeEnv === 'production' ? prodFormat : devFormat;
+  logger.configure({
+    level: envNodeEnv === 'production' ? 'info' : 'debug',
+    format,
+  });
+}

@@ -28,7 +28,7 @@ vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }));
 vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
-vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() }, reconfigureLogger: vi.fn() }));
 
 vi.mock('node:crypto', () => ({
   default: { randomBytes: vi.fn(() => Buffer.alloc(32, 0x42)) },

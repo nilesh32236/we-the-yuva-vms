@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ZodError } from 'zod';
 
-vi.mock('@/lib/logger', () => ({ logger: { error: vi.fn(), warn: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { error: vi.fn(), warn: vi.fn() }, reconfigureLogger: vi.fn() }));
 vi.mock('@sentry/node', () => ({
   default: { captureException: vi.fn() },
   captureException: vi.fn(),

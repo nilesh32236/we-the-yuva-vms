@@ -18,6 +18,7 @@ import {
 } from './auth.service';
 
 const isProd = process.env.NODE_ENV === 'production';
+let whyVoluntaryWarningLogged = false;
 
 const ACCESS_COOKIE_OPTIONS = {
   httpOnly: true,
@@ -55,7 +56,8 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       whyVoluntary,
       whyVolunteer,
     } = req.body;
-    if (whyVoluntary !== undefined && whyVolunteer === undefined) {
+    if (whyVoluntary !== undefined && whyVolunteer === undefined && !whyVoluntaryWarningLogged) {
+      whyVoluntaryWarningLogged = true;
       logger.warn('Deprecated field used', { field: 'whyVoluntary', endpoint: 'POST /auth/register' });
     }
     const whyVolunteerFinal = whyVolunteer ?? whyVoluntary;
@@ -85,7 +87,6 @@ export async function register(req: Request, res: Response, next: NextFunction) 
           address,
           ...(referredById && { referredById }),
           callAvailability,
-          whyVoluntary: whyVolunteerFinal,
           whyVolunteer: whyVolunteerFinal,
         },
       })

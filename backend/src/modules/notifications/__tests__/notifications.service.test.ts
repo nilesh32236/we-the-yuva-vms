@@ -15,7 +15,7 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() }, reconfigureLogger: vi.fn() }));
 vi.mock('web-push', () => ({
   default: { sendNotification: vi.fn(), setVapidDetails: vi.fn() },
   sendNotification: vi.fn(),

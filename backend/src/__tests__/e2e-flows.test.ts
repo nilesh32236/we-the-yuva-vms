@@ -152,7 +152,7 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() }, reconfigureLogger: vi.fn() }));
 vi.mock('@/modules/users/users.service', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return { ...actual, getProfileStatus: vi.fn() };

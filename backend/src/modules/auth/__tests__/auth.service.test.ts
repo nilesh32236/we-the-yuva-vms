@@ -21,7 +21,7 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() }, reconfigureLogger: vi.fn() }));
 vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));

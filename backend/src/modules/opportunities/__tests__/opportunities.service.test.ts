@@ -29,7 +29,7 @@ vi.mock('@/lib/redis', () => ({
 vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
-vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() }, reconfigureLogger: vi.fn() }));
 vi.mock('@/modules/users/users.service', () => ({
   getProfileStatus: vi.fn(),
 }));

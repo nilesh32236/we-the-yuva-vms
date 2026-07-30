@@ -305,6 +305,7 @@ model User {
   @@index([referredById])
   @@index([referralCode])
   @@index([points, totalHours])
+  @@index([totalHours])
 }
 
 model VolunteerProfile {

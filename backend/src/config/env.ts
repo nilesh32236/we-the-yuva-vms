@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
-import { logger } from '../lib/logger';
+import { logger, reconfigureLogger } from '../lib/logger';
 
 dotenv.config();
 
@@ -45,6 +45,8 @@ if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PUBLIC_KEY) {
 if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PRIVATE_KEY) {
   logger.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
 }
+
+reconfigureLogger(parsed.data.NODE_ENV);
 
 export const env = parsed.data;
 export type Env = typeof env;
