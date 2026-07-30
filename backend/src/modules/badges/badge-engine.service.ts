@@ -44,7 +44,7 @@ interface BatchData {
   referralCount: number;
   menteeCount: number;
   storyPublishedCount: number;
-  user: { createdAt: Date; currentLevel: { tier: number } | null } | null;
+  user: { createdAt: Date; currentLevel: { tier: number } | null; totalHours: number } | null;
   courseProgressCount: number;
   afterHoursCount: number;
 }
@@ -69,7 +69,7 @@ async function getBatchData(userId: string): Promise<BatchData> {
     prisma.story.count({ where: { userId, published: true } }),
     prisma.user.findUnique({
       where: { id: userId },
-      select: { createdAt: true, currentLevel: { select: { tier: true } } },
+      select: { createdAt: true, currentLevel: { select: { tier: true } }, totalHours: true },
     }),
     prisma.courseProgress.count({
       where: { userId, completed: true, course: { category: 'ORIENTATION' } },
@@ -176,7 +176,7 @@ async function evaluateCriteria(data: BatchData, criteria: BadgeCriteria): Promi
     }
 
     case 'HOURS_LOGGED': {
-      return (data.profile?.totalHours ?? 0) >= (criteria.count ?? 100);
+      return (data.user?.totalHours ?? 0) >= (criteria.count ?? 100);
     }
 
     case 'REFERRALS': {
@@ -218,14 +218,14 @@ async function evaluateCriteria(data: BatchData, criteria: BadgeCriteria): Promi
     case 'INDUCTION': {
       return (
         data.attendanceCount >= criteria.eventsCount &&
-        (data.profile?.totalHours ?? 0) >= criteria.hoursCount
+        (data.user?.totalHours ?? 0) >= criteria.hoursCount
       );
     }
 
     case 'MOBILIZER': {
       return (
         data.attendanceCount >= criteria.eventsCount &&
-        (data.profile?.totalHours ?? 0) >= criteria.hoursCount &&
+        (data.user?.totalHours ?? 0) >= criteria.hoursCount &&
         data.referralCount >= criteria.referralsCount
       );
     }
@@ -233,7 +233,7 @@ async function evaluateCriteria(data: BatchData, criteria: BadgeCriteria): Promi
     case 'LEADER': {
       return (
         data.attendanceCount >= criteria.eventsCount &&
-        (data.profile?.totalHours ?? 0) >= criteria.hoursCount &&
+        (data.user?.totalHours ?? 0) >= criteria.hoursCount &&
         data.menteeCount >= criteria.menteesCount
       );
     }

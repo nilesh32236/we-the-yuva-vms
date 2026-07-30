@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { RecurrenceFrequency } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import type { EventInput } from '@/shared';
+import type { CreateEventInput, EventInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
 import { invalidateCache } from '../leaderboard/leaderboard.service';
 import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
@@ -21,7 +21,7 @@ export async function createEvent(
   coordinatorId: string,
   callerRole: string,
   callerOrgId: string | null | undefined,
-  data: EventInput
+  data: CreateEventInput
 ) {
   const opportunity = await prisma.opportunity.findUnique({
     where: { id: opportunityId },
@@ -446,12 +446,16 @@ export async function markAttendance(
   // Execute all upserts and hour adjustments in a transaction and return count
   const txResults = await prisma.$transaction([
     ...upsertOps,
-    ...hourAdjustments.map((adj) =>
+    ...hourAdjustments.flatMap((adj) => [
       prisma.volunteerProfile.update({
         where: { userId: adj.userId },
         data: { totalHours: { increment: adj.increment } },
-      })
-    ),
+      }),
+      prisma.user.update({
+        where: { id: adj.userId },
+        data: { totalHours: { increment: adj.increment } },
+      }),
+    ]),
     prisma.attendance.count({ where: { eventId, attended: true } }),
   ]);
 
@@ -582,6 +586,10 @@ export async function approveAttendance(
     if (Math.abs(hoursDiff) > 0.01) {
       await tx.volunteerProfile.update({
         where: { userId: volunteerId },
+        data: { totalHours: { increment: hoursDiff } },
+      });
+      await tx.user.update({
+        where: { id: volunteerId },
         data: { totalHours: { increment: hoursDiff } },
       });
     }
@@ -771,7 +779,7 @@ export async function checkOut(
 
   const hoursWorked = Math.min(Math.max(0, rawHours), scheduledHours);
 
-  const [updated] = await prisma.$transaction([
+  const txResult = await prisma.$transaction([
     prisma.attendance.update({
       where: { eventId_volunteerId: { eventId, volunteerId } },
       data: {
@@ -784,7 +792,12 @@ export async function checkOut(
       where: { userId: volunteerId },
       data: { totalHours: { increment: hoursWorked } },
     }),
+    prisma.user.update({
+      where: { id: volunteerId },
+      data: { totalHours: { increment: hoursWorked } },
+    }),
   ]);
+  const updated = txResult[0];
 
   try {
     await onEventCheckOut(volunteerId, eventId, hoursWorked);

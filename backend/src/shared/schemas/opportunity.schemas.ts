@@ -66,50 +66,45 @@ export const UpdateOpportunitySchema = z
     { message: 'End date must be after start date', path: ['endDate'] }
   );
 
-export const CreateEventSchema = z
-  .object({
-    title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
-    description: z.string().max(1000, 'Description too long').optional(),
-    eventDate: z.string().datetime().refine(
-      (val) => new Date(val) > new Date(),
-      { message: 'Event date must be in the future' }
-    ),
-    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    venue: z.string().max(200, 'Venue name too long').optional(),
-    capacity: z.number().int().positive('Capacity must be a positive integer'),
-    isVirtual: z.boolean(),
-    meetingLink: z.string().url('Must be a valid URL').optional(),
-  })
-  .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
-    message: 'Meeting link is required for virtual events',
-    path: ['meetingLink'],
-  })
-  .refine((data) => data.endTime > data.startTime, {
-    message: 'End time must be after start time',
-    path: ['endTime'],
-  });
+const eventBaseFields = {
+  title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
+  description: z.string().max(1000, 'Description too long').optional(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  venue: z.string().max(200, 'Venue name too long').optional(),
+  capacity: z.number().int().positive('Capacity must be a positive integer'),
+  isVirtual: z.boolean(),
+  meetingLink: z.string().url('Must be a valid URL').optional(),
+} as const;
 
-export const EventSchema = z
-  .object({
-    title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
-    description: z.string().max(1000, 'Description too long').optional(),
-    eventDate: z.string().datetime(),
-    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    venue: z.string().max(200, 'Venue name too long').optional(),
-    capacity: z.number().int().positive('Capacity must be a positive integer'),
-    isVirtual: z.boolean(),
-    meetingLink: z.string().url('Must be a valid URL').optional(),
-  })
-  .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
-    message: 'Meeting link is required for virtual events',
-    path: ['meetingLink'],
-  })
-  .refine((data) => data.endTime > data.startTime, {
-    message: 'End time must be after start time',
-    path: ['endTime'],
-  });
+function addEventRefinements<T extends z.ZodRawShape>(shape: T) {
+  return z.object(shape)
+    .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
+      message: 'Meeting link is required for virtual events',
+      path: ['meetingLink'],
+    })
+    .refine((data) => {
+      const [startH, startM] = data.startTime.split(':').map(Number);
+      const [endH, endM] = data.endTime.split(':').map(Number);
+      return endH * 60 + endM > startH * 60 + startM;
+    }, {
+      message: 'End time must be after start time',
+      path: ['endTime'],
+    });
+}
+
+export const CreateEventSchema = addEventRefinements({
+  ...eventBaseFields,
+  eventDate: z.string().datetime().refine(
+    (val) => new Date(val) > new Date(Date.now() - 5000),
+    { message: 'Event date must be in the future' }
+  ),
+});
+
+export const EventSchema = addEventRefinements({
+  ...eventBaseFields,
+  eventDate: z.string().datetime(),
+});
 
 export const ApplySchema = z.object({}).strict();
 

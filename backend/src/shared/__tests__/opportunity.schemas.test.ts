@@ -6,6 +6,7 @@ import {
   AttendanceSchema,
   CheckInSchema,
   CheckOutSchema,
+  CreateEventSchema,
   EventSchema,
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
@@ -70,6 +71,61 @@ describe('opportunity.schemas', () => {
         startDate: '2026-09-01T00:00:00Z',
         endDate: '2026-08-01T00:00:00Z',
       });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('CreateEventSchema', () => {
+    const futureDate = new Date(Date.now() + 86400000).toISOString();
+    const valid = {
+      title: 'Community Cleanup Drive',
+      description: 'Let us clean the neighborhood park',
+      eventDate: futureDate,
+      startTime: '09:00',
+      endTime: '12:00',
+      venue: 'Central Park',
+      capacity: 50,
+      isVirtual: false,
+    } as const;
+
+    it('should accept valid future event', () => {
+      const result = CreateEventSchema.safeParse(valid);
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept virtual event with meetingLink', () => {
+      const result = CreateEventSchema.safeParse({
+        ...valid,
+        isVirtual: true,
+        meetingLink: 'https://meet.example.com/test',
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject past event date', () => {
+      const result = CreateEventSchema.safeParse({
+        ...valid,
+        eventDate: '2020-01-01T00:00:00Z',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject virtual event without meetingLink', () => {
+      const result = CreateEventSchema.safeParse({ ...valid, isVirtual: true });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject end time before start time', () => {
+      const result = CreateEventSchema.safeParse({
+        ...valid,
+        startTime: '14:00',
+        endTime: '09:00',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject non-positive capacity', () => {
+      const result = CreateEventSchema.safeParse({ ...valid, capacity: 0 });
       expect(result.success).toBe(false);
     });
   });

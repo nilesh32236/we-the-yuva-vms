@@ -83,6 +83,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
           ...(referredById && { referredById }),
           callAvailability,
           whyVoluntary: whyVolunteerFinal,
+          whyVolunteer: whyVolunteerFinal,
         },
       })
       .catch((err: unknown) => {

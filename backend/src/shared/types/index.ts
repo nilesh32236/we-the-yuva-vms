@@ -22,6 +22,7 @@ import type {
   AttendanceSchema,
   CheckInSchema,
   CheckOutSchema,
+  CreateEventSchema,
   EventSchema,
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
@@ -54,6 +55,7 @@ export type StaffProfileInput = z.infer<typeof StaffProfileSchema>;
 export type UpdateMeInput = z.infer<typeof UpdateMeSchema>;
 export type OpportunityInput = z.infer<typeof OpportunitySchema>;
 export type EventInput = z.infer<typeof EventSchema>;
+export type CreateEventInput = z.infer<typeof CreateEventSchema>;
 export type ApplicationStatusInput = z.infer<typeof ApplicationStatusSchema>;
 export type AttendanceInput = z.infer<typeof AttendanceSchema>;
 export type AdminCreateUserInput = z.infer<typeof AdminCreateUserSchema>;

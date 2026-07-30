@@ -247,7 +247,8 @@ model User {
 
   // Call availability & motivation
   callAvailability Json?  // { preference, days, startTime, endTime, slots }
-  whyVoluntary   String?  // Max 500 chars
+  whyVoluntary   String?  // @deprecated Use whyVolunteer instead
+  whyVolunteer   String?  // Max 500 chars
 
   // Organization
   organizationId String?
