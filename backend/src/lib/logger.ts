@@ -1,4 +1,7 @@
+import dotenv from 'dotenv';
 import winston from 'winston';
+
+dotenv.config();
 
 const { combine, timestamp, printf, colorize, errors } = winston.format;
 

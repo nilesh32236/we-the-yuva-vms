@@ -9,7 +9,9 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    log: env.NODE_ENV === 'development'
+      ? ['query', { level: 'error', emit: 'event' }, 'warn']
+      : [{ level: 'error', emit: 'event' }],
   });
 
 prisma.$on('error' as Parameters<typeof prisma.$on>[0], (e: { message: string }) => {

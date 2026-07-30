@@ -19,6 +19,7 @@ vi.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       count: vi.fn(),
     },
+    user: { update: vi.fn() },
     volunteerProfile: { update: vi.fn() },
     $transaction: vi.fn(),
   },

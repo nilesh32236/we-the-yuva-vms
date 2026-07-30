@@ -56,9 +56,13 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       whyVoluntary,
       whyVolunteer,
     } = req.body;
-    if (whyVoluntary !== undefined && whyVolunteer === undefined && !whyVoluntaryWarningLogged) {
-      whyVoluntaryWarningLogged = true;
-      logger.warn('Deprecated field used', { field: 'whyVoluntary', endpoint: 'POST /auth/register' });
+    if (whyVoluntary !== undefined && whyVolunteer === undefined) {
+      if (!whyVoluntaryWarningLogged) {
+        whyVoluntaryWarningLogged = true;
+        logger.warn('Deprecated field used', { field: 'whyVoluntary', endpoint: 'POST /auth/register' });
+      } else {
+        logger.debug('Deprecated field used (subsequent)', { field: 'whyVoluntary', endpoint: 'POST /auth/register' });
+      }
     }
     const whyVolunteerFinal = whyVolunteer ?? whyVoluntary;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');

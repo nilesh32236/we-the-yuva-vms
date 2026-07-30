@@ -797,6 +797,9 @@ export async function checkOut(
       data: { totalHours: { increment: hoursWorked } },
     }),
   ]);
+
+  invalidateCache();
+
   const updated = txResult[0];
 
   try {

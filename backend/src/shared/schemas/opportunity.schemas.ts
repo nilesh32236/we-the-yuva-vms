@@ -160,17 +160,35 @@ const EventSeriesBaseSchema = z.object({
   firstEventDate: z.string().datetime().optional(),
 });
 
-export const EventSeriesSchema = EventSeriesBaseSchema.refine(
-  (data) => !data.isVirtual || data.meetingLink !== undefined,
-  {
-    message: 'Meeting link is required for virtual events',
-    path: ['meetingLink'],
-  }
-)
+export const EventSeriesSchema = EventSeriesBaseSchema
+  .refine(
+    (data) => data.isVirtual || !data.meetingLink,
+    {
+      message: 'Meeting link should not be provided for in-person events',
+      path: ['meetingLink'],
+    }
+  )
+  .refine(
+    (data) => !data.isVirtual || data.meetingLink !== undefined,
+    {
+      message: 'Meeting link is required for virtual events',
+      path: ['meetingLink'],
+    }
+  )
   .refine((data) => isAfterTime(data.startTime, data.endTime), {
     message: 'End time must be after start time',
     path: ['endTime'],
   })
+  .refine(
+    (data) => {
+      if (data.firstEventDate) {
+        // 5-second grace period protects against clock drift and rapid form submission delays
+        return new Date(data.firstEventDate) > new Date(Date.now() - 5000);
+      }
+      return true;
+    },
+    { message: 'First event date must be in the future', path: ['firstEventDate'] }
+  )
   .refine(
     (data) => {
       if (data.frequency === 'WEEKLY') {

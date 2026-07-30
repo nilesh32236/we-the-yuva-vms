@@ -29,6 +29,10 @@ const envSchema = z.object({
 
 const parsed = envSchema.safeParse(process.env);
 
+if (parsed.success) {
+  reconfigureLogger(parsed.data.NODE_ENV);
+}
+
 if (!parsed.success) {
   logger.error('❌ Invalid environment variables:');
   const errors = parsed.error.flatten().fieldErrors;
@@ -45,8 +49,6 @@ if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PUBLIC_KEY) {
 if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PRIVATE_KEY) {
   logger.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
 }
-
-reconfigureLogger(parsed.data.NODE_ENV);
 
 export const env = parsed.data;
 export type Env = typeof env;

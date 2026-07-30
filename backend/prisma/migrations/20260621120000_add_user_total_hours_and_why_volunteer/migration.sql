@@ -16,5 +16,8 @@ UPDATE "User"
 SET "whyVolunteer" = "whyVoluntary"
 WHERE "whyVolunteer" IS NULL AND "whyVoluntary" IS NOT NULL;
 
--- Create compound index for leaderboard queries
+-- Create compound index for points-sorted leaderboard queries
 CREATE INDEX IF NOT EXISTS "User_points_totalHours_idx" ON "User"("points", "totalHours");
+
+-- Create standalone index for hours-sorted leaderboard queries
+CREATE INDEX IF NOT EXISTS "User_totalHours_idx" ON "User"("totalHours");
