@@ -1,4 +1,3 @@
-// Phase 2 (future): Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
 import * as Sentry from '@sentry/node';
 import { logger } from './logger';
 

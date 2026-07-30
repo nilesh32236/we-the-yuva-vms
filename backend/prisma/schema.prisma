@@ -256,6 +256,9 @@ model User {
   // Volunteer type
   volunteerType VolunteerType?
 
+  // Denormalized from VolunteerProfile for leaderboard query performance
+  totalHours     Float    @default(0)
+
   // Tier / Level System
   currentLevelId String?
   currentLevel   Level?     @relation(fields: [currentLevelId], references: [id])
@@ -300,6 +303,7 @@ model User {
   @@index([volunteerType])
   @@index([referredById])
   @@index([referralCode])
+  @@index([points, totalHours])
 }
 
 model VolunteerProfile {

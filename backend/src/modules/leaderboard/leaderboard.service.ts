@@ -92,9 +92,10 @@ export async function getLeaderboard(params: {
       id: true,
       name: true,
       points: true,
+      totalHours: true,
       currentLevel: { select: { name: true, badgeIcon: true, color: true } },
       location: { select: { name: true, district: true } },
-      profile: { select: { avatarUrl: true, totalHours: true } },
+      profile: { select: { avatarUrl: true } },
       _count: {
         select: {
           attendances: dateFilter
@@ -103,8 +104,7 @@ export async function getLeaderboard(params: {
         },
       },
     },
-    // TODO: Add composite index on (points, profile.totalHours) for performance — current JOIN is slow at scale
-    orderBy: sortBy === 'points' ? { points: 'desc' } : { profile: { totalHours: 'desc' } },
+    orderBy: sortBy === 'points' ? { points: 'desc' } : { totalHours: 'desc' },
     take: 50,
   });
 
@@ -113,7 +113,7 @@ export async function getLeaderboard(params: {
     id: u.id,
     name: u.name,
     points: u.points,
-    hours: u.profile?.totalHours ?? 0,
+    hours: u.totalHours ?? 0,
     level: u.currentLevel,
     location: u.location,
     avatarUrl: u.profile?.avatarUrl,

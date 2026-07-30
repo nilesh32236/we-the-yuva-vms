@@ -53,8 +53,9 @@ export const RegisterSchema = z.object({
   address: AddressSchema,
   reference: z.string().max(500, 'Reference must be 500 characters or less').optional(),
   callAvailability: CallAvailabilitySchema.optional(),
-  /** @deprecated Field name is a typo of "whyVolunteer". Exposed to external API clients — cannot rename without migration. */
+  /** @deprecated Use `whyVolunteer` instead. Field name is a typo — kept for backward compatibility. Will be removed in a future API version. */
   whyVoluntary: z.string().max(500, 'Must be 500 characters or less').optional(),
+  whyVolunteer: z.string().max(500, 'Must be 500 characters or less').optional(),
 });
 
 export const SendOtpSchema = z.object({

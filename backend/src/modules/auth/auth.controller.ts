@@ -53,7 +53,9 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       reference,
       callAvailability,
       whyVoluntary,
+      whyVolunteer,
     } = req.body;
+    const whyVolunteerFinal = whyVolunteer ?? whyVoluntary;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
     const roleName = role ?? 'VOLUNTEER';
@@ -80,7 +82,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
           address,
           ...(referredById && { referredById }),
           callAvailability,
-          whyVoluntary,
+          whyVoluntary: whyVolunteerFinal,
         },
       })
       .catch((err: unknown) => {

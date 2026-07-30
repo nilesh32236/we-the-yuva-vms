@@ -1,7 +1,5 @@
-// Phase 2 (future): Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
-// See /issues/PHASE2_SCOPE.md
 import { type IRouter, Router } from 'express';
-import { AlertSubscriptionSchema, AlertSubscriptionUpdateSchema } from '@/shared';
+import { AlertSubscriptionSchema, AlertSubscriptionUpdateSchema } from '../../shared/schemas/alerts.schemas';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';

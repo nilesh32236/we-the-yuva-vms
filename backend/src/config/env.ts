@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import { logger } from '../lib/logger';
 
 dotenv.config();
 
@@ -29,20 +30,20 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('❌ Invalid environment variables:');
+  logger.error('❌ Invalid environment variables:');
   const errors = parsed.error.flatten().fieldErrors;
   Object.entries(errors).forEach(([key, messages]) => {
-    console.error(`  ${key}: ${messages?.join(', ')}`);
+    logger.error(`  ${key}: ${messages?.join(', ')}`);
   });
   process.exit(1);
 }
 
 if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PUBLIC_KEY) {
-  console.warn('⚠️  VAPID_PUBLIC_KEY is empty — web push notifications will fail at runtime');
+  logger.warn('⚠️  VAPID_PUBLIC_KEY is empty — web push notifications will fail at runtime');
 }
 
 if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PRIVATE_KEY) {
-  console.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
+  logger.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
 }
 
 export const env = parsed.data;

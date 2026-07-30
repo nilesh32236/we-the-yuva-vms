@@ -12,7 +12,7 @@ export const prisma =
     log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
-prisma.$on('error' as never, (e: { message: string }) => {
+prisma.$on('error' as Parameters<typeof prisma.$on>[0], (e: { message: string }) => {
   logger.error('Prisma client error', { error: e.message });
 });
 

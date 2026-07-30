@@ -4,10 +4,11 @@ import {
   AttendanceSchema,
   CheckInSchema,
   CheckOutSchema,
+  CreateEventSchema,
   EventSchema,
   EventSeriesSchema,
   EventSeriesUpdateSchema,
-} from '@/shared';
+} from '../../shared/schemas/opportunity.schemas';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -80,7 +81,7 @@ opportunityEventsRouter.post(
   '/',
   requireAuth,
   requirePermission(Permissions.EVENT_CREATE),
-  validate(EventSchema),
+  validate(CreateEventSchema),
   createEventHandler
 );
 

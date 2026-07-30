@@ -1,5 +1,3 @@
-// Phase 2 (future): Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
-// See /issues/PHASE2_SCOPE.md
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 

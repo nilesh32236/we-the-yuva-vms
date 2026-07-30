@@ -66,12 +66,34 @@ export const UpdateOpportunitySchema = z
     { message: 'End date must be after start date', path: ['endDate'] }
   );
 
+export const CreateEventSchema = z
+  .object({
+    title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
+    description: z.string().max(1000, 'Description too long').optional(),
+    eventDate: z.string().datetime().refine(
+      (val) => new Date(val) > new Date(),
+      { message: 'Event date must be in the future' }
+    ),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+    venue: z.string().max(200, 'Venue name too long').optional(),
+    capacity: z.number().int().positive('Capacity must be a positive integer'),
+    isVirtual: z.boolean(),
+    meetingLink: z.string().url('Must be a valid URL').optional(),
+  })
+  .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
+    message: 'Meeting link is required for virtual events',
+    path: ['meetingLink'],
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: 'End time must be after start time',
+    path: ['endTime'],
+  });
+
 export const EventSchema = z
   .object({
     title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
     description: z.string().max(1000, 'Description too long').optional(),
-    // TODO: add future-date validation only for CREATE in production
-    // Currently relaxed for editing existing records
     eventDate: z.string().datetime(),
     startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),

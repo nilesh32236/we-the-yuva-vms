@@ -1,6 +1,6 @@
 import { type IRouter, Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { ConsentSchema, RegisterSchema, SendOtpSchema, VerifyOtpSchema } from '@/shared';
+import { ConsentSchema, RegisterSchema, SendOtpSchema, VerifyOtpSchema } from '../../shared/schemas/auth.schemas';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
 import {
