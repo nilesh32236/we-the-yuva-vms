@@ -6,11 +6,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
-import { api } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
+import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
 
 interface DocItem {
   file: File;
@@ -378,15 +378,16 @@ export default function RegisterOrganizationPage() {
                       </div>
                       {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
                     </div>
-                    <button
+                    <Button
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
+                      variant="ghost-destructive"
+                      size="sm"
                       onClick={() =>
                         removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'))
                       }
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 );
               })()}
@@ -420,13 +421,14 @@ export default function RegisterOrganizationPage() {
                       </div>
                       {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
                     </div>
-                    <button
+                    <Button
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
+                      variant="ghost-destructive"
+                      size="sm"
                       onClick={() => removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'))}
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 );
               })()}
@@ -459,13 +461,14 @@ export default function RegisterOrganizationPage() {
                       </div>
                       {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
                     </div>
-                    <button
+                    <Button
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
+                      variant="ghost-destructive"
+                      size="sm"
                       onClick={() => removeDoc(docs.findIndex((x) => x.type === 'OTHER'))}
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 );
               })()}

@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
+import { type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
-import { api } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
+import { api } from '../../../lib/api';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 type AvailabilityPref = 'anytime' | 'specific_days' | 'custom';
@@ -196,13 +196,9 @@ function CallAvailabilityInput({
               </Button>
             </div>
           ))}
-          <button
-            type="button"
-            onClick={addSlot}
-            className="text-xs text-brand-primary hover:underline cursor-pointer"
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={addSlot}>
             + Add time slot
-          </button>
+          </Button>
         </div>
       )}
 
@@ -266,7 +262,8 @@ export default function RegisterPage() {
         description: 'Check your email for the verification code.',
       });
       const otpRes = await api.post('/auth/send-otp', { email: data.email });
-      if (otpRes.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') sessionStorage.setItem('devOtp', otpRes.data.devOtp);
+      if (otpRes.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true')
+        sessionStorage.setItem('devOtp', otpRes.data.devOtp);
       sessionStorage.setItem('verifyEmail', data.email);
       router.push('/verify-otp');
     } catch (error) {

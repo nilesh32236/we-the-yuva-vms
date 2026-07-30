@@ -1,13 +1,13 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Pagination } from '@/components/shared/Pagination';
 import { UserTable } from '@/components/admin/UserTable';
+import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
@@ -90,14 +90,9 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           <h2 id="create-user-title" className="font-heading font-bold text-lg text-brand-text">
             Create User
           </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close dialog"
-            className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
-          >
-            <X className="w-4 h-4 text-brand-muted" />
-          </button>
+          <Button type="button" variant="icon" onClick={onClose} aria-label="Close dialog">
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit(handleCreateUser)}>
