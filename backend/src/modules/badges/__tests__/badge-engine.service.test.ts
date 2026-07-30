@@ -13,6 +13,7 @@ vi.mock('@/lib/prisma', () => ({
     story: { count: vi.fn() },
     pointTransaction: { create: vi.fn() },
     $transaction: vi.fn(),
+    $queryRaw: vi.fn().mockResolvedValue([{ count: 0n }]),
   },
 }));
 
@@ -211,6 +212,11 @@ describe('badge-engine.service', () => {
       // Only events met, hours not met
       vi.mocked(prisma.attendance.count).mockResolvedValue(3);
       vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 5 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        totalHours: 5,
+        createdAt: new Date(),
+        currentLevel: null,
+      } as never);
 
       const result = await checkAndAwardBadges(userId);
       expect(result).toHaveLength(0);
@@ -237,6 +243,11 @@ describe('badge-engine.service', () => {
       // All three met
       vi.mocked(prisma.attendance.count).mockResolvedValue(5);
       vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 25 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        totalHours: 25,
+        createdAt: new Date(),
+        currentLevel: null,
+      } as never);
       vi.mocked(prisma.user.count).mockResolvedValue(3);
 
       const result = await checkAndAwardBadges(userId);
@@ -262,6 +273,11 @@ describe('badge-engine.service', () => {
 
       vi.mocked(prisma.attendance.count).mockResolvedValue(5);
       vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 25 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        totalHours: 25,
+        createdAt: new Date(),
+        currentLevel: null,
+      } as never);
       vi.mocked(prisma.user.count).mockResolvedValue(1); // referrals not met
 
       const result = await checkAndAwardBadges(userId);
@@ -289,6 +305,11 @@ describe('badge-engine.service', () => {
       // Only events and hours met, but not mentees
       vi.mocked(prisma.attendance.count).mockResolvedValue(10);
       vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 60 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        totalHours: 60,
+        createdAt: new Date(),
+        currentLevel: null,
+      } as never);
       vi.mocked(prisma.mentorship.count).mockResolvedValue(1);
 
       const result = await checkAndAwardBadges(userId);

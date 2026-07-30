@@ -55,6 +55,9 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       whyVoluntary,
       whyVolunteer,
     } = req.body;
+    if (whyVoluntary !== undefined && whyVolunteer === undefined) {
+      logger.warn('Deprecated field used', { field: 'whyVoluntary', endpoint: 'POST /auth/register' });
+    }
     const whyVolunteerFinal = whyVolunteer ?? whyVoluntary;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 

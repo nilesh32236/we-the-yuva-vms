@@ -96,6 +96,7 @@ function addEventRefinements<T extends z.ZodRawShape>(shape: T) {
 export const CreateEventSchema = addEventRefinements({
   ...eventBaseFields,
   eventDate: z.string().datetime().refine(
+    // 5-second grace period protects against clock drift and rapid form submission delays
     (val) => new Date(val) > new Date(Date.now() - 5000),
     { message: 'Event date must be in the future' }
   ),
@@ -103,6 +104,7 @@ export const CreateEventSchema = addEventRefinements({
 
 export const EventSchema = addEventRefinements({
   ...eventBaseFields,
+  // No future-date requirement for updates — admins may backdate events
   eventDate: z.string().datetime(),
 });
 
@@ -159,7 +161,11 @@ export const EventSeriesSchema = EventSeriesBaseSchema.refine(
     path: ['meetingLink'],
   }
 )
-  .refine((data) => data.endTime > data.startTime, {
+  .refine((data) => {
+    const [startH, startM] = data.startTime.split(':').map(Number);
+    const [endH, endM] = data.endTime.split(':').map(Number);
+    return endH * 60 + endM > startH * 60 + startM;
+  }, {
     message: 'End time must be after start time',
     path: ['endTime'],
   })

@@ -53,7 +53,7 @@ export const RegisterSchema = z.object({
   address: AddressSchema,
   reference: z.string().max(500, 'Reference must be 500 characters or less').optional(),
   callAvailability: CallAvailabilitySchema.optional(),
-  /** @deprecated Use `whyVolunteer` instead. Will be removed in a future API version. */
+  /** @deprecated Use whyVolunteer instead */
   whyVoluntary: z.string().max(500, 'Must be 500 characters or less').optional(),
   whyVolunteer: z.string().max(500, 'Must be 500 characters or less').optional(),
 });

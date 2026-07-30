@@ -263,7 +263,8 @@ describe('users.service', () => {
           name: 'Vol',
           email: 'v@t.com',
           volunteerType: 'STUDENT',
-          profile: { skills: ['Teaching'], totalHours: 10 },
+          totalHours: 10,
+          profile: { skills: ['Teaching'] },
           _count: { applications: 3 },
         },
       ] as never);

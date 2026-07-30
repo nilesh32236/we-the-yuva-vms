@@ -309,6 +309,7 @@ async function main() {
         roleId: roleByName.VOLUNTEER,
         volunteerType: 'STUDENT',
         status: 'ACTIVE',
+        totalHours: 12,
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
           create: {
@@ -330,6 +331,7 @@ async function main() {
         roleId: roleByName.VOLUNTEER,
         volunteerType: 'PROFESSIONAL',
         status: 'ACTIVE',
+        totalHours: 8,
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
           create: {
@@ -351,6 +353,7 @@ async function main() {
         roleId: roleByName.VOLUNTEER,
         volunteerType: 'PROFESSIONAL',
         status: 'ACTIVE',
+        totalHours: 20,
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
           create: {
@@ -372,6 +375,7 @@ async function main() {
         roleId: roleByName.VOLUNTEER,
         volunteerType: 'EVENT',
         status: 'ACTIVE',
+        totalHours: 5,
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
           create: {

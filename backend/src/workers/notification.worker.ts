@@ -842,7 +842,7 @@ if (redis && notificationsQueue) {
         ] = await Promise.all([
           prisma.user.count(),
           prisma.user.count({ where: { roleRef: { name: 'VOLUNTEER' }, status: 'ACTIVE' } }),
-          prisma.volunteerProfile.aggregate({ _sum: { totalHours: true } }),
+          prisma.user.aggregate({ _sum: { totalHours: true } }),
           prisma.opportunity.count({ where: { status: 'ACTIVE' } }),
           prisma.event.count({ where: { status: 'SCHEDULED', eventDate: { gte: new Date() } } }),
         ]);

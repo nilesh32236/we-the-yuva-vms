@@ -7,7 +7,7 @@ vi.mock('@/lib/prisma', () => ({
     application: { count: vi.fn(), findMany: vi.fn() },
     event: { count: vi.fn() },
     opportunity: { count: vi.fn() },
-    user: { count: vi.fn() },
+    user: { count: vi.fn(), findUnique: vi.fn(), aggregate: vi.fn() },
     organization: { count: vi.fn(), groupBy: vi.fn() },
     story: { count: vi.fn() },
     eventFeedback: { count: vi.fn() },
@@ -32,7 +32,7 @@ describe('stats.service', () => {
 
   describe('getVolunteerStats', () => {
     it('should return aggregated stats', async () => {
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 25 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ totalHours: 25 } as never);
       vi.mocked(prisma.attendance.count).mockResolvedValue(10);
       vi.mocked(prisma.attendance.aggregate).mockResolvedValue({ _avg: { rating: 4.2 } } as never);
       vi.mocked(prisma.application.count).mockResolvedValue(5);
@@ -72,7 +72,7 @@ describe('stats.service', () => {
   describe('getAdminStats', () => {
     it('should return admin dashboard stats', async () => {
       vi.mocked(prisma.user.count).mockResolvedValueOnce(100).mockResolvedValueOnce(50);
-      vi.mocked(prisma.volunteerProfile.aggregate).mockResolvedValue({
+      vi.mocked(prisma.user.aggregate).mockResolvedValue({
         _sum: { totalHours: 500 },
       } as never);
       vi.mocked(prisma.organization.groupBy).mockResolvedValue([
@@ -105,7 +105,7 @@ describe('stats.service', () => {
 
   describe('getVolunteerImpactData', () => {
     it('should return impact data with monthly/category breakdown', async () => {
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 50 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ totalHours: 50 } as never);
       vi.mocked(prisma.application.count).mockResolvedValue(10);
       vi.mocked(prisma.attendance.findMany).mockResolvedValue([]);
       vi.mocked(prisma.story.count).mockResolvedValue(3);
@@ -119,7 +119,7 @@ describe('stats.service', () => {
     it('should calculate hours from checkedInAt/checkedOutAt', async () => {
       const now = new Date();
       const twoHoursAgo = new Date(now.getTime() - 7200000);
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 0 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ totalHours: 0 } as never);
       vi.mocked(prisma.application.count).mockResolvedValue(0);
       vi.mocked(prisma.attendance.findMany).mockResolvedValue([
         {
@@ -138,7 +138,7 @@ describe('stats.service', () => {
 
     it('should fall back to hoursPerSession when no check-in/out', async () => {
       const now = new Date();
-      vi.mocked(prisma.volunteerProfile.findUnique).mockResolvedValue({ totalHours: 0 } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ totalHours: 0 } as never);
       vi.mocked(prisma.application.count).mockResolvedValue(0);
       vi.mocked(prisma.attendance.findMany).mockResolvedValue([
         {
@@ -159,7 +159,7 @@ describe('stats.service', () => {
   describe('getObserverStats', () => {
     it('should return observer-level stats', async () => {
       vi.mocked(prisma.user.count).mockResolvedValue(100);
-      vi.mocked(prisma.volunteerProfile.aggregate).mockResolvedValue({
+      vi.mocked(prisma.user.aggregate).mockResolvedValue({
         _sum: { totalHours: 500 },
       } as never);
       vi.mocked(prisma.event.count).mockResolvedValue(10);

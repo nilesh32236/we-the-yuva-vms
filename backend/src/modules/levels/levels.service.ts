@@ -46,9 +46,10 @@ export async function getMyLevel(userId: string) {
     where: { id: userId },
     select: {
       points: true,
+      totalHours: true,
       currentLevelId: true,
       currentLevel: true,
-      profile: { select: { currentStreak: true, longestStreak: true, totalHours: true } },
+      profile: { select: { currentStreak: true, longestStreak: true } },
     },
   });
   if (!user) throw new AppError('User not found', 404);
@@ -60,7 +61,7 @@ export async function getMyLevel(userId: string) {
     points: user.points,
     streak: user.profile?.currentStreak ?? 0,
     longestStreak: user.profile?.longestStreak ?? 0,
-    totalHours: user.profile?.totalHours ?? 0,
+    totalHours: user.totalHours ?? 0,
     allLevels,
   };
 }
@@ -68,7 +69,7 @@ export async function getMyLevel(userId: string) {
 export async function getMyProgress(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { currentLevelId: true, points: true, profile: true },
+    select: { currentLevelId: true, points: true, totalHours: true, profile: { select: { avatarUrl: true } } },
   });
   if (!user) throw new AppError('User not found', 404);
 
@@ -88,7 +89,7 @@ export async function getMyProgress(userId: string) {
       where: { userId, published: true },
     }),
   ]);
-  const totalHours = user.profile?.totalHours ?? 0;
+  const totalHours = user.totalHours ?? 0;
 
   return {
     currentLevel: currentTier,

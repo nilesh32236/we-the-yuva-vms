@@ -27,6 +27,7 @@ export async function getUserProfile(
         status: true,
         locationId: true,
         volunteerType: true,
+        totalHours: true,
         createdAt: true,
         updatedAt: true,
         profile: {
@@ -36,7 +37,6 @@ export async function getUserProfile(
             skills: true,
             interests: true,
             availability: true,
-            totalHours: true,
             currentStreak: true,
             longestStreak: true,
             avatarUrl: true,
@@ -71,34 +71,34 @@ export async function getUserProfile(
         },
       ],
     },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      roleRef: { select: { name: true } },
-      organizationId: true,
-      status: true,
-      locationId: true,
-      volunteerType: true,
-      createdAt: true,
-      updatedAt: true,
-      profile: {
-        select: {
-          id: true,
-          bio: true,
-          skills: true,
-          interests: true,
-          availability: true,
-          totalHours: true,
-          currentStreak: true,
-          longestStreak: true,
-          avatarUrl: true,
-          education: true,
-          details: true,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        roleRef: { select: { name: true } },
+        organizationId: true,
+        status: true,
+        locationId: true,
+        volunteerType: true,
+        totalHours: true,
+        createdAt: true,
+        updatedAt: true,
+        profile: {
+          select: {
+            id: true,
+            bio: true,
+            skills: true,
+            interests: true,
+            availability: true,
+            currentStreak: true,
+            longestStreak: true,
+            avatarUrl: true,
+            education: true,
+            details: true,
+          },
         },
+        location: true,
       },
-      location: true,
-    },
   });
 
   if (!user) {
@@ -159,7 +159,8 @@ export async function getCoordinatorVolunteers(
         name: true,
         email: true,
         volunteerType: true,
-        profile: { select: { skills: true, totalHours: true } },
+        totalHours: true,
+        profile: { select: { skills: true } },
         _count: {
           select: {
             applications: {
@@ -206,7 +207,8 @@ export async function exportCoordinatorVolunteers(
       name: true,
       email: true,
       volunteerType: true,
-      profile: { select: { skills: true, totalHours: true } },
+      totalHours: true,
+      profile: { select: { skills: true } },
       _count: {
         select: {
           applications: {
@@ -222,7 +224,7 @@ export async function exportCoordinatorVolunteers(
     email: u.email ?? '',
     type: u.volunteerType ?? '—',
     skills: u.profile?.skills ?? [],
-    totalHours: u.profile?.totalHours ?? 0,
+    totalHours: u.totalHours ?? 0,
     applicationCount: u._count.applications,
   }));
 }

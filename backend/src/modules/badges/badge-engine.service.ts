@@ -61,7 +61,7 @@ async function getBatchData(userId: string): Promise<BatchData> {
   ] = await Promise.all([
     prisma.volunteerProfile.findUnique({
       where: { userId },
-      select: { bio: true, totalHours: true, currentStreak: true },
+      select: { bio: true, currentStreak: true },
     }),
     prisma.attendance.count({ where: { volunteerId: userId, attended: true } }),
     prisma.user.count({ where: { referredById: userId } }),

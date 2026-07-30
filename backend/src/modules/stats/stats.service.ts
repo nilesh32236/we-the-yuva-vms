@@ -1,9 +1,9 @@
 import { prisma } from '../../lib/prisma';
 
 export async function getVolunteerStats(volunteerId: string) {
-  const [profile, eventsAttended, applications, avgRating] = await Promise.all([
-    prisma.volunteerProfile.findUnique({
-      where: { userId: volunteerId },
+  const [userData, eventsAttended, applications, avgRating] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: volunteerId },
       select: { totalHours: true },
     }),
     prisma.attendance.count({ where: { volunteerId, attended: true } }),
@@ -15,7 +15,7 @@ export async function getVolunteerStats(volunteerId: string) {
   ]);
 
   return {
-    totalHours: profile?.totalHours ?? 0,
+    totalHours: userData?.totalHours ?? 0,
     eventsAttended,
     applications,
     avgRating: avgRating._avg.rating ?? null,
@@ -64,7 +64,7 @@ export async function getAdminStats() {
   const [totalUsers, activeVolunteers, totalHoursResult, orgStats] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { roleRef: { name: 'VOLUNTEER' }, status: 'ACTIVE' } }),
-    prisma.volunteerProfile.aggregate({ _sum: { totalHours: true } }),
+    prisma.user.aggregate({ _sum: { totalHours: true } }),
     prisma.organization.groupBy({
       by: ['status'],
       _count: true,
@@ -104,9 +104,9 @@ export async function getVolunteerImpactData(volunteerId: string) {
 
   const now = new Date();
 
-  const [profile, applications, attendances, storiesCount, feedbackCount] = await Promise.all([
-    prisma.volunteerProfile.findUnique({
-      where: { userId: volunteerId },
+  const [userData, applications, attendances, storiesCount, feedbackCount] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: volunteerId },
       select: { totalHours: true },
     }),
     prisma.application.count({ where: { volunteerId } }),
@@ -173,7 +173,7 @@ export async function getVolunteerImpactData(volunteerId: string) {
   const eventsAttended = attendances.length;
 
   return {
-    totalHours: profile?.totalHours ?? 0,
+    totalHours: userData?.totalHours ?? 0,
     eventsAttended,
     applications,
     storiesCount,
@@ -187,7 +187,7 @@ export async function getVolunteerImpactData(volunteerId: string) {
 export async function getObserverStats() {
   const [totalVolunteers, totalHoursResult, activeEvents] = await Promise.all([
     prisma.user.count({ where: { roleRef: { name: 'VOLUNTEER' }, status: 'ACTIVE' } }),
-    prisma.volunteerProfile.aggregate({ _sum: { totalHours: true } }),
+    prisma.user.aggregate({ _sum: { totalHours: true } }),
     prisma.event.count({
       where: { eventDate: { gte: new Date() }, status: 'SCHEDULED' },
     }),
