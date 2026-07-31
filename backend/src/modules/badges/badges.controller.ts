@@ -34,12 +34,13 @@ export async function getMyBadgesHandler(
 }
 
 export async function listPendingApprovalsHandler(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const approvals = await listPendingApprovals();
+    const search = typeof req.query.search === 'string' ? req.query.search : undefined;
+    const approvals = await listPendingApprovals(search);
     res.status(200).json({ data: approvals });
   } catch (err) {
     next(err);

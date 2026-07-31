@@ -17,6 +17,7 @@
   --color-brand-error: var(--clr-brand-error);
   --color-brand-surface: var(--clr-brand-surface);
   --color-brand-border: var(--clr-brand-border);
+  --color-brand-overlay: var(--clr-brand-overlay);
 
   /* shadcn/ui CSS variables mapped to Tailwind v4 */
   --color-background: var(--clr-background);
@@ -81,6 +82,7 @@
   --clr-brand-error: #dc2626;
   --clr-brand-surface: #ffffff;
   --clr-brand-border: #b4d4c2;
+  --clr-brand-overlay: #0f172a;
 
   --clr-background: #ffffff;
   --clr-foreground: #065f46;
@@ -124,6 +126,7 @@
   --clr-brand-error: #f87171;
   --clr-brand-surface: #1a2332;
   --clr-brand-border: #3a4a6a;
+  --clr-brand-overlay: #000000;
 
   --clr-background: #0c1222;
   --clr-foreground: #e2e8f0;

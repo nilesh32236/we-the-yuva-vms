@@ -37,11 +37,14 @@ export function StatsCard({
             className={`flex items-center gap-1 mt-1 text-xs font-medium ${trend.value >= 0 ? 'text-brand-primary' : 'text-brand-error'}`}
           >
             {trend.value >= 0 ? (
-              <TrendingUp className="w-3 h-3" />
+              <TrendingUp className="w-3 h-3" aria-hidden="true" />
             ) : (
-              <TrendingDown className="w-3 h-3" />
+              <TrendingDown className="w-3 h-3" aria-hidden="true" />
             )}
-            <span>{trend.label}</span>
+            <span aria-hidden="true">{trend.label}</span>
+            <span className="sr-only">
+              {trend.value >= 0 ? 'up' : 'down'} {Math.abs(trend.value)}%
+            </span>
           </div>
         )}
       </div>

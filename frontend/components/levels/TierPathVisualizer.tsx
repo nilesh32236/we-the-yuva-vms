@@ -44,6 +44,7 @@ function calcCompletion(levels: TierInfo[], currentLevelId?: string | null): num
     (l) => l.tier.toString() === currentLevelId || l.name === currentLevelId
   );
   if (idx === -1) return 0;
+  if (levels.length <= 1) return 0;
   return Math.round((idx / (levels.length - 1)) * 100);
 }
 

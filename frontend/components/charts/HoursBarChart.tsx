@@ -14,7 +14,12 @@ export function HoursBarChart({ data }: HoursBarChartProps) {
 
   return (
     <div>
-      <ResponsiveContainer width="100%" height={240} aria-label="Hours served by month bar chart">
+      <ResponsiveContainer
+        width="100%"
+        height={240}
+        role="img"
+        aria-label="Hours served by month bar chart"
+      >
         <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-8)" strokeOpacity={0.3} />
           <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--color-chart-8)' }} />

@@ -17,19 +17,19 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
 
   const toggleCauses = (val: string) => {
     const next = causes.includes(val) ? causes.filter((v) => v !== val) : [...causes, val];
-    setValue('step2.causes', next as never, { shouldValidate: true });
+    setValue('step2.causes', next, { shouldValidate: true });
   };
 
   const toggleInterests = (val: string) => {
     const next = interests.includes(val) ? interests.filter((v) => v !== val) : [...interests, val];
-    setValue('step2.interests', next as never, { shouldValidate: true });
+    setValue('step2.interests', next, { shouldValidate: true });
   };
 
   const toggleActivities = (val: string) => {
     const next = preferredActivities.includes(val)
       ? preferredActivities.filter((v) => v !== val)
       : [...preferredActivities, val];
-    setValue('step2.preferredActivities', next as never, { shouldValidate: true });
+    setValue('step2.preferredActivities', next, { shouldValidate: true });
   };
 
   return (
@@ -38,8 +38,10 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
       <p className="text-brand-muted text-sm -mt-3">What matters most to you?</p>
 
       <div className="space-y-5">
-        <div className="space-y-2">
-          <span className="text-sm font-medium text-brand-text">Causes You Care About *</span>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-brand-text">
+            Causes You Care About <span className="sr-only">(required)</span>
+          </legend>
           <p className="text-xs text-brand-muted">Select the causes you're passionate about</p>
           <ChipSelect
             options={CAUSES}
@@ -58,10 +60,10 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
             }}
             error={errors.step2?.causes?.message}
           />
-        </div>
+        </fieldset>
 
-        <div className="space-y-2">
-          <span className="text-sm font-medium text-brand-text">Interest Areas</span>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-brand-text">Interest Areas</legend>
           <p className="text-xs text-brand-muted">What specific areas interest you? (optional)</p>
           <ChipSelect
             options={INTEREST_OPTIONS}
@@ -82,10 +84,10 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
               RURAL_DEVELOPMENT: 'Rural Development',
             }}
           />
-        </div>
+        </fieldset>
 
-        <div className="space-y-2">
-          <span className="text-sm font-medium text-brand-text">Preferred Activities</span>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-brand-text">Preferred Activities</legend>
           <p className="text-xs text-brand-muted">
             What kind of activities do you enjoy? (optional)
           </p>
@@ -108,7 +110,7 @@ export function StepInterests({ setValue, watch, errors }: StepInterestsProps) {
               RESEARCH: 'Research',
             }}
           />
-        </div>
+        </fieldset>
       </div>
     </>
   );

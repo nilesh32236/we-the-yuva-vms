@@ -30,7 +30,9 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
     [data]
   );
 
-  if (!data?.length)
+  const total = chartData.reduce((sum, d) => sum + d.value, 0);
+
+  if (!data?.length || total === 0)
     return <p className="text-center text-brand-muted text-sm py-8">No data available</p>;
 
   return (

@@ -52,8 +52,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
     mutationFn: (body: RegisterOrganizationInput & { logo?: string }) =>
       api.patch(`/organizations/${org.id}`, body),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['organizations', org.id] });
-      qc.invalidateQueries({ queryKey: ['my-profile'] });
+      qc.invalidateQueries({ queryKey: ['organization', org.id] });
       toast({ title: 'Organization profile updated successfully' });
       onCancel();
     },

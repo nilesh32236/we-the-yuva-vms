@@ -134,7 +134,8 @@ export function StepEducation({ register, setValue, watch, errors }: StepEducati
             <button
               type="button"
               onClick={addCertification}
-              className="px-4 py-3 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+              disabled={!certInput.trim() || certifications.includes(certInput.trim())}
+              className="px-4 py-3 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
             >
               Add
             </button>

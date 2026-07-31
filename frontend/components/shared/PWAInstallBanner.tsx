@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { Bell, Download, Sparkles, WifiOff, X } from 'lucide-react';
+import * as Sentry from '@sentry/nextjs';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { haptic } from '@/lib/haptic';
 
@@ -40,7 +41,8 @@ export function PWAInstallBanner() {
       if (success) {
         setDismissed(true);
       }
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
     } finally {
       setInstalling(false);
     }

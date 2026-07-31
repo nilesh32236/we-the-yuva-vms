@@ -7,7 +7,7 @@ export function CTA() {
   const { ref, inView } = useInView(0.2);
 
   return (
-    <section className="bg-brand-primary py-20 sm:py-28 dark:bg-brand-primary">
+    <section className="bg-brand-primary py-20 sm:py-28">
       <div
         ref={ref}
         className={`mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8 motion-safe:transition-opacity motion-safe:duration-700 ${
@@ -26,7 +26,7 @@ export function CTA() {
             Create free account
           </Link>
           <Link
-            href="/register"
+            href="/register-organization"
             className="active-bounce rounded-xl border border-white/40 px-7 py-3 font-semibold text-white transition-colors duration-200 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none"
           >
             Register organisation

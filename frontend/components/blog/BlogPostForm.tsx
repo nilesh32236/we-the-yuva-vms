@@ -7,6 +7,7 @@ import { CreateBlogPostSchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission } from '@/lib/shared/permissions';
+import { sanitizeRichContent } from '@/lib/sanitize';
 import dynamic from 'next/dynamic';
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor').then((m) => m.RichTextEditor), {
@@ -96,7 +97,7 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save', re
           <RichTextEditor
             content={contentValue}
             onChange={(html) => {
-              setValue('content', html, { shouldValidate: true });
+              setValue('content', sanitizeRichContent(html), { shouldValidate: true });
               trigger('content');
             }}
           />

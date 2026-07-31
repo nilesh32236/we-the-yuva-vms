@@ -34,6 +34,8 @@ interface EventCardProps {
 const EventCard = memo(function EventCard({ event, showAttendance }: EventCardProps) {
   const date = new Date(event.eventDate);
   const isPast = !Number.isNaN(date.getTime()) && date < new Date();
+  const validMeetingLink = !!event.meetingLink && /^https?:\/\//i.test(event.meetingLink);
+  const hasValidDate = !Number.isNaN(date.getTime());
 
   return (
     <div
@@ -71,12 +73,14 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-brand-muted">
         <span className="flex items-center gap-1">
           <Calendar className="w-3 h-3" aria-hidden="true" />
-          {date.toLocaleDateString('en-IN', {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          })}
+          {hasValidDate
+            ? date.toLocaleDateString('en-IN', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })
+            : '—'}
         </span>
         <span className="flex items-center gap-1">
           <Clock className="w-3 h-3" aria-hidden="true" />
@@ -101,9 +105,9 @@ const EventCard = memo(function EventCard({ event, showAttendance }: EventCardPr
         )}
       </div>
 
-      {event.isVirtual && event.meetingLink && !isPast && (
+      {event.isVirtual && validMeetingLink && !isPast && (
         <a
-          href={event.meetingLink}
+          href={event.meetingLink ?? undefined}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-brand-primary hover:underline cursor-pointer"

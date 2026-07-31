@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Button } from '../ui/Button';
 
 interface Endorsement {
-  userId: string;
   name: string;
   statement: string;
 }
@@ -23,7 +22,6 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
   function addEndorsement() {
     if (!newName.trim() || !newStatement.trim()) return;
     const endorsement: Endorsement = {
-      userId: `peer-${Date.now()}`,
       name: newName.trim(),
       statement: newStatement.trim(),
     };
@@ -45,7 +43,7 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
         <ul className="space-y-2" aria-label="Added endorsements">
           {endorsements.map((end, index) => (
             <li
-              key={end.userId}
+              key={`${end.name}-${index}`}
               className="flex items-start gap-3 p-3 rounded-xl bg-brand-bg border border-brand-border"
             >
               <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center flex-shrink-0">

@@ -76,6 +76,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
     mutationFn: (body: object) => api.post(`/events/${event.id}/checkin`, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-events'] });
+      qc.invalidateQueries({ queryKey: ['my-points-history'] });
       toast({ title: 'Checked in!', description: 'Your check-in has been recorded.' });
     },
     onError: (e: { response?: { data?: { error?: string } } }) =>
@@ -90,6 +91,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
     mutationFn: (body: object) => api.post(`/events/${event.id}/checkout`, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-events'] });
+      qc.invalidateQueries({ queryKey: ['my-points-history'] });
       toast({ title: 'Checked out!', description: 'Your hours have been recorded.' });
     },
     onError: (e: { response?: { data?: { error?: string } } }) =>

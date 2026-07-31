@@ -3,7 +3,7 @@
 interface ChipSelectProps<T extends string> {
   options: readonly T[];
   selected: readonly string[];
-  toggle: (val: string) => void;
+  toggle: (val: T) => void;
   labelMap?: Partial<Record<T, string>>;
   error?: string;
 }

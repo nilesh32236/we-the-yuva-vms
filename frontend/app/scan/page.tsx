@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, CheckCircle, Keyboard, QrCode, XCircle } from 'lucide-react';
@@ -20,6 +20,7 @@ type ManualTokenInput = z.infer<typeof ManualTokenSchema>;
 function ScanInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const {
     register: registerToken,
     handleSubmit: handleTokenSubmit,
@@ -44,6 +45,7 @@ function ScanInner() {
     onSuccess: () => {
       haptic.success();
       setResult('success');
+      queryClient.invalidateQueries({ queryKey: ['my-points-history'] });
       setTimeout(() => router.push('/volunteer/events'), 2000);
     },
     onError: (err: { response?: { data?: { error?: string } } }) => {

@@ -1,11 +1,32 @@
 'use client';
 
 import * as Sentry from '@sentry/nextjs';
+import axios from 'axios';
 import { Loader2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+function matchesAccept(file: File, accept: string): boolean {
+  const patterns = accept
+    .split(',')
+    .map((p) => p.trim().toLowerCase())
+    .filter(Boolean);
+  if (patterns.length === 0) return true;
+  const type = file.type.toLowerCase();
+  const ext = file.name.includes('.') ? `.${file.name.split('.').pop()?.toLowerCase()}` : '';
+  return patterns.some((pattern) => {
+    if (pattern === '*' || pattern === '*/*') return true;
+    if (pattern.endsWith('/*')) {
+      return type.startsWith(pattern.slice(0, pattern.indexOf('/*')) + '/');
+    }
+    if (pattern.startsWith('.')) return ext === pattern;
+    return type === pattern;
+  });
+}
 
 interface FileUploadProps {
   onUpload: (url: string) => void;
@@ -32,11 +53,11 @@ export function FileUpload({
 
   async function handleFile(file: File) {
     if (uploading) return;
-    if (!file.type.startsWith('image/')) {
-      setError('Only image files are allowed');
+    if (!matchesAccept(file, accept)) {
+      setError('This file type is not allowed');
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > MAX_FILE_SIZE) {
       setError('File too large (max 10MB)');
       return;
     }
@@ -50,9 +71,9 @@ export function FileUpload({
       onUpload(data.url);
     } catch (err: unknown) {
       Sentry.captureException(err);
-      const msg =
-        (err as { normalizedMessage?: string })?.normalizedMessage ??
-        'Upload failed. Please try again.';
+      const msg = axios.isAxiosError(err)
+        ? ((err.response?.data as { message?: string })?.message ?? 'Upload failed. Please try again.')
+        : 'Upload failed. Please try again.';
       setError(msg);
     } finally {
       setUploading(false);
@@ -75,6 +96,7 @@ export function FileUpload({
   }
 
   function remove() {
+    if (uploading) return;
     setPreview(null);
     onUpload('');
   }
@@ -141,6 +163,7 @@ export function FileUpload({
         onChange={(e) => {
           const f = e.target.files?.[0];
           if (f) handleFile(f);
+          e.target.value = '';
         }}
       />
 

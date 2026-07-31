@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { ApplicationStatusSchema } from '@/lib/shared';
+
 const CONFIG = {
   PENDING: {
     label: 'Pending',
@@ -11,9 +14,15 @@ const CONFIG = {
     label: 'Rejected',
     className: 'bg-brand-error/10 text-brand-error border-brand-error/20',
   },
+  WITHDRAWN: {
+    label: 'Withdrawn',
+    className: 'bg-brand-muted/10 text-brand-muted border-brand-muted/20',
+  },
 } as const;
 
-export function ApplicationStatusBadge({ status }: { status: keyof typeof CONFIG }) {
+type ApplicationStatus = z.infer<typeof ApplicationStatusSchema>['status'];
+
+export function ApplicationStatusBadge({ status }: { status: ApplicationStatus }) {
   const { label, className } = CONFIG[status] ?? CONFIG.PENDING;
   return (
     <span

@@ -31,10 +31,10 @@ export function ImpactStats() {
               key={stat.label}
               className="card-hover bg-brand-bg dark:bg-brand-surface rounded-2xl p-6 sm:p-8 text-center"
             >
-              <p className="tabular-nums text-4xl sm:text-5xl font-bold text-brand-primary dark:text-brand-primary">
+              <p className="tabular-nums text-4xl sm:text-5xl font-bold text-brand-primary">
                 {stat.number}
               </p>
-              <p className="text-sm text-brand-muted dark:text-brand-muted mt-2">{stat.label}</p>
+              <p className="text-sm text-brand-muted mt-2">{stat.label}</p>
             </div>
           ))}
         </div>

@@ -47,7 +47,7 @@ export function HowItWorks() {
           {steps.map((step) => (
             <div key={step.step} className="group relative">
               <div className="card-hover rounded-2xl border border-brand-border bg-brand-surface p-8">
-                <span className="font-heading text-5xl font-bold text-brand-border transition-colors duration-200 group-hover:text-brand-primary/20">
+                <span className="font-heading text-5xl font-bold text-brand-muted transition-colors duration-200 group-hover:text-brand-primary/30">
                   {step.step}
                 </span>
                 <div className="mt-4 flex h-10 w-10 items-center justify-center rounded-lg bg-brand-bg">

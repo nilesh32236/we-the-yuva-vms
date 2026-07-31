@@ -17,8 +17,8 @@ interface LeaderboardRowProps {
 
 import { Trophy, Award, Medal } from 'lucide-react';
 
-const MEDAL_ICONS = ['', Trophy, Award, Medal];
-const MEDAL_COLORS = ['', 'text-yellow-500', 'text-gray-400', 'text-amber-700'];
+const MEDAL_ICONS = [Trophy, Award, Medal];
+const MEDAL_COLORS = ['text-yellow-500', 'text-gray-400', 'text-amber-700'];
 
 export function LeaderboardRow({
   rank,
@@ -44,9 +44,13 @@ export function LeaderboardRow({
       <div className="w-8 flex-shrink-0 text-center">
         {isTop3 ? (
           (() => {
-            const MedIcon = MEDAL_ICONS[rank];
+            const medalIndex = rank - 1;
+            const MedIcon = MEDAL_ICONS[medalIndex];
             return (
-              <MedIcon className={`w-5 h-5 ${MEDAL_COLORS[rank]}`} aria-label={`Rank ${rank}`} />
+              <MedIcon
+                className={`w-5 h-5 ${MEDAL_COLORS[medalIndex] ?? 'text-brand-muted'}`}
+                aria-label={`Rank ${rank}`}
+              />
             );
           })()
         ) : (

@@ -131,10 +131,10 @@ export function PushSubscriber() {
           <button
             type="button"
             onClick={handleSubscribe}
-            disabled={subscribing || !!error}
+            disabled={subscribing}
             className="flex-1 flex items-center justify-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] py-2 rounded-xl shadow-md shadow-brand-primary/20 transition-colors duration-100 cursor-pointer disabled:opacity-60 text-center min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
-            <Sparkles className="w-3 h-3 text-emerald-200" />
+            <Sparkles className="w-3 h-3 text-brand-secondary" />
             {subscribing ? 'Enabling...' : 'Enable'}
           </button>
         </div>

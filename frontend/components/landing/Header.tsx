@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Leaf, Menu, X } from 'lucide-react';
 
@@ -16,6 +16,7 @@ const navLinks = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -23,6 +24,25 @@ export function Header() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Close the mobile menu with Escape and restore focus to the toggle
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const firstLink = menuRef.current?.querySelector<HTMLElement>('a');
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMobileOpen(false);
+      }
+    }
+    document.addEventListener('keydown', onKey);
+    firstLink?.focus();
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      toggle?.focus();
+    };
+  }, [mobileOpen]);
 
   return (
     <header
@@ -89,9 +109,12 @@ export function Header() {
 
         {/* Mobile hamburger */}
         <button
+          id="mobile-menu-toggle"
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
           className={`md:hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none min-w-[44px] min-h-[44px] flex items-center justify-center ${
             scrolled ? 'text-brand-text dark:text-white' : 'text-white'
           }`}
@@ -106,6 +129,8 @@ export function Header() {
 
       {/* Mobile menu */}
       <div
+        id="mobile-menu"
+        ref={menuRef}
         className={`${mobileOpen ? 'block' : 'hidden'} border-b border-brand-border bg-brand-surface pb-4 md:hidden dark:border-brand-border dark:bg-brand-bg`}
       >
         <nav className="flex flex-col gap-3 px-6 pt-2">

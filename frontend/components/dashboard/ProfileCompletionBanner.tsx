@@ -44,6 +44,8 @@ export function ProfileCompletionBanner() {
   useEffect(() => {
     if (profileStatus && !profileStatus.isComplete && !isDismissed()) {
       setVisible(true);
+    } else {
+      setVisible(false);
     }
   }, [profileStatus]);
 
@@ -82,10 +84,11 @@ export function ProfileCompletionBanner() {
             />
           </div>
 
-          <Link href="/setup-profile">
-            <Button variant="primary" size="sm">
-              {isVolunteer ? 'Complete Now' : 'Complete Setup'}
-            </Button>
+          <Link
+            href="/setup-profile"
+            className="inline-flex items-center justify-center rounded-xl bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 transition-colors hover:bg-brand-secondary focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none active-bounce"
+          >
+            {isVolunteer ? 'Complete Now' : 'Complete Setup'}
           </Link>
         </div>
 

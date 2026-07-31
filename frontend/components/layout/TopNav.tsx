@@ -86,11 +86,13 @@ export function TopNav() {
   const { data: unreadData } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
+    enabled: !!user,
     refetchInterval: 30000,
     staleTime: 30000,
+    onError: (err: unknown) => Sentry.captureException(err),
   });
 
-  const { data: notifData } = useQuery({
+  const { data: notifData, isLoading: notifLoading } = useQuery({
     queryKey: ['notifications', 'recent'],
     queryFn: () =>
       api.get<{ data: BackendNotification[] }>('/notifications?limit=5').then((r) => r.data),
@@ -241,7 +243,19 @@ export function TopNav() {
 
               {/* Items */}
               <div className="divide-y divide-brand-border max-h-72 overflow-y-auto">
-                {items.length === 0 ? (
+                {notifLoading ? (
+                  <div className="px-4 py-3 space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-start gap-3 animate-pulse">
+                        <div className="w-8 h-8 rounded-lg bg-brand-border" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 bg-brand-border rounded w-3/4" />
+                          <div className="h-2 bg-brand-border rounded w-1/2" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : items.length === 0 ? (
                   <div className="px-4 py-8 text-center text-sm text-brand-muted">
                     No notifications
                   </div>
@@ -254,6 +268,7 @@ export function TopNav() {
                         key={n.id}
                         onClick={() => {
                           markReadMut.mutate(n.id);
+                          setOpen(false);
                           if (n.link) router.push(n.link);
                         }}
                         className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-brand-primary/5' : ''}`}

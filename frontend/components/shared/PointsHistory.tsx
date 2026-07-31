@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Award, Clock } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { api } from '@/lib/api';
 import { SkeletonCard } from './SkeletonCard';
 import * as Sentry from '@sentry/nextjs';
@@ -60,6 +60,10 @@ export function PointsHistory() {
     [data]
   );
 
+  useEffect(() => {
+    if (error) Sentry.captureException(error);
+  }, [error]);
+
   if (isLoading) {
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -76,7 +80,6 @@ export function PointsHistory() {
   }
 
   if (isError) {
-    Sentry.captureException(error);
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-border">
@@ -89,7 +92,9 @@ export function PointsHistory() {
             <p className="text-sm text-brand-error">Failed to load points history</p>
             <button
               type="button"
-              onClick={() => refetch()}
+              onClick={() => {
+                void refetch();
+              }}
               className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-md"
             >
               Retry
@@ -134,8 +139,10 @@ export function PointsHistory() {
                 <p className="text-xs text-brand-muted">{tx.formattedDate}</p>
               </div>
             </div>
-            <span className="text-sm font-semibold text-brand-primary flex-shrink-0">
-              +{tx.amount}
+            <span
+              className={`text-sm font-semibold flex-shrink-0 ${tx.amount > 0 ? 'text-brand-primary' : 'text-brand-error'}`}
+            >
+              {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
             </span>
           </div>
         ))}

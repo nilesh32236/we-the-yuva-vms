@@ -3,6 +3,7 @@
 import { Award, PartyPopper, Sparkles, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 
 interface CelebrationOverlayProps {
   levelName: string;
@@ -14,6 +15,7 @@ interface CelebrationOverlayProps {
 export function CelebrationOverlay({ levelName, tier, points, onClose }: CelebrationOverlayProps) {
   const [visible, setVisible] = useState(false);
   const overlayRef = useFocusTrap(visible);
+  useBodyScrollLock(visible);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {

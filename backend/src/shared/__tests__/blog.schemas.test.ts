@@ -26,3 +26,54 @@ describe('UpdateBlogPostSchema', () => {
     expect(result.success).toBe(true);
   });
 });
+
+describe('blog.schemas content sanitization', () => {
+  it('strips script tags from content on create', () => {
+    const result = CreateBlogPostSchema.safeParse({
+      title: 'Hello',
+      content: '<p>hello</p><script>alert(1)</script>',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.content).toBe('<p>hello</p>');
+      expect(result.data.content).not.toContain('script');
+    }
+  });
+
+  it('strips event handler attributes from content on create', () => {
+    const result = CreateBlogPostSchema.safeParse({
+      title: 'Hello',
+      content: '<img src=x onerror=alert(1)>',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.content).not.toContain('onerror');
+      expect(result.data.content).toContain('<img');
+    }
+  });
+
+  it('preserves benign rich text on create', () => {
+    const result = CreateBlogPostSchema.safeParse({
+      title: 'Hello',
+      content: '<strong>bold</strong><ul><li>item</li></ul><blockquote>quote</blockquote>',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.content).toContain('<strong>bold</strong>');
+      expect(result.data.content).toContain('<ul>');
+      expect(result.data.content).toContain('<li>item</li>');
+      expect(result.data.content).toContain('<blockquote>quote</blockquote>');
+    }
+  });
+
+  it('sanitizes content on update', () => {
+    const result = UpdateBlogPostSchema.safeParse({
+      content: '<p>ok</p><iframe src="https://evil.example"></iframe>',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.content).toBe('<p>ok</p>');
+      expect(result.data.content).not.toContain('iframe');
+    }
+  });
+});

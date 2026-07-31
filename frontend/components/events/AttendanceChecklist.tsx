@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
 import { Button } from '@/components/ui/Button';
@@ -37,7 +37,7 @@ function formatDuration(hours: number): string {
   return `${h}h ${m}m`;
 }
 
-const VolunteerRow = memo(function VolunteerRow({
+const VolunteerRow = function VolunteerRow({
   volunteer,
   attended,
   hoursValue,
@@ -190,19 +190,21 @@ const VolunteerRow = memo(function VolunteerRow({
             >
               Rating
             </label>
-            <div className="flex gap-0.5">
+            <div className="flex gap-0.5" role="radiogroup" aria-label="Rating">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   onClick={() => onRatingChange(star)}
                   className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5"
+                  role="radio"
+                  aria-checked={(ratingValue ?? 0) === star}
                   aria-label={`${star} star(s)`}
                 >
                   <Star
                     className={`w-5 h-5 ${
                       (ratingValue ?? 0) >= star
-                        ? 'fill-amber-400 text-amber-400'
+                        ? 'fill-brand-accent text-brand-accent'
                         : 'text-brand-border'
                     }`}
                   />
@@ -215,7 +217,12 @@ const VolunteerRow = memo(function VolunteerRow({
           <Button
             size="sm"
             loading={isApproving}
-            disabled={!hoursValue || parseFloat(hoursValue || '0') <= 0 || !ratingValue}
+            disabled={
+              !hoursValue ||
+              Number.isNaN(parseFloat(hoursValue || '0')) ||
+              parseFloat(hoursValue || '0') <= 0 ||
+              !ratingValue
+            }
             onClick={onApprove}
           >
             Approve
@@ -224,7 +231,7 @@ const VolunteerRow = memo(function VolunteerRow({
       )}
     </div>
   );
-});
+}
 
 export function AttendanceChecklist({ volunteers, onSave, onApprove }: AttendanceChecklistProps) {
   const [state, setState] = useState<Record<string, boolean>>(
@@ -236,20 +243,35 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
   const [approving, setApproving] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally uses length to avoid cascading re-renders
+  const volunteerSignature = useMemo(
+    () =>
+      volunteers
+        .map(
+          (v) =>
+            `${v.volunteerId}:${v.attended}:${v.checkedInAt ?? ''}:${v.checkedOutAt ?? ''}:${v.approvedAt ?? ''}:${v.rating ?? ''}`
+        )
+        .join('|'),
+    [volunteers]
+  );
+
   useEffect(() => {
     setState((prev) => {
       const next = { ...prev };
-      const newIds = new Set(Object.keys(prev));
+      const currentIds = new Set(volunteers.map((v) => v.volunteerId));
+      for (const id of Object.keys(next)) {
+        if (!currentIds.has(id)) delete next[id];
+      }
       for (const v of volunteers) {
-        if (!newIds.has(v.volunteerId)) {
-          next[v.volunteerId] = v.attended;
-        }
+        next[v.volunteerId] = v.attended;
       }
       return next;
     });
     setHoursInputs((prev) => {
       const next = { ...prev };
+      const currentIds = new Set(volunteers.map((v) => v.volunteerId));
+      for (const id of Object.keys(next)) {
+        if (!currentIds.has(id)) delete next[id];
+      }
       for (const v of volunteers) {
         if (v.checkedInAt && v.checkedOutAt && !v.approvedAt) {
           const duration = calcDuration(v.checkedInAt, v.checkedOutAt);
@@ -263,6 +285,10 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
     });
     setRatings((prev) => {
       const next = { ...prev };
+      const currentIds = new Set(volunteers.map((v) => v.volunteerId));
+      for (const id of Object.keys(next)) {
+        if (!currentIds.has(id)) delete next[id];
+      }
       for (const v of volunteers) {
         if (v.rating != null && !(v.volunteerId in prev)) {
           next[v.volunteerId] = v.rating;
@@ -270,7 +296,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       }
       return next;
     });
-  }, [volunteers.length]);
+  }, [volunteerSignature]);
 
   const attended = Object.values(state).filter(Boolean).length;
   const checkedIn = volunteers.filter((v) => v.checkedInAt).length;
@@ -299,7 +325,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
   const handleApprove = async (v: Volunteer) => {
     const hours = parseFloat(hoursInputs[v.volunteerId] || '0');
     const rating = ratings[v.volunteerId] || 0;
-    if (hours <= 0) {
+    if (Number.isNaN(hours) || hours <= 0) {
       toast({
         title: 'Validation error',
         description: 'Hours must be greater than 0',

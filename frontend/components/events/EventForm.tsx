@@ -48,7 +48,7 @@ export function EventForm({
 
   const wrappedOnSubmit = async (data: EventInput) => {
     try {
-      await onSubmit(data);
+      await onSubmit({ ...data, eventDate: new Date(data.eventDate).toISOString() });
     } catch (err: unknown) {
       Sentry.captureException(err);
       setError('root', { message: 'Something went wrong. Please try again.' });
@@ -59,8 +59,11 @@ export function EventForm({
 
   useEffect(() => {
     if (defaultValues?.eventDate) {
-      const sliced = defaultValues.eventDate.slice(0, 16);
-      setValue('eventDate', sliced);
+      const d = new Date(defaultValues.eventDate);
+      if (!Number.isNaN(d.getTime())) {
+        const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+        setValue('eventDate', local.toISOString().slice(0, 16));
+      }
     }
   }, [defaultValues, setValue]);
 

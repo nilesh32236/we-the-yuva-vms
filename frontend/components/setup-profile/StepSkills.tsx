@@ -10,28 +10,28 @@ interface StepSkillsProps {
   errors: FieldErrors<OnboardingData>;
 }
 
-const SKILLS_LIST = [
-  'TEACHING',
-  'PUBLIC_SPEAKING',
-  'EVENT_MANAGEMENT',
-  'PHOTOGRAPHY',
-  'GRAPHIC_DESIGN',
-  'SOCIAL_MEDIA',
-  'CONTENT_WRITING',
-  'FUNDRAISING',
-  'COUNSELLING',
-  'LEADERSHIP',
-  'PROJECT_MANAGEMENT',
-  'WEB_DEVELOPMENT',
-  'SOFTWARE_DEVELOPMENT',
-  'VIDEO_EDITING',
-  'TRANSLATION',
-  'FIRST_AID',
-  'ACCOUNTING',
-  'LEGAL_SUPPORT',
-  'DATA_ENTRY',
-  'ADMINISTRATION',
-] as const;
+const SKILL_LABELS = {
+  TEACHING: 'Teaching',
+  PUBLIC_SPEAKING: 'Public Speaking',
+  EVENT_MANAGEMENT: 'Event Management',
+  PHOTOGRAPHY: 'Photography',
+  GRAPHIC_DESIGN: 'Graphic Design',
+  SOCIAL_MEDIA: 'Social Media',
+  CONTENT_WRITING: 'Content Writing',
+  FUNDRAISING: 'Fundraising',
+  COUNSELLING: 'Counselling',
+  LEADERSHIP: 'Leadership',
+  PROJECT_MANAGEMENT: 'Project Management',
+  WEB_DEVELOPMENT: 'Web Development',
+  SOFTWARE_DEVELOPMENT: 'Software Development',
+  VIDEO_EDITING: 'Video Editing',
+  TRANSLATION: 'Translation',
+  FIRST_AID: 'First Aid',
+  ACCOUNTING: 'Accounting',
+  LEGAL_SUPPORT: 'Legal Support',
+  DATA_ENTRY: 'Data Entry',
+  ADMINISTRATION: 'Administration',
+} as const;
 
 export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
   const skills = watch('step1.skills') ?? [];
@@ -40,17 +40,17 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
 
   const toggleSkills = (val: string) => {
     const next = skills.includes(val) ? skills.filter((v) => v !== val) : [...skills, val];
-    setValue('step1.skills', next as never, { shouldValidate: true });
+    setValue('step1.skills', next, { shouldValidate: true });
   };
 
   const toggleExpertise = (val: string) => {
     const next = expertise.includes(val) ? expertise.filter((v) => v !== val) : [...expertise, val];
-    setValue('step1.expertise', next as never, { shouldValidate: true });
+    setValue('step1.expertise', next, { shouldValidate: true });
   };
 
   const toggleLanguage = (val: string) => {
     const next = languages.includes(val) ? languages.filter((v) => v !== val) : [...languages, val];
-    setValue('step1.languages', next as never, { shouldValidate: true });
+    setValue('step1.languages', next, { shouldValidate: true });
   };
 
   return (
@@ -65,31 +65,10 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
           <span className="text-sm font-medium text-brand-text">Skills *</span>
           <p className="text-xs text-brand-muted">Select the skills you can bring as a volunteer</p>
           <ChipSelect
-            options={SKILLS_LIST}
+            options={EXPERTISE_OPTIONS}
             selected={skills}
             toggle={toggleSkills}
-            labelMap={{
-              TEACHING: 'Teaching',
-              PUBLIC_SPEAKING: 'Public Speaking',
-              EVENT_MANAGEMENT: 'Event Management',
-              PHOTOGRAPHY: 'Photography',
-              GRAPHIC_DESIGN: 'Graphic Design',
-              SOCIAL_MEDIA: 'Social Media',
-              CONTENT_WRITING: 'Content Writing',
-              FUNDRAISING: 'Fundraising',
-              COUNSELLING: 'Counselling',
-              LEADERSHIP: 'Leadership',
-              PROJECT_MANAGEMENT: 'Project Management',
-              WEB_DEVELOPMENT: 'Web Development',
-              SOFTWARE_DEVELOPMENT: 'Software Development',
-              VIDEO_EDITING: 'Video Editing',
-              TRANSLATION: 'Translation',
-              FIRST_AID: 'First Aid',
-              ACCOUNTING: 'Accounting',
-              LEGAL_SUPPORT: 'Legal Support',
-              DATA_ENTRY: 'Data Entry',
-              ADMINISTRATION: 'Administration',
-            }}
+            labelMap={SKILL_LABELS}
             error={errors.step1?.skills?.message}
           />
         </div>
@@ -101,28 +80,7 @@ export function StepSkills({ setValue, watch, errors }: StepSkillsProps) {
             options={EXPERTISE_OPTIONS}
             selected={expertise}
             toggle={toggleExpertise}
-            labelMap={{
-              TEACHING: 'Teaching',
-              PUBLIC_SPEAKING: 'Public Speaking',
-              EVENT_MANAGEMENT: 'Event Management',
-              PHOTOGRAPHY: 'Photography',
-              GRAPHIC_DESIGN: 'Graphic Design',
-              SOCIAL_MEDIA: 'Social Media',
-              CONTENT_WRITING: 'Content Writing',
-              FUNDRAISING: 'Fundraising',
-              COUNSELLING: 'Counselling',
-              LEADERSHIP: 'Leadership',
-              PROJECT_MANAGEMENT: 'Project Management',
-              WEB_DEVELOPMENT: 'Web Development',
-              SOFTWARE_DEVELOPMENT: 'Software Development',
-              VIDEO_EDITING: 'Video Editing',
-              TRANSLATION: 'Translation',
-              FIRST_AID: 'First Aid',
-              ACCOUNTING: 'Accounting',
-              LEGAL_SUPPORT: 'Legal Support',
-              DATA_ENTRY: 'Data Entry',
-              ADMINISTRATION: 'Administration',
-            }}
+            labelMap={SKILL_LABELS}
           />
         </div>
 

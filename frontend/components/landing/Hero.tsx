@@ -9,6 +9,7 @@ export function Hero() {
         src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600&q=80"
         alt="Young volunteers collaborating at a community project"
         fill
+        sizes="100vw"
         className="object-cover scale-105"
         priority
       />

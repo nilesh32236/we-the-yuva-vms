@@ -17,9 +17,17 @@ export function AppUpdatePrompt() {
       return;
     }
 
+    let cancelled = false;
+    let activeReg: ServiceWorkerRegistration | null = null;
+    let updateFoundHandler: (() => void) | null = null;
+    let installingWorker: ServiceWorker | null = null;
+    let stateChangeHandler: (() => void) | null = null;
+
     // Grab the active Service Worker registration
     navigator.serviceWorker.ready
       .then((reg) => {
+        if (cancelled) return;
+        activeReg = reg;
         setRegistration(reg);
 
         // 1. If there's already a waiting worker, prompt immediately
@@ -31,18 +39,24 @@ export function AppUpdatePrompt() {
         const handleUpdateFound = () => {
           const newWorker = reg.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
+            installingWorker = newWorker;
+            const onStateChange = () => {
+              if (cancelled) return;
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 haptic.success();
                 setUpdateAvailable(true);
               }
-            });
+            };
+            stateChangeHandler = onStateChange;
+            newWorker.addEventListener('statechange', onStateChange);
           }
         };
-
+        updateFoundHandler = handleUpdateFound;
         reg.addEventListener('updatefound', handleUpdateFound);
       })
-      .catch((err) => { Sentry.captureException(err); });
+      .catch((err) => {
+        if (!cancelled) Sentry.captureException(err);
+      });
 
     // 3. Listen for controlling worker change (after skipWaiting is invoked)
     const handleControllerChange = () => {
@@ -52,7 +66,14 @@ export function AppUpdatePrompt() {
     navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
 
     return () => {
+      cancelled = true;
       navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+      if (updateFoundHandler && activeReg) {
+        activeReg.removeEventListener('updatefound', updateFoundHandler);
+      }
+      if (stateChangeHandler && installingWorker) {
+        installingWorker.removeEventListener('statechange', stateChangeHandler);
+      }
     };
   }, []);
 

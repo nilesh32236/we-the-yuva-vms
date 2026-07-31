@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Tag, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { api } from '@/lib/api';
+import { sanitizeRichContent } from '@/lib/sanitize';
 
 export function BlogPostPageClient({ slug }: { slug: string }) {
   const { data: post, isLoading } = useQuery({
@@ -108,7 +109,7 @@ export function BlogPostPageClient({ slug }: { slug: string }) {
 
           <div
             className="prose prose-sm sm:prose max-w-none blog-content text-brand-text leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeRichContent(post.content) }}
           />
         </article>
       </div>

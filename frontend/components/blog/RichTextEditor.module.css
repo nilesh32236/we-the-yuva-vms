@@ -52,7 +52,8 @@
 }
 
 .editor code {
-  background: var(--color-brand-bg);
+  background: var(--color-brand-surface);
+  border: 1px solid var(--color-brand-border);
   padding: 0.15em 0.4em;
   border-radius: 0.25rem;
   font-size: 0.8em;

@@ -20,7 +20,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     if (isLoading) return;
     if (!user) {
       router.replace('/login');
-    } else if (!allowedRoles.includes(user.role as UserRole)) {
+    } else if (!allowedRoles.includes(user.role)) {
       router.replace(ROLE_ROUTES[user.role] ?? '/login');
     } else {
       setShowContent(true);

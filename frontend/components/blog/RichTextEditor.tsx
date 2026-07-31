@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Bold, Italic, Heading1, Heading2, List, ListOrdered, Quote, Code } from 'lucide-react';
 import { memo, useCallback } from 'react';
+import { sanitizeRichContent } from '@/lib/sanitize';
 import styles from './RichTextEditor.module.css';
 
 interface RichTextEditorProps {
@@ -27,6 +28,7 @@ const ToolbarButton = memo(function ToolbarButton({
       type="button"
       onClick={onClick}
       aria-label={label}
+      aria-pressed={active}
       title={label}
       className={`p-2.5 rounded-lg transition-colors duration-150 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary ${
         active
@@ -42,7 +44,7 @@ const ToolbarButton = memo(function ToolbarButton({
 export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   const handleUpdate = useCallback(
     ({ editor: ed }: { editor: { getHTML: () => string } }) => {
-      onChange(ed.getHTML());
+      onChange(sanitizeRichContent(ed.getHTML()));
     },
     [onChange]
   );
@@ -53,6 +55,9 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     editorProps: {
       attributes: {
         class: styles.editor,
+        role: 'textbox',
+        'aria-label': 'Content',
+        'aria-multiline': 'true',
       },
     },
     onUpdate: handleUpdate,
@@ -91,7 +96,11 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
 
   return (
     <div className="rounded-xl border border-brand-border bg-background overflow-hidden focus-within:ring-2 focus-within:ring-brand-primary">
-      <div className="flex flex-wrap items-center gap-0.5 px-2 py-2 border-b border-brand-border bg-brand-bg/50">
+      <div
+        role="toolbar"
+        aria-label="Formatting"
+        className="flex flex-wrap items-center gap-0.5 px-2 py-2 border-b border-brand-border bg-brand-bg/50"
+      >
         <ToolbarButton onClick={handleBold} active={editor.isActive('bold')} label="Bold">
           <Bold className="w-4 h-4" />
         </ToolbarButton>

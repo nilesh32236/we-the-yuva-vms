@@ -3,9 +3,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Sentry from '@sentry/nextjs';
-import { z } from 'zod';
 import { useMemo } from 'react';
 import { Button } from '../ui/Button';
+import { EventSeriesFormSchema, type EventSeriesFormData } from '@/lib/shared';
+import { cn } from '@/lib/utils';
 
 const DAYS = [
   { value: 0, label: 'Sun' },
@@ -23,42 +24,6 @@ const FREQUENCIES = [
   { value: 'MONTHLY', label: 'Monthly' },
   { value: 'CUSTOM', label: 'Custom' },
 ] as const;
-
-const EventSeriesFormSchema = z
-  .object({
-    title: z.string().min(5).max(200),
-    description: z.string().max(1000).optional(),
-    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM']),
-    daysOfWeek: z.array(z.number()),
-    interval: z.number().int().min(1),
-    startTime: z.string().regex(/^\d{2}:\d{2}$/),
-    endTime: z.string().regex(/^\d{2}:\d{2}$/),
-    venue: z.string().max(200).optional(),
-    isVirtual: z.boolean(),
-    meetingLink: z.string().url().optional().or(z.literal('')),
-    capacity: z.number().int().positive().max(100000),
-    endType: z.enum(['never', 'after', 'on_date']),
-    maxOccurrences: z.number().int().positive().optional(),
-    endDate: z.string().optional(),
-    firstEventDate: z.string().min(1, 'First event date is required'),
-  })
-  .refine((data) => !data.isVirtual || data.meetingLink, {
-    message: 'Meeting link is required for virtual events',
-    path: ['meetingLink'],
-  })
-  .refine((data) => data.endTime > data.startTime, {
-    message: 'End time must be after start time',
-    path: ['endTime'],
-  })
-  .refine(
-    (data) => {
-      if (data.frequency === 'WEEKLY') return data.daysOfWeek.length > 0;
-      return true;
-    },
-    { message: 'Select at least one day', path: ['daysOfWeek'] }
-  );
-
-type EventSeriesFormData = z.infer<typeof EventSeriesFormSchema>;
 
 export interface EventSeriesOutput {
   title: string;
@@ -108,12 +73,11 @@ function calculatePreviewDates(
       }
       case 'WEEKLY': {
         if (data.daysOfWeek.length === 0) return dates;
-        const weekOffset = Math.floor((i * data.interval) / data.daysOfWeek.length);
-        const dayIndex = i % data.daysOfWeek.length;
         const sortedDays = [...data.daysOfWeek].sort((a, b) => a - b);
-        const targetDay = sortedDays[dayIndex];
+        const weekOffset = Math.floor(i / sortedDays.length) * data.interval;
+        const targetDay = sortedDays[i % sortedDays.length];
         next = new Date(start);
-        next.setDate(next.getDate() + weekOffset * 7 * data.interval);
+        next.setDate(next.getDate() + weekOffset * 7);
         const currentDay = next.getDay();
         const diff = targetDay - currentDay;
         next.setDate(next.getDate() + (diff >= 0 ? diff : diff + 7));
@@ -219,9 +183,10 @@ export function EventSeriesForm({
         {...register(id)}
         {...extra}
         disabled={extra?.disabled ?? isSubmitting}
-        className={`w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60 ${
+        className={cn(
+          'w-full px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60',
           errors[id] ? 'border-brand-error' : 'border-brand-border'
-        }`}
+        )}
       />
       {errors[id] && <p className="text-xs text-brand-error">{errors[id]?.message as string}</p>}
     </div>
@@ -229,11 +194,11 @@ export function EventSeriesForm({
 
   const handleFormSubmit = async (data: EventSeriesFormData) => {
     try {
+      const toISO = (date: string, time: string) => new Date(`${date}T${time}`).toISOString();
       const formattedData: EventSeriesOutput = {
         ...data,
-        firstEventDate: data.firstEventDate
-          ? `${data.firstEventDate}T${data.startTime}:00.000Z`
-          : undefined,
+        firstEventDate: data.firstEventDate ? toISO(data.firstEventDate, data.startTime) : undefined,
+        endDate: data.endDate ? toISO(data.endDate, data.startTime) : undefined,
       };
       await onSubmit(formattedData);
     } catch (err) {
@@ -274,18 +239,23 @@ export function EventSeriesForm({
       {/* Frequency */}
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-brand-text">Frequency</p>
-        <div className="flex gap-2">
+        <div role="group" aria-labelledby="series-frequency-label" className="flex gap-2">
+          <span id="series-frequency-label" className="sr-only">
+            Frequency
+          </span>
           {FREQUENCIES.map((f) => (
             <button
               key={f.value}
               type="button"
               onClick={() => setValue('frequency', f.value, { shouldValidate: true })}
               disabled={isSubmitting}
-              className={`px-4 py-3 rounded-xl text-sm font-medium motion-safe:transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
+              aria-pressed={frequency === f.value}
+              className={cn(
+                'px-4 py-3 rounded-xl text-sm font-medium motion-safe:transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60',
                 frequency === f.value
                   ? 'bg-brand-primary text-white'
                   : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
-              }`}
+              )}
             >
               {f.label}
             </button>
@@ -297,18 +267,23 @@ export function EventSeriesForm({
       {frequency === 'WEEKLY' && (
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-brand-text">Repeat on</p>
-          <div className="flex gap-1.5 flex-wrap">
+          <div role="group" aria-labelledby="series-days-label" className="flex gap-1.5 flex-wrap">
+            <span id="series-days-label" className="sr-only">
+              Repeat on
+            </span>
             {DAYS.map((day) => (
               <button
                 key={day.value}
                 type="button"
                 onClick={() => toggleDay(day.value)}
                 disabled={isSubmitting}
-                className={`w-11 h-11 rounded-xl text-xs font-medium motion-safe:transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
+                aria-pressed={daysOfWeek?.includes(day.value)}
+                className={cn(
+                  'w-11 h-11 rounded-xl text-xs font-medium motion-safe:transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60',
                   daysOfWeek?.includes(day.value)
                     ? 'bg-brand-primary text-white'
                     : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
-                }`}
+                )}
               >
                 {day.label}
               </button>
@@ -338,8 +313,18 @@ export function EventSeriesForm({
           min={1}
           {...register('interval', { valueAsNumber: true })}
           disabled={isSubmitting}
-          className="w-24 px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60"
+          aria-invalid={!!errors.interval}
+          aria-describedby={errors.interval ? 'series-interval-error' : undefined}
+          className={cn(
+            'w-24 px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60',
+            errors.interval ? 'border-brand-error' : 'border-brand-border'
+          )}
         />
+        {errors.interval && (
+          <p id="series-interval-error" className="text-xs text-brand-error">
+            {errors.interval.message as string}
+          </p>
+        )}
       </div>
 
       {/* First event date */}
@@ -378,8 +363,18 @@ export function EventSeriesForm({
           min={1}
           {...register('capacity', { valueAsNumber: true })}
           disabled={isSubmitting}
-          className="w-24 px-3 py-2.5 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60"
+          aria-invalid={!!errors.capacity}
+          aria-describedby={errors.capacity ? 'capacity-error' : undefined}
+          className={cn(
+            'w-24 px-3 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary disabled:opacity-60',
+            errors.capacity ? 'border-brand-error' : 'border-brand-border'
+          )}
         />
+        {errors.capacity && (
+          <p id="capacity-error" className="text-xs text-brand-error">
+            {errors.capacity.message as string}
+          </p>
+        )}
       </div>
 
       {/* Virtual toggle */}

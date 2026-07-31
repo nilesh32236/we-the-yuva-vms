@@ -57,9 +57,19 @@ export async function getMyBadges(userId: string) {
   return result;
 }
 
-export async function listPendingApprovals() {
+export async function listPendingApprovals(search?: string) {
   return prisma.badgeApproval.findMany({
-    where: { status: 'PENDING' },
+    where: {
+      status: 'PENDING',
+      ...(search
+        ? {
+            OR: [
+              { user: { name: { contains: search, mode: 'insensitive' } } },
+              { user: { email: { contains: search, mode: 'insensitive' } } },
+            ],
+          }
+        : {}),
+    },
     include: {
       user: { select: { id: true, name: true, email: true } },
       badge: { select: { id: true, name: true, title: true, description: true, imageUrl: true } },

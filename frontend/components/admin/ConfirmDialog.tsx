@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 
@@ -27,6 +28,8 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const dialogRef = useFocusTrap(open);
+  const titleId = useId();
+  const messageId = useId();
 
   if (!open) return null;
 
@@ -36,17 +39,20 @@ export function ConfirmDialog({
       className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="confirm-title"
+      aria-labelledby={titleId}
+      aria-describedby={messageId}
       onKeyDown={(e) => {
         if (e.key === 'Escape') onCancel();
       }}
     >
       <div className="bg-brand-surface rounded-2xl shadow-xl w-full max-w-sm">
         <div className="px-6 py-5 space-y-2">
-          <h2 id="confirm-title" className="font-heading font-bold text-lg text-brand-text">
+          <h2 id={titleId} className="font-heading font-bold text-lg text-brand-text">
             {title}
           </h2>
-          <p className="text-sm text-brand-muted">{message}</p>
+          <p id={messageId} className="text-sm text-brand-muted">
+            {message}
+          </p>
         </div>
         <div className="flex gap-3 px-6 pb-5">
           <Button

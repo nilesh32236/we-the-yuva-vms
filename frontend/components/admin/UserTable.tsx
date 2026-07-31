@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
+import { ConfirmDialog } from './ConfirmDialog';
 
 const ROLE_COLORS: Record<string, string> = {
   VOLUNTEER: 'bg-brand-primary/10 text-brand-primary',
@@ -37,13 +38,17 @@ interface UserTableProps {
   onUpdated: () => void;
 }
 
+type ConfirmAction = { type: 'suspend' } | { type: 'role'; role: string } | null;
+
 export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
   const qc = useQueryClient();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: object }) =>
@@ -80,18 +85,54 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
         setMenuPosition(null);
       }
     }
+    function repositionOrClose() {
+      setOpenMenu(null);
+      setMenuPosition(null);
+    }
+    function keyHandler(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setOpenMenu(null);
+        setMenuPosition(null);
+        triggerRef.current?.focus();
+      }
+    }
     if (openMenu) {
       document.addEventListener('mousedown', handler);
+      document.addEventListener('scroll', repositionOrClose, true);
+      window.addEventListener('resize', repositionOrClose);
+      document.addEventListener('keydown', keyHandler);
     }
-    return () => document.removeEventListener('mousedown', handler);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      document.removeEventListener('scroll', repositionOrClose, true);
+      window.removeEventListener('resize', repositionOrClose);
+      document.removeEventListener('keydown', keyHandler);
+    };
   }, [openMenu]);
+
+  // Move focus into the menu on open, restore on close
+  useEffect(() => {
+    if (openMenu) {
+      const raf = requestAnimationFrame(() => {
+        menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+      });
+      return () => cancelAnimationFrame(raf);
+    }
+    return undefined;
+  }, [openMenu]);
+
+  function closeMenu() {
+    setOpenMenu(null);
+    setMenuPosition(null);
+    triggerRef.current?.focus();
+  }
 
   function handleMenuClick(id: string, e: React.MouseEvent) {
     if (openMenu === id) {
-      setOpenMenu(null);
-      setMenuPosition(null);
+      closeMenu();
       return;
     }
+    triggerRef.current = e.currentTarget as HTMLButtonElement;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
     setOpenMenu(id);
@@ -101,6 +142,24 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
     ? (updateMutation.variables as { id?: string })?.id
     : null;
   const selectedUser = useMemo(() => users.find((u) => u.id === openMenu), [users, openMenu]);
+
+  const canManage = hasPermission(currentUser, Permissions.USER_MANAGE);
+
+  const confirmMessage = confirmAction
+    ? confirmAction.type === 'suspend'
+      ? `This will immediately revoke ${selectedUser?.name ?? 'this user'}'s account access until you reactivate it. Are you sure?`
+      : `Change ${selectedUser?.name ?? 'this user'}'s role to ${confirmAction.role}?`
+    : '';
+
+  const handleConfirm = () => {
+    if (!confirmAction || !selectedUser) return;
+    if (confirmAction.type === 'suspend') {
+      updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } });
+    } else {
+      updateMutation.mutate({ id: selectedUser.id, data: { role: confirmAction.role } });
+    }
+    setConfirmAction(null);
+  };
 
   return (
     <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -198,6 +257,8 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                       className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
                       disabled={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
+                      aria-haspopup="menu"
+                      aria-expanded={openMenu === u.id}
                     >
                       <MoreVertical className="w-4 h-4" />
                     </button>
@@ -253,7 +314,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
           >
             {selectedUser && (
               <>
-                {selectedUser.status !== 'ACTIVE' && (
+                {canManage && selectedUser.status !== 'ACTIVE' && (
                   <button
                     type="button"
                     onClick={() =>
@@ -262,38 +323,37 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
                     aria-label={`Activate ${selectedUser.name}`}
                     role="menuitem"
+                    tabIndex={-1}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                     Activate
                   </button>
                 )}
-                {selectedUser.status !== 'SUSPENDED' && (
+                {canManage && selectedUser.status !== 'SUSPENDED' && (
                   <button
                     type="button"
-                    onClick={() =>
-                      updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
-                    }
+                    onClick={() => setConfirmAction({ type: 'suspend' })}
                     className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
                     aria-label={`Suspend ${selectedUser.name}`}
                     role="menuitem"
+                    tabIndex={-1}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-error" />
                     Suspend
                   </button>
                 )}
-                {hasPermission(currentUser, Permissions.USER_MANAGE) &&
+                {canManage &&
                   (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
                     (role) =>
                       selectedUser.roleRef.name !== role && (
                         <button
                           type="button"
                           key={role}
-                          onClick={() =>
-                            updateMutation.mutate({ id: selectedUser.id, data: { role } })
-                          }
+                          onClick={() => setConfirmAction({ type: 'role', role })}
                           className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
                           aria-label={`Change role to ${role}`}
                           role="menuitem"
+                          tabIndex={-1}
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                           Make {role.charAt(0) + role.slice(1).toLowerCase()}
@@ -305,6 +365,17 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmAction !== null}
+        title={confirmAction?.type === 'suspend' ? 'Suspend user?' : 'Change role?'}
+        message={confirmMessage}
+        confirmLabel={confirmAction?.type === 'suspend' ? 'Suspend' : 'Change role'}
+        variant={confirmAction?.type === 'suspend' ? 'destructive' : 'primary'}
+        loading={updateMutation.isPending}
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

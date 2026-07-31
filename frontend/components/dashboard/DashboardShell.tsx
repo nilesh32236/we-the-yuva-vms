@@ -16,7 +16,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { SkeletonCard } from '../shared/SkeletonCard';
 
@@ -71,17 +71,18 @@ function HeroBanner({
   user,
   heroGradient,
   roleLabel,
-  isLoading,
 }: {
   user: { name?: string } | null;
   heroGradient: string;
   roleLabel?: string;
-  isLoading: boolean;
 }) {
-  if (isLoading) return null;
+  const [greeting, setGreeting] = useState('Good morning');
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  useEffect(() => {
+    const hour = new Date().getHours();
+    setGreeting(hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening');
+  }, []);
+
   const firstName = user?.name?.split(' ')[0] ?? 'there';
 
   return (
@@ -262,12 +263,7 @@ export function DashboardShell({
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <HeroBanner
-        user={user}
-        heroGradient={heroGradient}
-        roleLabel={roleLabel}
-        isLoading={isLoading}
-      />
+      <HeroBanner user={user} heroGradient={heroGradient} roleLabel={roleLabel} />
 
       {/* ── Stat Cards ──────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

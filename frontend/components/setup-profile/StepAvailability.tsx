@@ -13,6 +13,8 @@ interface StepAvailabilityProps {
 export function StepAvailability({ setValue, watch, errors }: StepAvailabilityProps) {
   const volunteerType = watch('step3.volunteerType');
   const availabilityPattern = watch('step3.availabilityPattern');
+  const hoursPerWeek = watch('step3.hoursPerWeek');
+  const sessionDuration = watch('step3.sessionDuration');
 
   const commonInput = (
     label: string,
@@ -60,9 +62,7 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           <ChipSelect
             options={VOLUNTEER_TYPES}
             selected={volunteerType ? [volunteerType] : []}
-            toggle={(val) =>
-              setValue('step3.volunteerType', val as never, { shouldValidate: true })
-            }
+            toggle={(val) => setValue('step3.volunteerType', val, { shouldValidate: true })}
             labelMap={{
               STUDENT: 'Student',
               PROFESSIONAL: 'Professional',
@@ -81,9 +81,7 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           <ChipSelect
             options={AVAILABILITY_PATTERNS}
             selected={availabilityPattern ? [availabilityPattern] : []}
-            toggle={(val) =>
-              setValue('step3.availabilityPattern', val as never, { shouldValidate: true })
-            }
+            toggle={(val) => setValue('step3.availabilityPattern', val, { shouldValidate: true })}
             labelMap={{
               WEEKDAYS: 'Weekdays',
               WEEKENDS: 'Weekends',
@@ -97,16 +95,26 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
         <div className="grid grid-cols-2 gap-4">
           {commonInput(
             'Hours per Week *',
-            watch('step3.hoursPerWeek') ?? '',
-            (v) => setValue('step3.hoursPerWeek', Number(v), { shouldValidate: true }),
+            hoursPerWeek ? hoursPerWeek : '',
+            (v) =>
+              setValue(
+                'step3.hoursPerWeek',
+                v === '' ? undefined : Number(v),
+                { shouldValidate: true }
+              ),
             'e.g. 5',
             'number',
             errors.step3?.hoursPerWeek?.message
           )}
           {commonInput(
             'Session Duration (hrs) *',
-            watch('step3.sessionDuration') ?? '',
-            (v) => setValue('step3.sessionDuration', Number(v), { shouldValidate: true }),
+            sessionDuration ? sessionDuration : '',
+            (v) =>
+              setValue(
+                'step3.sessionDuration',
+                v === '' ? undefined : Number(v),
+                { shouldValidate: true }
+              ),
             'e.g. 2',
             'number',
             errors.step3?.sessionDuration?.message

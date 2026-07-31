@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { Button } from '@/components/ui/Button';
 
 interface ProfileCompletionModalProps {
@@ -13,7 +14,7 @@ interface ProfileCompletionModalProps {
 
 const fieldLabels: Record<string, string> = {
   skills: 'Skills',
-  interests: 'interests',
+  interests: 'Interests',
   volunteerType: 'Volunteer Type',
   availability: 'Availability',
 };
@@ -25,6 +26,7 @@ export function ProfileCompletionModal({
   onClose,
 }: ProfileCompletionModalProps) {
   const dialogRef = useFocusTrap(open);
+  useBodyScrollLock(open);
 
   if (!open) return null;
 
@@ -32,7 +34,7 @@ export function ProfileCompletionModal({
     <div
       ref={dialogRef}
       tabIndex={-1}
-      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-brand-overlay/40 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="profile-completion-title"
@@ -76,7 +78,7 @@ export function ProfileCompletionModal({
               <ul className="space-y-1">
                 {missingFields.map((field) => (
                   <li key={field} className="flex items-center gap-2 text-sm text-brand-muted">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-accent flex-shrink-0" />
                     {fieldLabels[field] ?? field}
                   </li>
                 ))}

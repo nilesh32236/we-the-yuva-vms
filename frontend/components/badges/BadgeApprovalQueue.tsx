@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
@@ -48,7 +48,7 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
   return (
     <div
       ref={dialogRef}
-      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-brand-overlay/40 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="review-title"
@@ -137,8 +137,14 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
 }
 
 export function BadgeApprovalQueue() {
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [selectedRequest, setSelectedRequest] = useState<PendingApproval | null>(null);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setSearch(searchInput.trim()), 300);
+    return () => window.clearTimeout(t);
+  }, [searchInput]);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-badge-pending', search],
@@ -159,8 +165,8 @@ export function BadgeApprovalQueue() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
         <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search by volunteer name or email…"
           aria-label="Search badge approvals"
           className="w-full pl-9 pr-4 py-3 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"

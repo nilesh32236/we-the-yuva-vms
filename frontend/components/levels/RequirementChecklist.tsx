@@ -37,8 +37,8 @@ export function RequirementChecklist({
       <ul className="space-y-3" aria-label={`Requirements for ${levelName}`}>
         {entries.map(([key, required]) => {
           const current = progress[key] ?? 0;
-          const met = current >= required;
-          const pct = Math.min((current / required) * 100, 100);
+          const met = required > 0 ? current >= required : true;
+          const pct = required > 0 ? Math.min((current / required) * 100, 100) : 100;
 
           return (
             <li key={key} className="flex items-start gap-3">

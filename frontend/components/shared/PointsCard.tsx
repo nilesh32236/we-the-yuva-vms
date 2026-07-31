@@ -13,9 +13,10 @@ interface PointsResponse {
 }
 
 export function PointsCard() {
-  const { data, isLoading, isError, error } = useQuery<PointsResponse>({
+  const { data, isLoading, isError, error, refetch } = useQuery<PointsResponse>({
     queryKey: ['my-points'],
-    queryFn: () => api.get('/levels/users/me/points').then((r) => r.data),
+    queryFn: () =>
+      api.get<PointsResponse>('/levels/users/me/points').then((r) => r.data),
     staleTime: 60_000,
   });
 
@@ -47,7 +48,15 @@ export function PointsCard() {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm text-brand-error">Failed to load points</p>
-          <p className="text-brand-muted text-xs mt-1">Pull to refresh</p>
+          <button
+            type="button"
+            onClick={() => {
+              void refetch();
+            }}
+            className="text-brand-muted text-xs mt-1 hover:text-brand-text underline cursor-pointer"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

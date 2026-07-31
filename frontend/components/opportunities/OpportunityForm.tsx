@@ -320,7 +320,13 @@ export function OpportunityForm({
             placeholder="Add skill, press Enter"
             className="flex-1 px-3 py-2 rounded-xl border border-brand-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
-          <Button type="button" variant="outline" onClick={addSkill} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={addSkill}
+            disabled={isSubmitting}
+            aria-label="Add skill"
+          >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
@@ -336,19 +342,19 @@ export function OpportunityForm({
 
       {/* Remote toggle */}
       <label htmlFor="isRemote" className="flex items-center gap-3 cursor-pointer">
-        <div
+        <input
           id="isRemote"
+          type="checkbox"
           role="switch"
+          checked={isRemote}
           aria-checked={isRemote}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              setValue('isRemote', !isRemote);
-            }
-          }}
-          className={`w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isRemote ? 'bg-brand-primary' : 'bg-brand-border'} focus-visible:ring-2 focus-visible:ring-brand-primary`}
-          onClick={() => setValue('isRemote', !isRemote)}
+          disabled={isSubmitting}
+          onChange={(e) => setValue('isRemote', e.target.checked, { shouldValidate: true })}
+          className="sr-only"
+        />
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none w-10 h-6 rounded-full motion-safe:transition-colors motion-safe:duration-200 relative ${isRemote ? 'bg-brand-primary' : 'bg-brand-border'}`}
         >
           <div
             className={`absolute top-1 w-4 h-4 bg-background rounded-full shadow motion-safe:transition-transform motion-safe:duration-200 ${isRemote ? 'translate-x-5' : 'translate-x-1'}`}
@@ -395,7 +401,9 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
           <span>Failed to load locations</span>
           <button
             type="button"
-            onClick={() => refetch()}
+            onClick={() => {
+              void refetch();
+            }}
             className="text-sm font-medium underline cursor-pointer"
           >
             Retry
@@ -460,6 +468,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
         <input
           type="text"
           placeholder="District (optional)"
+          aria-label="District (optional)"
           value={newDistrict}
           onChange={(e) => setNewDistrict(e.target.value)}
           className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"
@@ -467,6 +476,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
         <input
           type="text"
           placeholder="State (optional)"
+          aria-label="State (optional)"
           value={newState}
           onChange={(e) => setNewState(e.target.value)}
           className="w-full px-3 py-2.5 rounded-xl border border-brand-border text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-background"

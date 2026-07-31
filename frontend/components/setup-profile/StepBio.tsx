@@ -69,9 +69,8 @@ export function StepBio({ register, setValue, watch, errors }: StepBioProps) {
           <textarea
             id="bio"
             rows={4}
-            maxLength={300}
             placeholder="Share your story, what drives you, and what you hope to achieve as a volunteer..."
-            aria-describedby={errors.step5?.bio ? 'bio-error' : 'bio-count'}
+            aria-describedby={errors.step5?.bio ? 'bio-count bio-error' : 'bio-count'}
             className={`w-full px-4 py-2.5 rounded-lg border text-base bg-background resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
               errors.step5?.bio
                 ? 'border-brand-error focus:ring-brand-error'

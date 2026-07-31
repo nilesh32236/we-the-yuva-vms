@@ -25,11 +25,17 @@ export const OpportunitySchema = z
       .max(10, 'Maximum 10 skills allowed'),
     category: z.enum(OPPORTUNITY_CATEGORIES),
     locationId: z.preprocess((v) => (v === '' ? undefined : v), z.string().optional()),
-    startDate: z
-      .string()
-      .datetime()
-      .refine((d) => new Date(d) > new Date(), 'Start date must be in the future'),
-    endDate: z.string().datetime(),
+    startDate: z.preprocess(
+      (v) => (typeof v === 'string' && v.length === 16 ? new Date(v).toISOString() : v),
+      z
+        .string()
+        .datetime()
+        .refine((d) => new Date(d) > new Date(), 'Start date must be in the future')
+    ),
+    endDate: z.preprocess(
+      (v) => (typeof v === 'string' && v.length === 16 ? new Date(v).toISOString() : v),
+      z.string().datetime()
+    ),
     hoursPerSession: z.number().positive('Hours per session must be positive'),
     totalSlots: z.number().int().positive('Total slots must be a positive integer'),
     isRemote: z.boolean(),
@@ -126,3 +132,39 @@ export const EventSeriesSchema = z
     },
     { message: 'Days of week are required for weekly frequency', path: ['daysOfWeek'] }
   );
+
+export const EventSeriesFormSchema = z
+  .object({
+    title: z.string().min(5).max(200),
+    description: z.string().max(1000).optional(),
+    frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM']),
+    daysOfWeek: z.array(z.number()),
+    interval: z.number().int().min(1),
+    startTime: z.string().regex(/^\d{2}:\d{2}$/),
+    endTime: z.string().regex(/^\d{2}:\d{2}$/),
+    venue: z.string().max(200).optional(),
+    isVirtual: z.boolean(),
+    meetingLink: z.string().url().optional().or(z.literal('')),
+    capacity: z.number().int().positive().max(100000),
+    endType: z.enum(['never', 'after', 'on_date']),
+    maxOccurrences: z.number().int().positive().optional(),
+    endDate: z.string().optional(),
+    firstEventDate: z.string().min(1, 'First event date is required'),
+  })
+  .refine((data) => !data.isVirtual || data.meetingLink, {
+    message: 'Meeting link is required for virtual events',
+    path: ['meetingLink'],
+  })
+  .refine((data) => data.endTime > data.startTime, {
+    message: 'End time must be after start time',
+    path: ['endTime'],
+  })
+  .refine(
+    (data) => {
+      if (data.frequency === 'WEEKLY') return data.daysOfWeek.length > 0;
+      return true;
+    },
+    { message: 'Select at least one day', path: ['daysOfWeek'] }
+  );
+
+export type EventSeriesFormData = z.infer<typeof EventSeriesFormSchema>;

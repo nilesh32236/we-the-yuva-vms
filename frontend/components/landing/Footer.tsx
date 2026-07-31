@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Twitter, Instagram, Linkedin, Youtube, Mail, MapPin } from 'lucide-react';
 
+const COPYRIGHT_YEAR = new Date().getFullYear();
+
 const footerLinks = {
   Platform: [
     { label: 'Browse Opportunities', href: '/opportunities' },
@@ -10,7 +12,7 @@ const footerLinks = {
     { label: 'My Dashboard', href: '/volunteer/dashboard' },
   ],
   Organisation: [
-    { label: 'Register NGO / Organisation', href: '/register' },
+    { label: 'Register NGO / Organisation', href: '/register-organization' },
     { label: 'Manage Coordinators', href: '/organization/coordinators' },
     { label: 'Impact Reports', href: '/organization/reports' },
     { label: 'Post Opportunities', href: '/organization/opportunities' },
@@ -107,7 +109,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-brand-border py-8 sm:flex-row pb-safe">
           <p className="text-xs text-brand-muted">
-            &copy; {new Date().getFullYear()} WeTheYuva. All rights reserved.
+            &copy; {COPYRIGHT_YEAR} WeTheYuva. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs text-brand-muted">
             <Link
