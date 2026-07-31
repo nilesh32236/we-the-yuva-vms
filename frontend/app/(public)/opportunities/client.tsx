@@ -104,7 +104,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               setPage(1);
             }}
             variant={category === 'ALL' ? 'primary' : 'outline'}
-            className={`shrink-0 rounded-full font-semibold ${category !== 'ALL' ? 'bg-brand-surface' : ''}`}
+            className={`shrink-0 rounded-full py-2.5 min-h-10 font-semibold ${category !== 'ALL' ? 'bg-brand-surface' : 'hover:bg-brand-primary'}`}
           >
             All
           </Button>
@@ -119,7 +119,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
                 setPage(1);
               }}
               variant={category === cat ? 'primary' : 'outline'}
-              className={`shrink-0 rounded-full font-semibold ${category !== cat ? 'bg-brand-surface' : ''}`}
+              className={`shrink-0 rounded-full py-2.5 min-h-10 font-semibold ${category !== cat ? 'bg-brand-surface' : 'hover:bg-brand-primary'}`}
             >
               {CATEGORY_LABELS[cat]}
             </Button>

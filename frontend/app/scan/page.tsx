@@ -164,8 +164,9 @@ function ScanInner() {
               <Button
                 type="button"
                 variant="ghost"
+                size="sm"
                 onClick={() => router.push('/volunteer/events')}
-                className="hover:underline"
+                className="hover:underline hover:text-brand-primary min-h-0 px-2 py-1"
               >
                 Back to Events
               </Button>
@@ -221,7 +222,7 @@ function ScanInner() {
                 setErrorMsg('');
               }}
               variant="ghost"
-              className={`flex-1 rounded-lg shadow-none py-3 h-auto ${mode === 'camera' ? 'bg-brand-surface text-brand-primary shadow-sm' : 'text-brand-muted'}`}
+              className={`flex-1 rounded-lg shadow-none py-3 h-auto ${mode === 'camera' ? 'bg-brand-surface text-brand-primary hover:text-brand-primary shadow-sm' : 'text-brand-muted hover:text-brand-muted'}`}
             >
               <Camera className="w-4 h-4" /> Camera
             </Button>
@@ -236,7 +237,7 @@ function ScanInner() {
                 setErrorMsg('');
               }}
               variant="ghost"
-              className={`flex-1 rounded-lg shadow-none py-3 h-auto ${mode === 'manual' ? 'bg-brand-surface text-brand-primary shadow-sm' : 'text-brand-muted'}`}
+              className={`flex-1 rounded-lg shadow-none py-3 h-auto ${mode === 'manual' ? 'bg-brand-surface text-brand-primary hover:text-brand-primary shadow-sm' : 'text-brand-muted hover:text-brand-muted'}`}
             >
               <Keyboard className="w-4 h-4" /> Manual
             </Button>
