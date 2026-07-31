@@ -1,11 +1,9 @@
 import { z } from 'zod';
 
-export const CompleteLessonSchema = z
-  .object({
-    timeSpent: z.number().positive().optional(),
-    quizScore: z.number().min(0).max(100).optional(),
-  })
-  .optional();
+export const CompleteLessonSchema = z.object({
+  timeSpent: z.number().positive().optional(),
+  quizScore: z.number().min(0).max(100).optional(),
+});
 
 export const CreateCourseSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),

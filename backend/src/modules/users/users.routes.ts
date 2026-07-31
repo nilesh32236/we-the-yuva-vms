@@ -26,6 +26,22 @@ import {
   updateVolunteerProfile,
 } from './users.controller';
 
+const ListVolunteersQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    search: z.string().optional(),
+    skills: z.string().optional(),
+  }),
+});
+
+const ListMyEventsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  }),
+});
+
 export const usersRouter: IRouter = Router();
 
 // All routes require authentication
@@ -82,7 +98,12 @@ usersRouter.patch(
  *       200:
  *         description: List of my events
  */
-usersRouter.get('/me/events', requirePermission(Permissions.USER_EVENTS_VIEW), getMyEventsHandler);
+usersRouter.get(
+  '/me/events',
+  requirePermission(Permissions.USER_EVENTS_VIEW),
+  validate(ListMyEventsQuerySchema),
+  getMyEventsHandler
+);
 
 usersRouter.post(
   '/me/profile',
@@ -125,6 +146,7 @@ usersRouter.get(
 usersRouter.get(
   '/coordinators/me/volunteers',
   requirePermission(Permissions.USER_VOLUNTEERS_MANAGE),
+  validate(ListVolunteersQuerySchema),
   getCoordinatorVolunteersHandler
 );
 

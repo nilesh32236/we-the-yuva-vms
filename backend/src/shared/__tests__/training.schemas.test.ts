@@ -177,5 +177,15 @@ describe('training.schemas', () => {
       const result = CompleteLessonSchema.safeParse({ quizScore: -1 });
       expect(result.success).toBe(false);
     });
+
+    it('should reject null input', () => {
+      const result = CompleteLessonSchema.safeParse(null);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject undefined input', () => {
+      const result = CompleteLessonSchema.safeParse(undefined);
+      expect(result.success).toBe(false);
+    });
   });
 });

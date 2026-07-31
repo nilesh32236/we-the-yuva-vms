@@ -9,6 +9,10 @@ import {
   verifyCertificateHandler,
 } from './certificates.controller';
 
+// This module is read-only: all routes are GET endpoints with no request body,
+// so no Zod body schemas or validate() middleware are required.
+// If a mutation endpoint (POST/PUT/PATCH) is added later, define a schema in
+// shared/schemas/ and wire up the validate() middleware.
 const router: RouterType = Router();
 
 router.get(

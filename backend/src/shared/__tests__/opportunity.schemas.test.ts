@@ -7,6 +7,7 @@ import {
   CheckInSchema,
   CheckOutSchema,
   EventSchema,
+  EventSeriesUpdateSchema,
   OpportunitySchema,
 } from '../schemas/opportunity.schemas';
 
@@ -194,6 +195,23 @@ describe('opportunity.schemas', () => {
     it('should accept empty input', () => {
       const result = CheckInSchema.safeParse({});
       expect(result.success).toBe(true);
+    });
+  });
+
+  describe('EventSeriesUpdateSchema', () => {
+    it('should accept a partial update with a single field', () => {
+      const result = EventSeriesUpdateSchema.safeParse({ title: 'New Series Title' });
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept an update with isActive only', () => {
+      const result = EventSeriesUpdateSchema.safeParse({ isActive: false });
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject an empty update', () => {
+      const result = EventSeriesUpdateSchema.safeParse({});
+      expect(result.success).toBe(false);
     });
   });
 

@@ -404,37 +404,59 @@ export async function submitOnboarding(userId: string, data: OnboardingInput) {
   }
 
   return prisma.$transaction(async (tx) => {
-    await tx.user.update({
-      where: { id: userId },
-      data: {
-        volunteerType: step3.volunteerType,
-        profileComplete: true,
+    const existing = await tx.volunteerProfile.findUnique({
+      where: { userId },
+      select: {
+        skills: true,
+        interests: true,
+        availability: true,
+        education: true,
+        bio: true,
+        avatarUrl: true,
+        details: true,
       },
     });
 
+    const existingDetails = (existing?.details ?? {}) as Record<string, unknown>;
+
     const profileData = {
-      skills: step1.skills,
-      interests: step2.causes,
-      availability: {
-        pattern: step3.availabilityPattern,
-        hoursPerWeek: step3.hoursPerWeek,
-        sessionDuration: step3.sessionDuration,
-      },
-      education: step4.education,
-      bio: step5.bio,
-      avatarUrl: step5.avatarUrl ?? undefined,
+      skills: step1?.skills ?? existing?.skills ?? [],
+      interests: step2?.causes ?? existing?.interests ?? [],
+      availability: step3
+        ? {
+            pattern: step3.availabilityPattern,
+            hoursPerWeek: step3.hoursPerWeek,
+            sessionDuration: step3.sessionDuration,
+          }
+        : (existing?.availability ?? {}),
+      education: step4?.education ?? existing?.education ?? '',
+      bio: step5?.bio ?? existing?.bio ?? '',
+      avatarUrl: step5?.avatarUrl ?? existing?.avatarUrl ?? undefined,
       details: {
-        expertise: step1.expertise,
-        languages: step1.languages,
-        interests: step2.interests,
-        preferredActivities: step2.preferredActivities,
-        occupation: step4.occupation,
-        experience: step4.experience,
-        certifications: step4.certifications,
-        socialLinks: step5.socialLinks,
-        onboardingCompletedAt: new Date().toISOString(),
+        ...existingDetails,
+        ...(step1 ? { expertise: step1.expertise, languages: step1.languages } : {}),
+        ...(step2
+          ? { interests: step2.interests, preferredActivities: step2.preferredActivities }
+          : {}),
+        ...(step4
+          ? {
+              occupation: step4.occupation,
+              experience: step4.experience,
+              certifications: step4.certifications,
+            }
+          : {}),
+        ...(step5 ? { socialLinks: step5.socialLinks } : {}),
+        onboardingCompletedAt: existingDetails.onboardingCompletedAt ?? new Date().toISOString(),
       },
     };
+
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        ...(step3 ? { volunteerType: step3.volunteerType } : {}),
+        profileComplete: Boolean(step1 && step2 && step3 && step4 && step5),
+      },
+    });
 
     return tx.volunteerProfile.upsert({
       where: { userId },

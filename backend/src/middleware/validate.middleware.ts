@@ -27,7 +27,14 @@ export function validate(schema: ZodSchema) {
       if (shape && 'query' in shape) req.query = data.query;
       if (shape && 'params' in shape) req.params = data.params;
     } else {
-      // Fallback: treat the entire schema as a body schema
+      // Fallback: treat the entire schema as a body schema.
+      // Skip validation when there is no body to validate (e.g. GET requests),
+      // avoiding silent coercion of requests that carry no payload.
+      if (req.body === undefined) {
+        next();
+        return;
+      }
+
       const result = schema.safeParse(req.body);
 
       if (!result.success) {

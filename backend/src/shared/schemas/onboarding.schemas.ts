@@ -87,36 +87,56 @@ export const SocialLinksSchema = z
   })
   .optional();
 
-export const OnboardingSchema = z.object({
-  step1: z.object({
-    skills: z.array(z.string().max(100)).min(1, 'Select at least one skill'),
-    expertise: z.array(z.enum(EXPERTISE_OPTIONS)).default([]),
-    languages: z.array(z.enum(LANGUAGES)).default([]),
-  }),
-  step2: z.object({
-    causes: z.array(z.enum(CAUSES)).min(1, 'Select at least one cause'),
-    interests: z.array(z.enum(INTEREST_OPTIONS)).default([]),
-    preferredActivities: z.array(z.enum(PREFERRED_ACTIVITIES)).default([]),
-  }),
-  step3: z.object({
-    volunteerType: z.enum(VOLUNTEER_TYPES, {
-      errorMap: () => ({ message: 'Select volunteer type' }),
-    }),
-    availabilityPattern: z.enum(AVAILABILITY_PATTERNS),
-    hoursPerWeek: z.number().min(1, 'At least 1 hour per week').max(168),
-    sessionDuration: z.number().min(0.5, 'Minimum 30 minutes'),
-  }),
-  step4: z.object({
-    education: z.string().min(1, 'Education is required').max(200),
-    occupation: z.string().min(1, 'Occupation is required').max(200),
-    experience: z.string().min(1, 'Experience is required').max(500),
-    certifications: z.array(z.string().max(100)).max(20).default([]),
-  }),
-  step5: z.object({
-    bio: z.string().max(300, 'Bio must be 300 characters or less'),
-    avatarUrl: z.string().url('Must be a valid URL').optional(),
-    socialLinks: SocialLinksSchema,
-  }),
-});
+export const OnboardingSchema = z
+  .object({
+    step1: z
+      .object({
+        skills: z.array(z.string().max(100)).min(1, 'Select at least one skill'),
+        expertise: z.array(z.enum(EXPERTISE_OPTIONS)).default([]),
+        languages: z.array(z.enum(LANGUAGES)).default([]),
+      })
+      .optional(),
+    step2: z
+      .object({
+        causes: z.array(z.enum(CAUSES)).min(1, 'Select at least one cause'),
+        interests: z.array(z.enum(INTEREST_OPTIONS)).default([]),
+        preferredActivities: z.array(z.enum(PREFERRED_ACTIVITIES)).default([]),
+      })
+      .optional(),
+    step3: z
+      .object({
+        volunteerType: z.enum(VOLUNTEER_TYPES, {
+          errorMap: () => ({ message: 'Select volunteer type' }),
+        }),
+        availabilityPattern: z.enum(AVAILABILITY_PATTERNS),
+        hoursPerWeek: z.number().min(1, 'At least 1 hour per week').max(168),
+        sessionDuration: z.number().min(0.5, 'Minimum 30 minutes'),
+      })
+      .optional(),
+    step4: z
+      .object({
+        education: z.string().min(1, 'Education is required').max(200),
+        occupation: z.string().min(1, 'Occupation is required').max(200),
+        experience: z.string().min(1, 'Experience is required').max(500),
+        certifications: z.array(z.string().max(100)).max(20).default([]),
+      })
+      .optional(),
+    step5: z
+      .object({
+        bio: z.string().max(300, 'Bio must be 300 characters or less'),
+        avatarUrl: z.string().url('Must be a valid URL').optional(),
+        socialLinks: SocialLinksSchema,
+      })
+      .optional(),
+  })
+  .refine(
+    (data) =>
+      data.step1 !== undefined ||
+      data.step2 !== undefined ||
+      data.step3 !== undefined ||
+      data.step4 !== undefined ||
+      data.step5 !== undefined,
+    { message: 'At least one onboarding step is required' }
+  );
 
 export type OnboardingData = z.infer<typeof OnboardingSchema>;

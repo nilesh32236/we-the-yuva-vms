@@ -44,6 +44,21 @@ const EventIdParamsSchema = z.object({
   params: z.object({ id: z.string().min(1, 'Event ID is required') }),
 });
 
+const ListEventsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  }),
+});
+
+const AttendanceListQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    listAll: z.enum(['true', 'false']).optional(),
+  }),
+});
+
 // ─── Router: /opportunities/:opportunityId/events ─────────────────
 // Mount at: /api/v1/opportunities/:opportunityId/events
 
@@ -106,6 +121,7 @@ opportunityEventsRouter.get(
   '/',
   requireAuth,
   requirePermission(Permissions.EVENT_VIEW),
+  validate(ListEventsQuerySchema),
   listEventsByOpportunityHandler
 );
 
@@ -126,7 +142,13 @@ export const eventsRouter: IRouter = Router();
  *       200:
  *         description: List of events
  */
-eventsRouter.get('/', requireAuth, requirePermission(Permissions.EVENT_VIEW), listAllEventsHandler);
+eventsRouter.get(
+  '/',
+  requireAuth,
+  requirePermission(Permissions.EVENT_VIEW),
+  validate(ListEventsQuerySchema),
+  listAllEventsHandler
+);
 
 /**
  * @openapi
@@ -171,7 +193,13 @@ eventsRouter.get(
   downloadIcalHandler
 );
 
-eventsRouter.get('/:id', requireAuth, requirePermission(Permissions.EVENT_VIEW), validate(EventIdParamsSchema), getEventHandler);
+eventsRouter.get(
+  '/:id',
+  requireAuth,
+  requirePermission(Permissions.EVENT_VIEW),
+  validate(EventIdParamsSchema),
+  getEventHandler
+);
 
 /**
  * @openapi
@@ -367,6 +395,7 @@ eventsRouter.get(
   '/:id/attendance',
   requireAuth,
   requirePermission(Permissions.EVENT_MANAGE),
+  validate(AttendanceListQuerySchema),
   getAttendanceListHandler
 );
 

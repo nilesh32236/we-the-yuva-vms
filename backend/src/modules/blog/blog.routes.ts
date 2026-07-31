@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import { CreateBlogPostSchema, UpdateBlogPostSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
@@ -40,12 +41,14 @@ blogRouter.patch(
   '/:id/publish',
   requireAuth,
   requirePermission(Permissions.BLOG_PUBLISH),
+  validate(z.object({}).strict()),
   publishHandler
 );
 blogRouter.patch(
   '/:id/archive',
   requireAuth,
   requirePermission(Permissions.BLOG_EDIT),
+  validate(z.object({}).strict()),
   archiveHandler
 );
 

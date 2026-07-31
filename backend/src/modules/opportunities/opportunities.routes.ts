@@ -1,4 +1,5 @@
 import { type IRouter, Router } from 'express';
+import { z } from 'zod';
 import {
   ApplicationStatusSchema,
   ApplySchema,
@@ -24,6 +25,26 @@ import {
   updateOpportunityHandler,
   withdrawApplicationHandler,
 } from './opportunities.controller';
+
+const ListOpportunitiesQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+    category: z.string().optional(),
+    skills: z.string().optional(),
+    isRemote: z.enum(['true', 'false']).optional(),
+    locationId: z.string().optional(),
+    search: z.string().optional(),
+    organizationId: z.string().optional(),
+  }),
+});
+
+const ListApplicationsQuerySchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  }),
+});
 
 export const opportunitiesRouter: IRouter = Router();
 
@@ -62,13 +83,18 @@ opportunitiesRouter.get(
   recommendedHandler
 );
 
-opportunitiesRouter.get('/public', listPublicOpportunitiesHandler);
+opportunitiesRouter.get(
+  '/public',
+  validate(ListOpportunitiesQuerySchema),
+  listPublicOpportunitiesHandler
+);
 opportunitiesRouter.get('/public/:id', getPublicOpportunityHandler);
 
 opportunitiesRouter.get(
   '/',
   requireAuth,
   requirePermission(Permissions.OPPORTUNITY_VIEW),
+  validate(ListOpportunitiesQuerySchema),
   listOpportunitiesHandler
 );
 
@@ -76,6 +102,7 @@ opportunitiesRouter.get(
   '/my-applications',
   requireAuth,
   requirePermission(Permissions.OPPORTUNITY_APPLY),
+  validate(ListApplicationsQuerySchema),
   listMyApplicationsHandler
 );
 
@@ -120,6 +147,7 @@ opportunitiesRouter.get(
   '/:id/applications',
   requireAuth,
   requirePermission(Permissions.OPPORTUNITY_MANAGE),
+  validate(ListApplicationsQuerySchema),
   listApplicationsHandler
 );
 

@@ -76,6 +76,31 @@ describe('validate middleware', () => {
     expect(req.params).not.toHaveProperty('secret');
   });
 
+  it('should skip validation and call next when req.body is undefined (no payload)', () => {
+    const schema = z.object({
+      name: z.string(),
+    });
+
+    const middleware = validate(schema);
+
+    const req = {
+      body: undefined,
+    } as unknown as Request;
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    const next = vi.fn() as unknown as NextFunction;
+
+    middleware(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+    expect(req.body).toBeUndefined();
+  });
+
   it('should return 422 if validation fails', () => {
     const schema = z.object({
       name: z.string(),
