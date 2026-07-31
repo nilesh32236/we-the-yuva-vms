@@ -1,16 +1,16 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Camera, CheckCircle, Keyboard, QrCode, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { Button } from '@/components/ui/Button';
 
 const ManualTokenSchema = z.object({
   token: z.string().min(1, 'Please enter a check-in code'),
@@ -161,13 +161,14 @@ function ScanInner() {
               <XCircle className="w-16 h-16 text-brand-error mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Check-in Failed</h2>
               <p className="text-brand-muted">{errorMsg}</p>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => router.push('/volunteer/events')}
-                className="text-brand-primary hover:underline text-sm cursor-pointer"
+                className="hover:underline mx-auto"
               >
                 Back to Events
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -209,7 +210,7 @@ function ScanInner() {
             role="tablist"
             aria-label="Scan mode"
           >
-            <button
+            <Button
               type="button"
               role="tab"
               id="scan-camera-tab"
@@ -219,15 +220,12 @@ function ScanInner() {
                 setMode('camera');
                 setErrorMsg('');
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'camera'
-                  ? 'bg-brand-surface shadow-sm text-brand-primary'
-                  : 'text-brand-muted'
-              }`}
+              variant={mode === 'camera' ? 'primary' : 'ghost'}
+              className="flex-1 rounded-lg shadow-none py-3 h-auto"
             >
               <Camera className="w-4 h-4" /> Camera
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               role="tab"
               id="scan-manual-tab"
@@ -237,14 +235,11 @@ function ScanInner() {
                 setMode('manual');
                 setErrorMsg('');
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'manual'
-                  ? 'bg-brand-surface shadow-sm text-brand-primary'
-                  : 'text-brand-muted'
-              }`}
+              variant={mode === 'manual' ? 'primary' : 'ghost'}
+              className="flex-1 rounded-lg shadow-none py-3 h-auto"
             >
               <Keyboard className="w-4 h-4" /> Manual
-            </button>
+            </Button>
           </div>
 
           {/* Camera scanner */}

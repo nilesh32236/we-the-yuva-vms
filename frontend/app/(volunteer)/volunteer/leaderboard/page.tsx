@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { LeaderboardRow } from '@/components/leaderboard/LeaderboardRow';
+import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
@@ -67,30 +68,22 @@ export default function VolunteerLeaderboardPage() {
       <div className="space-y-3">
         {/* Scope Tabs */}
         <div className="flex gap-1 bg-brand-surface rounded-xl p-1 border border-brand-border w-fit">
-          <button
+          <Button
             type="button"
             onClick={() => setScope('global')}
-            className={cn(
-              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
-              scope === 'global'
-                ? 'bg-brand-primary text-white shadow-sm'
-                : 'text-brand-muted hover:text-brand-text'
-            )}
+            variant={scope === 'global' ? 'primary' : 'ghost'}
+            className="rounded-lg shadow-none"
           >
             Global
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setScope('location')}
-            className={cn(
-              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
-              scope === 'location'
-                ? 'bg-brand-primary text-white shadow-sm'
-                : 'text-brand-muted hover:text-brand-text'
-            )}
+            variant={scope === 'location' ? 'primary' : 'ghost'}
+            className="rounded-lg shadow-none"
           >
             My Location
-          </button>
+          </Button>
         </div>
 
         {/* Timeframe + Sort */}
