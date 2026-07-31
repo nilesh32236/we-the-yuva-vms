@@ -165,7 +165,7 @@ function ScanInner() {
                 type="button"
                 variant="ghost"
                 onClick={() => router.push('/volunteer/events')}
-                className="hover:underline mx-auto"
+                className="hover:underline"
               >
                 Back to Events
               </Button>
@@ -220,8 +220,8 @@ function ScanInner() {
                 setMode('camera');
                 setErrorMsg('');
               }}
-              variant={mode === 'camera' ? 'primary' : 'ghost'}
-              className="flex-1 rounded-lg shadow-none py-3 h-auto"
+              variant="ghost"
+              className={`flex-1 rounded-lg shadow-none py-3 h-auto ${mode === 'camera' ? 'bg-brand-surface text-brand-primary shadow-sm' : 'text-brand-muted'}`}
             >
               <Camera className="w-4 h-4" /> Camera
             </Button>
@@ -235,8 +235,8 @@ function ScanInner() {
                 setMode('manual');
                 setErrorMsg('');
               }}
-              variant={mode === 'manual' ? 'primary' : 'ghost'}
-              className="flex-1 rounded-lg shadow-none py-3 h-auto"
+              variant="ghost"
+              className={`flex-1 rounded-lg shadow-none py-3 h-auto ${mode === 'manual' ? 'bg-brand-surface text-brand-primary shadow-sm' : 'text-brand-muted'}`}
             >
               <Keyboard className="w-4 h-4" /> Manual
             </Button>
