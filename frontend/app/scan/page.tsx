@@ -217,13 +217,13 @@ function ScanInner() {
               id="scan-camera-tab"
               aria-selected={mode === 'camera'}
               aria-controls="scan-camera-panel"
-              variant={mode === 'camera' ? 'primary' : 'ghost'}
+              variant={mode === 'camera' ? 'primary' : 'ghost-muted'}
               onClick={() => {
                 setMode('camera');
                 setErrorMsg('');
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'camera' ? 'shadow-sm' : 'text-brand-muted hover:text-brand-muted'
+                mode === 'camera' ? 'shadow-sm' : ''
               }`}
             >
               <Camera className="w-4 h-4" /> Camera
@@ -234,13 +234,13 @@ function ScanInner() {
               id="scan-manual-tab"
               aria-selected={mode === 'manual'}
               aria-controls="scan-manual-panel"
-              variant={mode === 'manual' ? 'primary' : 'ghost'}
+              variant={mode === 'manual' ? 'primary' : 'ghost-muted'}
               onClick={() => {
                 setMode('manual');
                 setErrorMsg('');
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'manual' ? 'shadow-sm' : 'text-brand-muted hover:text-brand-muted'
+                mode === 'manual' ? 'shadow-sm' : ''
               }`}
             >
               <Keyboard className="w-4 h-4" /> Manual

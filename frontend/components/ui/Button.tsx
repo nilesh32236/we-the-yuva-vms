@@ -9,9 +9,11 @@ const variants = {
     'border border-brand-border text-brand-text hover:bg-brand-bg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   ghost:
     'text-brand-primary hover:text-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+  'ghost-muted':
+    'text-brand-muted hover:text-brand-text hover:bg-brand-bg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
   icon: 'p-2 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed',
   destructive:
-    'bg-brand-error text-primary-foreground hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
+    'bg-brand-error text-destructive-foreground hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
 };
 
 const spinnerColors: Record<string, string> = {
@@ -19,6 +21,7 @@ const spinnerColors: Record<string, string> = {
   cta: 'border-white/30 border-t-white',
   outline: 'border-current/30 border-t-current',
   ghost: 'border-current/30 border-t-current',
+  'ghost-muted': 'border-current/30 border-t-current',
   icon: 'border-current/30 border-t-current',
   destructive: 'border-white/30 border-t-white',
 };
@@ -67,7 +70,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       {...props}
     >
       {loading ? (
-        <span className={`w-4 h-4 border-2 rounded-full motion-safe:animate-spin ${spinnerColors[variant]}`} />
+        <span
+          className={`w-4 h-4 border-2 rounded-full motion-safe:animate-spin ${spinnerColors[variant]}`}
+        />
       ) : (
         children
       )}
