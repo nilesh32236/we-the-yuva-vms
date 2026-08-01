@@ -260,6 +260,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                   <Button
                     type="button"
                     variant="ghost"
+                    size="sm"
                     onClick={() =>
                       updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
                     }
@@ -275,6 +276,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                   <Button
                     type="button"
                     variant="ghost"
+                    size="sm"
                     onClick={() =>
                       updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
                     }
@@ -293,6 +295,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                         <Button
                           type="button"
                           variant="ghost"
+                          size="sm"
                           key={role}
                           onClick={() =>
                             updateMutation.mutate({ id: selectedUser.id, data: { role } })
