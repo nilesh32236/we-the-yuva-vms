@@ -12,6 +12,7 @@ import { notificationsQueue } from '../../lib/queue';
 import { redis } from '../../lib/redis';
 import { getProfileStatus } from '../users/users.service';
 import { AppError } from '../../middleware/error.middleware';
+import { newApplicationTemplate } from '../../workers/email-templates';
 
 const CACHE_KEY_SET = 'opportunities:list:keys';
 
@@ -435,7 +436,7 @@ export async function applyToOpportunity(opportunityId: string, volunteerId: str
         await sendEmail(
           creator.email,
           'New Application from ' + volunteerName,
-          `<h2>New Application</h2><p>${volunteerName} applied to "${oppInfo.title}".</p>`,
+          newApplicationTemplate(volunteerName, oppInfo.title),
           `${volunteerName} applied to "${oppInfo.title}".`
         ).catch((err) =>
           logger.warn('Failed to send direct notification email', { error: (err as Error).message })

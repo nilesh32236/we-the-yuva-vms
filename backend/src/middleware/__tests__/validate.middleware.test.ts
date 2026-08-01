@@ -101,7 +101,43 @@ describe('validate middleware', () => {
     expect(res.status).toHaveBeenCalledWith(422);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
-        error: 'Required',
+        errors: { name: ['Required'] },
+        form: [],
+      })
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('should include root-level form errors in the 422 response', () => {
+    const schema = z
+      .object({
+        status: z.string().optional(),
+        role: z.string().optional(),
+      })
+      .refine((d) => d.status !== undefined || d.role !== undefined, {
+        message: 'At least one of status or role must be provided',
+      });
+
+    const middleware = validate(schema);
+
+    const req = {
+      body: {},
+    } as Request;
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
+    } as unknown as Response;
+
+    const next = vi.fn() as unknown as NextFunction;
+
+    middleware(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        errors: {},
+        form: ['At least one of status or role must be provided'],
       })
     );
     expect(next).not.toHaveBeenCalled();

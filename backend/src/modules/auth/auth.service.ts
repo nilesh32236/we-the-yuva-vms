@@ -7,6 +7,7 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
+import { otpEmailTemplate } from '../../workers/email-templates';
 
 // ─── OTP ─────────────────────────────────────────────────────────
 
@@ -111,7 +112,7 @@ export async function enqueueOtpEmail(email: string, otp: string): Promise<void>
     await sendEmail(
       email,
       'Your WeTheYuva verification code',
-      `<h1>Your verification code</h1><p style="font-size:32px;letter-spacing:8px;font-weight:bold;">${otp}</p><p>This code expires in 5 minutes.</p>`,
+      otpEmailTemplate(otp),
       `Your WeTheYuva verification code is: ${otp}\n\nThis code expires in 5 minutes.`
     );
   } catch (err) {

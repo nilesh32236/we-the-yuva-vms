@@ -23,8 +23,8 @@ export function errorMiddleware(
   _next: NextFunction
 ): void {
   if (err instanceof ZodError) {
-    const fieldErrors = err.flatten().fieldErrors;
-    res.status(422).json({ errors: fieldErrors });
+    const { fieldErrors, formErrors } = err.flatten();
+    res.status(422).json({ errors: fieldErrors, form: formErrors });
     return;
   }
 

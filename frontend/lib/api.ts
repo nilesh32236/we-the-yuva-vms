@@ -172,7 +172,10 @@ api.interceptors.response.use(
         error.normalizedMessage = data;
       } else {
         error.normalizedMessage =
-          data?.error ?? data?.message ?? `Request failed (status ${error.response.status}). Please try again.`;
+          data?.error ??
+          data?.message ??
+          (Array.isArray(data?.form) ? data.form[0] : undefined) ??
+          `Request failed (status ${error.response.status}). Please try again.`;
       }
     }
     return Promise.reject(error);

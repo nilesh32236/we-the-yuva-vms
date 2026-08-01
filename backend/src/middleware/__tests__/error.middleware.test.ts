@@ -38,7 +38,30 @@ describe('errorMiddleware', () => {
     ]);
     errorMiddleware(zodErr, req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(422);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Expected string' }));
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        errors: { name: ['Expected string'] },
+        form: [],
+      })
+    );
+  });
+
+  it('should include root-level form errors in the ZodError 422 response', () => {
+    const zodErr = new ZodError([
+      {
+        code: 'custom',
+        path: [],
+        message: 'At least one of status or role must be provided',
+      },
+    ]);
+    errorMiddleware(zodErr, req as Request, res as Response, next);
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        errors: {},
+        form: ['At least one of status or role must be provided'],
+      })
+    );
   });
 
   it('should handle AppError with status code', () => {

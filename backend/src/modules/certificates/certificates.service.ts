@@ -163,7 +163,7 @@ export function generateCertificateHtml(cert: {
       font-size: 1.1rem;
       letter-spacing: 4px;
       text-transform: uppercase;
-      color: #0d9488;
+      color: #0f766e;
       font-weight: 600;
       margin-bottom: 1.5rem;
     }
@@ -257,17 +257,17 @@ export function generateCertificateHtml(cert: {
       font-family: 'Courier New', monospace;
       font-size: 0.75rem;
       word-break: break-all;
-      color: #94a3b8;
+      color: #64748b;
       margin-top: 0.3rem;
     }
     .footer {
       text-align: center;
       margin-top: 2rem;
       font-size: 0.8rem;
-      color: #94a3b8;
+      color: #64748b;
     }
     .footer a {
-      color: #0d9488;
+      color: #0f766e;
       text-decoration: none;
     }
     @media print {
@@ -308,7 +308,7 @@ export function generateCertificateHtml(cert: {
       .title { color: #5eead4; }
       .subtitle, .presented-to, .achievement-text { color: #cbd5e1; }
       .volunteer-name { color: #f1f5f9; border-bottom-color: #334155; }
-      .detail-label { color: #94a3b8; }
+      .detail-label { color: #cbd5e1; }
       .detail-item { color: #cbd5e1; }
       .level-name { background: #0d9488; }
       .verified-badge {

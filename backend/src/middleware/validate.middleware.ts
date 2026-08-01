@@ -16,8 +16,8 @@ export function validate(schema: ZodSchema) {
       });
 
       if (!result.success) {
-        const fieldErrors = result.error.flatten().fieldErrors;
-        res.status(422).json({ errors: fieldErrors });
+        const { fieldErrors, formErrors } = result.error.flatten();
+        res.status(422).json({ errors: fieldErrors, form: formErrors });
         return;
       }
 
@@ -31,8 +31,8 @@ export function validate(schema: ZodSchema) {
       const result = schema.safeParse(req.body);
 
       if (!result.success) {
-        const fieldErrors = result.error.flatten().fieldErrors;
-        res.status(422).json({ errors: fieldErrors });
+        const { fieldErrors, formErrors } = result.error.flatten();
+        res.status(422).json({ errors: fieldErrors, form: formErrors });
         return;
       }
 

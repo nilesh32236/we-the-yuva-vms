@@ -6,6 +6,7 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
+import { accountSuspendedTemplate } from '../../workers/email-templates';
 
 interface ListUsersFilters {
   role?: string;
@@ -231,7 +232,7 @@ async function sendSuspensionEmailDirect(email: string) {
     await sendEmail(
       email,
       'Your WeTheYuva account has been suspended',
-      '<h2>Account suspended</h2><p>Your WeTheYuva account has been suspended. You will not be able to log in until the suspension is lifted.</p><p>If you believe this is a mistake, please contact our support team.</p>',
+      accountSuspendedTemplate(),
       'Your WeTheYuva account has been suspended. If you believe this is a mistake, please contact our support team.'
     );
   } catch (err) {
