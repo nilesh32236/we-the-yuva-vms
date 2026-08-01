@@ -221,7 +221,7 @@ function ScanInner() {
                 setErrorMsg('');
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'camera' ? 'shadow-sm' : 'text-brand-muted hover:text-brand-muted'
+                mode === 'camera' ? 'shadow-sm' : '!text-brand-muted'
               }`}
             >
               <Camera className="w-4 h-4" /> Camera
@@ -238,7 +238,7 @@ function ScanInner() {
                 setErrorMsg('');
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                mode === 'manual' ? 'shadow-sm' : 'text-brand-muted hover:text-brand-muted'
+                mode === 'manual' ? 'shadow-sm' : '!text-brand-muted'
               }`}
             >
               <Keyboard className="w-4 h-4" /> Manual
