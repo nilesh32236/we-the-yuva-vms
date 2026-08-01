@@ -23,6 +23,7 @@ export function usePushNotifications() {
   }, [user]);
 
   const subscribe = async () => {
+    if (!user) return;
     if (permission === 'unsupported') return;
     if (permission === 'denied') {
       setError('Push notifications are blocked. Please enable them in your browser settings.');
@@ -62,6 +63,7 @@ export function usePushNotifications() {
   };
 
   const unsubscribe = async () => {
+    if (!user) return;
     try {
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.getSubscription();

@@ -9,6 +9,7 @@ import {
   clearQueue,
 } from '@/lib/offline-queue';
 import { useAuth } from '@/hooks/useAuth';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 
 const errorMap: Record<string, string> = {
   'Event not found': 'Check-in failed',
@@ -42,6 +43,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   const retryAttemptRef = useRef(0);
   const prevUserRef = useRef(user);
   const userIdRef = useRef(user?.id);
+  const canCheckInRef = useRef(hasPermission(user, Permissions.EVENT_CHECKIN));
   const onSuccessRef = useRef(onSuccess);
   const onErrorRef = useRef(onError);
 
@@ -52,10 +54,13 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   useEffect(() => {
     userIdRef.current = user?.id;
-  }, [user?.id]);
+    canCheckInRef.current = hasPermission(user, Permissions.EVENT_CHECKIN);
+  }, [user]);
 
   useEffect(() => {
-    if (prevUserRef.current != null && user == null) {
+    const prevCanCheckIn = hasPermission(prevUserRef.current, Permissions.EVENT_CHECKIN);
+    const currentCanCheckIn = hasPermission(user, Permissions.EVENT_CHECKIN);
+    if (prevCanCheckIn && !currentCanCheckIn) {
       (async () => {
         try {
           await clearQueue();
@@ -71,6 +76,12 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   const sync = useCallback(async () => {
     setIsSyncing(true);
+    if (!canCheckInRef.current) {
+      await clearQueue().catch(() => {});
+      setQueuedCount(0);
+      setIsSyncing(false);
+      return;
+    }
     const result = await syncQueuedCheckins(userIdRef.current);
     if (result.failed === 0) {
       retryAttemptRef.current = 0;
@@ -128,6 +139,8 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
+      if (!userIdRef.current) throw new Error('You must be signed in to check in');
+      if (!canCheckInRef.current) throw new Error('You do not have permission to check in');
 
       if (!isOnline) {
         try {
