@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { MapPin, Calendar, Search, Wifi } from 'lucide-react';
+import { Calendar, MapPin, Search, Wifi } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 import { Pagination } from '@/components/shared/Pagination';
+import { Button } from '@/components/ui/Button';
 
 const CATEGORY_LABELS: Record<string, string> = {
   ENVIRONMENT: 'Environment',
@@ -90,44 +91,38 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
 
         {/* Category filter buttons */}
         <div
-          className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none"
+          className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none items-center"
           role="tablist"
           aria-label="Filter by category"
         >
-          <button
+          <Button
             type="button"
             role="tab"
             aria-selected={category === 'ALL'}
+            variant={category === 'ALL' ? 'primary' : 'outline'}
             onClick={() => {
               setCategory('ALL');
               setPage(1);
             }}
-            className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
-              category === 'ALL'
-                ? 'bg-brand-primary text-white'
-                : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg'
-            }`}
+            className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold ${category === 'ALL' ? '' : 'bg-brand-surface text-brand-text'}`}
           >
             All
-          </button>
+          </Button>
           {ALL_CATEGORIES.map((cat) => (
-            <button
+            <Button
               key={cat}
               type="button"
               role="tab"
               aria-selected={category === cat}
+              variant={category === cat ? 'primary' : 'outline'}
               onClick={() => {
                 setCategory(cat);
                 setPage(1);
               }}
-              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
-                category === cat
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg'
-              }`}
+              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold ${category === cat ? '' : 'bg-brand-surface text-brand-text'}`}
             >
               {CATEGORY_LABELS[cat]}
-            </button>
+            </Button>
           ))}
         </div>
 

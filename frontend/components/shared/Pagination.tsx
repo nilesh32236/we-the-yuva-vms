@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 interface PaginationProps {
   page: number;
@@ -13,27 +14,29 @@ export function Pagination({ page, totalPages, setPage }: PaginationProps) {
 
   return (
     <nav className="flex items-center justify-center gap-2 mt-6" aria-label="Pagination">
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="px-4 py-3 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
+        className="px-4 py-3 rounded-xl border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg active-bounce card-hover"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         Previous
-      </button>
+      </Button>
       <span className="text-sm text-brand-muted">
         Page {page} of {totalPages}
       </span>
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="px-4 py-3 rounded-xl border border-brand-border text-sm font-medium text-brand-muted disabled:opacity-40 hover:bg-brand-bg cursor-pointer transition-colors active-bounce card-hover min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
+        className="px-4 py-3 rounded-xl border-brand-border text-sm font-medium text-brand-muted hover:bg-brand-bg active-bounce card-hover"
       >
         Next
         <ChevronRight className="w-4 h-4" aria-hidden="true" />
-      </button>
+      </Button>
     </nav>
   );
 }
