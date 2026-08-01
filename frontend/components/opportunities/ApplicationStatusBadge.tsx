@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { ApplicationStatusSchema } from '@/lib/shared';
+import type { z } from 'zod';
+import type { ApplicationStatusSchema } from '@/lib/shared';
 
 const CONFIG = {
   PENDING: {

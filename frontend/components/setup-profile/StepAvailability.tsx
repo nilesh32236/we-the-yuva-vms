@@ -96,12 +96,7 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           {commonInput(
             'Hours per Week *',
             hoursPerWeek ? hoursPerWeek : '',
-            (v) =>
-              setValue(
-                'step3.hoursPerWeek',
-                v === '' ? undefined : Number(v),
-                { shouldValidate: true }
-              ),
+            (v) => setValue('step3.hoursPerWeek', Number(v), { shouldValidate: true }),
             'e.g. 5',
             'number',
             errors.step3?.hoursPerWeek?.message
@@ -109,12 +104,7 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
           {commonInput(
             'Session Duration (hrs) *',
             sessionDuration ? sessionDuration : '',
-            (v) =>
-              setValue(
-                'step3.sessionDuration',
-                v === '' ? undefined : Number(v),
-                { shouldValidate: true }
-              ),
+            (v) => setValue('step3.sessionDuration', Number(v), { shouldValidate: true }),
             'e.g. 2',
             'number',
             errors.step3?.sessionDuration?.message

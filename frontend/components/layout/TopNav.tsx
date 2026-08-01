@@ -85,11 +85,17 @@ export function TopNav() {
 
   const { data: unreadData } = useQuery({
     queryKey: ['notifications', 'unread-count'],
-    queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
+    queryFn: () =>
+      api
+        .get<{ count: number }>('/notifications/unread-count')
+        .then((r) => r.data)
+        .catch((err) => {
+          Sentry.captureException(err);
+          throw err;
+        }),
     enabled: !!user,
     refetchInterval: 30000,
     staleTime: 30000,
-    onError: (err: unknown) => Sentry.captureException(err),
   });
 
   const { data: notifData, isLoading: notifLoading } = useQuery({

@@ -239,6 +239,7 @@ export function EventSeriesForm({
       {/* Frequency */}
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-brand-text">Frequency</p>
+        {/* biome-ignore lint/a11y/useSemanticElements: segmented control group semantics */}
         <div role="group" aria-labelledby="series-frequency-label" className="flex gap-2">
           <span id="series-frequency-label" className="sr-only">
             Frequency
@@ -267,6 +268,7 @@ export function EventSeriesForm({
       {frequency === 'WEEKLY' && (
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-brand-text">Repeat on</p>
+          {/* biome-ignore lint/a11y/useSemanticElements: segmented control group semantics */}
           <div role="group" aria-labelledby="series-days-label" className="flex gap-1.5 flex-wrap">
             <span id="series-days-label" className="sr-only">
               Repeat on

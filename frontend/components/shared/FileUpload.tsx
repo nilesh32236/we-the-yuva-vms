@@ -21,7 +21,7 @@ function matchesAccept(file: File, accept: string): boolean {
   return patterns.some((pattern) => {
     if (pattern === '*' || pattern === '*/*') return true;
     if (pattern.endsWith('/*')) {
-      return type.startsWith(pattern.slice(0, pattern.indexOf('/*')) + '/');
+      return type.startsWith(`${pattern.slice(0, pattern.indexOf('/*'))}/`);
     }
     if (pattern.startsWith('.')) return ext === pattern;
     return type === pattern;

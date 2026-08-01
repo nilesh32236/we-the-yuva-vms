@@ -43,6 +43,7 @@ export function PeerEndorsementInput({ endorsements, onChange }: PeerEndorsement
         <ul className="space-y-2" aria-label="Added endorsements">
           {endorsements.map((end, index) => (
             <li
+              // biome-ignore lint/suspicious/noArrayIndexKey: endorsements are positional within the list
               key={`${end.name}-${index}`}
               className="flex items-start gap-3 p-3 rounded-xl bg-brand-bg border border-brand-border"
             >

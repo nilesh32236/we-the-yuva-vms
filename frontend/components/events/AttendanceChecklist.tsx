@@ -192,6 +192,7 @@ const VolunteerRow = function VolunteerRow({
             </label>
             <div className="flex gap-0.5" role="radiogroup" aria-label="Rating">
               {[1, 2, 3, 4, 5].map((star) => (
+                // biome-ignore lint/a11y/useSemanticElements: star buttons convey rating via aria-checked
                 <button
                   key={star}
                   type="button"
@@ -254,6 +255,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
     [volunteers]
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally keyed on a data signature to avoid cascading re-renders
   useEffect(() => {
     setState((prev) => {
       const next = { ...prev };
