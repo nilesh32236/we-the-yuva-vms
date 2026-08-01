@@ -222,7 +222,7 @@ function ScanInner() {
                 setErrorMsg('');
               }}
               variant="ghost"
-              className={`flex-1 rounded-lg py-3 px-0 ${mode === 'camera' ? 'bg-brand-surface text-brand-primary hover:text-brand-primary shadow-sm' : 'text-brand-muted hover:text-brand-muted'}`}
+              className={`flex-1 rounded-lg py-3 px-0 transition-all ${mode === 'camera' ? 'bg-brand-surface text-brand-primary hover:text-brand-primary shadow-sm' : 'text-brand-muted hover:text-brand-muted'}`}
             >
               <Camera className="w-4 h-4" /> Camera
             </Button>
@@ -237,7 +237,7 @@ function ScanInner() {
                 setErrorMsg('');
               }}
               variant="ghost"
-              className={`flex-1 rounded-lg py-3 px-0 ${mode === 'manual' ? 'bg-brand-surface text-brand-primary hover:text-brand-primary shadow-sm' : 'text-brand-muted hover:text-brand-muted'}`}
+              className={`flex-1 rounded-lg py-3 px-0 transition-all ${mode === 'manual' ? 'bg-brand-surface text-brand-primary hover:text-brand-primary shadow-sm' : 'text-brand-muted hover:text-brand-muted'}`}
             >
               <Keyboard className="w-4 h-4" /> Manual
             </Button>

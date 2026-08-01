@@ -72,7 +72,7 @@ export default function VolunteerLeaderboardPage() {
             type="button"
             onClick={() => setScope('global')}
             variant={scope === 'global' ? 'primary' : 'ghost'}
-            className={`rounded-lg px-4 py-2.5 min-h-11 ${scope === 'global' ? 'shadow-sm' : 'text-brand-muted hover:text-brand-text shadow-none'}`}
+            className={`rounded-lg px-4 py-2.5 min-h-11 ${scope === 'global' ? 'shadow-sm hover:bg-brand-primary' : 'text-brand-muted hover:text-brand-text'}`}
           >
             Global
           </Button>
@@ -80,7 +80,7 @@ export default function VolunteerLeaderboardPage() {
             type="button"
             onClick={() => setScope('location')}
             variant={scope === 'location' ? 'primary' : 'ghost'}
-            className={`rounded-lg px-4 py-2.5 min-h-11 ${scope === 'location' ? 'shadow-sm' : 'text-brand-muted hover:text-brand-text shadow-none'}`}
+            className={`rounded-lg px-4 py-2.5 min-h-11 ${scope === 'location' ? 'shadow-sm hover:bg-brand-primary' : 'text-brand-muted hover:text-brand-text'}`}
           >
             My Location
           </Button>

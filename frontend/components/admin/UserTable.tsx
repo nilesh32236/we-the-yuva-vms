@@ -264,7 +264,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     onClick={() =>
                       updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
                     }
-                    className="w-full justify-start text-brand-primary hover:bg-brand-bg hover:text-brand-primary rounded-none"
+                    className="w-full justify-start font-normal text-brand-primary hover:bg-brand-bg hover:text-brand-primary rounded-none"
                     aria-label={`Activate ${selectedUser.name}`}
                     role="menuitem"
                   >
@@ -280,7 +280,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     onClick={() =>
                       updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
                     }
-                    className="w-full justify-start text-brand-error hover:bg-brand-bg hover:text-brand-error rounded-none"
+                    className="w-full justify-start font-normal text-brand-error hover:bg-brand-bg hover:text-brand-error rounded-none"
                     aria-label={`Suspend ${selectedUser.name}`}
                     role="menuitem"
                   >
@@ -300,7 +300,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                           onClick={() =>
                             updateMutation.mutate({ id: selectedUser.id, data: { role } })
                           }
-                          className="w-full justify-start text-brand-text hover:bg-brand-bg hover:text-brand-text rounded-none"
+                          className="w-full justify-start font-normal text-brand-text hover:bg-brand-bg hover:text-brand-text rounded-none"
                           aria-label={`Change role to ${role}`}
                           role="menuitem"
                         >
