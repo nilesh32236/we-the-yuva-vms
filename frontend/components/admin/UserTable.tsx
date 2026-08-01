@@ -200,6 +200,8 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                       onClick={(e) => handleMenuClick(u.id, e)}
                       disabled={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
+                      aria-haspopup="menu"
+                      aria-expanded={openMenu === u.id}
                       className="active:scale-90"
                     >
                       <MoreVertical className="w-4 h-4" />

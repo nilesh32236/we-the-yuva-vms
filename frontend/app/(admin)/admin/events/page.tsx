@@ -43,7 +43,7 @@ export default function AdminEventsPage() {
             }
           }}
           variant="outline"
-          className="rounded-xl font-semibold"
+          className="rounded-xl font-semibold px-4 py-2.5 min-h-0"
         >
           <Download className="w-4 h-4" /> Export CSV
         </Button>

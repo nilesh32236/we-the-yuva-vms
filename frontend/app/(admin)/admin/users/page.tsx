@@ -96,6 +96,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
             aria-label="Close dialog"
             variant="icon"
             size="icon"
+            className="hover:text-brand-muted"
           >
             <X className="w-4 h-4" />
           </Button>
