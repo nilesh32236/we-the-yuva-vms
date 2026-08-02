@@ -109,7 +109,7 @@ export default function AdminStoriesPage() {
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
                     disabled={moderateMut.isPending}
-                    className="flex items-center gap-1.5 text-xs font-medium rounded-xl py-3 min-h-[auto] px-3"
+                    className="flex items-center gap-1.5 text-xs font-medium rounded-xl py-3 px-3"
                   >
                     {story.published ? (
                       <XCircle className="w-3.5 h-3.5" />
@@ -121,7 +121,10 @@ export default function AdminStoriesPage() {
                   <Button
                     variant="outline"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
-                    className="flex items-center gap-1.5 text-xs font-medium rounded-xl text-brand-error border-brand-border hover:bg-brand-error/10 hover:border-brand-error/30 py-3 min-h-[auto] px-3"
+                    className={`
+                      flex items-center gap-1.5 text-xs font-medium rounded-xl text-brand-error
+                      border-brand-border hover:bg-brand-error/10 hover:border-brand-error/30 py-3 px-3
+                    `}
                   >
                     Delete
                   </Button>
