@@ -1,18 +1,18 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 import { Plus, Trash2, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
-import { SkeletonCard } from '@/components/shared/SkeletonCard';
-import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/Button';
-import type { AxiosError } from 'axios';
 
 interface Coordinator {
   id: string;
@@ -215,6 +215,7 @@ export default function OrganizationCoordinatorsPage() {
                 </span>
                 <Button
                   variant="icon"
+                  size="icon"
                   onClick={() => setConfirmingRemove({ id: c.id, name: c.name })}
                   className="hover:text-brand-error hover:bg-red-50 dark:hover:bg-red-950/30"
                   aria-label={`Remove ${c.name}`}

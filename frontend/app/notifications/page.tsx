@@ -110,6 +110,7 @@ export default function NotificationsPage() {
       <header className="h-16 bg-brand-surface border-b border-brand-border flex items-center px-4 md:px-6 gap-3 sticky top-0 z-30 flex-shrink-0">
         <Button
           variant="icon"
+          size="icon"
           onClick={() => {
             haptic.light();
             router.back();
