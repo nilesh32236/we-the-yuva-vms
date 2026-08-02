@@ -161,13 +161,7 @@ function ScanInner() {
               <XCircle className="w-16 h-16 text-brand-error mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Check-in Failed</h2>
               <p className="text-brand-muted">{errorMsg}</p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="hover:underline"
-                onClick={() => router.push('/volunteer/events')}
-              >
+              <Button type="button" variant="link" onClick={() => router.push('/volunteer/events')}>
                 Back to Events
               </Button>
             </div>
@@ -210,6 +204,15 @@ function ScanInner() {
             className="flex gap-2 bg-brand-muted/10 dark:bg-brand-muted/20 rounded-xl p-1"
             role="tablist"
             aria-label="Scan mode"
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const newMode = mode === 'camera' ? 'manual' : 'camera';
+                setMode(newMode);
+                setErrorMsg('');
+                document.getElementById(`scan-${newMode}-tab`)?.focus();
+              }
+            }}
           >
             <Button
               type="button"
@@ -217,6 +220,7 @@ function ScanInner() {
               id="scan-camera-tab"
               aria-selected={mode === 'camera'}
               aria-controls="scan-camera-panel"
+              tabIndex={mode === 'camera' ? 0 : -1}
               variant={mode === 'camera' ? 'primary' : 'ghost-muted'}
               onClick={() => {
                 setMode('camera');
@@ -234,6 +238,7 @@ function ScanInner() {
               id="scan-manual-tab"
               aria-selected={mode === 'manual'}
               aria-controls="scan-manual-panel"
+              tabIndex={mode === 'manual' ? 0 : -1}
               variant={mode === 'manual' ? 'primary' : 'ghost-muted'}
               onClick={() => {
                 setMode('manual');

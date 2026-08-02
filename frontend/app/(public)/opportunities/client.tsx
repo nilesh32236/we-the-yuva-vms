@@ -94,17 +94,40 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none items-center"
           role="tablist"
           aria-label="Filter by category"
+          onKeyDown={(e) => {
+            const tabs = ['ALL', ...ALL_CATEGORIES];
+            const currentIndex = tabs.indexOf(category);
+            let newIndex = currentIndex;
+
+            if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              newIndex = (currentIndex + 1) % tabs.length;
+            } else if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+            }
+
+            if (newIndex !== currentIndex) {
+              const newCategory = tabs[newIndex] as typeof category;
+              setCategory(newCategory);
+              setPage(1);
+              document.getElementById(`filter-tab-${newCategory}`)?.focus();
+            }
+          }}
         >
           <Button
             type="button"
             role="tab"
+            id="filter-tab-ALL"
+            aria-controls="opportunities-tabpanel"
             aria-selected={category === 'ALL'}
+            tabIndex={category === 'ALL' ? 0 : -1}
             variant={category === 'ALL' ? 'primary' : 'outline'}
             onClick={() => {
               setCategory('ALL');
               setPage(1);
             }}
-            className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold ${category === 'ALL' ? '' : 'bg-brand-surface text-brand-text'}`}
+            className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold ${category === 'ALL' ? '' : 'bg-brand-surface'}`}
           >
             All
           </Button>
@@ -113,85 +136,92 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               key={cat}
               type="button"
               role="tab"
+              id={`filter-tab-${cat}`}
+              aria-controls="opportunities-tabpanel"
               aria-selected={category === cat}
+              tabIndex={category === cat ? 0 : -1}
               variant={category === cat ? 'primary' : 'outline'}
               onClick={() => {
                 setCategory(cat);
                 setPage(1);
               }}
-              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold ${category === cat ? '' : 'bg-brand-surface text-brand-text'}`}
+              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold ${category === cat ? '' : 'bg-brand-surface'}`}
             >
               {CATEGORY_LABELS[cat]}
             </Button>
           ))}
         </div>
 
-        {/* Results count */}
-        <div aria-live="polite" role="status">
-          <p className="text-sm text-brand-muted mb-4">
-            {filtered.length} {filtered.length === 1 ? 'opportunity' : 'opportunities'} found
-          </p>
+        <div id="opportunities-tabpanel" role="tabpanel" aria-labelledby={`filter-tab-${category}`}>
+          {/* Results count */}
+          <div aria-live="polite" role="status">
+            <p className="text-sm text-brand-muted mb-4">
+              {filtered.length} {filtered.length === 1 ? 'opportunity' : 'opportunities'} found
+            </p>
 
-          {/* Card grid */}
-          {filtered.length === 0 ? (
-            <div className="text-center py-16">
-              <Search className="w-10 h-10 mx-auto mb-3 text-brand-muted/40" aria-hidden="true" />
-              <p className="font-medium text-brand-text">No opportunities found</p>
-              <p className="text-sm text-brand-muted mt-1">Try adjusting your search or filters</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {paged.map((opp) => (
-                  <Link
-                    key={opp.id}
-                    href={`/opportunities/${opp.id}`}
-                    className="group rounded-2xl border border-brand-border p-5 bg-brand-surface flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none card-hover"
-                  >
-                    {/* Category badge */}
-                    <div>
-                      <span className="rounded-full bg-brand-bg px-3 py-1 text-xs font-semibold text-brand-primary">
-                        {CATEGORY_LABELS[opp.category] ?? opp.category}
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <h2 className="font-heading font-semibold text-brand-text text-base leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
-                      {opp.title}
-                    </h2>
-
-                    {/* Description */}
-                    {opp.description && (
-                      <p className="text-sm text-brand-muted leading-relaxed line-clamp-2">
-                        {opp.description}
-                      </p>
-                    )}
-
-                    {/* Meta */}
-                    <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-brand-muted">
-                      {opp.location && (
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
-                          {opp.location.name}
-                        </span>
-                      )}
-                      {opp.isRemote && !opp.location && (
-                        <span className="flex items-center gap-1.5 text-brand-primary">
-                          <Wifi className="w-3.5 h-3.5" aria-hidden="true" />
-                          Remote
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
-                        {formatDateRange(opp.startDate, opp.endDate)}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+            {/* Card grid */}
+            {filtered.length === 0 ? (
+              <div className="text-center py-16">
+                <Search className="w-10 h-10 mx-auto mb-3 text-brand-muted/40" aria-hidden="true" />
+                <p className="font-medium text-brand-text">No opportunities found</p>
+                <p className="text-sm text-brand-muted mt-1">
+                  Try adjusting your search or filters
+                </p>
               </div>
-              <Pagination page={page} totalPages={totalPages} setPage={setPage} />
-            </>
-          )}
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {paged.map((opp) => (
+                    <Link
+                      key={opp.id}
+                      href={`/opportunities/${opp.id}`}
+                      className="group rounded-2xl border border-brand-border p-5 bg-brand-surface flex flex-col gap-3 hover:shadow-md hover:border-brand-primary/30 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none card-hover"
+                    >
+                      {/* Category badge */}
+                      <div>
+                        <span className="rounded-full bg-brand-bg px-3 py-1 text-xs font-semibold text-brand-primary">
+                          {CATEGORY_LABELS[opp.category] ?? opp.category}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h2 className="font-heading font-semibold text-brand-text text-base leading-snug line-clamp-2 group-hover:text-brand-primary transition-colors">
+                        {opp.title}
+                      </h2>
+
+                      {/* Description */}
+                      {opp.description && (
+                        <p className="text-sm text-brand-muted leading-relaxed line-clamp-2">
+                          {opp.description}
+                        </p>
+                      )}
+
+                      {/* Meta */}
+                      <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-brand-muted">
+                        {opp.location && (
+                          <span className="flex items-center gap-1.5">
+                            <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+                            {opp.location.name}
+                          </span>
+                        )}
+                        {opp.isRemote && !opp.location && (
+                          <span className="flex items-center gap-1.5 text-brand-primary">
+                            <Wifi className="w-3.5 h-3.5" aria-hidden="true" />
+                            Remote
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
+                          {formatDateRange(opp.startDate, opp.endDate)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
