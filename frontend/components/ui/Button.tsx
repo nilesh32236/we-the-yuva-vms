@@ -62,6 +62,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
+      // Note: sizes[size] must precede variants[variant] so that variant-specific layout
+      // overrides (like the 'link' variant's p-0/min-h-0) win over the default size classes.
       className={cn(
         'inline-flex items-center justify-center gap-2 font-medium rounded-lg motion-safe:transition-colors motion-safe:duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         sizes[size],

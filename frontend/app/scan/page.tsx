@@ -37,6 +37,7 @@ function ScanInner() {
   const submitted = useRef(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scannerContainer = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
 
   const checkinMutation = useMutation({
     mutationFn: (qrToken: string) =>
@@ -219,13 +220,16 @@ function ScanInner() {
               if (newMode !== mode) {
                 setMode(newMode);
                 setErrorMsg('');
-                document.getElementById(`scan-${newMode}-tab`)?.focus();
+                tabRefs.current.get(newMode)?.focus();
               }
             }}
           >
             <Button
               type="button"
               role="tab"
+              ref={(el) => {
+                tabRefs.current.set('camera', el);
+              }}
               id="scan-camera-tab"
               aria-selected={mode === 'camera'}
               aria-controls={mode === 'camera' ? 'scan-camera-panel' : undefined}
@@ -244,6 +248,9 @@ function ScanInner() {
             <Button
               type="button"
               role="tab"
+              ref={(el) => {
+                tabRefs.current.set('manual', el);
+              }}
               id="scan-manual-tab"
               aria-selected={mode === 'manual'}
               aria-controls={mode === 'manual' ? 'scan-manual-panel' : undefined}

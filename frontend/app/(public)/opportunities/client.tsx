@@ -2,7 +2,7 @@
 
 import { Calendar, MapPin, Search, Wifi } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Pagination } from '@/components/shared/Pagination';
 import { Button } from '@/components/ui/Button';
 
@@ -47,6 +47,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
   const [page, setPage] = useState(1);
+  const tabRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
 
   const filtered = opportunities.filter((opp) => {
     const matchesSearch = opp.title.toLowerCase().includes(search.toLowerCase());
@@ -117,15 +118,17 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               const newCategory = tabs[newIndex] as typeof category;
               setCategory(newCategory);
               setPage(1);
-              document.getElementById(`filter-tab-${newCategory}`)?.focus();
+              tabRefs.current.get(newCategory)?.focus();
             }
           }}
         >
           <Button
             type="button"
             role="tab"
+            ref={(el) => {
+              tabRefs.current.set('ALL', el);
+            }}
             id="filter-tab-ALL"
-            aria-controls={category === 'ALL' ? 'opportunities-tabpanel' : undefined}
             aria-selected={category === 'ALL'}
             tabIndex={category === 'ALL' ? 0 : -1}
             variant={category === 'ALL' ? 'primary' : 'outline'}
@@ -142,8 +145,10 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               key={cat}
               type="button"
               role="tab"
+              ref={(el) => {
+                tabRefs.current.set(cat, el);
+              }}
               id={`filter-tab-${cat}`}
-              aria-controls={category === cat ? 'opportunities-tabpanel' : undefined}
               aria-selected={category === cat}
               tabIndex={category === cat ? 0 : -1}
               variant={category === cat ? 'primary' : 'outline'}
