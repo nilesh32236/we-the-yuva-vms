@@ -2,10 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
-import { Pagination } from '@/components/shared/Pagination';
 import { useState } from 'react';
 import { OrganizationTable } from '@/components/admin/OrganizationTable';
+import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 
 const STATUSES = ['ALL', 'PENDING', 'ACTIVE', 'SUSPENDED'];
@@ -53,16 +54,20 @@ export default function AdminOrganizationsPage() {
           </span>
           <div className="flex bg-brand-surface border border-brand-border p-1 rounded-xl shadow-sm">
             {STATUSES.map((s) => (
-              <button
+              <Button
                 key={s}
-                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => handleStatusChange(s)}
                 aria-pressed={status === s}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer
-                  ${status === s ? 'bg-brand-primary text-white shadow-md' : 'text-brand-muted hover:text-brand-text'}`}
+                className={`rounded-lg text-xs font-bold transition-all px-4 py-1.5 min-h-[auto] ${
+                  status === s
+                    ? 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white shadow-md'
+                    : 'text-brand-muted hover:text-brand-text'
+                }`}
               >
                 {s === 'ALL' ? 'All' : s.charAt(0) + s.slice(1).toLowerCase()}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

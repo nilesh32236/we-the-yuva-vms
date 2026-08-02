@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api, downloadCsv } from '@/lib/api';
 
@@ -28,8 +29,8 @@ export default function AdminEventsPage() {
     <div className="space-y-5 max-w-6xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">All Events</h1>
-        <button
-          type="button"
+        <Button
+          variant="outline"
           onClick={async () => {
             try {
               await downloadCsv('/events/export/csv', 'events.csv');
@@ -41,10 +42,10 @@ export default function AdminEventsPage() {
               });
             }
           }}
-          className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer"
+          className="font-semibold rounded-xl"
         >
           <Download className="w-4 h-4" /> Export CSV
-        </button>
+        </Button>
       </div>
 
       {isLoading ? (
