@@ -98,7 +98,7 @@ export default function AdminStoriesPage() {
                 <div className="flex items-center gap-2 pt-1">
                   <Link
                     href={`/admin/stories/${story.id}`}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors min-h-[44px]"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     View
@@ -109,6 +109,7 @@ export default function AdminStoriesPage() {
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
                     disabled={moderateMut.isPending}
+                    loading={moderateMut.isPending && moderateMut.variables?.id === story.id}
                     className="flex items-center gap-1.5 text-xs font-medium rounded-xl py-3 px-3"
                   >
                     {story.published ? (

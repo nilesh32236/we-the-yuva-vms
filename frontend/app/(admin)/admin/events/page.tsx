@@ -18,6 +18,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function AdminEventsPage() {
   const [page, setPage] = useState(1);
+  const [exporting, setExporting] = useState(false);
   const { toast } = useToast();
   const { data, isLoading } = useQuery({
     queryKey: ['admin-events', page],
@@ -32,6 +33,8 @@ export default function AdminEventsPage() {
         <Button
           variant="outline"
           onClick={async () => {
+            if (exporting) return;
+            setExporting(true);
             try {
               await downloadCsv('/events/export/csv', 'events.csv');
             } catch {
@@ -40,8 +43,12 @@ export default function AdminEventsPage() {
                 description: 'Failed to export CSV',
                 variant: 'destructive',
               });
+            } finally {
+              setExporting(false);
             }
           }}
+          loading={exporting}
+          disabled={exporting}
           className="font-semibold rounded-xl"
         >
           <Download className="w-4 h-4" /> Export CSV

@@ -142,9 +142,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             disabled={reviewMutation.isPending}
             className="flex-1 border-brand-error text-brand-error hover:bg-brand-error/5 hover:border-brand-error/50 font-semibold rounded-xl"
           >
-            {!(reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED') && (
-              <XCircle className="w-4 h-4 mr-1" />
-            )}
+            <XCircle className="w-4 h-4" />
             Reject
           </Button>
           <Button
@@ -154,9 +152,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             disabled={reviewMutation.isPending}
             className="flex-1 font-semibold rounded-xl"
           >
-            {!(reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED') && (
-              <CheckCircle className="w-4 h-4 mr-1" />
-            )}
+            <CheckCircle className="w-4 h-4" />
             Approve
           </Button>
         </div>
