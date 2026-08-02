@@ -105,6 +105,12 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
             } else if (e.key === 'ArrowLeft') {
               e.preventDefault();
               newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+            } else if (e.key === 'Home') {
+              e.preventDefault();
+              newIndex = 0;
+            } else if (e.key === 'End') {
+              e.preventDefault();
+              newIndex = tabs.length - 1;
             }
 
             if (newIndex !== currentIndex) {

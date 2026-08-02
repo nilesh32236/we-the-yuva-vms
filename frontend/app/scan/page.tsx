@@ -205,9 +205,18 @@ function ScanInner() {
             role="tablist"
             aria-label="Scan mode"
             onKeyDown={(e) => {
+              let newMode = mode;
               if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
                 e.preventDefault();
-                const newMode = mode === 'camera' ? 'manual' : 'camera';
+                newMode = mode === 'camera' ? 'manual' : 'camera';
+              } else if (e.key === 'Home') {
+                e.preventDefault();
+                newMode = 'camera';
+              } else if (e.key === 'End') {
+                e.preventDefault();
+                newMode = 'manual';
+              }
+              if (newMode !== mode) {
                 setMode(newMode);
                 setErrorMsg('');
                 document.getElementById(`scan-${newMode}-tab`)?.focus();
