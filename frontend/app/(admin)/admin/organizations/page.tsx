@@ -57,10 +57,9 @@ export default function AdminOrganizationsPage() {
               <Button
                 key={s}
                 variant="ghost"
-                size="sm"
                 onClick={() => handleStatusChange(s)}
                 aria-pressed={status === s}
-                className={`rounded-lg text-xs font-bold transition-all px-4 py-1.5 min-h-[auto] ${
+                className={`rounded-lg text-xs font-bold transition-all px-4 py-1.5 min-h-[44px] ${
                   status === s
                     ? 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white shadow-md'
                     : 'text-brand-muted hover:text-brand-text'
