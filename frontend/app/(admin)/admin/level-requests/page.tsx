@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowRight, CheckCircle, Download, FileText, Search, X, XCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Download, FileText, Loader2, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
@@ -130,11 +130,12 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <Button
             variant="outline"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
-            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
             disabled={reviewMutation.isPending}
             className="flex-1 border-brand-error text-brand-error hover:bg-brand-error/5 hover:border-brand-error/50 font-semibold"
           >
-            {!(reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED') && (
+            {reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED' ? (
+              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
+            ) : (
               <XCircle className="w-4 h-4 inline mr-1" />
             )}
             Reject
@@ -142,11 +143,12 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <Button
             variant="primary"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
-            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
             disabled={reviewMutation.isPending}
             className="flex-1 font-semibold"
           >
-            {!(reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED') && (
+            {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? (
+              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
+            ) : (
               <CheckCircle className="w-4 h-4 inline mr-1" />
             )}
             Approve
