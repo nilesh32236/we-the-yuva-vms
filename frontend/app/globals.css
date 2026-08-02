@@ -11,6 +11,7 @@
   --color-brand-cta: var(--clr-brand-cta);
   --color-brand-accent: var(--clr-brand-accent);
   --color-brand-accent-foreground: var(--clr-brand-accent-foreground);
+  --color-brand-primary-foreground: var(--clr-brand-primary-foreground);
   --color-brand-bg: var(--clr-brand-bg);
   --color-brand-text: var(--clr-brand-text);
   --color-brand-muted: var(--clr-brand-muted);
@@ -75,6 +76,7 @@
   --clr-brand-cta: #0891b2;
   --clr-brand-accent: #d97706;
   --clr-brand-accent-foreground: #ffffff;
+  --clr-brand-primary-foreground: #ffffff;
   --clr-brand-bg: #ecfdf5;
   --clr-brand-text: #065f46;
   --clr-brand-muted: #4b5563;
@@ -118,6 +120,7 @@
   --clr-brand-cta: #22d3ee;
   --clr-brand-accent: #fbbf24;
   --clr-brand-accent-foreground: #0f172a;
+  --clr-brand-primary-foreground: #0c1222;
   --clr-brand-bg: #0c1222;
   --clr-brand-text: #e2e8f0;
   --clr-brand-muted: #94a3b8;

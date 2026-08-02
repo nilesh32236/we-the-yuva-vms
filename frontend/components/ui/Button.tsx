@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils';
 
 const variants = {
   primary:
-    'bg-brand-primary text-primary-foreground hover:bg-brand-secondary disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
-  cta: 'bg-brand-cta text-primary-foreground hover:bg-brand-cta/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
+    'bg-brand-primary text-brand-primary-foreground hover:bg-brand-secondary disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
+  cta: 'bg-brand-cta text-brand-primary-foreground hover:bg-brand-cta/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   outline:
     'border border-brand-border text-brand-text hover:bg-brand-bg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   ghost:
