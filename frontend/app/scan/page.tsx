@@ -206,10 +206,14 @@ function ScanInner() {
             role="tablist"
             aria-label="Scan mode"
             onKeyDown={(e) => {
+              if (e.metaKey || e.ctrlKey || e.altKey) return;
               let newMode = mode;
-              if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+              if (e.key === 'ArrowRight') {
                 e.preventDefault();
                 newMode = mode === 'camera' ? 'manual' : 'camera';
+              } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                newMode = mode === 'manual' ? 'camera' : 'manual';
               } else if (e.key === 'Home') {
                 e.preventDefault();
                 newMode = 'camera';

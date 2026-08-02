@@ -2,7 +2,7 @@
 
 import { Calendar, MapPin, Search, Wifi } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Pagination } from '@/components/shared/Pagination';
 import { Button } from '@/components/ui/Button';
 
@@ -96,6 +96,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           role="tablist"
           aria-label="Filter by category"
           onKeyDown={(e) => {
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
             const tabs = ['ALL', ...ALL_CATEGORIES];
             const currentIndex = tabs.indexOf(category);
             let newIndex = currentIndex;

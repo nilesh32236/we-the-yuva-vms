@@ -19,12 +19,12 @@ export function Pagination({ page, totalPages, setPage }: PaginationProps) {
         variant="outline"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="px-4 py-3 rounded-xl text-sm font-medium text-brand-muted active-bounce card-hover disabled:opacity-40"
+        className="px-4 py-3 rounded-xl text-sm font-medium active-bounce card-hover"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         Previous
       </Button>
-      <span className="text-sm text-brand-muted">
+      <span className="text-sm text-brand-text">
         Page {page} of {totalPages}
       </span>
       <Button
@@ -32,7 +32,7 @@ export function Pagination({ page, totalPages, setPage }: PaginationProps) {
         variant="outline"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="px-4 py-3 rounded-xl text-sm font-medium text-brand-muted active-bounce card-hover disabled:opacity-40"
+        className="px-4 py-3 rounded-xl text-sm font-medium active-bounce card-hover"
       >
         Next
         <ChevronRight className="w-4 h-4" aria-hidden="true" />
