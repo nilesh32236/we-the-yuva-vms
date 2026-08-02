@@ -125,7 +125,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
             type="button"
             role="tab"
             id="filter-tab-ALL"
-            aria-controls="opportunities-tabpanel"
+            aria-controls={category === 'ALL' ? 'opportunities-tabpanel' : undefined}
             aria-selected={category === 'ALL'}
             tabIndex={category === 'ALL' ? 0 : -1}
             variant={category === 'ALL' ? 'primary' : 'outline'}
@@ -143,7 +143,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               type="button"
               role="tab"
               id={`filter-tab-${cat}`}
-              aria-controls="opportunities-tabpanel"
+              aria-controls={category === cat ? 'opportunities-tabpanel' : undefined}
               aria-selected={category === cat}
               tabIndex={category === cat ? 0 : -1}
               variant={category === cat ? 'primary' : 'outline'}

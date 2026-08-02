@@ -228,7 +228,7 @@ function ScanInner() {
               role="tab"
               id="scan-camera-tab"
               aria-selected={mode === 'camera'}
-              aria-controls="scan-camera-panel"
+              aria-controls={mode === 'camera' ? 'scan-camera-panel' : undefined}
               tabIndex={mode === 'camera' ? 0 : -1}
               variant={mode === 'camera' ? 'primary' : 'ghost-muted'}
               onClick={() => {
@@ -246,7 +246,7 @@ function ScanInner() {
               role="tab"
               id="scan-manual-tab"
               aria-selected={mode === 'manual'}
-              aria-controls="scan-manual-panel"
+              aria-controls={mode === 'manual' ? 'scan-manual-panel' : undefined}
               tabIndex={mode === 'manual' ? 0 : -1}
               variant={mode === 'manual' ? 'primary' : 'ghost-muted'}
               onClick={() => {
