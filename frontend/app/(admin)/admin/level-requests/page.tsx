@@ -64,7 +64,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <h2 id="review-title" className="font-heading font-bold text-lg text-brand-text">
             Review Request
           </h2>
-          <Button variant="icon" onClick={onClose} aria-label="Close dialog">
+          <Button variant="icon" size="icon" onClick={onClose} aria-label="Close dialog">
             <X className="w-4 h-4 text-brand-muted" />
           </Button>
         </div>
@@ -130,8 +130,9 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <Button
             variant="outline"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
+            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
             disabled={reviewMutation.isPending}
-            className="flex-1 border-brand-error text-brand-error hover:bg-brand-error/5 hover:border-brand-error/50 font-semibold"
+            className="flex-1 border-brand-error text-brand-error hover:bg-brand-error/5 hover:border-brand-error/50 font-semibold rounded-xl"
           >
             {reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED' ? (
               <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
@@ -143,8 +144,9 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <Button
             variant="primary"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
+            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
             disabled={reviewMutation.isPending}
-            className="flex-1 font-semibold"
+            className="flex-1 font-semibold rounded-xl"
           >
             {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? (
               <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
@@ -283,7 +285,7 @@ export default function AdminLevelRequestsPage() {
                   <Button
                     variant="ghost"
                     onClick={() => setSelectedRequest(req)}
-                    className="font-semibold"
+                    className="font-semibold hover:underline"
                   >
                     Review
                   </Button>

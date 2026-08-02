@@ -159,6 +159,7 @@ export default function AdminOpportunitiesPage() {
                           {opp.status === 'ACTIVE' && (
                             <Button
                               variant="icon"
+                              size="icon"
                               onClick={() => handleClose(opp.id, opp.title)}
                               disabled={closing === opp.id}
                               className="hover:bg-brand-error/10 hover:text-brand-error"
