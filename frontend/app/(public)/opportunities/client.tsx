@@ -93,45 +93,13 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
         {/* Category filter buttons */}
         <div
           className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none items-center"
-          role="tablist"
+          role="group"
           aria-label="Filter by category"
-          onKeyDown={(e) => {
-            if (e.metaKey || e.ctrlKey || e.altKey) return;
-            const tabs = ['ALL', ...ALL_CATEGORIES];
-            const currentIndex = tabs.indexOf(category);
-            let newIndex = currentIndex;
-
-            if (e.key === 'ArrowRight') {
-              e.preventDefault();
-              newIndex = (currentIndex + 1) % tabs.length;
-            } else if (e.key === 'ArrowLeft') {
-              e.preventDefault();
-              newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-            } else if (e.key === 'Home') {
-              e.preventDefault();
-              newIndex = 0;
-            } else if (e.key === 'End') {
-              e.preventDefault();
-              newIndex = tabs.length - 1;
-            }
-
-            if (newIndex !== currentIndex) {
-              const newCategory = tabs[newIndex] as typeof category;
-              setCategory(newCategory);
-              setPage(1);
-              tabRefs.current.get(newCategory)?.focus();
-            }
-          }}
         >
           <Button
             type="button"
-            role="tab"
-            ref={(el) => {
-              tabRefs.current.set('ALL', el);
-            }}
             id="filter-tab-ALL"
-            aria-selected={category === 'ALL'}
-            tabIndex={category === 'ALL' ? 0 : -1}
+            aria-pressed={category === 'ALL'}
             variant={category === 'ALL' ? 'primary' : 'outline'}
             onClick={() => {
               setCategory('ALL');
@@ -145,13 +113,8 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
             <Button
               key={cat}
               type="button"
-              role="tab"
-              ref={(el) => {
-                tabRefs.current.set(cat, el);
-              }}
               id={`filter-tab-${cat}`}
-              aria-selected={category === cat}
-              tabIndex={category === cat ? 0 : -1}
+              aria-pressed={category === cat}
               variant={category === cat ? 'primary' : 'outline'}
               onClick={() => {
                 setCategory(cat);
@@ -164,7 +127,7 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           ))}
         </div>
 
-        <div id="opportunities-tabpanel" role="tabpanel" aria-labelledby={`filter-tab-${category}`}>
+        <div aria-live="polite">
           {/* Results count */}
           <div aria-live="polite" role="status">
             <p className="text-sm text-brand-muted mb-4">

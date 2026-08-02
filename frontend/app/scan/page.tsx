@@ -76,7 +76,14 @@ function ScanInner() {
 
   // Camera scanner lifecycle
   useEffect(() => {
-    if (mode !== 'camera') return;
+    if (mode !== 'camera') {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+        scannerRef.current = null;
+        setScannerReady(false);
+      }
+      return;
+    }
     if (!scannerContainer.current) return;
     if (result) return;
 
@@ -273,60 +280,58 @@ function ScanInner() {
           </div>
 
           {/* Camera scanner */}
-          {mode === 'camera' && (
+          <div
+            id="scan-camera-panel"
+            role="tabpanel"
+            aria-labelledby="scan-camera-tab"
+            hidden={mode !== 'camera'}
+            className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden"
+          >
             <div
-              id="scan-camera-panel"
-              role="tabpanel"
-              aria-labelledby="scan-camera-tab"
-              className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden"
-            >
-              <div
-                id="qr-scanner-container"
-                ref={scannerContainer}
-                className="w-full aspect-square bg-black"
-              />
-              {!scannerReady && (
-                <div className="text-center py-4 text-sm text-brand-muted" aria-live="polite">
-                  Starting camera...
-                </div>
-              )}
-            </div>
-          )}
+              id="qr-scanner-container"
+              ref={scannerContainer}
+              className="w-full aspect-square bg-black"
+            />
+            {!scannerReady && mode === 'camera' && (
+              <div className="text-center py-4 text-sm text-brand-muted" aria-live="polite">
+                Starting camera...
+              </div>
+            )}
+          </div>
 
           {/* Manual entry */}
-          {mode === 'manual' && (
-            <div
-              id="scan-manual-panel"
-              role="tabpanel"
-              aria-labelledby="scan-manual-tab"
-              className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4"
-            >
-              <form onSubmit={handleTokenSubmit(onManualSubmit)} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label htmlFor="token" className="text-sm font-medium text-brand-text">
-                    Check-in Code
-                  </label>
-                  <input
-                    id="token"
-                    type="text"
-                    {...registerToken('token')}
-                    disabled={checkinMutation.isPending}
-                    aria-invalid={!!tokenErrors.token}
-                    placeholder="Paste or type the check-in code"
-                    className={`w-full px-4 py-3 rounded-xl bg-background border text-base focus:outline-none focus:ring-2 focus:ring-brand-primary/40 ${tokenErrors.token ? 'border-brand-error' : 'border-brand-border'}`}
-                  />
-                  {tokenErrors.token && (
-                    <p className="text-xs text-brand-error" role="alert">
-                      {tokenErrors.token.message}
-                    </p>
-                  )}
-                </div>
-                <Button type="submit" loading={checkinMutation.isPending} className="w-full">
-                  Check In
-                </Button>
-              </form>
-            </div>
-          )}
+          <div
+            id="scan-manual-panel"
+            role="tabpanel"
+            aria-labelledby="scan-manual-tab"
+            hidden={mode !== 'manual'}
+            className="bg-brand-surface rounded-2xl border border-brand-border p-6 space-y-4"
+          >
+            <form onSubmit={handleTokenSubmit(onManualSubmit)} className="space-y-4">
+              <div className="space-y-1.5">
+                <label htmlFor="token" className="text-sm font-medium text-brand-text">
+                  Check-in Code
+                </label>
+                <input
+                  id="token"
+                  type="text"
+                  {...registerToken('token')}
+                  disabled={checkinMutation.isPending}
+                  aria-invalid={!!tokenErrors.token}
+                  placeholder="Paste or type the check-in code"
+                  className={`w-full px-4 py-3 rounded-xl bg-background border text-base focus:outline-none focus:ring-2 focus:ring-brand-primary/40 ${tokenErrors.token ? 'border-brand-error' : 'border-brand-border'}`}
+                />
+                {tokenErrors.token && (
+                  <p className="text-xs text-brand-error" role="alert">
+                    {tokenErrors.token.message}
+                  </p>
+                )}
+              </div>
+              <Button type="submit" loading={checkinMutation.isPending} className="w-full">
+                Check In
+              </Button>
+            </form>
+          </div>
         </>
       )}
     </main>
