@@ -33,7 +33,6 @@ export default function AdminEventsPage() {
         <Button
           variant="outline"
           onClick={async () => {
-            if (exporting) return;
             setExporting(true);
             try {
               await downloadCsv('/events/export/csv', 'events.csv');

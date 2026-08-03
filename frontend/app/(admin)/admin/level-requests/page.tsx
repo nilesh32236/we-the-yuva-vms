@@ -140,6 +140,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             variant="outline"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
             disabled={reviewMutation.isPending}
+            aria-busy={reviewMutation.isPending}
             className={`
               flex-1 border-brand-error text-brand-error hover:bg-brand-error/5
               hover:border-brand-error/50 font-semibold rounded-xl
@@ -156,6 +157,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             variant="primary"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
             disabled={reviewMutation.isPending}
+            aria-busy={reviewMutation.isPending}
             className="flex-1 font-semibold rounded-xl"
           >
             {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? (
