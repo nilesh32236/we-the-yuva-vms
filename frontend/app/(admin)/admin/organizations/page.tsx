@@ -59,7 +59,7 @@ export default function AdminOrganizationsPage() {
                 variant="ghost"
                 onClick={() => handleStatusChange(s)}
                 aria-pressed={status === s}
-                className={`rounded-lg text-xs font-bold transition-all px-4 py-1.5 min-h-[44px] ${
+                className={`rounded-lg text-xs font-bold transition-all px-4 py-1.5 min-h-[auto] ${
                   status === s
                     ? 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white shadow-md'
                     : 'text-brand-muted hover:text-brand-text'

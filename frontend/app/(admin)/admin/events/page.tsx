@@ -48,7 +48,6 @@ export default function AdminEventsPage() {
             }
           }}
           loading={exporting}
-          disabled={exporting}
           className="font-semibold rounded-xl"
         >
           <Download className="w-4 h-4" /> Export CSV
