@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, CheckCircle, ExternalLink, XCircle } from 'lucide-react';
+import { BookOpen, CheckCircle, ExternalLink, Loader2, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
@@ -109,10 +109,11 @@ export default function AdminStoriesPage() {
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
                     disabled={moderateMut.isPending && moderateMut.variables?.id === story.id}
-                    loading={moderateMut.isPending && moderateMut.variables?.id === story.id}
                     className="flex items-center gap-1.5 text-xs font-medium rounded-xl py-3 px-3"
                   >
-                    {story.published ? (
+                    {moderateMut.isPending && moderateMut.variables?.id === story.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : story.published ? (
                       <XCircle className="w-3.5 h-3.5" />
                     ) : (
                       <CheckCircle className="w-3.5 h-3.5" />
