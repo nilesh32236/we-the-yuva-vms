@@ -5,6 +5,7 @@ import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
@@ -192,15 +193,16 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                     })}
                   </td>
                   <td className="px-4 py-3 relative">
-                    <button
-                      type="button"
+                    <Button
+                      variant="icon"
+                      size="icon"
                       onClick={(e) => handleMenuClick(u.id, e)}
-                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-90 transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
+                      className="p-3"
                       disabled={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
                     >
                       <MoreVertical className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -254,50 +256,50 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
             {selectedUser && (
               <>
                 {selectedUser.status !== 'ACTIVE' && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     onClick={() =>
                       updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
                     }
-                    className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                    className="w-full text-left px-4 py-2.5 text-sm justify-start flex items-center gap-2 rounded-none text-brand-primary"
                     aria-label={`Activate ${selectedUser.name}`}
                     role="menuitem"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                     Activate
-                  </button>
+                  </Button>
                 )}
                 {selectedUser.status !== 'SUSPENDED' && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     onClick={() =>
                       updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
                     }
-                    className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                    className="w-full text-left px-4 py-2.5 text-sm justify-start flex items-center gap-2 rounded-none text-brand-error hover:text-brand-error hover:bg-brand-bg"
                     aria-label={`Suspend ${selectedUser.name}`}
                     role="menuitem"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
                     Suspend
-                  </button>
+                  </Button>
                 )}
                 {hasPermission(currentUser, Permissions.USER_MANAGE) &&
                   (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
                     (role) =>
                       selectedUser.roleRef.name !== role && (
-                        <button
-                          type="button"
+                        <Button
+                          variant="ghost"
                           key={role}
                           onClick={() =>
                             updateMutation.mutate({ id: selectedUser.id, data: { role } })
                           }
-                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                          className="w-full text-left px-4 py-2.5 text-sm justify-start flex items-center gap-2 rounded-none text-brand-text"
                           aria-label={`Change role to ${role}`}
                           role="menuitem"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                           Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                        </button>
+                        </Button>
                       )
                   )}
               </>
