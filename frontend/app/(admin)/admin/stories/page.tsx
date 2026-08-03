@@ -108,7 +108,7 @@ export default function AdminStoriesPage() {
                     onClick={() =>
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
-                    disabled={moderateMut.isPending}
+                    disabled={moderateMut.isPending && moderateMut.variables?.id === story.id}
                     loading={moderateMut.isPending && moderateMut.variables?.id === story.id}
                     className="flex items-center gap-1.5 text-xs font-medium rounded-xl py-3 px-3"
                   >
