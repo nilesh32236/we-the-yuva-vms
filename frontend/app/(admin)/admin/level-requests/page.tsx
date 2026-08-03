@@ -6,6 +6,7 @@ import {
   CheckCircle,
   Download,
   FileText,
+  Loader2,
   Search,
   X,
   XCircle,
@@ -138,21 +139,30 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <Button
             variant="outline"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
-            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
             disabled={reviewMutation.isPending}
-            className="flex-1 border-brand-error text-brand-error hover:bg-brand-error/5 hover:border-brand-error/50 font-semibold rounded-xl"
+            className={`
+              flex-1 border-brand-error text-brand-error hover:bg-brand-error/5
+              hover:border-brand-error/50 font-semibold rounded-xl
+            `}
           >
-            <XCircle className="w-4 h-4" />
+            {reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED' ? (
+              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
+            ) : (
+              <XCircle className="w-4 h-4 inline mr-1" />
+            )}
             Reject
           </Button>
           <Button
             variant="primary"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
-            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
             disabled={reviewMutation.isPending}
             className="flex-1 font-semibold rounded-xl"
           >
-            <CheckCircle className="w-4 h-4" />
+            {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? (
+              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
+            ) : (
+              <CheckCircle className="w-4 h-4 inline mr-1" />
+            )}
             Approve
           </Button>
         </div>
