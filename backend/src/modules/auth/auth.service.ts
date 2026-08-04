@@ -12,32 +12,6 @@ import { AppError } from '../../middleware/error.middleware';
 
 const OTP_TTL_MINUTES = 5;
 
-const otpRateMap = new Map<string, { count: number; resetAt: number }>();
-const OTP_RATE_LIMIT = 3;
-const OTP_RATE_WINDOW_MS = 60_000;
-
-// Periodic cleanup of expired OTP rate limit entries
-const OTP_RATE_CLEANUP_INTERVAL_MS = 300_000;
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of otpRateMap) {
-    if (now > entry.resetAt) otpRateMap.delete(key);
-  }
-}, OTP_RATE_CLEANUP_INTERVAL_MS).unref();
-
-export async function checkOtpRateLimit(email: string): Promise<void> {
-  const now = Date.now();
-  const entry = otpRateMap.get(email);
-  if (!entry || now > entry.resetAt) {
-    otpRateMap.set(email, { count: 1, resetAt: now + OTP_RATE_WINDOW_MS });
-    return;
-  }
-  if (entry.count >= OTP_RATE_LIMIT) {
-    throw new AppError('Too many OTP requests. Please try again later.', 429);
-  }
-  entry.count++;
-}
-
 export async function generateAndStoreOtp(email: string): Promise<string> {
   // Generate cryptographically random 6-digit OTP
   const otp = crypto.randomInt(100000, 999999).toString();
