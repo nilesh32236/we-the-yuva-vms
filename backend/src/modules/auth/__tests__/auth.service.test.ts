@@ -35,7 +35,6 @@ const {
   storeRefreshToken,
   rotateRefreshToken,
   revokeRefreshToken,
-  checkOtpRateLimit,
   generateAndStoreOtp,
   verifyOtp,
   enqueueOtpEmail,
@@ -203,12 +202,6 @@ describe('auth.service (pure functions)', () => {
 describe('auth.service (OTP functions)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  describe('checkOtpRateLimit', () => {
-    it('should be a no-op and resolve successfully', async () => {
-      await expect(checkOtpRateLimit('test@test.com')).resolves.toBeUndefined();
-    });
   });
 
   describe('generateAndStoreOtp', () => {

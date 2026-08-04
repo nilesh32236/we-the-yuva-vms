@@ -14,7 +14,6 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('@/lib/audit', () => ({ logAudit: vi.fn().mockResolvedValue(undefined) }));
 
 vi.mock('../auth.service', () => ({
-  checkOtpRateLimit: vi.fn(),
   generateAndStoreOtp: vi.fn(),
   verifyOtp: vi.fn(),
   signAccessToken: vi.fn(),
@@ -201,10 +200,9 @@ describe('auth.controller', () => {
       );
     });
 
-    it('should send OTP for existing user', async () => {
+    it('should send OTP for existing user and return devOtp', async () => {
       req.body = { email: 'known@test.com' };
       vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-1' } as never);
-      vi.mocked(authService.checkOtpRateLimit).mockResolvedValue();
       vi.mocked(authService.generateAndStoreOtp).mockResolvedValue('123456');
       vi.mocked(authService.enqueueOtpEmail).mockResolvedValue();
 
@@ -212,6 +210,9 @@ describe('auth.controller', () => {
 
       expect(authService.generateAndStoreOtp).toHaveBeenCalledWith('known@test.com');
       expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String), devOtp: '123456' })
+      );
     });
   });
 

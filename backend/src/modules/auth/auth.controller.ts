@@ -5,7 +5,6 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 import {
-  checkOtpRateLimit,
   enqueueOtpEmail,
   generateAndStoreOtp,
   lookupReferral,
@@ -125,7 +124,6 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
       throw new AppError('Account is suspended or inactive', 403);
     }
 
-    await checkOtpRateLimit(email);
     const otp = await generateAndStoreOtp(email);
     enqueueOtpEmail(email, otp).catch((err) =>
       logger.warn('Failed to send OTP email', { error: (err as Error).message })

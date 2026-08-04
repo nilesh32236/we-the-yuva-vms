@@ -38,30 +38,36 @@ export async function sendEmail(
   html: string,
   text: string
 ): Promise<void> {
-  if (provider === 'resend') {
-    if (!resend) {
-      logger.warn('Cannot send email: Resend not initialized');
-      return;
+  try {
+    if (provider === 'resend') {
+      if (!resend) {
+        logger.warn('Cannot send email: Resend not initialized');
+        return;
+      }
+      const { error } = await resend.emails.send({
+        from: env.SMTP_FROM,
+        to,
+        subject,
+        html,
+        text,
+      });
+      if (error) throw new Error(error.message);
+    } else {
+      if (!smtpTransporter) {
+        logger.warn('Cannot send email: SMTP not initialized');
+        return;
+      }
+      await smtpTransporter.sendMail({
+        from: `"WeTheYuva VMS" <${env.SMTP_FROM}>`,
+        to,
+        subject,
+        html,
+        text,
+      });
     }
-    const { error } = await resend.emails.send({
-      from: env.SMTP_FROM,
-      to,
-      subject,
-      html,
-      text,
-    });
-    if (error) throw new Error(error.message);
-  } else {
-    if (!smtpTransporter) {
-      logger.warn('Cannot send email: SMTP not initialized');
-      return;
-    }
-    await smtpTransporter.sendMail({
-      from: `"WeTheYuva VMS" <${env.SMTP_FROM}>`,
-      to,
-      subject,
-      html,
-      text,
-    });
+  } catch (err) {
+    // Never throw: email delivery is best-effort. On HF Spaces SMTP is often
+    // unconfigured, so failure is expected and must not break the request flow.
+    logger.warn('Failed to send email', { to, subject, error: (err as Error).message });
   }
 }
