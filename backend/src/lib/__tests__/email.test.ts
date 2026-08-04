@@ -16,21 +16,18 @@ process.env.SMTP_USER = 'test-user';
 const { sendEmail } = await import('../email');
 const { logger } = await import('../../lib/logger');
 
-describe('sendEmail (graceful SMTP failure)', () => {
+describe('sendEmail (SMTP failure propagation)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should not throw and should log a warning when sendMail rejects', async () => {
+  it('should throw when sendMail rejects so BullMQ retries can re-run the job', async () => {
     sendMail.mockRejectedValueOnce(new Error('SMTP connection refused'));
 
     await expect(
       sendEmail('a@b.com', 'subject', '<p>html</p>', 'text')
-    ).resolves.toBeUndefined();
-    expect(logger.warn).toHaveBeenCalledWith(
-      'Failed to send email',
-      expect.objectContaining({ error: 'SMTP connection refused' })
-    );
+    ).rejects.toThrow('SMTP connection refused');
+    expect(logger.warn).not.toHaveBeenCalled();
   });
 
   it('should resolve without warning when sendMail succeeds', async () => {

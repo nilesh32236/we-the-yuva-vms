@@ -1,4 +1,5 @@
-import { type IRouter, Router } from 'express';
+import { type IRouter, type RequestHandler, Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { ConsentSchema, RegisterSchema, SendOtpSchema, VerifyOtpSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -12,6 +13,34 @@ import {
 } from './auth.controller';
 
 export const authRouter: IRouter = Router();
+
+const isProd = process.env.NODE_ENV === 'production';
+
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many accounts created from this IP, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const otpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 3,
+  message: { error: 'Too many OTP requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const refreshLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: 'Too many refresh requests, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const withProdLimiter = (limiter: RequestHandler) => (isProd ? [limiter] : []);
 
 // Public routes
 /**
@@ -34,7 +63,12 @@ export const authRouter: IRouter = Router();
  *       201:
  *         description: User registered, OTP sent
  */
-authRouter.post('/register', validate(RegisterSchema), register);
+authRouter.post(
+  '/register',
+  ...withProdLimiter(registerLimiter),
+  validate(RegisterSchema),
+  register
+);
 
 /**
  * @openapi
@@ -54,7 +88,12 @@ authRouter.post('/register', validate(RegisterSchema), register);
  *       200:
  *         description: OTP sent
  */
-authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
+authRouter.post(
+  '/send-otp',
+  ...withProdLimiter(otpLimiter),
+  validate(SendOtpSchema),
+  sendOtp
+);
 
 /**
  * @openapi
@@ -75,7 +114,12 @@ authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
-authRouter.post('/verify-otp', validate(VerifyOtpSchema), verifyOtpHandler);
+authRouter.post(
+  '/verify-otp',
+  ...withProdLimiter(otpLimiter),
+  validate(VerifyOtpSchema),
+  verifyOtpHandler
+);
 
 /**
  * @openapi
@@ -87,7 +131,7 @@ authRouter.post('/verify-otp', validate(VerifyOtpSchema), verifyOtpHandler);
  *       200:
  *         description: Token refreshed
  */
-authRouter.post('/refresh', refresh);
+authRouter.post('/refresh', ...withProdLimiter(refreshLimiter), refresh);
 
 /**
  * @openapi

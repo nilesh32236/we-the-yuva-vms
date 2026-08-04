@@ -214,6 +214,34 @@ describe('auth.controller', () => {
         expect.objectContaining({ message: expect.any(String), devOtp: '123456' })
       );
     });
+
+    it('should NOT return devOtp in production', async () => {
+      vi.stubEnv('NODE_ENV', 'production');
+      try {
+        vi.resetModules();
+        const freshPrisma = await import('@/lib/prisma');
+        const freshAuthService = await import('../auth.service');
+        const freshController = await import('../auth.controller');
+
+        req.body = { email: 'known@test.com' };
+        vi.mocked(freshPrisma.prisma.user.findUnique).mockResolvedValue({ id: 'user-1' } as never);
+        vi.mocked(freshAuthService.generateAndStoreOtp).mockResolvedValue('123456');
+        vi.mocked(freshAuthService.enqueueOtpEmail).mockResolvedValue();
+
+        await freshController.sendOtp(req as Request, res as Response, next);
+
+        expect(freshAuthService.generateAndStoreOtp).toHaveBeenCalledWith('known@test.com');
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(
+          expect.objectContaining({ message: expect.any(String) })
+        );
+        expect(res.json).not.toHaveBeenCalledWith(
+          expect.objectContaining({ devOtp: '123456' })
+        );
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
   });
 
   describe('verifyOtpHandler', () => {
