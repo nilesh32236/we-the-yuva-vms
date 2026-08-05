@@ -62,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const profileStatusQuery = useQuery<ProfileStatus | null>({
     queryKey: ['profile-status'],
+    enabled: !isPublicRoute(pathname),
     queryFn: async () => {
       try {
         const res = await api.get<ProfileStatus>('/users/me/profile-status');

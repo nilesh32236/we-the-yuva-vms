@@ -86,6 +86,16 @@ export const CheckInSchema = z.object({
   qrToken: z.string().optional(),
 });
 
+export const QueuedCheckinSchema = z.object({
+  eventId: z.string(),
+  qrToken: z.string().optional(),
+  location: z.object({ lat: z.number(), lng: z.number() }).optional(),
+  encryptedQrToken: z.string().optional(),
+  encryptedLocation: z.string().optional(),
+  createdAt: z.string().optional(),
+  retryCount: z.number().optional(),
+});
+
 export const CheckOutSchema = z.object({
   lat: z.coerce.number().optional(),
   lng: z.coerce.number().optional(),

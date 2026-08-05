@@ -1,7 +1,7 @@
 import { api } from './api';
 import { encrypt, decrypt } from './crypto-utils';
 
-import { CheckInSchema } from '@/lib/shared';
+import { QueuedCheckinSchema } from '@/lib/shared';
 
 interface QueuedCheckin {
   id?: number;
@@ -74,7 +74,7 @@ export async function queueCheckin(
   data: Omit<QueuedCheckin, 'id' | 'createdAt'>,
   userId?: string
 ): Promise<void> {
-  const parsed = CheckInSchema.safeParse(data);
+  const parsed = QueuedCheckinSchema.safeParse(data);
   if (!parsed.success) {
     throw new Error(
       `Invalid check-in data: ${parsed.error.errors.map((e) => e.message).join(', ')}`
