@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
-import { sendEmail } from '../../lib/email';
+import { emailEnabled, sendEmail } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
@@ -65,6 +65,10 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
 }
 
 export async function enqueueOtpEmail(email: string, otp: string): Promise<void> {
+  if (!emailEnabled) {
+    logger.info(`[Dev Mode] SMTP not configured. Mock email skipped for ${email}`);
+    return;
+  }
   if (notificationsQueue) {
     try {
       await notificationsQueue.add(

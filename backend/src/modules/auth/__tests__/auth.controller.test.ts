@@ -13,6 +13,10 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('@/lib/audit', () => ({ logAudit: vi.fn().mockResolvedValue(undefined) }));
 
+const emailMock = vi.hoisted(() => ({ emailEnabled: false, sendEmail: vi.fn() }));
+
+vi.mock('@/lib/email', () => emailMock);
+
 vi.mock('../auth.service', () => ({
   generateAndStoreOtp: vi.fn(),
   verifyOtp: vi.fn(),
@@ -45,6 +49,7 @@ describe('auth.controller', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    emailMock.emailEnabled = false;
     req = {
       body: {},
       params: {},
@@ -213,6 +218,23 @@ describe('auth.controller', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({ message: expect.any(String), devOtp: '123456' })
       );
+    });
+
+    it('should NOT return devOtp when email transport is configured', async () => {
+      emailMock.emailEnabled = true;
+      req.body = { email: 'known@test.com' };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-1' } as never);
+      vi.mocked(authService.generateAndStoreOtp).mockResolvedValue('123456');
+      vi.mocked(authService.enqueueOtpEmail).mockResolvedValue();
+
+      await sendOtp(req as Request, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) })
+      );
+      const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(body.devOtp).toBeUndefined();
     });
   });
 
