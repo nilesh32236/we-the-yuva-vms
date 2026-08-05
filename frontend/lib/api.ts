@@ -36,32 +36,14 @@ export async function downloadCsv(url: string, filename = 'export.csv') {
   }
 }
 
-const STORAGE_KEY = 'accessToken';
-
-function hydrateToken(): string | null {
-  if (typeof sessionStorage === 'undefined') return null;
-  try {
-    return sessionStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-let accessTokenMemory: string | null = hydrateToken();
+// The access token is held ONLY in memory for the SPA lifetime. It is never
+// persisted to sessionStorage/localStorage so the raw bearer JWT is not
+// readable by arbitrary JavaScript (XSS / extensions). Auth on reload is
+// restored from the HttpOnly access_token cookie via credentialed requests.
+let accessTokenMemory: string | null = null;
 
 export function setAccessToken(token: string | null) {
   accessTokenMemory = token;
-  if (typeof sessionStorage !== 'undefined') {
-    try {
-      if (token) {
-        sessionStorage.setItem(STORAGE_KEY, token);
-      } else {
-        sessionStorage.removeItem(STORAGE_KEY);
-      }
-    } catch {
-      // sessionStorage may be unavailable
-    }
-  }
 }
 
 function getAccessToken(): string | null {
@@ -127,7 +109,16 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+    const isLoggedOut =
+      typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true';
+    // Fail closed: if the user believes they logged out (even if the /auth/logout
+    // POST failed), never mint a fresh token via /auth/refresh on a stale cookie.
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthEndpoint &&
+      !isLoggedOut
+    ) {
       originalRequest._retry = true;
 
       try {

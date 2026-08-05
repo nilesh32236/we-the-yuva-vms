@@ -97,6 +97,29 @@ describe('users.service', () => {
       expect(result.role).toBe('VOLUNTEER');
     });
 
+    it('should include the role permissions in the /users/me payload', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: 'user-1',
+        email: 'u@t.com',
+        name: 'User',
+        roleRef: { name: 'COORDINATOR', permissions: ['event:create', 'badge:approve'] },
+        status: 'ACTIVE',
+        locationId: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        volunteerType: null,
+        badges: [],
+        points: 0,
+        level: 0,
+        organizationId: null,
+        profile: null,
+        consent: null,
+        location: null,
+      } as never);
+      const result = await getMe('user-1');
+      expect(result.permissions).toEqual(['event:create', 'badge:approve']);
+    });
+
     it('should throw 404 when user not found', async () => {
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
       await expect(getMe('bad-id')).rejects.toThrow('User not found');

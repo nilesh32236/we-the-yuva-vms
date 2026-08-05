@@ -234,7 +234,7 @@ export async function getMe(userId: string) {
       profile: true,
       consent: true,
       location: true,
-      roleRef: { select: { name: true } },
+      roleRef: { select: { name: true, permissions: true } },
       currentLevel: true,
     },
   });
@@ -248,6 +248,7 @@ export async function getMe(userId: string) {
     email: user.email,
     name: user.name,
     role: user.roleRef.name,
+    permissions: user.roleRef.permissions,
     status: user.status,
     locationId: user.locationId,
     createdAt: user.createdAt,

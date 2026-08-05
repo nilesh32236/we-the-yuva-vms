@@ -1,4 +1,5 @@
 import type { Level, Prisma } from '@prisma/client';
+import type { CreateLevelRequestInput } from '@/shared';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { redis } from '../../lib/redis';
@@ -116,13 +117,7 @@ export async function getMyLevelRequests(userId: string) {
 export async function createLevelRequest(
   userId: string,
   levelId: string,
-  data: {
-    proofUrls?: string[];
-    videoUrl?: string;
-    proofData?: Record<string, unknown>;
-    notes?: string;
-    peerEndorsements?: Record<string, unknown>;
-  }
+  data: CreateLevelRequestInput
 ) {
   const level = await prisma.level.findUnique({ where: { id: levelId } });
   if (!level) throw new AppError('Level not found', 404);
@@ -132,6 +127,22 @@ export async function createLevelRequest(
     include: { profile: true },
   });
   if (!user) throw new AppError('User not found', 404);
+
+  // Validate peer endorsements resolve to real users so fabricated ids
+  // (e.g. 'peer-<timestamp>' generated client-side) cannot be persisted.
+  if (data.peerEndorsements && data.peerEndorsements.length > 0) {
+    const endorserIds = [...new Set(data.peerEndorsements.map((e) => e.userId))];
+    const endorsers = await prisma.user.findMany({
+      where: { id: { in: endorserIds } },
+      select: { id: true },
+    });
+    const found = new Set(endorsers.map((e) => e.id));
+    for (const id of endorserIds) {
+      if (!found.has(id)) {
+        throw new AppError('One or more peer endorsements reference an unknown user', 400);
+      }
+    }
+  }
 
   const existing = await prisma.userLevel.findFirst({
     where: { userId, levelId, status: 'PENDING' },

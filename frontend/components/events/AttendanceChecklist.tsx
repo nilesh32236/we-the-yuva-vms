@@ -3,7 +3,10 @@
 import { memo, useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
+import { useAuth } from '@/lib/auth-context';
+import { canAccess, hasPermission, Permissions } from '@/lib/shared/permissions';
 import { Button } from '@/components/ui/Button';
+import { Unauthorized } from '@/components/shared/Unauthorized';
 import { useToast } from '@/hooks/use-toast';
 import * as Sentry from '@sentry/nextjs';
 
@@ -227,6 +230,7 @@ const VolunteerRow = memo(function VolunteerRow({
 });
 
 export function AttendanceChecklist({ volunteers, onSave, onApprove }: AttendanceChecklistProps) {
+  const { user } = useAuth();
   const [state, setState] = useState<Record<string, boolean>>(
     Object.fromEntries(volunteers.map((v) => [v.volunteerId, v.attended]))
   );
@@ -332,6 +336,12 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       setApproving((s) => ({ ...s, [v.volunteerId]: false }));
     }
   };
+
+  // Privileged actions (approving hours/ratings, saving attendance) require
+  // event management rights or a coordinator+ role, not just any visitor.
+  const canManage =
+    hasPermission(user, Permissions.EVENT_MANAGE) || canAccess(user?.role ?? '', 'COORDINATOR');
+  if (!canManage) return <Unauthorized />;
 
   return (
     <div className="space-y-4">

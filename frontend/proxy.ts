@@ -8,6 +8,7 @@ const PUBLIC_ROUTES = [
   '/verify-otp',
   '/offline',
   '/scan',
+  '/verify',
   '/about',
   '/contact',
   '/faq',
@@ -17,7 +18,7 @@ const PUBLIC_ROUTES = [
   '/blog',
 ];
 // Truly public informational pages — no redirect even when authenticated
-const TRULY_PUBLIC = ['/about', '/contact', '/faq', '/privacy', '/terms', '/opportunities', '/blog'];
+const TRULY_PUBLIC = ['/about', '/contact', '/faq', '/privacy', '/terms', '/opportunities', '/blog', '/verify'];
 const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
 
 const ROLE_ROUTES: Record<string, string> = {
@@ -28,6 +29,34 @@ const ROLE_ROUTES: Record<string, string> = {
   ADMIN: '/admin',
   OBSERVER: '/observer',
 };
+
+// Attempt a server-side token refresh using the (HttpOnly) refresh cookie so a
+// full page load after access-token expiry keeps the session alive instead of
+// hard-logging-out. Returns the Set-Cookie headers to propagate, or null.
+async function tryRefresh(req: NextRequest): Promise<string[] | null> {
+  if (!req.cookies.get('refresh_token')) return null;
+  try {
+    const refreshRes = await fetch(new URL('/api/v1/auth/refresh', req.url), {
+      method: 'POST',
+      headers: {
+        cookie: req.headers.get('cookie') ?? '',
+      },
+      redirect: 'manual',
+    });
+    if (!refreshRes.ok) return null;
+    const setCookies = refreshRes.headers.getSetCookie();
+    return setCookies.length > 0 ? setCookies : null;
+  } catch {
+    return null;
+  }
+}
+
+function withCookies(response: NextResponse, setCookies: string[]): NextResponse {
+  for (const c of setCookies) {
+    response.headers.append('Set-Cookie', c);
+  }
+  return response;
+}
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -91,12 +120,25 @@ export async function proxy(req: NextRequest) {
 
     return NextResponse.next();
   } catch {
-    // Token expired or invalid — allow public pages, redirect auth pages
+    // Token expired or invalid — attempt a server-side refresh before falling
+    // back to logout so sessions survive full page loads past the 15-min TTL.
+    const refreshedCookies = await tryRefresh(req);
+
     if (isPublic) {
       const response = NextResponse.next();
+      if (refreshedCookies) {
+        return withCookies(response, refreshedCookies);
+      }
       response.cookies.delete('access_token');
       return response;
     }
+
+    if (refreshedCookies) {
+      // Reload the requested page with the freshly rotated cookies — the proxy
+      // re-runs on the redirect and verifies the new access token.
+      return withCookies(NextResponse.redirect(req.url), refreshedCookies);
+    }
+
     const response = NextResponse.redirect(new URL('/login', req.url));
     response.cookies.delete('access_token');
     return response;

@@ -45,6 +45,7 @@ import {
   sendOtp,
   verifyOtpHandler,
 } from '../auth.controller';
+import { _resetRateLimits } from '../rate-limit';
 
 describe('auth.controller', () => {
   let req: Partial<Request>;
@@ -53,6 +54,7 @@ describe('auth.controller', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    _resetRateLimits();
     emailMock.emailEnabled = false;
     envMock.ALLOW_DEV_OTP = false;
     req = {
@@ -255,6 +257,20 @@ describe('auth.controller', () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ devOtp: '654321' }));
     });
+
+    it('should return 429 when the OTP email throttle is exceeded', async () => {
+      req.body = { email: 'throttle@test.com' };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-1' } as never);
+      vi.mocked(authService.generateAndStoreOtp).mockResolvedValue('123456');
+      vi.mocked(authService.enqueueOtpEmail).mockResolvedValue();
+
+      for (let i = 0; i < 5; i++) {
+        await sendOtp(req as Request, res as Response, next);
+      }
+      await sendOtp(req as Request, res as Response, next);
+
+      expect(next).toHaveBeenLastCalledWith(expect.objectContaining({ status: 429 }));
+    });
   });
 
   describe('verifyOtpHandler', () => {
@@ -265,7 +281,7 @@ describe('auth.controller', () => {
         id: 'user-1',
         name: 'Test',
         email: 'test@test.com',
-        roleRef: { name: 'VOLUNTEER', permissions: [] },
+        roleRef: { name: 'VOLUNTEER', permissions: ['opportunity:view', 'event:checkin'] },
         status: 'PENDING',
         locationId: null,
         organizationId: null,
@@ -277,7 +293,7 @@ describe('auth.controller', () => {
         id: 'user-1',
         name: 'Test',
         email: 'test@test.com',
-        roleRef: { name: 'VOLUNTEER', permissions: [] },
+        roleRef: { name: 'VOLUNTEER', permissions: ['opportunity:view', 'event:checkin'] },
         status: 'ACTIVE',
         locationId: null,
         organizationId: null,
@@ -293,6 +309,9 @@ describe('auth.controller', () => {
       expect(authService.verifyOtp).toHaveBeenCalledWith('test@test.com', '123456');
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.cookie).toHaveBeenCalledWith('access_token', 'access-token', expect.any(Object));
+
+      const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(body.user.permissions).toEqual(['opportunity:view', 'event:checkin']);
     });
   });
 
