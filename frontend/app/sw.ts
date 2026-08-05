@@ -19,9 +19,7 @@ const runtimeCaching: RuntimeCaching[] = [
   {
     matcher: ({ request, sameOrigin, url }) => {
       if (!sameOrigin || request.method !== 'GET') return false;
-      return /^\/(api\/v1\/auth|api\/v1\/users\/me|api\/v1\/notifications|api\/v1\/profile|api\/v1\/dashboard)(\/|$)/i.test(
-        url.pathname,
-      );
+      return url.pathname.startsWith('/api/v1/');
     },
     handler: new NetworkOnly(),
   },
@@ -55,7 +53,7 @@ const serwist = new Serwist({
         },
       },
       {
-        url: '/offline-placeholder.svg',
+        url: '/icons/offline-placeholder.svg',
         matcher({ request }) {
           return request.destination === 'image';
         },
@@ -89,16 +87,18 @@ self.addEventListener('message', (event) => {
   }
 
   if (data.type === 'GET_INTENDED_DESTINATION') {
-    (async () => {
-      try {
-        const cache = await caches.open(INTENDED_DESTINATION_CACHE);
-        const match = await cache.match(INTENDED_DESTINATION_URL);
-        const url = match ? await match.text() : '';
-        (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url });
-      } catch {
-        (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url: '' });
-      }
-    })();
+    event.waitUntil(
+      (async () => {
+        try {
+          const cache = await caches.open(INTENDED_DESTINATION_CACHE);
+          const match = await cache.match(INTENDED_DESTINATION_URL);
+          const url = match ? await match.text() : '';
+          (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url });
+        } catch {
+          (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url: '' });
+        }
+      })(),
+    );
   }
 });
 

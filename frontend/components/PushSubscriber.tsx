@@ -34,8 +34,15 @@ export function PushSubscriber() {
 
     autoSubscribedUserIdRef.current = { id: user.id, permission };
 
-    // Fire silent background subscription to refresh registration on backend
-    subscribe().catch((err) => { Sentry.captureException(err); });
+    // Fire silent background subscription to refresh registration on backend.
+    // On failure, clear the guard so a later permission/user change or remount
+    // can retry the background subscription.
+    subscribe().catch((err) => {
+      Sentry.captureException(err);
+      if (autoSubscribedUserIdRef.current?.id === user.id) {
+        autoSubscribedUserIdRef.current = null;
+      }
+    });
   }, [user, permission, mounted, subscribe]);
 
   // 2. Handle soft permission prompt presentation
@@ -72,10 +79,19 @@ export function PushSubscriber() {
     if (subscribing) return;
     haptic.medium();
     setSubscribing(true);
+    // Mark this user as subscribed up-front so the follow-up auto-subscribe
+    // effect (re-fired when permission transitions 'default' -> 'granted') is a
+    // no-op for the same user+permission instead of unsubscribing and
+    // re-subscribing. Cleared again if the subscription did not actually land.
+    autoSubscribedUserIdRef.current = { id: user.id, permission: 'granted' };
     try {
       await subscribe();
+      if (Notification.permission !== 'granted') {
+        autoSubscribedUserIdRef.current = null;
+      }
       setShowPrompt(false);
     } catch {
+      autoSubscribedUserIdRef.current = null;
       toast({ title: 'Could not enable notifications', variant: 'destructive' });
     } finally {
       setSubscribing(false);

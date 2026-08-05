@@ -1,1 +1,1 @@
-{"findings":[],"feedback":[],"review_quality":[],"patterns":[],"custom_rules":[],"prompt_overrides":[],"meta_review_counter":[{"id":1,"count":0}]}
+{"findings":[],"feedback":[],"review_quality":[{"id":"f_1785920837475_dvk72a","pr_number":188,"actionability_score":0,"accuracy_score":0,"coverage_score":0,"consistency_score":0,"duration_ms":603096,"tokens_used":0,"created_at":"2026-08-05T09:07:17.475Z"}],"patterns":[],"custom_rules":[],"prompt_overrides":[],"meta_review_counter":[{"id":1,"count":0}],"rate_limits":[],"conversation_sessions":[],"conversation_turns":[]}

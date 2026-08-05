@@ -8,6 +8,7 @@ export function NetworkStatusIndicator() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
   const onlineTimerRef = useRef<number | undefined>(undefined);
+  const consecutiveFailuresRef = useRef(0);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
@@ -47,12 +48,20 @@ export function NetworkStatusIndicator() {
 
     const probe = async () => {
       const controller = new AbortController();
-      const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+      // Timeout matches the 10s interval so a slow-but-alive backend (e.g. an
+      // HF Spaces cold start) is not flagged offline; only two consecutive
+      // failures downgrade to offline to avoid transient false negatives.
+      const timeoutId = window.setTimeout(() => controller.abort(), 10000);
       try {
         await fetch('/api/v1/health', { cache: 'no-store', signal: controller.signal });
-        if (!cancelled) setIsOnline(true);
+        if (!cancelled) {
+          consecutiveFailuresRef.current = 0;
+          setIsOnline(true);
+        }
       } catch {
-        if (!cancelled) setIsOnline(false);
+        if (!cancelled && ++consecutiveFailuresRef.current >= 2) {
+          setIsOnline(false);
+        }
       } finally {
         window.clearTimeout(timeoutId);
       }

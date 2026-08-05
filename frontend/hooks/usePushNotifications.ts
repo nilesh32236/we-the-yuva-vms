@@ -55,9 +55,10 @@ export function usePushNotifications() {
       });
 
       await api.post('/notifications/subscribe', subscription.toJSON());
-    } catch {
+    } catch (err) {
       console.error('Failed to subscribe to push notifications');
       setError('Failed to set up push notifications. Please try again.');
+      throw err;
     }
   }, [permission]);
 
