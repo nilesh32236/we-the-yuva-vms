@@ -84,6 +84,12 @@ export function NetworkStatusIndicator() {
             // not a reconnection worth a toast.
             const recovered = consecutiveFailuresRef.current >= 2;
             consecutiveFailuresRef.current = 0;
+            // Re-verify the browser's own state before marking online: a stale
+            // in-flight probe that resolves after the browser fired 'offline'
+            // mid-request (or after the tab was hidden) must not override it.
+            if (!navigator.onLine || document.visibilityState !== 'visible') {
+              return;
+            }
             setIsOnline(true);
             if (recovered) {
               haptic.success();

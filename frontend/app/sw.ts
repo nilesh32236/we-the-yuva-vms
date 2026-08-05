@@ -88,6 +88,16 @@ self.addEventListener('message', (event) => {
     event.waitUntil(
       (async () => {
         try {
+          // Drop any push subscription so a signed-out (possibly shared) device
+          // stops receiving notifications for the previous account.
+          const subscription = await self.registration.pushManager.getSubscription();
+          if (subscription) {
+            await subscription.unsubscribe();
+          }
+        } catch {
+          // Best-effort cleanup — failure is non-fatal.
+        }
+        try {
           const keys = await caches.keys();
           await Promise.all(
             keys
@@ -97,7 +107,7 @@ self.addEventListener('message', (event) => {
         } catch {
           // Best-effort cleanup — failure is non-fatal.
         }
-      })()
+      })(),
     );
     return;
   }
@@ -109,6 +119,10 @@ self.addEventListener('message', (event) => {
           const cache = await caches.open(INTENDED_DESTINATION_CACHE);
           const match = await cache.match(INTENDED_DESTINATION_URL);
           const url = match ? await match.text() : '';
+          // The destination only needs to survive from the failed navigation to
+          // the /offline page render — delete it so a stale URL (potentially
+          // containing sensitive query params) never lingers between sessions.
+          await cache.delete(INTENDED_DESTINATION_URL);
           (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url });
         } catch {
           (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url: '' });

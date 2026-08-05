@@ -7,11 +7,17 @@ import { useRouter } from 'next/navigation';
 export default function OfflinePage() {
   const router = useRouter();
   const [intendedDestination, setIntendedDestination] = useState<string | null>(null);
+  const [destinationResolved, setDestinationResolved] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'INTENDED_DESTINATION' && event.data.url) {
-        setIntendedDestination(event.data.url);
+      if (event.data?.type === 'INTENDED_DESTINATION') {
+        if (!cancelled) {
+          setIntendedDestination(event.data.url ?? null);
+          setDestinationResolved(true);
+        }
       }
     };
 
@@ -23,8 +29,19 @@ export default function OfflinePage() {
       });
     }
 
+    // If the service worker round-trip never answers (e.g. SW cold start), give
+    // up after a short grace period so the retry button becomes usable and
+    // falls back to the current URL / router.back().
+    const timeout = window.setTimeout(() => {
+      if (!cancelled) {
+        setDestinationResolved(true);
+      }
+    }, 2000);
+
     return () => {
+      cancelled = true;
       navigator.serviceWorker?.removeEventListener('message', handleMessage);
+      window.clearTimeout(timeout);
     };
   }, []);
 
@@ -58,9 +75,10 @@ export default function OfflinePage() {
       <button
         type="button"
         onClick={handleRetry}
-        className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
+        disabled={!destinationResolved}
+        className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-brand-primary"
       >
-        Try again
+        {destinationResolved ? 'Try again' : 'Reconnecting…'}
       </button>
 
       <p className="text-brand-muted text-xs mt-8">WeTheYuva VMS · Volunteer Management System</p>

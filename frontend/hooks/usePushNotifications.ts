@@ -43,18 +43,36 @@ export function usePushNotifications() {
         throw new Error('Invalid VAPID configuration from server');
       }
 
+      // Normalize a key/string to base64url for comparison.
+      const toBase64Url = (value: string) =>
+        value.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
       const registration = await navigator.serviceWorker.ready;
       const existing = await registration.pushManager.getSubscription();
-      if (existing) {
-        await existing.unsubscribe();
+      let subscription = existing ?? null;
+      if (subscription) {
+        const existingKeyBuffer = subscription.options.applicationServerKey;
+        const existingKey = existingKeyBuffer
+          ? toBase64Url(btoa(String.fromCharCode(...new Uint8Array(existingKeyBuffer))))
+          : null;
+        // Reuse the existing browser subscription when it is still current
+        // instead of unsubscribing + re-subscribing on every call. Only tear it
+        // down when the VAPID key differs (or is missing). This stops each full
+        // page load from churning the endpoint and orphaning DB rows.
+        if (existingKey && existingKey === toBase64Url(publicKey)) {
+          await api.post('/notifications/subscribe', subscription.toJSON());
+          return;
+        }
+        await subscription.unsubscribe();
+        subscription = null;
       }
 
-      const subscription = await registration.pushManager.subscribe({
+      const newSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: publicKey,
       });
 
-      await api.post('/notifications/subscribe', subscription.toJSON());
+      await api.post('/notifications/subscribe', newSubscription.toJSON());
     } catch (err) {
       console.error('Failed to subscribe to push notifications');
       setError('Failed to set up push notifications. Please try again.');
