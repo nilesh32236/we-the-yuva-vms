@@ -200,7 +200,7 @@ export function TopNav() {
           <Button
             variant="icon"
             onClick={() => setOpen((v) => !v)}
-            className="relative"
+            className="relative rounded-xl duration-200"
             aria-label="Notifications"
             aria-haspopup="true"
             aria-expanded={open}
@@ -234,7 +234,7 @@ export function TopNav() {
                     variant="ghost"
                     size="sm"
                     onClick={() => markAllReadMut.mutate()}
-                    className="text-xs h-auto py-1 min-h-0"
+                    className="text-xs"
                   >
                     Mark all read
                   </Button>
@@ -341,7 +341,7 @@ export function TopNav() {
         <Button
           variant="icon"
           onClick={logout}
-          className="hover:bg-brand-error/10 hover:text-brand-error"
+          className="hover:bg-brand-error/10 hover:text-brand-error rounded-xl duration-200"
           aria-label="Log out"
           title="Log out"
         >
