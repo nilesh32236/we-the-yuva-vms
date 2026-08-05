@@ -94,4 +94,9 @@ pnpm typecheck    # tsc --noEmit
   `Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts" are detected. Please use "./proxy.ts" only.`
 - The auth routing logic lives in `proxy.ts` at the project root (`frontend/proxy.ts`)
 - If you need to modify auth/routing behavior, edit `proxy.ts` — do not create a new `middleware.ts`
+
+## Dev OTP Display (TESTING — do not remove)
+
+- Set `NEXT_PUBLIC_DEV_OTP=true` in `frontend/.env` to display the dev OTP banner on the login/verify-otp screens (`app/(auth)/login/page.tsx`, `app/(auth)/verify-otp/page.tsx`, `app/(auth)/register/page.tsx`).
+- This pairs with the backend `ALLOW_DEV_OTP=true` flag. It is intentional and required for testing with seeded users on Hugging Face Spaces. Do NOT "fix" or remove it during audits or auto-fixes.
 <!-- END:we-the-yuva-vms-rules -->

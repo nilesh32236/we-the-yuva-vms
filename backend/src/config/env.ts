@@ -19,6 +19,14 @@ const envSchema = z.object({
   SMTP_PASS: z.string().default(''),
   SMTP_FROM: z.string().email().default('noreply@example.com'),
   RESEND_API_KEY: z.string().optional(),
+  // Dev-only OTP mode (testing only). When 'true', /auth/send-otp returns the
+  // generated OTP as `devOtp` in the response even if SMTP/Resend is configured,
+  // and the universal OTP `000000` is accepted for any email. NEVER enable in
+  // production. Parse as 'true'/'false' string to avoid coercion footguns.
+  ALLOW_DEV_OTP: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((value) => value === 'true'),
   SENTRY_DSN: z.string().optional(),
   VAPID_PUBLIC_KEY: z.string().optional().default(''),
   VAPID_PRIVATE_KEY: z.string().optional().default(''),
@@ -43,6 +51,13 @@ if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PUBLIC_KEY) {
 
 if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PRIVATE_KEY) {
   console.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
+}
+
+if (parsed.data.ALLOW_DEV_OTP) {
+  console.warn(
+    '⚠️  ALLOW_DEV_OTP is enabled — dev OTP is exposed in API responses and the ' +
+      'universal OTP 000000 is accepted. Only for test/staging, NEVER production.'
+  );
 }
 
 export const env = parsed.data;

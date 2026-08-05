@@ -17,6 +17,10 @@ const emailMock = vi.hoisted(() => ({ emailEnabled: false, sendEmail: vi.fn() })
 
 vi.mock('@/lib/email', () => emailMock);
 
+const envMock = vi.hoisted(() => ({ ALLOW_DEV_OTP: false }));
+
+vi.mock('@/config/env', () => ({ env: envMock }));
+
 vi.mock('../auth.service', () => ({
   generateAndStoreOtp: vi.fn(),
   verifyOtp: vi.fn(),
@@ -50,6 +54,7 @@ describe('auth.controller', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     emailMock.emailEnabled = false;
+    envMock.ALLOW_DEV_OTP = false;
     req = {
       body: {},
       params: {},
@@ -235,6 +240,20 @@ describe('auth.controller', () => {
       );
       const body = (res.json as ReturnType<typeof vi.fn>).mock.calls[0][0];
       expect(body.devOtp).toBeUndefined();
+    });
+
+    it('should return devOtp even when email transport is configured if ALLOW_DEV_OTP is enabled', async () => {
+      emailMock.emailEnabled = true;
+      envMock.ALLOW_DEV_OTP = true;
+      req.body = { email: 'known@test.com' };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ id: 'user-1' } as never);
+      vi.mocked(authService.generateAndStoreOtp).mockResolvedValue('654321');
+      vi.mocked(authService.enqueueOtpEmail).mockResolvedValue();
+
+      await sendOtp(req as Request, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ devOtp: '654321' }));
     });
   });
 

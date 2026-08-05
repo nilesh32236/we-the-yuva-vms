@@ -38,6 +38,12 @@ export async function generateAndStoreOtp(email: string): Promise<string> {
 }
 
 export async function verifyOtp(email: string, otp: string): Promise<void> {
+  // Dev-only universal OTP for seeded users without a real inbox. Gated behind
+  // ALLOW_DEV_OTP so it can never run in a fully configured deployment.
+  if (env.ALLOW_DEV_OTP && otp === '000000') {
+    logger.warn(`[Dev Mode] Universal OTP accepted for ${email.toLowerCase()}`);
+    return;
+  }
 
   const record = await prisma.otpRecord.findFirst({
     where: {

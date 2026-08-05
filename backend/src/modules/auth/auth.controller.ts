@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
+import { env } from '../../config/env';
 import { logAudit } from '../../lib/audit';
 import { emailEnabled } from '../../lib/email';
 import { logger } from '../../lib/logger';
@@ -136,9 +137,11 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
     const body: { message: string; devOtp?: string } = {
       message: 'Verification code sent to your email.',
     };
-    if (!emailEnabled) {
-      // Dev OTP fallback — only exposed when no real email transport is configured.
-      logger.warn(`[Dev Mode] SMTP not configured. DEV OTP for ${email}: ${otp}`);
+    // Dev OTP fallback — exposed when no real email transport is configured, or
+    // always when ALLOW_DEV_OTP is enabled (testing only, e.g. seeded users on
+    // Hugging Face Spaces that have no real inbox).
+    if (!emailEnabled || env.ALLOW_DEV_OTP) {
+      logger.warn(`[Dev Mode] DEV OTP for ${email}: ${otp}`);
       body.devOtp = otp;
     }
 

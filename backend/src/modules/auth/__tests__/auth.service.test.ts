@@ -26,6 +26,26 @@ vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
 
+const envMock = vi.hoisted(() => ({
+  NODE_ENV: 'test',
+  PORT: '4000',
+  DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
+  REDIS_URL: 'redis://localhost:6379',
+  JWT_ACCESS_SECRET: 'test-access-secret-at-least-32-chars-long!',
+  JWT_REFRESH_SECRET: 'test-refresh-secret-at-least-32-chars-long!',
+  JWT_ACCESS_EXPIRY: '15m',
+  JWT_REFRESH_EXPIRY: '7d',
+  EMAIL_PROVIDER: 'smtp',
+  SMTP_HOST: '',
+  SMTP_PORT: 587,
+  SMTP_USER: '',
+  SMTP_PASS: '',
+  SMTP_FROM: 'test@test.com',
+  ALLOW_DEV_OTP: false,
+}));
+
+vi.mock('@/config/env', () => ({ env: envMock }));
+
 const emailMock = vi.hoisted(() => ({ emailEnabled: true, sendEmail: vi.fn() }));
 
 vi.mock('@/lib/email', () => emailMock);
@@ -207,6 +227,7 @@ describe('auth.service (OTP functions)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     emailMock.emailEnabled = true;
+    envMock.ALLOW_DEV_OTP = false;
   });
 
   describe('generateAndStoreOtp', () => {
@@ -263,6 +284,18 @@ describe('auth.service (OTP functions)', () => {
       expect(prisma.otpRecord.update).toHaveBeenCalledWith(
         expect.objectContaining({ data: { used: true } })
       );
+    });
+
+    it('should accept universal OTP 000000 when ALLOW_DEV_OTP is enabled', async () => {
+      envMock.ALLOW_DEV_OTP = true;
+      await expect(verifyOtp('test@test.com', '000000')).resolves.toBeUndefined();
+      expect(prisma.otpRecord.findFirst).not.toHaveBeenCalled();
+    });
+
+    it('should reject universal OTP 000000 when ALLOW_DEV_OTP is disabled', async () => {
+      envMock.ALLOW_DEV_OTP = false;
+      vi.mocked(prisma.otpRecord.findFirst).mockResolvedValue(null);
+      await expect(verifyOtp('test@test.com', '000000')).rejects.toThrow('Invalid or expired OTP');
     });
   });
 
