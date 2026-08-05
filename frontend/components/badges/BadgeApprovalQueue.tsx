@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useDeferredValue, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
@@ -138,14 +138,15 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
 
 export function BadgeApprovalQueue() {
   const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
   const [selectedRequest, setSelectedRequest] = useState<PendingApproval | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['admin-badge-pending', search],
+    queryKey: ['admin-badge-pending', deferredSearch],
     queryFn: () =>
       api
         .get('/badges/pending', {
-          params: { search: search || undefined },
+          params: { search: deferredSearch || undefined },
         })
         .then((r) => r.data),
     staleTime: 30_000,

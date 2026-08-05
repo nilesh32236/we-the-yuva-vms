@@ -83,18 +83,28 @@ export function TopNav() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: unreadData } = useQuery({
+  const {
+    data: unreadData,
+    isError: unreadIsError,
+    error: unreadError,
+  } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
+    enabled: !!user,
     refetchInterval: 30000,
     staleTime: 30000,
   });
 
-  const { data: notifData } = useQuery({
+  const {
+    data: notifData,
+    isError: notifIsError,
+    error: notifError,
+    refetch: notifRefetch,
+  } = useQuery({
     queryKey: ['notifications', 'recent'],
     queryFn: () =>
       api.get<{ data: BackendNotification[] }>('/notifications?limit=5').then((r) => r.data),
-    enabled: open,
+    enabled: open && !!user,
     staleTime: 0,
   });
 
@@ -138,6 +148,15 @@ export function TopNav() {
   const items = notifData?.data ?? [];
   const panelRef = useRef<HTMLDivElement>(null);
   const notifDropdownRef = useFocusTrap(open);
+
+  const notifErrorRef = useRef(false);
+  useEffect(() => {
+    if ((unreadIsError || notifIsError) && !notifErrorRef.current) {
+      notifErrorRef.current = true;
+      if (unreadIsError) Sentry.captureException(unreadError);
+      if (notifIsError) Sentry.captureException(notifError);
+    }
+  }, [unreadIsError, notifIsError, unreadError, notifError]);
 
   const initials = user?.name
     ? user.name
@@ -241,7 +260,18 @@ export function TopNav() {
 
               {/* Items */}
               <div className="divide-y divide-brand-border max-h-72 overflow-y-auto">
-                {items.length === 0 ? (
+                {notifIsError ? (
+                  <div className="px-4 py-8 text-center text-sm text-brand-muted">
+                    <p className="font-medium text-brand-error">Failed to load notifications</p>
+                    <button
+                      type="button"
+                      onClick={() => notifRefetch()}
+                      className="mt-1 text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-md"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : items.length === 0 ? (
                   <div className="px-4 py-8 text-center text-sm text-brand-muted">
                     No notifications
                   </div>
