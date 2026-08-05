@@ -154,14 +154,24 @@ export default function NotificationsPage() {
             {notifications.map((n) => {
               const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
               return (
-                <button
-                  type="button"
+                // biome-ignore lint/a11y/useSemanticElements: Outer container for complex nested interactives
+                <div
                   key={n.id}
+                  role="button"
+                  tabIndex={0}
                   className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full cursor-pointer ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
                   onClick={() => {
                     haptic.light();
                     if (!n.read) markReadMut.mutate(n.id);
                     if (n.link) router.push(n.link);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      haptic.light();
+                      if (!n.read) markReadMut.mutate(n.id);
+                      if (n.link) router.push(n.link);
+                    }
                   }}
                 >
                   <div
@@ -194,7 +204,7 @@ export default function NotificationsPage() {
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
-                </button>
+                </div>
               );
             })}
             <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />

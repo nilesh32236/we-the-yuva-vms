@@ -2,6 +2,7 @@
 
 import { WifiOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/Button';
 
 export default function OfflinePage() {
   const router = useRouter();
@@ -32,13 +33,12 @@ export default function OfflinePage() {
         again.
       </p>
 
-      <button
-        type="button"
+      <Button
         onClick={handleRetry}
-        className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer"
+        className="px-6 py-3"
       >
         Try again
-      </button>
+      </Button>
 
       <p className="text-brand-muted text-xs mt-8">WeTheYuva VMS · Volunteer Management System</p>
     </main>
