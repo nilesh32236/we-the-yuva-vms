@@ -15,6 +15,20 @@ declare const self: ServiceWorkerGlobalScope;
 const INTENDED_DESTINATION_CACHE = 'offline-navigation';
 const INTENDED_DESTINATION_URL = '/intended-destination';
 
+function recordIntendedDestination(event: ExtendableEvent, url: string): void {
+  event.waitUntil(
+    caches
+      .open(INTENDED_DESTINATION_CACHE)
+      .then((cache) =>
+        cache.put(
+          INTENDED_DESTINATION_URL,
+          new Response(url, { headers: { 'Content-Type': 'text/plain' } }),
+        ),
+      )
+      .catch(() => {}),
+  );
+}
+
 const runtimeCaching: RuntimeCaching[] = [
   {
     matcher: ({ request, sameOrigin, url }) => {
@@ -36,19 +50,21 @@ const serwist = new Serwist({
     entries: [
       {
         url: '/offline',
+        // Serve the /offline page only for full-page (destination "document")
+        // navigations. This intentionally excludes App Router RSC payload
+        // requests: in-app <Link>/router.push transitions fetch flight data
+        // with the "RSC" header and an empty request.destination. When that
+        // fetch fails while offline, Next.js's router falls back to an MPA
+        // (full-page) navigation of the intended URL (see fetch-server-response
+        // in next/dist/client/components/router-reducer), which reaches this
+        // matcher as a document request — so in-app taps are covered too, and
+        // the intended destination recorded here is the route the user tapped.
+        // Serving the /offline HTML to the RSC request itself is deliberately
+        // avoided: the router expects flight data there and an HTML body breaks
+        // the transition.
         matcher({ request, event }) {
           if (request.destination !== 'document') return false;
-          event.waitUntil(
-            caches
-              .open(INTENDED_DESTINATION_CACHE)
-              .then((cache) =>
-                cache.put(
-                  INTENDED_DESTINATION_URL,
-                  new Response(request.url, { headers: { 'Content-Type': 'text/plain' } }),
-                ),
-              )
-              .catch(() => {})
-          );
+          recordIntendedDestination(event, request.url);
           return true;
         },
       },

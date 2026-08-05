@@ -17,6 +17,10 @@ export function NetworkStatusIndicator() {
       haptic.success();
       setIsOnline(true);
       setShowOnlineToast(true);
+      // Reset the probe's failure counter so a probe success that follows the
+      // browser 'online' event is not mistaken for a separate recovery (which
+      // would double-show the 'Back Online' toast).
+      consecutiveFailuresRef.current = 0;
 
       window.clearTimeout(onlineTimerRef.current);
       onlineTimerRef.current = window.setTimeout(() => {
@@ -45,34 +49,79 @@ export function NetworkStatusIndicator() {
   // those events miss (captive portals, Wi-Fi without a route, dead backend).
   useEffect(() => {
     let cancelled = false;
+    let inFlight = false;
+    let timeoutId: number | undefined;
 
     const probe = async () => {
+      // Skip while a probe is still pending so a slow-but-alive backend is not
+      // double-counted toward the failure threshold, and skip when the browser
+      // already reports offline (the 'online'/'offline' events own that state)
+      // or the tab is hidden/backgrounded (no user-facing benefit, and open
+      // tabs multiply backend traffic).
+      if (cancelled || inFlight) return;
+      if (!navigator.onLine || document.visibilityState !== 'visible') return;
+
+      inFlight = true;
       const controller = new AbortController();
       // Timeout matches the 10s interval so a slow-but-alive backend (e.g. an
       // HF Spaces cold start) is not flagged offline; only two consecutive
       // failures downgrade to offline to avoid transient false negatives.
-      const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+      timeoutId = window.setTimeout(() => controller.abort(), 10000);
       try {
-        await fetch('/api/v1/health', { cache: 'no-store', signal: controller.signal });
+        const res = await fetch('/api/v1/health', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
         if (!cancelled) {
-          consecutiveFailuresRef.current = 0;
-          setIsOnline(true);
+          if (res.ok) {
+            // fetch() resolves for HTTP error statuses too, so only a 2xx
+            // counts as healthy — a live proxy that returns 5xx (e.g. an HF
+            // Spaces 502 during a restart) is offline as far as the app is
+            // concerned. Recovery detected by the probe alone surfaces the
+            // same 'Back Online' feedback as the browser 'online' event, but
+            // only when the offline banner was actually shown (two consecutive
+            // failures) — a single transient failure followed by success is
+            // not a reconnection worth a toast.
+            const recovered = consecutiveFailuresRef.current >= 2;
+            consecutiveFailuresRef.current = 0;
+            setIsOnline(true);
+            if (recovered) {
+              haptic.success();
+              setShowOnlineToast(true);
+              window.clearTimeout(onlineTimerRef.current);
+              onlineTimerRef.current = window.setTimeout(() => {
+                setShowOnlineToast(false);
+              }, 3000);
+            }
+          } else if (++consecutiveFailuresRef.current >= 2) {
+            setIsOnline(false);
+          }
         }
       } catch {
         if (!cancelled && ++consecutiveFailuresRef.current >= 2) {
           setIsOnline(false);
         }
       } finally {
+        inFlight = false;
         window.clearTimeout(timeoutId);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        probe();
       }
     };
 
     probe();
     const interval = window.setInterval(probe, 10000);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       cancelled = true;
       window.clearInterval(interval);
+      window.clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
