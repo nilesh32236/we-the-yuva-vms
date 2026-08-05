@@ -109,8 +109,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const profileStatus = profileStatusQuery.data ?? null;
 
   const refetch = useCallback(async () => {
-    await queryClient.refetchQueries({ queryKey: ['auth-user'] });
-    await queryClient.refetchQueries({ queryKey: ['profile-status'] });
+    // NOTE: do NOT use queryClient.refetchQueries() here — it silently skips
+    // DISABLED queries, and on public routes (login, verify-otp) the auth-user
+    // query is enabled:false. That made post-OTP refetch a no-op, so auth state
+    // never populated and the redirect never happened until a hard refresh.
+    // Fetching matching queries directly via query.fetch() works in all cases.
+    const refetchByKey = async (queryKey: string[]) => {
+      const queries = queryClient.getQueryCache().findAll({ queryKey });
+      await Promise.all(
+        queries.map((query) =>
+          query.fetch().catch(() => {
+            // Mirror refetchQueries semantics: never throw unless requested.
+          })
+        )
+      );
+    };
+    await refetchByKey(['auth-user']);
+    await refetchByKey(['profile-status']);
     return queryClient.getQueryData<AuthUser | null>(['auth-user']) ?? null;
   }, []);
 
