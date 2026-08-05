@@ -21,10 +21,14 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }));
+vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
+
+const emailMock = vi.hoisted(() => ({ emailEnabled: true, sendEmail: vi.fn() }));
+
+vi.mock('@/lib/email', () => emailMock);
 
 const { prisma } = await import('@/lib/prisma');
 const { notificationsQueue } = await import('@/lib/queue');
@@ -202,6 +206,7 @@ describe('auth.service (pure functions)', () => {
 describe('auth.service (OTP functions)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    emailMock.emailEnabled = true;
   });
 
   describe('generateAndStoreOtp', () => {
@@ -269,6 +274,12 @@ describe('auth.service (OTP functions)', () => {
         { email: 'test@test.com', otp: '123456' },
         expect.objectContaining({ attempts: 3 })
       );
+    });
+
+    it('should skip enqueue when email transport is not configured', async () => {
+      emailMock.emailEnabled = false;
+      await enqueueOtpEmail('test@test.com', '123456');
+      expect(notificationsQueue.add).not.toHaveBeenCalled();
     });
   });
 });

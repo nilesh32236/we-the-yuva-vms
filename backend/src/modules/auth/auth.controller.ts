@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
 import { logAudit } from '../../lib/audit';
+import { emailEnabled } from '../../lib/email';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
@@ -132,7 +133,16 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
       logger.warn('Audit log failed', { error: (err as Error).message })
     );
 
-    res.status(200).json({ message: 'Verification code sent to your email.', devOtp: otp });
+    const body: { message: string; devOtp?: string } = {
+      message: 'Verification code sent to your email.',
+    };
+    if (!emailEnabled) {
+      // Dev OTP fallback — only exposed when no real email transport is configured.
+      logger.warn(`[Dev Mode] SMTP not configured. DEV OTP for ${email}: ${otp}`);
+      body.devOtp = otp;
+    }
+
+    res.status(200).json(body);
   } catch (err) {
     next(err);
   }

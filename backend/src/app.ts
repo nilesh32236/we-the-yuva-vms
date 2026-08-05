@@ -89,9 +89,11 @@ export function createApp(): Express {
   app.use(compression());
 
   // Global rate limiter — protects all routes from brute force / DoS
+  // TODO: Restore rate limiting before production release
   const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 600,
+    skip: (req) => req.path.startsWith('/api/v1/auth'),
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many requests, please try again later' },

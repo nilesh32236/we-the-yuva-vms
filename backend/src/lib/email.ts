@@ -32,6 +32,11 @@ if (provider === 'resend') {
   }
 }
 
+// True when a real email transport (Resend or SMTP) is configured. Used to
+// switch between real email delivery and the Dev OTP fallback.
+export const emailEnabled =
+  (provider === 'resend' && !!resend) || (provider === 'smtp' && !!smtpTransporter);
+
 export async function sendEmail(
   to: string,
   subject: string,
