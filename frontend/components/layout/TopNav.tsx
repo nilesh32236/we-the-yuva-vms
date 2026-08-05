@@ -251,21 +251,12 @@ export function TopNav() {
                   items.map((n) => {
                     const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
                     return (
-                      // biome-ignore lint/a11y/useSemanticElements: interactive layout container
-                      <div
+                      <button
+                        type="button"
                         key={n.id}
-                        role="button"
-                        tabIndex={0}
                         onClick={() => {
                           markReadMut.mutate(n.id);
                           if (n.link) router.push(n.link);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            markReadMut.mutate(n.id);
-                            if (n.link) router.push(n.link);
-                          }
                         }}
                         className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-brand-primary/5' : ''}`}
                       >
@@ -291,7 +282,7 @@ export function TopNav() {
                         {!n.read && (
                           <span className="w-2 h-2 rounded-full bg-brand-primary flex-shrink-0 mt-2" />
                         )}
-                      </div>
+                      </button>
                     );
                   })
                 )}
