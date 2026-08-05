@@ -39,12 +39,32 @@ export function NetworkStatusIndicator() {
     };
   }, []);
 
-  // Periodic connectivity check (browser online/offline events can be unreliable)
+  // Periodic connectivity probe. navigator.onLine only reflects the browser's
+  // own online/offline events, so a real request is needed to detect failures
+  // those events miss (captive portals, Wi-Fi without a route, dead backend).
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsOnline(navigator.onLine);
-    }, 10000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+
+    const probe = async () => {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+      try {
+        await fetch('/api/v1/health', { cache: 'no-store', signal: controller.signal });
+        if (!cancelled) setIsOnline(true);
+      } catch {
+        if (!cancelled) setIsOnline(false);
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
+
+    probe();
+    const interval = window.setInterval(probe, 10000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
   }, []);
 
   // Don't render anything during initial mount
@@ -52,7 +72,7 @@ export function NetworkStatusIndicator() {
 
   return (
     <div
-      className="fixed top-[calc(env(safe-area-inset-top)+1rem)] left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-xs px-4"
+      className="fixed top-[calc(env(safe-area-inset-top)+4.5rem)] left-1/2 -translate-x-1/2 z-20 pointer-events-none w-full max-w-xs px-4"
       aria-live="polite"
       role="status"
     >

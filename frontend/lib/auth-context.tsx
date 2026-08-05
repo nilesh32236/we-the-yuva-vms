@@ -177,6 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       queryClient.clear();
       clearQueue();
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker?.controller?.postMessage({ type: 'LOGOUT' });
+      }
       // Flag to prevent auto-refresh from re-authenticating after redirect
       sessionStorage.setItem('logged_out', 'true');
       if (typeof window !== 'undefined') {

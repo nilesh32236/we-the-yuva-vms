@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { BellRing, Sparkles, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,14 +16,23 @@ export function PushSubscriber() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
+  const autoSubscribedUserIdRef = useRef<{ id: string; permission: NotificationPermission } | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 1. Auto-subscribe in background if permission is already granted
+  // 1. Auto-subscribe in background if permission is already granted.
+  //    Guarded by a ref so it only runs once per user+permission — without this,
+  //    an unstable subscribe identity used to re-trigger subscribe (which
+  //    unsubscribes + re-subscribes) on every render of this component.
   useEffect(() => {
     if (!mounted || !user || permission !== 'granted') return;
+
+    const guard = autoSubscribedUserIdRef.current;
+    if (guard && guard.id === user.id && guard.permission === permission) return;
+
+    autoSubscribedUserIdRef.current = { id: user.id, permission };
 
     // Fire silent background subscription to refresh registration on backend
     subscribe().catch((err) => { Sentry.captureException(err); });

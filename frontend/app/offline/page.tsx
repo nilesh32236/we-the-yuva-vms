@@ -1,15 +1,38 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { WifiOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function OfflinePage() {
   const router = useRouter();
+  const [intendedDestination, setIntendedDestination] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'INTENDED_DESTINATION' && event.data.url) {
+        setIntendedDestination(event.data.url);
+      }
+    };
+
+    navigator.serviceWorker?.addEventListener('message', handleMessage);
+    const registrationPromise = navigator.serviceWorker?.getRegistration?.();
+    if (registrationPromise) {
+      registrationPromise.then((registration) => {
+        registration?.active?.postMessage({ type: 'GET_INTENDED_DESTINATION' });
+      });
+    }
+
+    return () => {
+      navigator.serviceWorker?.removeEventListener('message', handleMessage);
+    };
+  }, []);
 
   const handleRetry = () => {
-    const swDestination = sessionStorage.getItem('offline-intended-destination');
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const destination = swDestination || (currentUrl !== '' && currentUrl !== `${window.location.origin}/offline` ? currentUrl : null);
+    const destination =
+      intendedDestination ||
+      (currentUrl !== '' && currentUrl !== `${window.location.origin}/offline` ? currentUrl : null);
     if (destination) {
       router.push(destination);
     } else {
