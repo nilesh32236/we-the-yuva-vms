@@ -151,6 +151,7 @@ export function BadgeApprovalQueue() {
         })
         .then((r) => r.data),
     staleTime: 30_000,
+    placeholderData: (prev) => prev,
   });
 
   const requests: PendingApproval[] = data?.data ?? [];

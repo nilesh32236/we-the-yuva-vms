@@ -151,10 +151,16 @@ export function TopNav() {
 
   const notifErrorRef = useRef(false);
   useEffect(() => {
-    if ((unreadIsError || notifIsError) && !notifErrorRef.current) {
-      notifErrorRef.current = true;
-      if (unreadIsError) Sentry.captureException(unreadError);
-      if (notifIsError) Sentry.captureException(notifError);
+    if (unreadIsError || notifIsError) {
+      if (!notifErrorRef.current) {
+        notifErrorRef.current = true;
+        if (unreadIsError) Sentry.captureException(unreadError);
+        if (notifIsError) Sentry.captureException(notifError);
+      }
+    } else {
+      // Reset the latch so a later error cycle is reported again instead of
+      // being permanently swallowed after the first failure.
+      notifErrorRef.current = false;
     }
   }, [unreadIsError, notifIsError, unreadError, notifError]);
 
