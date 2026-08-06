@@ -183,6 +183,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, isLoading, fetchError, pathname, router]);
 
   const logout = useCallback(async () => {
+    // Flag to prevent auto-refresh from re-authenticating after redirect
+    sessionStorage.setItem('logged_out', 'true');
     try {
       await api.post('/auth/logout');
     } catch {
@@ -190,8 +192,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       queryClient.clear();
       clearQueue();
-      // Flag to prevent auto-refresh from re-authenticating after redirect
-      sessionStorage.setItem('logged_out', 'true');
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }

@@ -36,6 +36,8 @@ describe('upload.service', () => {
           originalname: 'fake.png',
         } as Express.Multer.File)
       ).rejects.toThrow('File content does not match the declared file type');
+
+      expect(fs.existsSync(filePath)).toBe(false);
     });
 
     it('should accept content that matches the declared mimetype', async () => {

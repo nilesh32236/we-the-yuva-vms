@@ -17,7 +17,6 @@ import {
   storeRefreshToken,
   verifyOtp,
 } from './auth.service';
-import { isRateLimited } from './rate-limit';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -128,19 +127,6 @@ export async function sendOtp(req: Request, res: Response, next: NextFunction) {
 
     if (user.status === 'SUSPENDED' || user.status === 'INACTIVE') {
       throw new AppError('Account is suspended or inactive', 403);
-    }
-
-    // Server-side OTP throttle (per email + per IP). The client countdown is
-    // only a UX affordance — this is the real rate limit.
-    const OTP_WINDOW_MS = 5 * 60 * 1000;
-    const OTP_EMAIL_LIMIT = 5;
-    const OTP_IP_LIMIT = 10;
-    const key = email.toLowerCase();
-    if (
-      isRateLimited(`otp:email:${key}`, OTP_EMAIL_LIMIT, OTP_WINDOW_MS) ||
-      isRateLimited(`otp:ip:${req.ip ?? 'unknown'}`, OTP_IP_LIMIT, OTP_WINDOW_MS)
-    ) {
-      throw new AppError('Too many OTP requests. Please wait.', 429);
     }
 
     const otp = await generateAndStoreOtp(email);

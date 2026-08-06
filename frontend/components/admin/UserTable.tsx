@@ -270,7 +270,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                         aria-label={`Activate ${selectedUser.name}`}
                         role="menuitem"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                         Activate
                       </button>
                     )}
@@ -284,7 +284,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
                         aria-label={`Suspend ${selectedUser.name}`}
                         role="menuitem"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-error" />
                         Suspend
                       </button>
                     )}

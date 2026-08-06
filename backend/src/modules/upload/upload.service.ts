@@ -157,7 +157,17 @@ const s3Client = isS3Configured
   : null;
 
 export async function processUpload(file: Express.Multer.File): Promise<string> {
-  assertContentMatches(file.path, file.mimetype);
+  try {
+    assertContentMatches(file.path, file.mimetype);
+  } catch (err) {
+    await fs.promises.unlink(file.path).catch((cleanupErr) =>
+      logger.warn('File cleanup failed after content validation error', {
+        path: file.path,
+        error: (cleanupErr as Error).message,
+      })
+    );
+    throw err;
+  }
 
   if (s3Client && process.env.S3_BUCKET_NAME) {
     const fileStream = fs.createReadStream(file.path);
