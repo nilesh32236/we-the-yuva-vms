@@ -101,7 +101,7 @@ describe('validate middleware', () => {
     expect(res.status).toHaveBeenCalledWith(422);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
-        error: 'Required',
+        errors: { name: ['Required'] },
       })
     );
     expect(next).not.toHaveBeenCalled();

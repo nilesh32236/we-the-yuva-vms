@@ -34,7 +34,7 @@ vi.mock('jsonwebtoken', () => {
 import { requireAuth } from '../auth.middleware';
 
 describe('auth.middleware - requireAuth', () => {
-  it('should return 401 when no Authorization header', () => {
+  it('should return 401 when no Authorization header', async () => {
     const req = { headers: {} } as Request;
     const res = {
       status: vi.fn().mockReturnThis(),
@@ -42,13 +42,13 @@ describe('auth.middleware - requireAuth', () => {
     } as unknown as Response;
     const next = vi.fn() as NextFunction;
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('should return 401 when header does not start with Bearer', () => {
+  it('should return 401 when header does not start with Bearer', async () => {
     const req = { headers: { authorization: 'Basic token' } } as Request;
     const res = {
       status: vi.fn().mockReturnThis(),
@@ -56,12 +56,12 @@ describe('auth.middleware - requireAuth', () => {
     } as unknown as Response;
     const next = vi.fn() as NextFunction;
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  it('should return 401 when token verification fails', () => {
+  it('should return 401 when token verification fails', async () => {
     const req = { headers: { authorization: 'Bearer invalid-token' } } as Request;
     const res = {
       status: vi.fn().mockReturnThis(),
@@ -72,13 +72,13 @@ describe('auth.middleware - requireAuth', () => {
       throw new Error('invalid');
     });
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('should attach user to request when token is valid', () => {
+  it('should attach user to request when token is valid', async () => {
     const req = {
       headers: { authorization: 'Bearer valid-token' },
     } as Request;
@@ -87,16 +87,18 @@ describe('auth.middleware - requireAuth', () => {
       json: vi.fn().mockReturnThis(),
     } as unknown as Response;
     const next = vi.fn() as NextFunction;
-    vi.mocked(jwt.verify).mockReturnValue({
-      sub: 'user-1',
-      role: 'ADMIN',
-      permissions: ['user:manage'],
-      org: 'org-1',
-      iat: 1000000,
-      exp: 2000000,
-    } as never);
+    vi.mocked(jwt.verify).mockImplementation(((token: string, secret: string, opts: unknown, cb: (err: Error | null, payload?: unknown) => void) => {
+      cb(null, {
+        sub: 'user-1',
+        role: 'ADMIN',
+        permissions: ['user:manage'],
+        org: 'org-1',
+        iat: 1000000,
+        exp: 2000000,
+      });
+    }) as never);
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(next).toHaveBeenCalled();
     expect(req.user).toBeDefined();
@@ -106,7 +108,7 @@ describe('auth.middleware - requireAuth', () => {
     expect(req.user!.organizationId).toBe('org-1');
   });
 
-  it('should handle missing org field gracefully', () => {
+  it('should handle missing org field gracefully', async () => {
     const req = {
       headers: { authorization: 'Bearer valid-token' },
     } as Request;
@@ -115,15 +117,17 @@ describe('auth.middleware - requireAuth', () => {
       json: vi.fn().mockReturnThis(),
     } as unknown as Response;
     const next = vi.fn() as NextFunction;
-    vi.mocked(jwt.verify).mockReturnValue({
-      sub: 'user-1',
-      role: 'VOLUNTEER',
-      permissions: [],
-      iat: 1000000,
-      exp: 2000000,
-    } as never);
+    vi.mocked(jwt.verify).mockImplementation(((token: string, secret: string, opts: unknown, cb: (err: Error | null, payload?: unknown) => void) => {
+      cb(null, {
+        sub: 'user-1',
+        role: 'VOLUNTEER',
+        permissions: [],
+        iat: 1000000,
+        exp: 2000000,
+      });
+    }) as never);
 
-    requireAuth(req, res, next);
+    await requireAuth(req, res, next);
 
     expect(next).toHaveBeenCalled();
     expect(req.user!.organizationId).toBeUndefined();
