@@ -48,9 +48,17 @@ function dispatch(action: { type: string; toast?: ToastProps; toastId?: string }
   for (const listener of listeners) listener(memoryState);
 }
 
+function subscribeToToasts(onStoreChange: () => void) {
+  listeners.push(onStoreChange);
+  return () => {
+    const index = listeners.indexOf(onStoreChange);
+    if (index > -1) listeners.splice(index, 1);
+  };
+}
+
 export function toast(props: Omit<ToastProps, 'id'>) {
   const id = genId();
-  const dismiss = () => dispatch({ type: 'DISMISS_TOAST', toastId: id });
+  const dismissToast = () => dispatch({ type: 'DISMISS_TOAST', toastId: id });
 
   dispatch({
     type: 'ADD_TOAST',
@@ -59,30 +67,28 @@ export function toast(props: Omit<ToastProps, 'id'>) {
       id,
       open: true,
       onOpenChange: (open) => {
-        if (!open) dismiss();
+        if (!open) dismissToast();
       },
     },
   });
 
   setTimeout(() => dispatch({ type: 'REMOVE_TOAST', toastId: id }), TOAST_REMOVE_DELAY);
 
-  return { id, dismiss };
+  return { id, dismiss: dismissToast };
+}
+
+export function dismiss(toastId?: string) {
+  dispatch({ type: 'DISMISS_TOAST', toastId });
 }
 
 export function useToast() {
-  const [state, setState] = React.useState<State>(memoryState);
+  return { toast, dismiss };
+}
 
-  React.useEffect(() => {
-    listeners.push(setState);
-    return () => {
-      const index = listeners.indexOf(setState);
-      if (index > -1) listeners.splice(index, 1);
-    };
-  }, []);
-
-  return {
-    ...state,
-    toast,
-    dismiss: (toastId?: string) => dispatch({ type: 'DISMISS_TOAST', toastId }),
-  };
+export function useToastState(): State {
+  return React.useSyncExternalStore(
+    subscribeToToasts,
+    () => memoryState,
+    () => memoryState
+  );
 }
