@@ -191,13 +191,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         // Best-effort: tell the backend this device's push endpoint is no longer
         // subscribed for the logged-out account, so it stops pushing to a
-        // signed-out (possibly shared) device. No-throw — cleanup is best-effort.
+        // signed-out (possibly shared) device. keepalive:true lets the request
+        // survive the navigation below. No-throw — cleanup is best-effort.
         navigator.serviceWorker
           ?.getRegistration()
           .then((registration) => registration?.pushManager?.getSubscription?.())
           .then((subscription) => {
             if (subscription) {
-              return api.post('/notifications/unsubscribe', { endpoint: subscription.endpoint });
+              return fetch('/api/v1/notifications/unsubscribe', {
+                method: 'POST',
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoint: subscription.endpoint }),
+              });
             }
           })
           .catch(() => {

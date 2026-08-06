@@ -125,6 +125,9 @@ self.addEventListener('message', (event) => {
           await cache.delete(INTENDED_DESTINATION_URL);
           (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url });
         } catch {
+          // Best-effort: still clear the entry so no sensitive URL lingers.
+          const cache = await caches.open(INTENDED_DESTINATION_CACHE);
+          await cache.delete(INTENDED_DESTINATION_URL);
           (event.source as Client | undefined)?.postMessage({ type: 'INTENDED_DESTINATION', url: '' });
         }
       })(),
