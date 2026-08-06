@@ -55,9 +55,13 @@ export function usePushNotifications() {
       });
 
       await api.post('/notifications/subscribe', subscription.toJSON());
-    } catch {
+    } catch (err) {
       console.error('Failed to subscribe to push notifications');
       setError('Failed to set up push notifications. Please try again.');
+      // Rethrow so callers (e.g. the auto-subscribe effect, the manual "Enable"
+      // flow) can react — e.g. clear their once-per-user ref guard and retry
+      // later instead of silently swallowing the failure forever.
+      throw err;
     }
   }, [permission]);
 

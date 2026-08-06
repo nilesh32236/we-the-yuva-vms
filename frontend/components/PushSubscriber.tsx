@@ -74,11 +74,14 @@ export function PushSubscriber() {
     if (subscribing) return;
     haptic.medium();
     setSubscribing(true);
+    manualSubscribeRef.current = true;
     try {
-      manualSubscribeRef.current = true;
       await subscribe();
       setShowPrompt(false);
     } catch {
+      // subscribe() now rethrows on failure — clear the guard so a later
+      // permission/user change can retry instead of being blocked forever.
+      manualSubscribeRef.current = false;
       toast({ title: 'Could not enable notifications', variant: 'destructive' });
     } finally {
       setSubscribing(false);
