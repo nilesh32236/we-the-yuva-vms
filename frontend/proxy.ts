@@ -106,6 +106,6 @@ export async function proxy(req: NextRequest) {
 export const config = {
   // Exclude: Next.js internals, static files, PWA assets (sw.js, workbox, manifest, icons)
   matcher: [
-    '/((?!api|_next/static|_next/image|icons|manifest\\.json|sw\\.js|workbox-.*|.*\\.png$|.*\\.svg$|.*\\.ico$|.*\\.webmanifest$).*)',
+    '/((?!api|_next/static|_next/image|serwist|icons|manifest\\.json|sw\\.js|workbox-.*|.*\\.png$|.*\\.svg$|.*\\.ico$|.*\\.webmanifest$).*)',
   ],
 };

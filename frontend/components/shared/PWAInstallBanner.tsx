@@ -3,12 +3,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { Bell, Download, Sparkles, WifiOff, X } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { useToast } from '@/hooks/use-toast';
 import { haptic } from '@/lib/haptic';
 
 export function PWAInstallBanner() {
   const { isInstallable, install } = usePWAInstall();
+  const { toast } = useToast();
   const [dismissed, setDismissed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [installing, setInstalling] = useState(false);
@@ -40,7 +43,14 @@ export function PWAInstallBanner() {
       if (success) {
         setDismissed(true);
       }
-    } catch {
+    } catch (err) {
+      console.error('Failed to install PWA', err);
+      Sentry.captureException(err);
+      toast({
+        title: 'Could not install the app',
+        description: 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setInstalling(false);
     }

@@ -171,12 +171,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
+      // Best-effort: tell the backend this device's push endpoint is no longer
+      // subscribed for the logged-out account, so it stops pushing to a
+      // signed-out (possibly shared) device. Must run BEFORE /auth/logout
+      // clears the auth cookie, otherwise this request 401s and is a no-op.
+      // keepalive:true lets the request survive the navigation below.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          ?.getRegistration()
+          .then((registration) => registration?.pushManager?.getSubscription?.())
+          .then((subscription) => {
+            if (subscription) {
+              return fetch('/api/v1/notifications/unsubscribe', {
+                method: 'POST',
+                keepalive: true,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoint: subscription.endpoint }),
+              });
+            }
+          })
+          .catch(() => {
+            // Best-effort cleanup — failure is non-fatal.
+          });
+      }
+
       await api.post('/auth/logout');
     } catch {
       // Ignore errors — clear state regardless
     } finally {
       queryClient.clear();
       clearQueue();
+      if ('serviceWorker' in navigator) {
+        const controller = navigator.serviceWorker?.controller;
+        if (controller) {
+          controller.postMessage({ type: 'LOGOUT' });
+        } else {
+          navigator.serviceWorker
+            ?.getRegistration()
+            .then((registration) => registration?.active?.postMessage({ type: 'LOGOUT' }))
+            .catch(() => {
+              // Best-effort purge — the SW cleans up on its next activation.
+            });
+        }
+      }
       // Flag to prevent auto-refresh from re-authenticating after redirect
       sessionStorage.setItem('logged_out', 'true');
       if (typeof window !== 'undefined') {
