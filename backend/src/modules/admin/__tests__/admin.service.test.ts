@@ -179,12 +179,18 @@ describe('admin.service', () => {
     });
 
     it('should update role and log USER_CHANGE_ROLE audit', async () => {
-      vi.mocked(prisma.user.findUnique).mockResolvedValue({
-        id: 'user-1',
-        roleId: 'old-role-id',
-        status: 'ACTIVE',
-        roleRef: { name: 'VOLUNTEER' },
-      } as never);
+      // First user.findUnique: target user; second: the caller (admin, higher level)
+      vi.mocked(prisma.user.findUnique)
+        .mockResolvedValueOnce({
+          id: 'user-1',
+          roleId: 'old-role-id',
+          status: 'ACTIVE',
+          roleRef: { name: 'VOLUNTEER' },
+        } as never)
+        .mockResolvedValueOnce({
+          id: 'admin-1',
+          roleRef: { name: 'ADMIN' },
+        } as never);
       // First call: lookup new role by name (COORDINATOR), second: lookup existing role by id
       vi.mocked(prisma.role.findUnique)
         .mockResolvedValueOnce({ id: 'new-role-id', name: 'COORDINATOR' } as never)
@@ -199,6 +205,24 @@ describe('admin.service', () => {
       expect(result).toBeDefined();
       expect(logAudit).toHaveBeenCalledWith(
         expect.objectContaining({ action: 'USER_CHANGE_ROLE' })
+      );
+    });
+
+    it('should throw 403 when managing a user at the same or higher role level', async () => {
+      vi.mocked(prisma.user.findUnique)
+        .mockResolvedValueOnce({
+          id: 'user-1',
+          roleId: 'role-id',
+          status: 'ACTIVE',
+          roleRef: { name: 'ADMIN' },
+        } as never)
+        .mockResolvedValueOnce({
+          id: 'admin-1',
+          roleRef: { name: 'ADMIN' },
+        } as never);
+
+      await expect(updateUser('user-1', { status: 'INACTIVE' }, 'admin-1')).rejects.toThrow(
+        'Cannot manage a user at your own or a higher role level'
       );
     });
 
