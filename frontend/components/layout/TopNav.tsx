@@ -9,9 +9,9 @@ import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
-import * as Sentry from '@sentry/nextjs';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/Button';
+import { captureApiError } from '@/lib/sentry';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
@@ -88,6 +88,7 @@ export function TopNav() {
     data: unreadData,
     isError: unreadIsError,
     error: unreadError,
+    refetch: unreadRefetch,
   } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
@@ -116,7 +117,7 @@ export function TopNav() {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
     },
     onError: (err: unknown) => {
-      Sentry.captureException(err);
+      captureApiError(err, 'Failed to mark notification as read');
       toast({
         title: 'Error',
         description:
@@ -134,7 +135,7 @@ export function TopNav() {
       queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
     },
     onError: (err: unknown) => {
-      Sentry.captureException(err);
+      captureApiError(err, 'Failed to mark all as read');
       toast({
         title: 'Error',
         description:
@@ -155,8 +156,8 @@ export function TopNav() {
     if (unreadIsError || notifIsError) {
       if (!notifErrorRef.current) {
         notifErrorRef.current = true;
-        if (unreadIsError) Sentry.captureException(unreadError);
-        if (notifIsError) Sentry.captureException(notifError);
+        if (unreadIsError) captureApiError(unreadError, 'unread-count query failed');
+        if (notifIsError) captureApiError(notifError, 'notifications query failed');
       }
     } else {
       // Reset the latch so a later error cycle is reported again instead of
@@ -224,14 +225,30 @@ export function TopNav() {
         <div className="relative" ref={panelRef}>
           <Button
             variant="icon"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => {
+              setOpen((v) => {
+                if (!v) {
+                  notifRefetch();
+                  unreadRefetch();
+                }
+                return !v;
+              });
+            }}
             className="relative rounded-xl duration-200"
             aria-label="Notifications"
             aria-haspopup="true"
             aria-expanded={open}
           >
             <Bell className="w-4 h-4" aria-hidden="true" />
-            {unreadCount > 0 && (
+            {unreadIsError && (
+              <span
+                className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-accent border-2 border-brand-surface flex items-center justify-center"
+                aria-hidden="true"
+              >
+                <AlertTriangle className="w-2.5 h-2.5 text-brand-accent" aria-hidden="true" />
+              </span>
+            )}
+            {!unreadIsError && unreadCount > 0 && (
               <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-brand-error border-2 border-brand-surface flex items-center justify-center">
                 <span className="text-white text-[9px] font-bold leading-none">{unreadCount}</span>
               </span>
@@ -254,7 +271,7 @@ export function TopNav() {
                 <h3 className="font-heading font-semibold text-sm text-brand-text">
                   Notifications
                 </h3>
-                {unreadCount > 0 && (
+                {items.length > 0 && (
                   <Button
                     variant="ghost"
                     size="sm"

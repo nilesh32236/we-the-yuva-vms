@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +40,6 @@ interface UserTableProps {
 export function UserTable({ users = [], onUpdated }: UserTableProps) {
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
-  const qc = useQueryClient();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -53,7 +52,6 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
         ? `User ${(variables.data as { status?: string }).status?.toLowerCase()}`
         : `Role changed to ${(variables.data as { role?: string }).role}`;
       toast({ title: msg });
-      qc.invalidateQueries({ queryKey: ['admin-users'] });
       onUpdated();
     },
     onError: (err: unknown) => {

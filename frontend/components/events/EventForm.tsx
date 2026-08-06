@@ -3,12 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { type EventInput, EventSchema } from '@/lib/shared';
 import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission } from '@/lib/shared/permissions';
+import { captureApiError } from '@/lib/sentry';
 import dynamic from 'next/dynamic';
 import type { EventSeriesOutput } from './EventSeriesForm';
 
@@ -50,8 +50,12 @@ export function EventForm({
     try {
       await onSubmit(data);
     } catch (err: unknown) {
-      Sentry.captureException(err);
-      setError('root', { message: 'Something went wrong. Please try again.' });
+      captureApiError(err, 'event save failed');
+      setError('root', {
+        message:
+          (err as { normalizedMessage?: string })?.normalizedMessage ??
+          'Something went wrong. Please try again.',
+      });
     }
   };
 

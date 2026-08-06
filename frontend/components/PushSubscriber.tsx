@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { BellRing, Sparkles, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { haptic } from '@/lib/haptic';
 import { useToast } from '@/hooks/use-toast';
+import { captureApiError } from '@/lib/sentry';
 
 export function PushSubscriber() {
   const { user } = useAuth();
@@ -37,7 +37,7 @@ export function PushSubscriber() {
     if (manualSubscribeRef.current) return;
 
     // Fire silent background subscription to refresh registration on backend
-    subscribe().catch((err) => { Sentry.captureException(err); });
+    subscribe().catch((err) => { captureApiError(err, 'push auto-subscribe failed'); });
   }, [user, permission, mounted, subscribe]);
 
   // 2. Handle soft permission prompt presentation
@@ -49,7 +49,12 @@ export function PushSubscriber() {
 
     // Delay prompt presentation slightly for better user onboarding flow
     const timer = setTimeout(() => {
-      const isDismissed = sessionStorage.getItem('push-prompt-dismissed') === 'true';
+      let isDismissed = false;
+      try {
+        isDismissed = sessionStorage.getItem('push-prompt-dismissed') === 'true';
+      } catch {
+        // sessionStorage unavailable (Safari private mode, etc.)
+      }
       if (!isDismissed) {
         setShowPrompt(true);
       }
@@ -67,7 +72,11 @@ export function PushSubscriber() {
   const handleDismiss = () => {
     haptic.light();
     setShowPrompt(false);
-    sessionStorage.setItem('push-prompt-dismissed', 'true');
+    try {
+      sessionStorage.setItem('push-prompt-dismissed', 'true');
+    } catch {
+      // sessionStorage unavailable
+    }
   };
 
   const handleSubscribe = async () => {
@@ -78,11 +87,16 @@ export function PushSubscriber() {
     try {
       await subscribe();
       setShowPrompt(false);
-    } catch {
+    } catch (err) {
       // subscribe() now rethrows on failure — clear the guard so a later
       // permission/user change can retry instead of being blocked forever.
       manualSubscribeRef.current = false;
-      toast({ title: 'Could not enable notifications', variant: 'destructive' });
+      captureApiError(err, 'enable notifications failed');
+      toast({
+        title: 'Could not enable notifications',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setSubscribing(false);
     }

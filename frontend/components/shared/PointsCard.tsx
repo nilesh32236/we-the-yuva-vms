@@ -5,7 +5,7 @@ import { AlertTriangle, Award } from 'lucide-react';
 import { useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
-import * as Sentry from '@sentry/nextjs';
+import { captureApiError } from '@/lib/sentry';
 
 interface PointsResponse {
   currentPoints: number;
@@ -13,7 +13,7 @@ interface PointsResponse {
 }
 
 export function PointsCard() {
-  const { data, isLoading, isError, error } = useQuery<PointsResponse>({
+  const { data, isLoading, isError, error, refetch } = useQuery<PointsResponse>({
     queryKey: ['my-points'],
     queryFn: () => api.get('/levels/users/me/points').then((r) => r.data),
     staleTime: 60_000,
@@ -21,7 +21,7 @@ export function PointsCard() {
 
   useEffect(() => {
     if (isError && error) {
-      Sentry.captureException(error);
+      captureApiError(error, 'points query failed');
     }
   }, [error, isError]);
 
@@ -46,8 +46,17 @@ export function PointsCard() {
           <AlertTriangle className="w-6 h-6 text-brand-error" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-brand-error">Failed to load points</p>
-          <p className="text-brand-muted text-xs mt-1">Pull to refresh</p>
+          <p className="text-sm text-brand-error">
+            {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
+              'Failed to load points'}
+          </p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="text-brand-muted text-xs mt-1 underline cursor-pointer"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

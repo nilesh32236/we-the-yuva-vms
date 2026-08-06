@@ -3,6 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Clock, Star, Trophy } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect } from 'react';
+import * as Sentry from '@sentry/nextjs';
 import { api } from '@/lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { StreakBadge } from './StreakBadge';
@@ -53,11 +55,17 @@ interface LevelData {
 }
 
 export function LevelProgressCard() {
-  const { data, isLoading, isError, refetch } = useQuery<{ data: LevelData }>({
+  const { data, isLoading, isError, error, refetch } = useQuery<{ data: LevelData }>({
     queryKey: ['my-level'],
     queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
     staleTime: 60000,
   });
+
+  useEffect(() => {
+    if (!isLoading && !isError && !data?.data) {
+      Sentry.captureMessage('LevelProgressCard: response missing level data', 'warning');
+    }
+  }, [data, isLoading, isError]);
 
   if (isLoading) return <SkeletonCard />;
 
@@ -65,7 +73,10 @@ export function LevelProgressCard() {
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-error/20 p-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-brand-error">Failed to load level data</p>
+          <p className="text-sm text-brand-error">
+            {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
+              'Failed to load level data'}
+          </p>
           <button
             type="button"
             onClick={() => refetch()}
@@ -80,7 +91,20 @@ export function LevelProgressCard() {
 
   const level = data?.data;
   if (!level) {
-    return null;
+    return (
+      <div className="bg-brand-surface rounded-2xl border border-brand-error/20 p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-brand-error">Failed to load level data</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const currentTier = TIER_DATA[level.tier - 1] ?? TIER_DATA[0];

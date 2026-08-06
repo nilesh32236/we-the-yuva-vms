@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
+import { captureApiError } from '@/lib/sentry';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { Button } from '../ui/Button';
 
@@ -29,14 +30,19 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
       api.post(`/badges/${request.user.id}/${request.badge.id}/${action}`, {
         reviewNote: reviewNote || undefined,
       }),
-    onSuccess: (_data, variables) => {
-      qc.invalidateQueries({ queryKey: ['admin-badge-pending'] });
+    onSuccess: async (_data, variables) => {
       toast({
         title: `Request ${variables.action === 'approve' ? 'approved' : 'rejected'}`,
       });
       onClose();
+      try {
+        await qc.refetchQueries({ queryKey: ['admin-badge-pending'], type: 'active' });
+      } catch {
+        toast({ title: 'Error', description: 'Queue refresh failed', variant: 'destructive' });
+      }
     },
     onError: (err: unknown) => {
+      captureApiError(err, 'badge review failed');
       toast({
         title: 'Failed',
         description:

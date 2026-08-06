@@ -6,17 +6,25 @@ import { useEffect, useState } from 'react';
 import { Bell, Download, Sparkles, WifiOff, X } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { haptic } from '@/lib/haptic';
+import { useToast } from '@/hooks/use-toast';
+import { captureApiError } from '@/lib/sentry';
 
 export function PWAInstallBanner() {
   const { isInstallable, install } = usePWAInstall();
   const [dismissed, setDismissed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setMounted(true);
     // Check if user already dismissed it in this session
-    const isDismissed = sessionStorage.getItem('pwa-prompt-dismissed') === 'true';
+    let isDismissed = false;
+    try {
+      isDismissed = sessionStorage.getItem('pwa-prompt-dismissed') === 'true';
+    } catch {
+      // sessionStorage unavailable
+    }
     if (isDismissed) {
       setDismissed(true);
     }
@@ -29,7 +37,11 @@ export function PWAInstallBanner() {
   const handleDismiss = () => {
     haptic.light();
     setDismissed(true);
-    sessionStorage.setItem('pwa-prompt-dismissed', 'true');
+    try {
+      sessionStorage.setItem('pwa-prompt-dismissed', 'true');
+    } catch {
+      // sessionStorage unavailable
+    }
   };
 
   const handleInstall = async () => {
@@ -40,7 +52,13 @@ export function PWAInstallBanner() {
       if (success) {
         setDismissed(true);
       }
-    } catch {
+    } catch (err) {
+      captureApiError(err, 'PWA install failed');
+      toast({
+        title: 'Install failed',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setInstalling(false);
     }

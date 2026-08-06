@@ -374,7 +374,7 @@ const LocationArraySchema = z.array(LocationSchema);
 
 function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const queryClient = useQueryClient();
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['locations'],
     queryFn: () => api.get('/locations').then((r) => LocationArraySchema.parse(r.data.data)),
     staleTime: 300_000,
@@ -392,7 +392,10 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-brand-text">Location</p>
         <div className="rounded-xl bg-brand-error/10 border border-brand-error/20 px-4 py-3 text-sm text-brand-error flex items-center justify-between">
-          <span>Failed to load locations</span>
+          <span>
+            {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
+              'Failed to load locations'}
+          </span>
           <button
             type="button"
             onClick={() => refetch()}

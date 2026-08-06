@@ -2,10 +2,10 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as Sentry from '@sentry/nextjs';
 import { z } from 'zod';
 import { useMemo } from 'react';
 import { Button } from '../ui/Button';
+import { captureApiError } from '@/lib/sentry';
 
 const DAYS = [
   { value: 0, label: 'Sun' },
@@ -237,8 +237,11 @@ export function EventSeriesForm({
       };
       await onSubmit(formattedData);
     } catch (err) {
-      Sentry.captureException(err);
-      setError('root', { message: 'Something went wrong.' });
+      captureApiError(err, 'event series save failed');
+      setError('root', {
+        message:
+          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Something went wrong.',
+      });
     }
   };
 

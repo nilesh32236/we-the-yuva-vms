@@ -32,9 +32,11 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
       const formData = new FormData();
       formData.append('file', file);
       const { data } = await api.post('/upload', formData, { timeout: 60_000 });
-      const newFiles = [...files, { url: data.url, name: file.name }];
-      setFiles(newFiles);
-      onFilesChange(newFiles.map((f) => f.url));
+      setFiles((prev) => {
+        const newFiles = [...prev, { url: data.url, name: file.name }];
+        onFilesChange(newFiles.map((f) => f.url));
+        return newFiles;
+      });
     } catch (err) {
       captureException(err);
       const message =
@@ -53,11 +55,13 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
     onFilesChange(newFiles.map((f) => f.url));
   }
 
-  function onDrop(e: DragEvent) {
+  async function onDrop(e: DragEvent) {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
+    const dropped = Array.from(e.dataTransfer.files ?? []);
+    for (const f of dropped) {
+      await handleFile(f);
+    }
   }
 
   return (
@@ -98,10 +102,14 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
         ref={inputRef}
         type="file"
         accept="image/*,.pdf"
+        multiple
         className="hidden"
         onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) handleFile(f);
+          const selected = Array.from(e.target.files ?? []);
+          e.target.value = '';
+          for (const f of selected) {
+            handleFile(f);
+          }
         }}
       />
 
