@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { BellRing, Sparkles, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,14 +16,25 @@ export function PushSubscriber() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
+  const manualSubscribeRef = useRef(false);
+  const userId = user?.id;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!userId) return;
+    manualSubscribeRef.current = false;
+  }, [userId]);
+
   // 1. Auto-subscribe in background if permission is already granted
   useEffect(() => {
     if (!mounted || !user || permission !== 'granted') return;
+
+    // Skip when the user just granted via the manual 'Enable' flow to avoid a
+    // second full subscribe cycle (GET vapid key + unsubscribe + subscribe).
+    if (manualSubscribeRef.current) return;
 
     // Fire silent background subscription to refresh registration on backend
     subscribe().catch((err) => { Sentry.captureException(err); });
@@ -63,10 +74,14 @@ export function PushSubscriber() {
     if (subscribing) return;
     haptic.medium();
     setSubscribing(true);
+    manualSubscribeRef.current = true;
     try {
       await subscribe();
       setShowPrompt(false);
     } catch {
+      // subscribe() now rethrows on failure — clear the guard so a later
+      // permission/user change can retry instead of being blocked forever.
+      manualSubscribeRef.current = false;
       toast({ title: 'Could not enable notifications', variant: 'destructive' });
     } finally {
       setSubscribing(false);

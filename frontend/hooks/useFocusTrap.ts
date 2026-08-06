@@ -14,19 +14,28 @@ export function useFocusTrap(active: boolean) {
     const container = ref.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
 
-    const getFocusable = () => container.querySelectorAll<HTMLElement>(FOCUSABLE);
-
-    const focusables = getFocusable();
+    let focusables = container.querySelectorAll<HTMLElement>(FOCUSABLE);
     if (focusables.length > 0) {
       focusables[0].focus();
     }
 
+    const refreshFocusables = () => {
+      focusables = container.querySelectorAll<HTMLElement>(FOCUSABLE);
+    };
+
+    const observer = new MutationObserver(refreshFocusables);
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['disabled', 'tabindex'],
+    });
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-      const elements = getFocusable();
-      if (elements.length === 0) return;
-      const first = elements[0];
-      const last = elements[elements.length - 1];
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
       if (e.shiftKey) {
         if (document.activeElement === first) {
           e.preventDefault();
@@ -41,6 +50,7 @@ export function useFocusTrap(active: boolean) {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
+      observer.disconnect();
       document.removeEventListener('keydown', handleKeyDown);
       previouslyFocused?.focus();
     };
