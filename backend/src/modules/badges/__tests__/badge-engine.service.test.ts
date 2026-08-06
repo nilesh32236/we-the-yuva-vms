@@ -13,6 +13,7 @@ vi.mock('@/lib/prisma', () => ({
     story: { count: vi.fn() },
     pointTransaction: { create: vi.fn() },
     $transaction: vi.fn(),
+    $queryRaw: vi.fn().mockResolvedValue([{ count: 0n }]),
   },
 }));
 

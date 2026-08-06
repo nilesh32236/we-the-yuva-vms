@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    notificationPreference: { findMany: vi.fn(), upsert: vi.fn() },
+    notificationPreference: { findMany: vi.fn(), upsert: vi.fn(), createMany: vi.fn() },
     $transaction: vi.fn(),
   },
 }));
