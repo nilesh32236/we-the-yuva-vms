@@ -54,12 +54,13 @@ export function NetworkStatusIndicator() {
 
     const probe = async () => {
       // Skip while a probe is still pending so a slow-but-alive backend is not
-      // double-counted toward the failure threshold, and skip when the browser
-      // already reports offline (the 'online'/'offline' events own that state)
-      // or the tab is hidden/backgrounded (no user-facing benefit, and open
-      // tabs multiply backend traffic).
+      // double-counted toward the failure threshold, and skip when the tab is
+      // hidden/backgrounded (no user-facing benefit, and open tabs multiply
+      // backend traffic). NOTE: the probe intentionally runs even when
+      // navigator.onLine is false — a successful fetch is authoritative
+      // evidence of connectivity and is what lets a stale offline flag recover.
       if (cancelled || inFlight) return;
-      if (!navigator.onLine || document.visibilityState !== 'visible') return;
+      if (document.visibilityState !== 'visible') return;
 
       inFlight = true;
       const controller = new AbortController();
@@ -74,20 +75,15 @@ export function NetworkStatusIndicator() {
         });
         if (!cancelled) {
           if (res.ok) {
-            // fetch() resolves for HTTP error statuses too, so only a 2xx
-            // counts as healthy — a live proxy that returns 5xx (e.g. an HF
-            // Spaces 502 during a restart) is offline as far as the app is
-            // concerned. Recovery detected by the probe alone surfaces the
-            // same 'Back Online' feedback as the browser 'online' event, but
-            // only when the offline banner was actually shown (two consecutive
-            // failures) — a single transient failure followed by success is
-            // not a reconnection worth a toast.
+            // Recovery detected by the probe alone surfaces the same 'Back
+            // Online' feedback as the browser 'online' event, but only when the
+            // offline banner was actually shown (two consecutive failures) — a
+            // single transient failure followed by success is not a
+            // reconnection worth a toast. A 2xx proves connectivity even if the
+            // browser's stale navigator.onLine flag says otherwise.
             const recovered = consecutiveFailuresRef.current >= 2;
             consecutiveFailuresRef.current = 0;
-            // Re-verify the browser's own state before marking online: a stale
-            // in-flight probe that resolves after the browser fired 'offline'
-            // mid-request (or after the tab was hidden) must not override it.
-            if (!navigator.onLine || document.visibilityState !== 'visible') {
+            if (document.visibilityState !== 'visible') {
               return;
             }
             setIsOnline(true);
@@ -99,6 +95,11 @@ export function NetworkStatusIndicator() {
                 setShowOnlineToast(false);
               }, 3000);
             }
+          } else if (res.status >= 500) {
+            // The backend responded but errored (e.g. an HF Spaces 502 during
+            // a restart) — that is a server problem, NOT a connectivity loss.
+            // Reset the failure counter so it is not shown as "Connection Lost".
+            consecutiveFailuresRef.current = 0;
           } else if (++consecutiveFailuresRef.current >= 2) {
             setIsOnline(false);
           }
