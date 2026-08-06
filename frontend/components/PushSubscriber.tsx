@@ -16,33 +16,28 @@ export function PushSubscriber() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
-  const autoSubscribedUserIdRef = useRef<{ id: string; permission: NotificationPermission } | null>(null);
+  const manualSubscribeRef = useRef(false);
+  const userId = user?.id;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // 1. Auto-subscribe in background if permission is already granted.
-  //    Guarded by a ref so it only runs once per user+permission — without this,
-  //    an unstable subscribe identity used to re-trigger subscribe (which
-  //    unsubscribes + re-subscribes) on every render of this component.
+  useEffect(() => {
+    if (!userId) return;
+    manualSubscribeRef.current = false;
+  }, [userId]);
+
+  // 1. Auto-subscribe in background if permission is already granted
   useEffect(() => {
     if (!mounted || !user || permission !== 'granted') return;
 
-    const guard = autoSubscribedUserIdRef.current;
-    if (guard && guard.id === user.id && guard.permission === permission) return;
+    // Skip when the user just granted via the manual 'Enable' flow to avoid a
+    // second full subscribe cycle (GET vapid key + unsubscribe + subscribe).
+    if (manualSubscribeRef.current) return;
 
-    autoSubscribedUserIdRef.current = { id: user.id, permission };
-
-    // Fire silent background subscription to refresh registration on backend.
-    // On failure, clear the guard so a later permission/user change or remount
-    // can retry the background subscription.
-    subscribe().catch((err) => {
-      Sentry.captureException(err);
-      if (autoSubscribedUserIdRef.current?.id === user.id) {
-        autoSubscribedUserIdRef.current = null;
-      }
-    });
+    // Fire silent background subscription to refresh registration on backend
+    subscribe().catch((err) => { Sentry.captureException(err); });
   }, [user, permission, mounted, subscribe]);
 
   // 2. Handle soft permission prompt presentation
@@ -79,19 +74,14 @@ export function PushSubscriber() {
     if (subscribing) return;
     haptic.medium();
     setSubscribing(true);
-    // Mark this user as subscribed up-front so the follow-up auto-subscribe
-    // effect (re-fired when permission transitions 'default' -> 'granted') is a
-    // no-op for the same user+permission instead of unsubscribing and
-    // re-subscribing. Cleared again if the subscription did not actually land.
-    autoSubscribedUserIdRef.current = { id: user.id, permission: 'granted' };
+    manualSubscribeRef.current = true;
     try {
       await subscribe();
-      if (Notification.permission !== 'granted') {
-        autoSubscribedUserIdRef.current = null;
-      }
       setShowPrompt(false);
     } catch {
-      autoSubscribedUserIdRef.current = null;
+      // subscribe() now rethrows on failure — clear the guard so a later
+      // permission/user change can retry instead of being blocked forever.
+      manualSubscribeRef.current = false;
       toast({ title: 'Could not enable notifications', variant: 'destructive' });
     } finally {
       setSubscribing(false);

@@ -53,7 +53,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
         ? `User ${(variables.data as { status?: string }).status?.toLowerCase()}`
         : `Role changed to ${(variables.data as { role?: string }).role}`;
       toast({ title: msg });
-      qc.invalidateQueries({ queryKey: ['admin', 'users'] });
+      qc.invalidateQueries({ queryKey: ['admin-users'] });
       onUpdated();
     },
     onError: (err: unknown) => {
