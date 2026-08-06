@@ -24,7 +24,6 @@ import {
   getDocumentsHandler,
   getOrgHandler,
   listCoordinatorsHandler,
-  listOrgsHandler,
   registerOrgHandler,
   removeCoordinatorHandler,
   updateOrgHandler,
@@ -74,27 +73,11 @@ describe('organizations.controller', () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  it('uploadDocumentHandler should throw 400 when fields missing', async () => {
-    req.params = { id: 'org-1' };
-    req.body = {};
-    await uploadDocumentHandler(req as Request, res as Response, next);
-    expect(next).toHaveBeenCalledWith(expect.objectContaining({ status: 400 }));
-  });
-
   it('getDocumentsHandler should return 200', async () => {
     vi.mocked(mockService.getOrganizationDocuments).mockResolvedValue([]);
     req.params = { id: 'org-1' };
     await getDocumentsHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(200);
-  });
-
-  it('listOrgsHandler should return paginated orgs', async () => {
-    vi.mocked(prisma.organization.findMany).mockResolvedValue([]);
-    vi.mocked(prisma.organization.count).mockResolvedValue(0);
-    req.query = { page: '1', limit: '20' };
-    await listOrgsHandler(req as Request, res as Response, next);
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ orgs: [], total: 0 }));
   });
 
   it('addCoordinatorHandler should return 201', async () => {

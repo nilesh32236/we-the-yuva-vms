@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/lib/prisma', () => ({
-  prisma: {
+const prismaMock = vi.hoisted(() => {
+  const tx = {
+    user: { update: vi.fn() },
+    refreshToken: { updateMany: vi.fn() },
+  };
+  return {
     user: {
       findUnique: vi.fn(),
       create: vi.fn(),
@@ -12,8 +16,12 @@ vi.mock('@/lib/prisma', () => ({
     role: { findUnique: vi.fn() },
     location: { upsert: vi.fn() },
     refreshToken: { updateMany: vi.fn() },
-  },
-}));
+    $transaction: vi.fn().mockImplementation((cb: (t: typeof tx) => unknown) => cb(tx)),
+    tx,
+  };
+});
+
+vi.mock('@/lib/prisma', () => ({ prisma: prismaMock }));
 
 vi.mock('@/lib/audit', () => ({ logAudit: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/queue', () => ({
@@ -26,7 +34,6 @@ const { logAudit } = await import('@/lib/audit');
 const { notificationsQueue } = await import('@/lib/queue');
 
 import { createUser, listUsers, updateUser } from '../admin.service';
-
 describe('admin.service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -160,7 +167,7 @@ describe('admin.service', () => {
         id: 'role-id',
         name: 'VOLUNTEER',
       } as never);
-      vi.mocked(prisma.user.update).mockResolvedValue({
+      vi.mocked(prismaMock.tx.user.update).mockResolvedValue({
         id: 'user-1',
         status: 'INACTIVE',
         roleId: 'role-id',
@@ -182,7 +189,7 @@ describe('admin.service', () => {
       vi.mocked(prisma.role.findUnique)
         .mockResolvedValueOnce({ id: 'new-role-id', name: 'COORDINATOR' } as never)
         .mockResolvedValueOnce({ id: 'old-role-id', name: 'VOLUNTEER' } as never);
-      vi.mocked(prisma.user.update).mockResolvedValue({
+      vi.mocked(prismaMock.tx.user.update).mockResolvedValue({
         id: 'user-1',
         roleId: 'new-role-id',
         status: 'ACTIVE',
@@ -206,18 +213,18 @@ describe('admin.service', () => {
         id: 'role-id',
         name: 'VOLUNTEER',
       } as never);
-      vi.mocked(prisma.user.update).mockResolvedValue({
+      vi.mocked(prismaMock.tx.user.update).mockResolvedValue({
         id: 'user-1',
         status: 'SUSPENDED',
         roleId: 'role-id',
         email: 'u@t.com',
       } as never);
-      vi.mocked(prisma.refreshToken.updateMany).mockResolvedValue({ count: 1 });
+      vi.mocked(prismaMock.tx.refreshToken.updateMany).mockResolvedValue({ count: 1 });
       vi.mocked(notificationsQueue.add).mockResolvedValue({ id: 'job-1' } as never);
 
       const result = await updateUser('user-1', { status: 'SUSPENDED' }, 'admin-1');
       expect(result.status).toBe('SUSPENDED');
-      expect(prisma.refreshToken.updateMany).toHaveBeenCalled();
+      expect(prismaMock.tx.refreshToken.updateMany).toHaveBeenCalled();
       expect(logAudit).toHaveBeenCalledWith(expect.objectContaining({ action: 'USER_SUSPEND' }));
       expect(notificationsQueue.add).toHaveBeenCalledWith(
         'account-suspended',
