@@ -1,4 +1,5 @@
 import { prisma } from '../../lib/prisma';
+import { logger } from '../../lib/logger';
 
 function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
@@ -65,6 +66,16 @@ function computeLocationScore(
 }
 
 export async function getRecommendedOpportunities(volunteerId: string) {
+  try {
+    return await recommend(volunteerId);
+  } catch (err) {
+    // Graceful degradation: recommendation failures must never break the page.
+    logger.warn('Failed to compute recommendations', { error: (err as Error).message });
+    return [];
+  }
+}
+
+async function recommend(volunteerId: string) {
   // 1. Fetch volunteer's profile and location
   const [profile, volunteerUser] = await Promise.all([
     prisma.volunteerProfile.findUnique({ where: { userId: volunteerId } }),
