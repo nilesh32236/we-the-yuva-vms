@@ -189,6 +189,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               // Best-effort purge — the SW cleans up on its next activation.
             });
         }
+        // Best-effort: tell the backend this device's push endpoint is no longer
+        // subscribed for the logged-out account, so it stops pushing to a
+        // signed-out (possibly shared) device. No-throw — cleanup is best-effort.
+        navigator.serviceWorker
+          ?.getRegistration()
+          .then((registration) => registration?.pushManager?.getSubscription?.())
+          .then((subscription) => {
+            if (subscription) {
+              return api.post('/notifications/unsubscribe', { endpoint: subscription.endpoint });
+            }
+          })
+          .catch(() => {
+            // Best-effort cleanup — failure is non-fatal.
+          });
       }
       // Flag to prevent auto-refresh from re-authenticating after redirect
       sessionStorage.setItem('logged_out', 'true');
