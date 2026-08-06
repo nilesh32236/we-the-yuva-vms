@@ -161,13 +161,12 @@ function ScanInner() {
               <XCircle className="w-16 h-16 text-brand-error mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Check-in Failed</h2>
               <p className="text-brand-muted">{errorMsg}</p>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={() => router.push('/volunteer/events')}
-                className="text-brand-primary hover:underline text-sm cursor-pointer"
               >
                 Back to Events
-              </button>
+              </Button>
             </div>
           )}
         </div>

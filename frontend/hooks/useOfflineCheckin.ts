@@ -1,5 +1,5 @@
 'use client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import {
@@ -32,6 +32,7 @@ interface UseOfflineCheckinOptions {
 }
 
 export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineCheckinOptions) {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -146,21 +147,19 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     },
     onSuccess: (data) => {
       if (data.queued) return;
-      if (onSuccess) onSuccess();
+      queryClient.invalidateQueries({ queryKey: ['attendance', eventId] });
+      if (onSuccessRef.current) onSuccessRef.current();
     },
     onError: (err: unknown) => {
-      if (onError) {
+      if (onErrorRef.current) {
         const message =
           err instanceof Error
             ? err.message
             : mapApiError(
                 (err as { response?: { data?: { error?: string } } })?.response?.data?.error
               );
-        onError(message);
+        onErrorRef.current(message);
       }
-    },
-    onSettled: () => {
-      // Mutations always settle — isPending resets automatically at this point
     },
   });
 

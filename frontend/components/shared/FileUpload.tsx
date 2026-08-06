@@ -45,7 +45,7 @@ export function FileUpload({
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('/upload', formData);
+      const { data } = await api.post('/upload', formData, { timeout: 60_000 });
       setPreview(data.url);
       onUpload(data.url);
     } catch (err: unknown) {
