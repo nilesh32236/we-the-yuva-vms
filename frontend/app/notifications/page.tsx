@@ -156,11 +156,11 @@ export default function NotificationsPage() {
               return (
                 <div
                   key={n.id}
-                  className={`flex items-start gap-3 px-4 py-3 rounded-xl transition-colors w-full relative ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
+                  className={`flex items-start gap-3 px-4 py-3 rounded-xl motion-safe:transition-colors w-full relative ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
                 >
                   <button
                     type="button"
-                    className="flex-1 flex items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg p-1 -m-1 cursor-pointer"
+                    className="flex-1 self-stretch flex items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg p-1 -m-1 cursor-pointer"
                     onClick={() => {
                       haptic.light();
                       if (!n.read) markReadMut.mutate(n.id);
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
                     <div
                       className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}
                     >
-                      <Icon className={`w-4 h-4 ${!n.read ? 'text-white' : 'text-brand-muted'}`} />
+                      <Icon className={`w-4 h-4 ${!n.read ? 'text-primary-foreground' : 'text-brand-muted'}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p
