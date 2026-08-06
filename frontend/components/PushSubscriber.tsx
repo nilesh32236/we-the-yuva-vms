@@ -17,10 +17,16 @@ export function PushSubscriber() {
   const [mounted, setMounted] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
   const manualSubscribeRef = useRef(false);
+  const userId = user?.id;
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    manualSubscribeRef.current = false;
+  }, [userId]);
 
   // 1. Auto-subscribe in background if permission is already granted
   useEffect(() => {
