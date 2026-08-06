@@ -6,9 +6,12 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { captureApiError } from '@/lib/sentry';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import { SkeletonCard } from '../shared/SkeletonCard';
+import { Unauthorized } from '../shared/Unauthorized';
 import { Button } from '../ui/Button';
 
 interface PendingApproval {
@@ -17,6 +20,10 @@ interface PendingApproval {
   badge: { id: string; name: string; title: string; description: string; imageUrl: string };
   status: string;
   requestedAt: string;
+}
+
+interface BadgeApprovalQueueProps {
+  requiredPermission?: string;
 }
 
 function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: () => void }) {
@@ -143,13 +150,16 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
   );
 }
 
-export function BadgeApprovalQueue() {
+export function BadgeApprovalQueue({ requiredPermission = Permissions.BADGE_APPROVE }: BadgeApprovalQueueProps) {
+  const { user } = useAuth();
+  const canManage = requiredPermission ? hasPermission(user, requiredPermission) : true;
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);
   const [selectedRequest, setSelectedRequest] = useState<PendingApproval | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-badge-pending', debouncedSearch],
+    enabled: canManage,
     queryFn: () =>
       api
         .get('/badges/pending', {
@@ -161,6 +171,10 @@ export function BadgeApprovalQueue() {
   });
 
   const requests: PendingApproval[] = data?.data ?? [];
+
+  if (!canManage) {
+    return <Unauthorized />;
+  }
 
   return (
     <div className="space-y-5">

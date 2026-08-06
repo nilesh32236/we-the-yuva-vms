@@ -5,16 +5,16 @@
 import { useEffect, useState } from 'react';
 import { Bell, Download, Sparkles, WifiOff, X } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
-import { haptic } from '@/lib/haptic';
 import { useToast } from '@/hooks/use-toast';
+import { haptic } from '@/lib/haptic';
 import { captureApiError } from '@/lib/sentry';
 
 export function PWAInstallBanner() {
   const { isInstallable, install } = usePWAInstall();
+  const { toast } = useToast();
   const [dismissed, setDismissed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [installing, setInstalling] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     setMounted(true);

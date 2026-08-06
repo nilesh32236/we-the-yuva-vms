@@ -140,13 +140,21 @@ function VerifyOtpContent() {
   }, [otpValue, isVerifying, handleVerify, navHandled, trigger]);
 
   const handleResend = async () => {
-    const res = await api.post('/auth/send-otp', { email });
-    if (res.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') {
-      sessionStorage.setItem('devOtp', res.data.devOtp);
-      setDevOtp(res.data.devOtp);
+    try {
+      const res = await api.post('/auth/send-otp', { email });
+      if (res.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') {
+        sessionStorage.setItem('devOtp', res.data.devOtp);
+        setDevOtp(res.data.devOtp);
+      }
+      setCountdown(300);
+      toast({ title: 'Code sent', description: `A new code has been sent to ${email}` });
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Could not resend code. Please try again.',
+        variant: 'destructive',
+      });
     }
-    setCountdown(300);
-    toast({ title: 'Code sent', description: `A new code has been sent to ${email}` });
   };
 
   if ((!email && redirected) || authUser) return null;

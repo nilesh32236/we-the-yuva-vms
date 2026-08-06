@@ -6,6 +6,7 @@ import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
 import { notificationsQueue } from '../../lib/queue';
 import { AppError } from '../../middleware/error.middleware';
+import { ROLE_HIERARCHY } from '../../shared/permissions';
 
 interface ListUsersFilters {
   role?: string;
@@ -140,6 +141,21 @@ export async function updateUser(id: string, data: AdminUserUpdateInput, adminId
   });
   if (!existing) {
     throw new AppError('User not found', 404);
+  }
+
+  // Server-side hierarchy enforcement: an admin may only manage users at a
+  // STRICTLY lower role level. The frontend already hides the controls for
+  // equal/higher levels; this closes the API-side authorization gap.
+  if (adminId) {
+    const targetLevel = existing.roleRef ? ROLE_HIERARCHY[existing.roleRef.name] : undefined;
+    const caller = await prisma.user.findUnique({
+      where: { id: adminId },
+      select: { roleRef: { select: { name: true } } },
+    });
+    const callerLevel = caller?.roleRef ? ROLE_HIERARCHY[caller.roleRef.name] : undefined;
+    if (targetLevel != null && callerLevel != null && targetLevel >= callerLevel) {
+      throw new AppError('Cannot manage a user at your own or a higher role level', 403);
+    }
   }
 
   let updateRoleId: string | undefined;
