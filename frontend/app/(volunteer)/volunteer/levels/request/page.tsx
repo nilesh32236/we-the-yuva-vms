@@ -11,6 +11,7 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { type MyLevelResponse, MyLevelResponseSchema } from '@/lib/shared';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -65,7 +66,6 @@ interface LevelDefinition {
   badgeIcon: string;
   color: string;
   badgeShape: string;
-  pointsRequired: number;
   requirements: Record<string, number>;
 }
 
@@ -86,12 +86,12 @@ export default function LevelRequestPage() {
   });
   const selectedLevel = watch('selectedLevel');
 
-  const { data: levelRes, isLoading: levelLoading } = useQuery<{ data: { tier: number } }>({
+  const { data: levelRes, isLoading: levelLoading } = useQuery<MyLevelResponse>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
   });
 
-  const { data: levelsRes, isLoading: levelsLoading } = useQuery<{ data: LevelDefinition[] }>({
+  const { data: levelsRes, isLoading: levelsLoading } = useQuery<LevelDefinition[]>({
     queryKey: ['levels'],
     queryFn: () => api.get('/levels').then((r) => r.data),
   });
@@ -113,8 +113,8 @@ export default function LevelRequestPage() {
     },
   });
 
-  const currentTier = levelRes?.data?.tier ?? 0;
-  const levels = levelsRes?.data ?? [];
+  const currentTier = levelRes?.currentLevel?.tier ?? 0;
+  const levels = levelsRes ?? [];
   const requestableLevels = levels.filter((l) => l.tier > currentTier);
 
   const handleSubmit = formSubmit((data: RequestForm) => {
@@ -194,9 +194,7 @@ export default function LevelRequestPage() {
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-heading font-semibold text-brand-text">{tierInfo.name}</p>
-                    <p className="text-xs text-brand-muted">
-                      Tier {lvl.tier} · {lvl.pointsRequired} points required
-                    </p>
+                    <p className="text-xs text-brand-muted">Tier {lvl.tier}</p>
                   </div>
                   {isOpen ? (
                     <ChevronUp className="w-5 h-5 text-brand-muted" />

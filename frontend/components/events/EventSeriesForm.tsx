@@ -29,7 +29,7 @@ const EventSeriesFormSchema = z
     title: z.string().min(5).max(200),
     description: z.string().max(1000).optional(),
     frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM']),
-    daysOfWeek: z.array(z.number()),
+    daysOfWeek: z.array(z.number().int().min(0).max(6)),
     interval: z.number().int().min(1),
     startTime: z.string().regex(/^\d{2}:\d{2}$/),
     endTime: z.string().regex(/^\d{2}:\d{2}$/),
@@ -56,7 +56,26 @@ const EventSeriesFormSchema = z
       return true;
     },
     { message: 'Select at least one day', path: ['daysOfWeek'] }
-  );
+  )
+  .superRefine((data, ctx) => {
+    if (data.endType === 'after' && !(data.maxOccurrences && data.maxOccurrences > 0)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Set a number of occurrences',
+        path: ['maxOccurrences'],
+      });
+    }
+    if (
+      data.endType === 'on_date' &&
+      (!data.endDate || new Date(data.endDate) <= new Date(data.firstEventDate))
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be after the first event date',
+        path: ['endDate'],
+      });
+    }
+  });
 
 type EventSeriesFormData = z.infer<typeof EventSeriesFormSchema>;
 
@@ -232,8 +251,12 @@ export function EventSeriesForm({
       const formattedData: EventSeriesOutput = {
         ...data,
         firstEventDate: data.firstEventDate
-          ? `${data.firstEventDate}T${data.startTime}:00.000Z`
+          ? new Date(`${data.firstEventDate}T${data.startTime}`).toISOString()
           : undefined,
+        endDate:
+          data.endType === 'on_date' && data.endDate
+            ? new Date(`${data.endDate}T00:00:00`).toISOString()
+            : data.endDate,
       };
       await onSubmit(formattedData);
     } catch (err) {

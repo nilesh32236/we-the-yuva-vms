@@ -25,6 +25,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import {
+  type MyLevelResponse,
+  MyLevelResponseSchema,
+  normalizeMyLevel,
+} from '@/lib/shared';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -71,20 +76,6 @@ const TIER_DATA = [
   },
 ];
 
-interface LevelData {
-  tier: number;
-  points: number;
-  pointsToNext: number;
-  streak: number;
-  hoursVolunteered: number;
-  nextLevel: {
-    name: string;
-    pointsRequired: number;
-    requirements: Record<string, number>;
-    levelId: string;
-  } | null;
-}
-
 interface ProgressData {
   currentTier: number;
   eventsAttended: number;
@@ -111,9 +102,9 @@ export default function VolunteerLevelsPage() {
     data: levelRes,
     isLoading: levelLoading,
     isError: isLevelError,
-  } = useQuery<{ data: LevelData }>({
+  } = useQuery<MyLevelResponse>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
   });
 
   const {
@@ -195,7 +186,7 @@ export default function VolunteerLevelsPage() {
     },
   });
 
-  const level = levelRes?.data;
+  const level = levelRes ? normalizeMyLevel(levelRes) : null;
   const progress = progressRes?.data;
   const requests = requestsRes?.data ?? [];
 
@@ -445,7 +436,7 @@ export default function VolunteerLevelsPage() {
                   onClick={handleNotesSubmit((data) => {
                     if (level?.nextLevel)
                       requestMutation.mutate({
-                        levelId: level.nextLevel.levelId,
+                        levelId: level.nextLevel.id,
                         notes: data.notes,
                       });
                   })}

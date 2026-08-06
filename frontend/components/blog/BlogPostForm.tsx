@@ -113,7 +113,7 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save', re
         </label>
         <input
           id="featuredImage"
-          type="text"
+          type="url"
           placeholder="https://example.com/image.jpg"
           disabled={isSubmitting}
           aria-invalid={!!errors.featuredImage}
