@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, FileText, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
 import { SkeletonCard } from '../shared/SkeletonCard';
@@ -138,17 +139,19 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
 
 export function BadgeApprovalQueue() {
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [selectedRequest, setSelectedRequest] = useState<PendingApproval | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['admin-badge-pending', search],
+    queryKey: ['admin-badge-pending', debouncedSearch],
     queryFn: () =>
       api
         .get('/badges/pending', {
-          params: { search: search || undefined },
+          params: { search: debouncedSearch || undefined },
         })
         .then((r) => r.data),
     staleTime: 30_000,
+    placeholderData: (prev) => prev,
   });
 
   const requests: PendingApproval[] = data?.data ?? [];
