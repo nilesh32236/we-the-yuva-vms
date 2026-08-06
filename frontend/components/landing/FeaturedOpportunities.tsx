@@ -2,7 +2,8 @@ import { MapPin, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import * as Sentry from '@sentry/nextjs';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
 
 interface Opportunity {
   id: string;
@@ -15,12 +16,18 @@ interface Opportunity {
 
 async function getFeaturedOpportunities(): Promise<Opportunity[]> {
   try {
-    const res = await fetch(`${BASE_URL}/api/v1/opportunities/public?limit=3`, {
+    const res = await fetch(`${API_URL}/api/v1/opportunities/public?limit=3`, {
       next: { revalidate: 60 },
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      Sentry.captureMessage(
+        `FeaturedOpportunities: /api/v1/opportunities/public failed with status ${res.status}`,
+        'warning'
+      );
+      return [];
+    }
     const body = await res.json();
-    return body.data ?? [];
+    return Array.isArray(body.data) ? body.data : [];
   } catch (error) {
     Sentry.captureException(error);
     return [];

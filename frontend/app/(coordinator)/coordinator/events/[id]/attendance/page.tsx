@@ -9,6 +9,7 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { haptic } from '@/lib/haptic';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { captureApiError } from '@/lib/sentry';
 
 interface AttendanceRecord {
   volunteerId: string;
@@ -75,9 +76,11 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       if (context?.previousAttendance) {
         qc.setQueryData(['attendance', id], context.previousAttendance);
       }
+      captureApiError(err, 'attendance save failed');
       toast({
         title: 'Error',
-        description: err instanceof Error ? err.message : 'Something went wrong',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Something went wrong',
         variant: 'destructive',
       });
     },
@@ -103,9 +106,11 @@ export default function AttendancePage({ params }: { params: Promise<{ id: strin
       toast({ title: 'Hours approved!' });
     },
     onError: (err) => {
+      captureApiError(err, 'hours approval failed');
       toast({
         title: 'Error',
-        description: err instanceof Error ? err.message : 'Approval failed',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Approval failed',
         variant: 'destructive',
       });
     },

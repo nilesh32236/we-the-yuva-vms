@@ -8,7 +8,6 @@ import { canAccess, hasPermission, Permissions } from '@/lib/shared/permissions'
 import { Button } from '@/components/ui/Button';
 import { Unauthorized } from '@/components/shared/Unauthorized';
 import { useToast } from '@/hooks/use-toast';
-import * as Sentry from '@sentry/nextjs';
 
 interface Volunteer {
   volunteerId: string;
@@ -287,14 +286,8 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
       await onSave(
         Object.entries(state).map(([volunteerId, attended]) => ({ volunteerId, attended }))
       );
-    } catch (err) {
-      Sentry.captureException(err);
-      toast({
-        title: 'Error',
-        description:
-          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Failed to save attendance',
-        variant: 'destructive',
-      });
+    } catch {
+      // Error is surfaced by the parent mutation's onError
     } finally {
       setSaving(false);
     }
@@ -323,15 +316,8 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
     try {
       haptic.medium();
       await onApprove(v.volunteerId, hours, rating);
-    } catch (err) {
-      Sentry.captureException(err);
-      toast({
-        title: 'Error',
-        description:
-          (err as { normalizedMessage?: string })?.normalizedMessage ??
-          'Failed to approve volunteer',
-        variant: 'destructive',
-      });
+    } catch {
+      // Error is surfaced by the parent mutation's onError
     } finally {
       setApproving((s) => ({ ...s, [v.volunteerId]: false }));
     }

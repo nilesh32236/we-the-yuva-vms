@@ -2,9 +2,9 @@
 
 import { RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
+import { captureApiError } from '@/lib/sentry';
 
 interface ResendButtonProps {
   onResend: () => Promise<void>;
@@ -35,7 +35,7 @@ export function ResendButton({ onResend, cooldownSeconds = 60 }: ResendButtonPro
       await onResend();
       setCountdown(cooldownSeconds);
     } catch (err) {
-      Sentry.captureException(err);
+      captureApiError(err, 'resend OTP failed');
       toast({
         title: 'Error',
         description: 'Request failed. Please try again.',

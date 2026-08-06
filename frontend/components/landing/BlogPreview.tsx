@@ -3,7 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import * as Sentry from '@sentry/nextjs';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'https://nilesh-kanzariya-we-the-yuva-api.hf.space';
 
 interface BlogPost {
   id: string;
@@ -12,17 +13,23 @@ interface BlogPost {
   excerpt?: string;
   featuredImage?: string;
   publishedAt: string;
-  author: { name: string };
+  author: { name: string } | null;
 }
 
 async function getLatestPosts(): Promise<BlogPost[]> {
   try {
-    const res = await fetch(`${BASE_URL}/api/v1/blog?limit=3`, {
+    const res = await fetch(`${API_URL}/api/v1/blog?limit=3`, {
       next: { revalidate: 60 },
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      Sentry.captureMessage(
+        `BlogPreview: /api/v1/blog failed with status ${res.status}`,
+        'warning'
+      );
+      return [];
+    }
     const body = await res.json();
-    return body.data ?? [];
+    return Array.isArray(body.data) ? body.data : [];
   } catch (error) {
     Sentry.captureException(error);
     return [];
@@ -89,7 +96,7 @@ export async function BlogPreview() {
                 )}
                 <div className="flex items-center gap-3 text-xs text-brand-muted pt-2">
                   <span className="flex items-center gap-1">
-                    <User className="w-3 h-3" aria-hidden="true" /> {post.author.name}
+                    <User className="w-3 h-3" aria-hidden="true" /> {post.author?.name ?? 'Unknown'}
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" aria-hidden="true" />

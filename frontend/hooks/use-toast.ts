@@ -31,8 +31,15 @@ let memoryState: State = { toasts: [] };
 
 function dispatch(action: { type: string; toast?: ToastProps; toastId?: string }) {
   if (action.type === 'ADD_TOAST' && action.toast) {
+    const incoming = action.toast;
+    const deduped = memoryState.toasts.filter(
+      (t) =>
+        t.title !== incoming.title ||
+        t.description !== incoming.description ||
+        t.variant !== incoming.variant
+    );
     memoryState = {
-      toasts: [action.toast, ...memoryState.toasts].slice(0, TOAST_LIMIT),
+      toasts: [incoming, ...deduped].slice(0, TOAST_LIMIT),
     };
   } else if (action.type === 'DISMISS_TOAST') {
     memoryState = {

@@ -2,10 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Award, Clock } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { api } from '@/lib/api';
 import { SkeletonCard } from './SkeletonCard';
-import * as Sentry from '@sentry/nextjs';
+import { captureApiError } from '@/lib/sentry';
 
 interface PointTransaction {
   id: string;
@@ -60,6 +60,12 @@ export function PointsHistory() {
     [data]
   );
 
+  useEffect(() => {
+    if (isError && error) {
+      captureApiError(error, 'points history query failed');
+    }
+  }, [error, isError]);
+
   if (isLoading) {
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
@@ -76,7 +82,6 @@ export function PointsHistory() {
   }
 
   if (isError) {
-    Sentry.captureException(error);
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-border">
@@ -86,7 +91,10 @@ export function PointsHistory() {
         </div>
         <div className="p-4">
           <div className="flex flex-col items-center gap-3 py-4">
-            <p className="text-sm text-brand-error">Failed to load points history</p>
+            <p className="text-sm text-brand-error">
+              {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
+                'Failed to load points history'}
+            </p>
             <button
               type="button"
               onClick={() => refetch()}

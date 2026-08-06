@@ -31,9 +31,11 @@ export default function EditEventPage() {
     } catch (err) {
       toast({
         title: 'Error',
-        description: err instanceof Error ? err.message : 'Something went wrong',
+        description:
+          (err as { normalizedMessage?: string })?.normalizedMessage ?? 'Something went wrong',
         variant: 'destructive',
       });
+      throw err;
     }
   };
 

@@ -2,13 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import * as Sentry from '@sentry/nextjs';
 import { Check, X } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
+import { captureApiError } from '@/lib/sentry';
 import { Button } from '../ui/Button';
 
 interface OrgData {
@@ -57,7 +57,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
       onCancel();
     },
     onError: (err: unknown) => {
-      Sentry.captureException(err);
+      captureApiError(err, 'org update failed', { orgId: org.id });
       const axiosErr = err as { normalizedMessage?: string };
       toast({
         title: 'Error',
@@ -66,8 +66,6 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
       });
     },
   });
-
-  if (!org) return null;
 
   function onSave(data: RegisterOrganizationInput) {
     mutation.mutate({ ...data, logo: logo.trim() || undefined });

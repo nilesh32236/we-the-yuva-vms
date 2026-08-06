@@ -3,11 +3,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { Bell, Download, Sparkles, WifiOff, X } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useToast } from '@/hooks/use-toast';
 import { haptic } from '@/lib/haptic';
+import { captureApiError } from '@/lib/sentry';
 
 export function PWAInstallBanner() {
   const { isInstallable, install } = usePWAInstall();
@@ -19,7 +19,12 @@ export function PWAInstallBanner() {
   useEffect(() => {
     setMounted(true);
     // Check if user already dismissed it in this session
-    const isDismissed = sessionStorage.getItem('pwa-prompt-dismissed') === 'true';
+    let isDismissed = false;
+    try {
+      isDismissed = sessionStorage.getItem('pwa-prompt-dismissed') === 'true';
+    } catch {
+      // sessionStorage unavailable
+    }
     if (isDismissed) {
       setDismissed(true);
     }
@@ -32,7 +37,11 @@ export function PWAInstallBanner() {
   const handleDismiss = () => {
     haptic.light();
     setDismissed(true);
-    sessionStorage.setItem('pwa-prompt-dismissed', 'true');
+    try {
+      sessionStorage.setItem('pwa-prompt-dismissed', 'true');
+    } catch {
+      // sessionStorage unavailable
+    }
   };
 
   const handleInstall = async () => {
@@ -44,11 +53,10 @@ export function PWAInstallBanner() {
         setDismissed(true);
       }
     } catch (err) {
-      console.error('Failed to install PWA', err);
-      Sentry.captureException(err);
+      captureApiError(err, 'PWA install failed');
       toast({
-        title: 'Could not install the app',
-        description: 'Something went wrong. Please try again.',
+        title: 'Install failed',
+        description: 'Please try again.',
         variant: 'destructive',
       });
     } finally {

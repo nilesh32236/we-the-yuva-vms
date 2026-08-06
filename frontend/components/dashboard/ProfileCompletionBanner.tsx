@@ -44,6 +44,8 @@ export function ProfileCompletionBanner() {
   useEffect(() => {
     if (profileStatus && !profileStatus.isComplete && !isDismissed()) {
       setVisible(true);
+    } else {
+      setVisible(false);
     }
   }, [profileStatus]);
 

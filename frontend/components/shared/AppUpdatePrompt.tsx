@@ -3,9 +3,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { RefreshCw, Sparkles, X } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
+import { captureApiError } from '@/lib/sentry';
 
 export function AppUpdatePrompt() {
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
@@ -42,7 +42,7 @@ export function AppUpdatePrompt() {
 
         reg.addEventListener('updatefound', handleUpdateFound);
       })
-      .catch((err) => { Sentry.captureException(err); });
+      .catch((err) => { captureApiError(err, 'service worker registration failed'); });
 
     // 3. Listen for controlling worker change (after skipWaiting is invoked)
     const handleControllerChange = () => {
@@ -61,7 +61,8 @@ export function AppUpdatePrompt() {
     if (registration?.waiting) {
       try {
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      } catch {
+      } catch (err) {
+        captureApiError(err, 'skip waiting message failed');
         window.location.reload();
       }
     } else {

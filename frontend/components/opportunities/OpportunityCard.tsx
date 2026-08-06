@@ -75,7 +75,11 @@ const OpportunityCard = memo(function OpportunityCard({
   const applyMutation = useMutation({
     mutationFn: () => api.post(`/opportunities/${opp.id}/apply`),
     onMutate: async () => {
-      await qc.cancelQueries({ queryKey: ['opportunities'] });
+      try {
+        await qc.cancelQueries({ queryKey: ['opportunities'] });
+      } catch {
+        // Cancellation failed; proceed with the optimistic update anyway.
+      }
 
       const previousQueries = qc.getQueriesData<OpportunityCacheData>({
         queryKey: ['opportunities'],
