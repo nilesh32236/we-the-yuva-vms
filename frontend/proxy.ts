@@ -21,6 +21,10 @@ const PUBLIC_ROUTES = [
 const TRULY_PUBLIC = ['/about', '/contact', '/faq', '/privacy', '/terms', '/opportunities', '/blog', '/verify'];
 const ONBOARDING_ROUTES = ['/consent', '/setup-profile'];
 
+// Short-lived marker set when the proxy performs a server-side token refresh
+// redirect, used to break a potential refresh→redirect loop.
+const PROXY_REFRESHED_COOKIE = '__proxy_refreshed';
+
 const ROLE_ROUTES: Record<string, string> = {
   VOLUNTEER: '/volunteer',
   COORDINATOR: '/coordinator',
@@ -122,6 +126,16 @@ export async function proxy(req: NextRequest) {
   } catch {
     // Token expired or invalid — attempt a server-side refresh before falling
     // back to logout so sessions survive full page loads past the 15-min TTL.
+    // Guard: only attempt the refresh once per navigation. If the previous
+    // pass already refreshed and verification still fails (e.g. signing-secret
+    // mismatch), redirect to login instead of looping refresh→redirect forever.
+    if (req.cookies.get(PROXY_REFRESHED_COOKIE)?.value === '1') {
+      const response = NextResponse.redirect(new URL('/login', req.url));
+      response.cookies.delete('access_token');
+      response.cookies.delete(PROXY_REFRESHED_COOKIE);
+      return response;
+    }
+
     const refreshedCookies = await tryRefresh(req);
 
     if (isPublic) {
@@ -136,7 +150,14 @@ export async function proxy(req: NextRequest) {
     if (refreshedCookies) {
       // Reload the requested page with the freshly rotated cookies — the proxy
       // re-runs on the redirect and verifies the new access token.
-      return withCookies(NextResponse.redirect(req.url), refreshedCookies);
+      const response = withCookies(NextResponse.redirect(req.url), refreshedCookies);
+      response.cookies.set(PROXY_REFRESHED_COOKIE, '1', {
+        path: '/',
+        httpOnly: true,
+        maxAge: 30,
+        sameSite: 'lax',
+      });
+      return response;
     }
 
     const response = NextResponse.redirect(new URL('/login', req.url));
