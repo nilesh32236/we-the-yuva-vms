@@ -1,16 +1,56 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { WifiOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 
 export default function OfflinePage() {
   const router = useRouter();
+  const [intendedDestination, setIntendedDestination] = useState<string | null>(null);
+  const [destinationResolved, setDestinationResolved] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'INTENDED_DESTINATION') {
+        if (!cancelled) {
+          setIntendedDestination(event.data.url ?? null);
+          setDestinationResolved(true);
+        }
+      }
+    };
+
+    navigator.serviceWorker?.addEventListener('message', handleMessage);
+    const registrationPromise = navigator.serviceWorker?.getRegistration?.();
+    if (registrationPromise) {
+      registrationPromise.then((registration) => {
+        registration?.active?.postMessage({ type: 'GET_INTENDED_DESTINATION' });
+      });
+    }
+
+    // If the service worker round-trip never answers (e.g. SW cold start), give
+    // up after a short grace period so the retry button becomes usable and
+    // falls back to the current URL / router.back().
+    const timeout = window.setTimeout(() => {
+      if (!cancelled) {
+        setDestinationResolved(true);
+      }
+    }, 2000);
+
+    return () => {
+      cancelled = true;
+      navigator.serviceWorker?.removeEventListener('message', handleMessage);
+      window.clearTimeout(timeout);
+    };
+  }, []);
 
   const handleRetry = () => {
-    const swDestination = sessionStorage.getItem('offline-intended-destination');
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
-    const destination = swDestination || (currentUrl !== '' && currentUrl !== `${window.location.origin}/offline` ? currentUrl : null);
+    const destination =
+      intendedDestination ||
+      (currentUrl !== '' && currentUrl !== `${window.location.origin}/offline` ? currentUrl : null);
     if (destination) {
       router.push(destination);
     } else {
@@ -35,9 +75,10 @@ export default function OfflinePage() {
 
       <Button
         onClick={handleRetry}
+        disabled={!destinationResolved}
         className="px-6 py-3"
       >
-        Try again
+        {destinationResolved ? 'Try again' : 'Reconnecting…'}
       </Button>
 
       <p className="text-brand-muted text-xs mt-8">WeTheYuva VMS · Volunteer Management System</p>

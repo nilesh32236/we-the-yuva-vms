@@ -8,6 +8,7 @@ export function NetworkStatusIndicator() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
   const [showOnlineToast, setShowOnlineToast] = useState(false);
   const onlineTimerRef = useRef<number | undefined>(undefined);
+  const consecutiveFailuresRef = useRef(0);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
@@ -16,6 +17,10 @@ export function NetworkStatusIndicator() {
       haptic.success();
       setIsOnline(true);
       setShowOnlineToast(true);
+      // Reset the probe's failure counter so a probe success that follows the
+      // browser 'online' event is not mistaken for a separate recovery (which
+      // would double-show the 'Back Online' toast).
+      consecutiveFailuresRef.current = 0;
 
       window.clearTimeout(onlineTimerRef.current);
       onlineTimerRef.current = window.setTimeout(() => {
@@ -39,12 +44,92 @@ export function NetworkStatusIndicator() {
     };
   }, []);
 
-  // Periodic connectivity check (browser online/offline events can be unreliable)
+  // Periodic connectivity probe. navigator.onLine only reflects the browser's
+  // own online/offline events, so a real request is needed to detect failures
+  // those events miss (captive portals, Wi-Fi without a route, dead backend).
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsOnline(navigator.onLine);
-    }, 10000);
-    return () => clearInterval(interval);
+    let cancelled = false;
+    let inFlight = false;
+    let timeoutId: number | undefined;
+
+    const probe = async () => {
+      // Skip while a probe is still pending so a slow-but-alive backend is not
+      // double-counted toward the failure threshold, and skip when the tab is
+      // hidden/backgrounded (no user-facing benefit, and open tabs multiply
+      // backend traffic). NOTE: the probe intentionally runs even when
+      // navigator.onLine is false — a successful fetch is authoritative
+      // evidence of connectivity and is what lets a stale offline flag recover.
+      if (cancelled || inFlight) return;
+      if (document.visibilityState !== 'visible') return;
+
+      inFlight = true;
+      const controller = new AbortController();
+      // Timeout matches the 10s interval so a slow-but-alive backend (e.g. an
+      // HF Spaces cold start) is not flagged offline; only two consecutive
+      // failures downgrade to offline to avoid transient false negatives.
+      timeoutId = window.setTimeout(() => controller.abort(), 10000);
+      try {
+        const res = await fetch('/api/v1/health', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!cancelled) {
+          if (res.ok) {
+            // Recovery detected by the probe alone surfaces the same 'Back
+            // Online' feedback as the browser 'online' event, but only when the
+            // offline banner was actually shown (two consecutive failures) — a
+            // single transient failure followed by success is not a
+            // reconnection worth a toast. A 2xx proves connectivity even if the
+            // browser's stale navigator.onLine flag says otherwise.
+            const recovered = consecutiveFailuresRef.current >= 2;
+            consecutiveFailuresRef.current = 0;
+            if (document.visibilityState !== 'visible') {
+              return;
+            }
+            setIsOnline(true);
+            if (recovered) {
+              haptic.success();
+              setShowOnlineToast(true);
+              window.clearTimeout(onlineTimerRef.current);
+              onlineTimerRef.current = window.setTimeout(() => {
+                setShowOnlineToast(false);
+              }, 3000);
+            }
+          } else if (res.status >= 500) {
+            // The backend responded but errored (e.g. an HF Spaces 502 during
+            // a restart) — that is a server problem, NOT a connectivity loss.
+            // Reset the failure counter so it is not shown as "Connection Lost".
+            consecutiveFailuresRef.current = 0;
+          } else if (++consecutiveFailuresRef.current >= 2) {
+            setIsOnline(false);
+          }
+        }
+      } catch {
+        if (!cancelled && ++consecutiveFailuresRef.current >= 2) {
+          setIsOnline(false);
+        }
+      } finally {
+        inFlight = false;
+        window.clearTimeout(timeoutId);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        probe();
+      }
+    };
+
+    probe();
+    const interval = window.setInterval(probe, 10000);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Don't render anything during initial mount
@@ -52,7 +137,7 @@ export function NetworkStatusIndicator() {
 
   return (
     <div
-      className="fixed top-[calc(env(safe-area-inset-top)+1rem)] left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-xs px-4"
+      className="fixed top-[calc(env(safe-area-inset-top)+4.5rem)] left-1/2 -translate-x-1/2 z-20 pointer-events-none w-full max-w-xs px-4"
       aria-live="polite"
       role="status"
     >
