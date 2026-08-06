@@ -26,7 +26,10 @@ vi.mock('@/lib/prisma', () => ({
 
 vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }));
 vi.mock('@/lib/queue', () => ({
-  notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
+  notificationsQueue: {
+    add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })),
+    addBulk: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }));
 
@@ -273,7 +276,9 @@ describe('events.service', () => {
       vi.mocked(prisma.attendance.findMany).mockResolvedValue([]);
       vi.mocked(prisma.attendance.upsert).mockResolvedValue({} as never);
       vi.mocked(prisma.volunteerProfile.update).mockResolvedValue({} as never);
-      vi.mocked(prisma.$transaction).mockResolvedValue([]);
+      vi.mocked(prisma.$transaction).mockImplementation((ops: unknown[]) =>
+        Promise.all(ops.map((op) => op as Promise<unknown>))
+      );
       vi.mocked(prisma.attendance.count).mockResolvedValue(1);
       const result = await markAttendance('event-1', 'user-1', 'COORDINATOR', 'org-1', [
         { volunteerId: 'v-1', attended: true },
@@ -294,7 +299,9 @@ describe('events.service', () => {
       ] as never);
       vi.mocked(prisma.attendance.upsert).mockResolvedValue({} as never);
       vi.mocked(prisma.volunteerProfile.update).mockResolvedValue({} as never);
-      vi.mocked(prisma.$transaction).mockResolvedValue([]);
+      vi.mocked(prisma.$transaction).mockImplementation((ops: unknown[]) =>
+        Promise.all(ops.map((op) => op as Promise<unknown>))
+      );
       vi.mocked(prisma.attendance.count).mockResolvedValue(0);
       const result = await markAttendance('event-1', 'user-1', 'COORDINATOR', 'org-1', [
         { volunteerId: 'v-1', attended: false },
@@ -478,7 +485,7 @@ describe('events.service', () => {
     it('should return events without pagination', async () => {
       vi.mocked(prisma.event.findMany).mockResolvedValue([baseEvent]);
       const result = await listEventsByOpportunity('opp-1');
-      expect(result).toHaveLength(1);
+      expect(result.data).toHaveLength(1);
       expect(prisma.event.count).not.toHaveBeenCalled();
     });
 

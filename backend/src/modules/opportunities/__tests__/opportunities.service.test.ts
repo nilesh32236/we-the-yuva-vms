@@ -23,9 +23,22 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }));
-vi.mock('@/lib/redis', () => ({
-  redis: { get: vi.fn(), set: vi.fn(), scan: vi.fn().mockResolvedValue(['0', []]), del: vi.fn() },
-}));
+vi.mock('@/lib/redis', () => {
+  const redis = {
+    get: vi.fn(),
+    set: vi.fn(),
+    scan: vi.fn().mockResolvedValue(['0', []]),
+    del: vi.fn(),
+    smembers: vi.fn().mockResolvedValue([]),
+    multi: vi.fn(),
+    sadd: vi.fn(),
+    exec: vi.fn().mockResolvedValue([]),
+  };
+  redis.multi.mockReturnValue(redis);
+  redis.sadd.mockReturnValue(redis);
+  redis.set.mockReturnValue(redis);
+  return { redis };
+});
 vi.mock('@/lib/queue', () => ({
   notificationsQueue: { add: vi.fn().mockReturnValue(Promise.resolve({ id: 'job-1' })) },
 }));
@@ -206,8 +219,25 @@ describe('opportunities.service', () => {
     const pagination = { page: 1, limit: 20 };
 
     it('should return from cache when available', async () => {
+      const cachedOpp = {
+        id: 'opp-1',
+        title: 'Teach Math',
+        description: 'Help children learn math',
+        category: 'EDUCATION',
+        isRemote: false,
+        status: 'ACTIVE',
+        totalSlots: 10,
+        startDate: '2026-12-01T00:00:00.000Z',
+        endDate: '2027-01-01T00:00:00.000Z',
+        createdAt: '2026-08-01T00:00:00.000Z',
+        skills: ['Teaching'],
+        hoursPerSession: 2,
+        createdBy: { name: 'Coord' },
+        _count: { applications: 1 },
+        acceptedCount: 1,
+      };
       vi.mocked(redis.get).mockResolvedValue(
-        JSON.stringify({ data: [{ id: 'opp-1' }], total: 1, page: 1, limit: 20, totalPages: 1 })
+        JSON.stringify({ data: [cachedOpp], total: 1, page: 1, limit: 20, totalPages: 1 })
       );
       const result = await listOpportunities(baseFilters, pagination);
       expect(result.data).toHaveLength(1);

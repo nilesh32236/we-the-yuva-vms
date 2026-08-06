@@ -38,7 +38,7 @@ describe('errorMiddleware', () => {
     ]);
     errorMiddleware(zodErr, req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(422);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: 'Expected string' }));
+    expect(res.json).toHaveBeenCalledWith({ errors: { name: ['Expected string'] } });
   });
 
   it('should handle AppError with status code', () => {
