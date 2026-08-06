@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { BellRing, Sparkles, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +16,7 @@ export function PushSubscriber() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
+  const manualSubscribeRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -24,6 +25,10 @@ export function PushSubscriber() {
   // 1. Auto-subscribe in background if permission is already granted
   useEffect(() => {
     if (!mounted || !user || permission !== 'granted') return;
+
+    // Skip when the user just granted via the manual 'Enable' flow to avoid a
+    // second full subscribe cycle (GET vapid key + unsubscribe + subscribe).
+    if (manualSubscribeRef.current) return;
 
     // Fire silent background subscription to refresh registration on backend
     subscribe().catch((err) => { Sentry.captureException(err); });
@@ -64,6 +69,7 @@ export function PushSubscriber() {
     haptic.medium();
     setSubscribing(true);
     try {
+      manualSubscribeRef.current = true;
       await subscribe();
       setShowPrompt(false);
     } catch {

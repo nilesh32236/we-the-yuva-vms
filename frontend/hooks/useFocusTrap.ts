@@ -14,16 +14,17 @@ export function useFocusTrap(active: boolean) {
     const container = ref.current;
     const previouslyFocused = document.activeElement as HTMLElement | null;
 
-    const focusables = container.querySelectorAll<HTMLElement>(FOCUSABLE);
-    if (focusables.length > 0) {
-      focusables[0].focus();
+    const initial = container.querySelectorAll<HTMLElement>(FOCUSABLE);
+    if (initial.length > 0) {
+      initial[0].focus();
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-      if (focusables.length === 0) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
+      const elements = container.querySelectorAll<HTMLElement>(FOCUSABLE);
+      if (elements.length === 0) return;
+      const first = elements[0];
+      const last = elements[elements.length - 1];
       if (e.shiftKey) {
         if (document.activeElement === first) {
           e.preventDefault();

@@ -147,6 +147,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     },
     onSuccess: (data) => {
       if (data.queued) return;
+      queryClient.invalidateQueries({ queryKey: ['attendance', eventId] });
       if (onSuccessRef.current) onSuccessRef.current();
     },
     onError: (err: unknown) => {
@@ -159,10 +160,6 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
               );
         onErrorRef.current(message);
       }
-    },
-    onSettled: (data) => {
-      if (data?.queued) return;
-      queryClient.invalidateQueries({ queryKey: ['attendance', eventId] });
     },
   });
 
