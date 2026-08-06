@@ -11,6 +11,7 @@ import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import * as Sentry from '@sentry/nextjs';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/Button';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
@@ -196,10 +197,10 @@ export function TopNav() {
 
         {/* Notification bell */}
         <div className="relative" ref={panelRef}>
-          <button
-            type="button"
+          <Button
+            variant="icon"
             onClick={() => setOpen((v) => !v)}
-            className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors duration-200 cursor-pointer relative"
+            className="relative rounded-xl duration-200"
             aria-label="Notifications"
             aria-haspopup="true"
             aria-expanded={open}
@@ -210,7 +211,7 @@ export function TopNav() {
                 <span className="text-white text-[9px] font-bold leading-none">{unreadCount}</span>
               </span>
             )}
-          </button>
+          </Button>
 
           {/* Dropdown panel */}
           {open && (
@@ -229,13 +230,14 @@ export function TopNav() {
                   Notifications
                 </h3>
                 {unreadCount > 0 && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => markAllReadMut.mutate()}
-                    className="text-xs text-brand-primary hover:underline cursor-pointer"
+                    className="text-xs"
                   >
                     Mark all read
-                  </button>
+                  </Button>
                 )}
               </div>
 
@@ -327,15 +329,15 @@ export function TopNav() {
         </div>
 
         {/* Logout */}
-        <button
-          type="button"
+        <Button
+          variant="icon"
           onClick={logout}
-          className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-error/10 hover:text-brand-error transition-colors duration-200 cursor-pointer"
+          className="hover:bg-brand-error/10 hover:text-brand-error rounded-xl duration-200"
           aria-label="Log out"
           title="Log out"
         >
           <LogOut className="w-4 h-4" aria-hidden="true" />
-        </button>
+        </Button>
       </div>
     </header>
   );

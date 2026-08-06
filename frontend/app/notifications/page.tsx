@@ -154,31 +154,36 @@ export default function NotificationsPage() {
             {notifications.map((n) => {
               const Icon = TYPE_ICON[n.type?.toLowerCase()] ?? Bell;
               return (
-                <button
-                  type="button"
+                <div
                   key={n.id}
-                  className={`flex items-start gap-3 px-4 py-3 rounded-xl text-left transition-colors w-full cursor-pointer ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
-                  onClick={() => {
-                    haptic.light();
-                    if (!n.read) markReadMut.mutate(n.id);
-                    if (n.link) router.push(n.link);
-                  }}
+                  className={`flex items-start gap-3 px-4 py-3 rounded-xl motion-safe:transition-colors w-full relative ${!n.read ? 'bg-brand-surface shadow-sm' : ''} ${n.link ? 'hover:bg-brand-bg' : ''}`}
                 >
-                  <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}
+                  <button
+                    type="button"
+                    className="flex-1 self-stretch flex items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg p-1 -m-1 cursor-pointer"
+                    onClick={() => {
+                      haptic.light();
+                      if (!n.read) markReadMut.mutate(n.id);
+                      if (n.link) router.push(n.link);
+                    }}
                   >
-                    <Icon className={`w-4 h-4 ${!n.read ? 'text-white' : 'text-brand-muted'}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`text-sm font-medium leading-snug ${!n.read ? 'text-brand-text' : 'text-brand-muted/80'}`}
+                    <div
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}
                     >
-                      {n.title}
-                    </p>
-                    <p className="text-xs text-brand-muted mt-0.5 line-clamp-2">{n.body}</p>
-                    <p className="text-[10px] text-brand-muted mt-1">{timeAgo(n.createdAt)}</p>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                      <Icon className={`w-4 h-4 ${!n.read ? 'text-primary-foreground' : 'text-brand-muted'}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-sm font-medium leading-snug ${!n.read ? 'text-brand-text' : 'text-brand-muted/80'}`}
+                      >
+                        {n.title}
+                      </p>
+                      <p className="text-xs text-brand-muted mt-0.5 line-clamp-2">{n.body}</p>
+                      <p className="text-[10px] text-brand-muted mt-1">{timeAgo(n.createdAt)}</p>
+                    </div>
+                  </button>
+
+                  <div className="flex flex-col items-center gap-1.5 flex-shrink-0 z-10">
                     {!n.read && <span className="w-2 h-2 rounded-full bg-brand-primary" />}
                     <Button
                       variant="icon"
@@ -194,7 +199,7 @@ export default function NotificationsPage() {
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
-                </button>
+                </div>
               );
             })}
             <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
