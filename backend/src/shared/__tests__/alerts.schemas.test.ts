@@ -4,9 +4,9 @@ import { AlertSubscriptionSchema, AlertSubscriptionUpdateSchema } from '../schem
 
 describe('alerts.schemas', () => {
   describe('AlertSubscriptionSchema', () => {
-    it('should accept empty input', () => {
+    it('should reject empty input (at least one category or skill required)', () => {
       const result = AlertSubscriptionSchema.safeParse({});
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it('should accept with categories', () => {

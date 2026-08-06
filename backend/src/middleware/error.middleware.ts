@@ -53,6 +53,10 @@ export function errorMiddleware(
       res.status(404).json({ error: 'Resource not found' });
       return;
     }
+    if (code === 'P2002') {
+      res.status(409).json({ error: 'Conflict: resource already exists' });
+      return;
+    }
     const is503 = ['P2023', 'P2024'].includes(code);
     if (is503) {
       res.status(503).json({ error: 'Database temporarily unavailable' });

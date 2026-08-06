@@ -7,7 +7,7 @@ vi.mock('@/lib/prisma', () => ({
       create: vi.fn(),
       findMany: vi.fn(),
       findFirst: vi.fn(),
-      delete: vi.fn(),
+      deleteMany: vi.fn(),
       update: vi.fn(),
       updateMany: vi.fn(),
       count: vi.fn(),
@@ -113,14 +113,14 @@ describe('notifications.service', () => {
 
   describe('deleteNotification', () => {
     it('should throw 404 when not found', async () => {
-      vi.mocked(prisma.notification.delete).mockRejectedValue({ code: 'P2025' });
+      vi.mocked(prisma.notification.deleteMany).mockResolvedValue({ count: 0 } as never);
       await expect(deleteNotification('user-1', 'bad-id')).rejects.toThrow(
         'Notification not found'
       );
     });
 
     it('should delete notification', async () => {
-      vi.mocked(prisma.notification.delete).mockResolvedValue({ id: 'n1' } as never);
+      vi.mocked(prisma.notification.deleteMany).mockResolvedValue({ count: 1 } as never);
       await expect(deleteNotification('user-1', 'n1')).resolves.toBeDefined();
     });
   });

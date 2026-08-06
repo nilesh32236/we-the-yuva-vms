@@ -204,8 +204,10 @@ describe('feedback.service', () => {
       vi.mocked(prisma.eventFeedback.findMany).mockResolvedValue([
         { id: 'fb-1', rating: 5 },
       ] as never);
+      vi.mocked(prisma.eventFeedback.count).mockResolvedValue(1);
       const result = await getEventFeedback('evt-1', 'user-1', 'COORDINATOR', null);
-      expect(result).toHaveLength(1);
+      expect(result.data).toHaveLength(1);
+      expect(result.total).toBe(1);
     });
 
     it('should return paginated feedback', async () => {

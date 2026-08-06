@@ -12,13 +12,15 @@ import {
 
 describe('opportunity.schemas', () => {
   describe('OpportunitySchema', () => {
+    const futureStart = new Date(Date.now() + 7 * 86400000).toISOString();
+    const futureEnd = new Date(Date.now() + 60 * 86400000).toISOString();
     const valid = {
       title: 'Teach Math to Kids',
       description: 'Help underprivileged children learn mathematics in a fun way',
       skills: ['Teaching'],
       category: 'EDUCATION',
-      startDate: '2026-08-01T00:00:00Z',
-      endDate: '2026-09-01T00:00:00Z',
+      startDate: futureStart,
+      endDate: futureEnd,
       hoursPerSession: 2,
       totalSlots: 10,
       isRemote: false,

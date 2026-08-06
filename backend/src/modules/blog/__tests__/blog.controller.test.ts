@@ -18,7 +18,7 @@ const svc = await import('../blog.service');
 import {
   createHandler,
   deleteHandler,
-  getByIdHandler,
+  getPublishedByParamHandler,
   listPublishedHandler,
 } from '../blog.controller';
 
@@ -61,9 +61,10 @@ describe('blog.controller', () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  it('getByIdHandler should return 200', async () => {
-    vi.mocked(svc.getPostById).mockResolvedValue({ id: 'p1' } as never);
-    await getByIdHandler(req as Request, res as Response, next);
+  it('getPublishedByParamHandler should return 200', async () => {
+    req.params = { param: 'p1' };
+    vi.mocked(svc.getPostBySlug).mockResolvedValue({ id: 'p1' } as never);
+    await getPublishedByParamHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
