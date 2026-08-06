@@ -7,6 +7,7 @@ import { CreateBlogPostSchema } from '@/lib/shared';
 import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission } from '@/lib/shared/permissions';
+import { Unauthorized } from '../shared/Unauthorized';
 import dynamic from 'next/dynamic';
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor').then((m) => m.RichTextEditor), {
@@ -39,7 +40,7 @@ export function BlogPostForm({ defaultValues, onSubmit, submitLabel = 'Save', re
   const contentValue = watch('content');
 
   if (requiredPermission && !hasPermission(user, requiredPermission)) {
-    return null;
+    return <Unauthorized />;
   }
 
   return (

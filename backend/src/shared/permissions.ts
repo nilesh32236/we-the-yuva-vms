@@ -74,3 +74,14 @@ export const Permissions = {
 } as const;
 
 export type Permission = (typeof Permissions)[keyof typeof Permissions];
+
+// Role levels — used server-side to prevent users from managing accounts at
+// their own or a higher level. Mirrors frontend/lib/shared/permissions.ts.
+export const ROLE_HIERARCHY: Record<string, number> = {
+  OBSERVER: 0,
+  VOLUNTEER: 1,
+  COORDINATOR: 2,
+  ORGANIZATION_ADMIN: 3,
+  ADMIN: 4,
+  PLATFORM_MANAGER: 4,
+};

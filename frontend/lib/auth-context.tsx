@@ -22,6 +22,7 @@ interface AuthContextValue {
   isLoading: boolean;
   fetchError: string | null;
   profileStatus: ProfileStatus | null;
+  profileStatusError: string | null;
   refetch: () => Promise<AuthUser | null>;
   logout: () => Promise<void>;
 }
@@ -66,8 +67,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const res = await api.get<ProfileStatus>('/users/me/profile-status');
         return res.data;
-      } catch {
-        return null;
+      } catch (err) {
+        if (err && typeof err === 'object' && 'response' in err) {
+          const axiosErr = err as { response?: { status?: number } };
+          // 404/401 = no profile or unauthenticated; treat as "no data", not an error
+          if (axiosErr.response?.status === 404 || axiosErr.response?.status === 401) {
+            return null;
+          }
+        }
+        // Rethrow so transient failures surface as profileStatusError instead of
+        // being silently swallowed (which previously hid the completion banner).
+        throw err;
       }
     },
     staleTime: 30_000,
@@ -107,6 +117,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [userQuery.error]);
   const profileStatus = profileStatusQuery.data ?? null;
+  const profileStatusError = profileStatusQuery.isError
+    ? 'Could not load your profile status.'
+    : null;
 
   const refetch = useCallback(async () => {
     // NOTE: do NOT use queryClient.refetchQueries() here — it silently skips
@@ -170,6 +183,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, isLoading, fetchError, pathname, router]);
 
   const logout = useCallback(async () => {
+    // Flag to prevent auto-refresh from re-authenticating after redirect
+    sessionStorage.setItem('logged_out', 'true');
     try {
       // Best-effort: tell the backend this device's push endpoint is no longer
       // subscribed for the logged-out account, so it stops pushing to a
@@ -214,8 +229,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             });
         }
       }
-      // Flag to prevent auto-refresh from re-authenticating after redirect
-      sessionStorage.setItem('logged_out', 'true');
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }
@@ -223,8 +236,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const providerValue = useMemo(
-    () => ({ user, isLoading, fetchError, profileStatus, refetch, logout }),
-    [user, isLoading, fetchError, profileStatus, refetch, logout],
+    () => ({ user, isLoading, fetchError, profileStatus, profileStatusError, refetch, logout }),
+    [user, isLoading, fetchError, profileStatus, profileStatusError, refetch, logout],
   );
 
   return (

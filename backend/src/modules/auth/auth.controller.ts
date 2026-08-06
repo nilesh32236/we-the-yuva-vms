@@ -39,7 +39,10 @@ const REFRESH_COOKIE_OPTIONS = {
   secure: isProd,
   sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  path: '/api/v1/auth',
+  // Path '/' so both the Next.js proxy (server-side refresh on access-token
+  // expiry) and the client interceptor can read it. Must stay in sync with
+  // CLEAR_COOKIE_OPTIONS so logout clears it from the same path.
+  path: '/',
 };
 
 export async function register(req: Request, res: Response, next: NextFunction) {
@@ -212,6 +215,7 @@ export async function verifyOtpHandler(req: Request, res: Response, next: NextFu
         name: user.name,
         email: user.email,
         role: user.roleRef.name,
+        permissions: user.roleRef.permissions,
         status: user.status,
         locationId: user.locationId,
         consent: user.consent,

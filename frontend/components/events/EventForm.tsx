@@ -9,6 +9,7 @@ import { Repeat } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission } from '@/lib/shared/permissions';
+import { Unauthorized } from '../shared/Unauthorized';
 import dynamic from 'next/dynamic';
 import type { EventSeriesOutput } from './EventSeriesForm';
 
@@ -65,7 +66,7 @@ export function EventForm({
   }, [defaultValues, setValue]);
 
   if (requiredPermission && !hasPermission(user, requiredPermission)) {
-    return null;
+    return <Unauthorized />;
   }
 
   const field = (

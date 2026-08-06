@@ -46,6 +46,70 @@ const ALLOWED_MIMES = new Set([
   'application/pdf',
 ]);
 
+// Sniff file content (magic bytes) rather than trusting the client-supplied
+// mimetype, so a spoofed MIME prefix cannot smuggle arbitrary content through
+// /upload. Returns the detected family, or null when unrecognized.
+function sniffContentType(buffer: Buffer): string | null {
+  if (buffer.length < 4) return null;
+
+  // JPEG
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return 'image/jpeg';
+  // PNG
+  if (
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return 'image/png';
+  }
+  // GIF
+  if (buffer.toString('ascii', 0, 6) === 'GIF87a' || buffer.toString('ascii', 0, 6) === 'GIF89a') {
+    return 'image/gif';
+  }
+  // WebP: RIFF....WEBP
+  if (
+    buffer.toString('ascii', 0, 4) === 'RIFF' &&
+    buffer.length >= 12 &&
+    buffer.toString('ascii', 8, 12) === 'WEBP'
+  ) {
+    return 'image/webp';
+  }
+  // SVG: XML document containing <svg (peek within the first 1KB)
+  const head = buffer.toString('utf8', 0, Math.min(buffer.length, 1024));
+  if (/<svg[\s>]/.test(head) || (/^<\?xml/.test(head) && /<svg[\s>]/.test(head))) {
+    return 'image/svg+xml';
+  }
+  // PDF
+  if (buffer.toString('ascii', 0, 4) === '%PDF') return 'application/pdf';
+  // MP4/MOV: box header with 'ftyp' at offset 4
+  if (buffer.toString('ascii', 4, 8) === 'ftyp') return 'video/mp4';
+  // WebM/Matroska: EBML magic 1A 45 DF A3
+  if (
+    buffer[0] === 0x1a &&
+    buffer[1] === 0x45 &&
+    buffer[2] === 0xdf &&
+    buffer[3] === 0xa3
+  ) {
+    return 'video/webm';
+  }
+
+  return null;
+}
+
+function assertContentMatches(filePath: string, declaredMime: string): void {
+  const head = fs.readFileSync(filePath);
+  const detected = sniffContentType(head);
+  // Map declared mime to its sniff family (exact match on the canonical MIME).
+  if (!detected || detected !== declaredMime) {
+    throw new AppError('File content does not match the declared file type', 400);
+  }
+}
+
 const fileFilter = (
   _req: Express.Request,
   file: Express.Multer.File,
@@ -93,6 +157,18 @@ const s3Client = isS3Configured
   : null;
 
 export async function processUpload(file: Express.Multer.File): Promise<string> {
+  try {
+    assertContentMatches(file.path, file.mimetype);
+  } catch (err) {
+    await fs.promises.unlink(file.path).catch((cleanupErr) =>
+      logger.warn('File cleanup failed after content validation error', {
+        path: file.path,
+        error: (cleanupErr as Error).message,
+      })
+    );
+    throw err;
+  }
+
   if (s3Client && process.env.S3_BUCKET_NAME) {
     const fileStream = fs.createReadStream(file.path);
     try {

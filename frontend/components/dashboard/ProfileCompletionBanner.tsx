@@ -38,7 +38,7 @@ const fieldLabels: Record<string, string> = {
 };
 
 export function ProfileCompletionBanner() {
-  const { user, profileStatus } = useAuth();
+  const { user, profileStatus, profileStatusError, refetch } = useAuth();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -51,6 +51,24 @@ export function ProfileCompletionBanner() {
     dismiss();
     setVisible(false);
   }, []);
+
+  if (profileStatusError) {
+    return (
+      <div className="rounded-2xl border border-brand-error/30 bg-brand-error/5 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-1 min-w-0">
+            <p className="font-heading font-semibold text-sm text-brand-error">
+              {profileStatusError}
+            </p>
+            <p className="text-xs text-brand-muted">Your profile completion couldn&apos;t be loaded.</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!visible || !profileStatus || !user) return null;
 

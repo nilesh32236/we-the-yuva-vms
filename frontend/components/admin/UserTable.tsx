@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { hasPermission, Permissions } from '@/lib/shared/permissions';
+import { hasPermission, Permissions, ROLE_HIERARCHY } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -251,57 +251,76 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
               }
             }}
           >
-            {selectedUser && (
-              <>
-                {selectedUser.status !== 'ACTIVE' && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
-                    }
-                    className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                    aria-label={`Activate ${selectedUser.name}`}
-                    role="menuitem"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                    Activate
-                  </button>
-                )}
-                {selectedUser.status !== 'SUSPENDED' && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
-                    }
-                    className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                    aria-label={`Suspend ${selectedUser.name}`}
-                    role="menuitem"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                    Suspend
-                  </button>
-                )}
-                {hasPermission(currentUser, Permissions.USER_MANAGE) &&
-                  (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
-                    (role) =>
-                      selectedUser.roleRef.name !== role && (
-                        <button
-                          type="button"
-                          key={role}
-                          onClick={() =>
-                            updateMutation.mutate({ id: selectedUser.id, data: { role } })
-                          }
-                          className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
-                          aria-label={`Change role to ${role}`}
-                          role="menuitem"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-                          Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                        </button>
-                      )
-                  )}
-              </>
-            )}
+            {selectedUser &&
+              (() => {
+                const targetLevel = ROLE_HIERARCHY[selectedUser.roleRef.name];
+                const myLevel = ROLE_HIERARCHY[currentUser?.role ?? ''];
+                const canManageTarget =
+                  targetLevel != null && myLevel != null && targetLevel < myLevel;
+                const isUserManager = hasPermission(currentUser, Permissions.USER_MANAGE);
+                return (
+                  <>
+                    {isUserManager && canManageTarget && selectedUser.status !== 'ACTIVE' && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
+                        }
+                        className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                        aria-label={`Activate ${selectedUser.name}`}
+                        role="menuitem"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                        Activate
+                      </button>
+                    )}
+                    {isUserManager && canManageTarget && selectedUser.status !== 'SUSPENDED' && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
+                        }
+                        className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                        aria-label={`Suspend ${selectedUser.name}`}
+                        role="menuitem"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-error" />
+                        Suspend
+                      </button>
+                    )}
+                    {isUserManager &&
+                      canManageTarget &&
+                      (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
+                        (role) =>
+                          selectedUser.roleRef.name !== role && (
+                            <button
+                              type="button"
+                              key={role}
+                              onClick={() =>
+                                updateMutation.mutate({ id: selectedUser.id, data: { role } })
+                              }
+                              className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                              aria-label={`Change role to ${role}`}
+                              role="menuitem"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                              Make {role.charAt(0) + role.slice(1).toLowerCase()}
+                            </button>
+                          )
+                      )}
+                    {!isUserManager && (
+                      <div className="px-4 py-2.5 text-sm text-brand-muted">
+                        You don&apos;t have permission to manage this user.
+                      </div>
+                    )}
+                    {isUserManager && !canManageTarget && (
+                      <div className="px-4 py-2.5 text-sm text-brand-muted">
+                        You cannot modify users at or above your role.
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
           </div>
         </>
       )}

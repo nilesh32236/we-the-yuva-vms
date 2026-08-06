@@ -1,4 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { uploadFileHandler } from '../upload.controller';
@@ -29,15 +32,19 @@ describe('upload.controller', () => {
   });
 
   it('should return 201 with file url', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'upload-ctl-'));
+    const filePath = path.join(dir, 'photo.jpg');
+    fs.writeFileSync(filePath, Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49]));
+
     req.file = {
       filename: 'test.jpg',
       originalname: 'photo.jpg',
       mimetype: 'image/jpeg',
-      size: 1024,
+      size: 9,
       fieldname: 'file',
       encoding: '7bit',
-      destination: '',
-      path: '',
+      destination: dir,
+      path: filePath,
       buffer: Buffer.alloc(0),
       stream: null as never,
     };

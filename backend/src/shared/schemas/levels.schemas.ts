@@ -1,11 +1,17 @@
 import { z } from 'zod';
 
+export const PeerEndorsementSchema = z.object({
+  userId: z.string().cuid(),
+  name: z.string().min(1).max(100),
+  statement: z.string().min(1).max(2000),
+});
+
 export const CreateLevelRequestSchema = z.object({
   proofUrls: z.array(z.string().url()).optional(),
   videoUrl: z.string().url().optional(),
   proofData: z.record(z.unknown()).optional(),
   notes: z.string().max(1000).optional(),
-  peerEndorsements: z.record(z.unknown()).optional(),
+  peerEndorsements: z.array(PeerEndorsementSchema).optional(),
 });
 
 export const ReviewLevelRequestSchema = z.object({

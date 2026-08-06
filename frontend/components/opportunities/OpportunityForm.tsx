@@ -11,6 +11,7 @@ import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission } from '@/lib/shared/permissions';
+import { Unauthorized } from '../shared/Unauthorized';
 import * as Sentry from '@sentry/nextjs';
 
 const CreateLocationSchema = z.object({
@@ -70,7 +71,7 @@ export function OpportunityForm({
   const [serverError, setServerError] = useState<string | null>(null);
 
   if (requiredPermission && !hasPermission(user, requiredPermission)) {
-    return null;
+    return <Unauthorized />;
   }
 
   const wrappedOnSubmit = async (data: OpportunityInput) => {

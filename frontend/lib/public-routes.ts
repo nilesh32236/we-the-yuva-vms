@@ -12,6 +12,7 @@ export const PUBLIC_ROUTES = [
   '/verify-otp',
   '/offline',
   '/scan',
+  '/verify',
 ];
 
 export function isPublicRoute(pathname: string): boolean {
