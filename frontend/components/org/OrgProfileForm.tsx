@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, X } from 'lucide-react';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
@@ -30,7 +29,6 @@ interface OrgProfileFormProps {
 export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [logo, setLogo] = useState(org.logo ?? '');
 
   const {
     register,
@@ -41,6 +39,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
     defaultValues: {
       name: org.name,
       description: org.description ?? undefined,
+      logo: org.logo ?? '',
       phone: org.phone ?? undefined,
       email: org.email ?? undefined,
       website: org.website ?? undefined,
@@ -49,7 +48,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
   });
 
   const mutation = useMutation({
-    mutationFn: (body: RegisterOrganizationInput & { logo?: string }) =>
+    mutationFn: (body: RegisterOrganizationInput) =>
       api.patch(`/organizations/${org.id}`, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['organization', org.id] });
@@ -68,7 +67,7 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
   });
 
   function onSave(data: RegisterOrganizationInput) {
-    mutation.mutate({ ...data, logo: logo.trim() || undefined });
+    mutation.mutate({ ...data, logo: data.logo?.trim() || undefined });
   }
 
   const inputCls = (field: string) =>
@@ -125,12 +124,20 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-logo"
+            type="text"
+            inputMode="url"
             disabled={mutation.isPending}
-            value={logo}
-            onChange={(e) => setLogo(e.target.value)}
-            className="w-full text-sm border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 transition-colors bg-background border-brand-border focus:ring-brand-primary/30"
+            aria-invalid={!!errors.logo}
+            aria-describedby={errors.logo ? 'org-logo-error' : undefined}
+            {...register('logo')}
+            className={inputCls('logo')}
             placeholder="https://example.com/logo.png"
           />
+          {errors.logo && (
+            <p id="org-logo-error" className="text-xs text-brand-error" role="alert">
+              {errors.logo.message}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">

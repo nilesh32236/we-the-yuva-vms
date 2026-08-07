@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useEffect, useState } from 'react';
+import { z } from 'zod';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
 import { useAuth } from '@/lib/auth-context';
@@ -8,6 +9,11 @@ import { canAccess, hasPermission, Permissions } from '@/lib/shared/permissions'
 import { Button } from '@/components/ui/Button';
 import { Unauthorized } from '@/components/shared/Unauthorized';
 import { useToast } from '@/hooks/use-toast';
+
+const ApproveAttendanceSchema = z.object({
+  approvedHours: z.number().positive('Hours must be greater than 0').max(24, 'Hours cannot exceed 24'),
+  rating: z.number().int().min(1, 'Rating must be between 1 and 5').max(5, 'Rating must be between 1 and 5'),
+});
 
 interface Volunteer {
   volunteerId: string;
@@ -45,6 +51,7 @@ const VolunteerRow = memo(function VolunteerRow({
   hoursValue,
   ratingValue,
   isApproving,
+  maxHours,
   onToggle,
   onHoursChange,
   onRatingChange,
@@ -55,6 +62,7 @@ const VolunteerRow = memo(function VolunteerRow({
   hoursValue: string;
   ratingValue: number;
   isApproving: boolean;
+  maxHours: number;
   onToggle: () => void;
   onHoursChange: (value: string) => void;
   onRatingChange: (star: number) => void;
@@ -65,6 +73,11 @@ const VolunteerRow = memo(function VolunteerRow({
       ? calcDuration(volunteer.checkedInAt, volunteer.checkedOutAt)
       : null;
   const isApproved = !!volunteer.approvedAt;
+  const parsedHours = hoursValue === '' ? null : parseFloat(hoursValue);
+  const hoursInvalid =
+    parsedHours === null
+      ? false
+      : Number.isNaN(parsedHours) || parsedHours <= 0 || parsedHours > maxHours;
 
   return (
     <div className="p-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors">
@@ -146,42 +159,22 @@ const VolunteerRow = memo(function VolunteerRow({
               id={`hours-input-${volunteer.volunteerId}`}
               type="number"
               min="0"
+              max={maxHours}
               step="0.5"
-              aria-invalid={
-                hoursValue !== undefined &&
-                hoursValue !== '' &&
-                (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0)
-                  ? true
-                  : undefined
-              }
-              aria-describedby={
-                hoursValue !== undefined &&
-                hoursValue !== '' &&
-                (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0)
-                  ? `hours-error-${volunteer.volunteerId}`
-                  : undefined
-              }
+              aria-invalid={hoursInvalid ? true : undefined}
+              aria-describedby={hoursInvalid ? `hours-error-${volunteer.volunteerId}` : undefined}
               value={hoursValue ?? ''}
               onChange={(e) => onHoursChange(e.target.value)}
               className={`w-full px-3 py-1.5 text-sm rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary/30 ${
-                hoursValue !== undefined &&
-                hoursValue !== '' &&
-                (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0)
-                  ? 'border-brand-error'
-                  : 'border-brand-border'
+                hoursInvalid ? 'border-brand-error' : 'border-brand-border'
               }`}
               placeholder="Hours"
             />
-            {hoursValue !== undefined &&
-              hoursValue !== '' &&
-              (Number.isNaN(parseFloat(hoursValue)) || parseFloat(hoursValue) <= 0) && (
-                <p
-                  id={`hours-error-${volunteer.volunteerId}`}
-                  className="text-xs text-brand-error mt-1"
-                >
-                  Must be greater than 0
-                </p>
-              )}
+            {hoursInvalid && (
+              <p id={`hours-error-${volunteer.volunteerId}`} className="text-xs text-brand-error mt-1">
+                Must be greater than 0 and at most {maxHours}
+              </p>
+            )}
           </div>
 
           {/* Rating stars */}
@@ -217,7 +210,7 @@ const VolunteerRow = memo(function VolunteerRow({
           <Button
             size="sm"
             loading={isApproving}
-            disabled={!hoursValue || parseFloat(hoursValue || '0') <= 0 || !ratingValue}
+            disabled={parsedHours === null || hoursInvalid || !ratingValue}
             onClick={onApprove}
           >
             Approve
@@ -296,18 +289,22 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
   const handleApprove = async (v: Volunteer) => {
     const hours = parseFloat(hoursInputs[v.volunteerId] || '0');
     const rating = ratings[v.volunteerId] || 0;
-    if (hours <= 0) {
-      toast({
-        title: 'Validation error',
-        description: 'Hours must be greater than 0',
-        variant: 'destructive',
-      });
+    const cap =
+      v.checkedInAt && v.checkedOutAt
+        ? Math.round(calcDuration(v.checkedInAt, v.checkedOutAt) * 2) / 2
+        : 24;
+    const parsed = ApproveAttendanceSchema.safeParse({ approvedHours: hours, rating });
+    if (!parsed.success) {
+      const message =
+        parsed.error.issues[0]?.message ??
+        'Hours must be greater than 0 and at most 24; rating between 1 and 5';
+      toast({ title: 'Validation error', description: message, variant: 'destructive' });
       return;
     }
-    if (rating < 1 || rating > 5) {
+    if (hours > cap) {
       toast({
         title: 'Validation error',
-        description: 'Rating must be between 1 and 5',
+        description: `Approved hours cannot exceed the checked-in duration (${formatDuration(cap)})`,
         variant: 'destructive',
       });
       return;
@@ -372,6 +369,11 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
             hoursValue={hoursInputs[v.volunteerId] ?? ''}
             ratingValue={ratings[v.volunteerId] ?? 0}
             isApproving={approving[v.volunteerId] ?? false}
+            maxHours={
+              v.checkedInAt && v.checkedOutAt
+                ? Math.round(calcDuration(v.checkedInAt, v.checkedOutAt) * 2) / 2
+                : 24
+            }
             onToggle={() => {
               haptic.light();
               setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }));
