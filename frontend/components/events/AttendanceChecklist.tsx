@@ -4,7 +4,7 @@ import { memo, useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
 import { useAuth } from '@/lib/auth-context';
-import { canAccess, hasPermission, Permissions } from '@/lib/shared/permissions';
+import { hasAccess, Permissions } from '@/lib/shared/permissions';
 import { Button } from '@/components/ui/Button';
 import { Unauthorized } from '@/components/shared/Unauthorized';
 import { useToast } from '@/hooks/use-toast';
@@ -325,8 +325,10 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
 
   // Privileged actions (approving hours/ratings, saving attendance) require
   // event management rights or a coordinator+ role, not just any visitor.
-  const canManage =
-    hasPermission(user, Permissions.EVENT_MANAGE) || canAccess(user?.role ?? '', 'COORDINATOR');
+  const canManage = hasAccess(user, {
+    permission: Permissions.EVENT_MANAGE,
+    minimumRole: 'COORDINATOR',
+  });
   if (!canManage) return <Unauthorized />;
 
   return (

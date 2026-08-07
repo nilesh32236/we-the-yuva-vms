@@ -13,6 +13,13 @@ export const api = axios.create({
 api.defaults.timeout = 10000;
 
 export async function downloadCsv(url: string, filename = 'export.csv') {
+  // NOTE (audit #203): low-level, intentionally UNGUARDED helper — it serves
+  // multiple pages whose callers live inside the (coordinator), (org-admin)
+  // and (admin) route groups, so proxy.ts already enforces the JWT role
+  // prefix before any page (and therefore this call) renders. Authorization
+  // for the underlying endpoints is enforced server-side
+  // (e.g. /events/export/csv requires EVENT_MANAGE; the volunteers export
+  // requires USER_VOLUNTEERS_MANAGE), including org/tenant scoping.
   const previouslyFocused = document.activeElement as HTMLElement | null;
   try {
     const res = await api.get(url, { responseType: 'blob' });

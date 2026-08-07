@@ -7,7 +7,12 @@ import { api } from './api';
 import { clearQueue } from './offline-queue';
 import { queryClient } from './query-client';
 import { isPublicRoute } from './public-routes';
-import { ROLE_ROUTES, ROLE_ROUTE_PREFIXES, ONBOARDING_ROUTES } from './shared/permissions';
+import {
+  ROLE_ROUTES,
+  ROLE_ROUTE_PREFIXES,
+  ONBOARDING_ROUTES,
+  REQUIRES_LOCATION_ROLES,
+} from './shared/permissions';
 import type { AuthUser } from './shared/types';
 import { toast } from '@/hooks/use-toast';
 
@@ -167,9 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (user.role === 'VOLUNTEER' && !user.profile) {
         router.replace('/setup-profile');
       } else if (
-        ['COORDINATOR', 'ADMIN', 'OBSERVER', 'ORGANIZATION_ADMIN', 'PLATFORM_MANAGER'].includes(
-          user.role
-        ) &&
+        REQUIRES_LOCATION_ROLES.includes(user.role) &&
         !user.locationId
       ) {
         router.replace('/setup-profile');
@@ -240,9 +243,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [user, isLoading, fetchError, profileStatus, profileStatusError, refetch, logout],
   );
 
+  // IMPORTANT-3 (audit #203): Never mount protected trees before the
+  // consent/profile/locationId/role guard has settled. Otherwise children (and
+  // their TanStack Query hooks) fire API calls during the pre-redirect render
+  // window for a logged-in user who has not yet accepted consent or completed
+  // onboarding. The redirect effect above still runs; this merely ensures the
+  // protected tree does not render (and fetch) in the meantime.
+  const isPublic = isPublicRoute(pathname);
+  const isOnboarding = ONBOARDING_ROUTES.includes(pathname);
+  const requiresRedirect =
+    !isPublic &&
+    !isOnboarding &&
+    !!user &&
+    (!user.consent ||
+      (user.role === 'VOLUNTEER' && !user.profile) ||
+      (REQUIRES_LOCATION_ROLES.includes(user.role) && !user.locationId) ||
+      (() => {
+        const allowedPrefixes = ROLE_ROUTE_PREFIXES[user.role];
+        return allowedPrefixes
+          ? !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))
+          : false;
+      })());
+
+  const renderChildren = isPublic || isOnboarding || !user || (!isLoading && !requiresRedirect);
+
+  const resolvedChildren = renderChildren ? (
+    children
+  ) : (
+    <div
+      id="main"
+      className="min-h-[60vh] flex items-center justify-center"
+      role="status"
+      aria-busy="true"
+    >
+      <div className="w-10 h-10 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
+    </div>
+  );
+
   return (
     <AuthContext.Provider value={providerValue}>
-      {children}
+      {resolvedChildren}
     </AuthContext.Provider>
   );
 }

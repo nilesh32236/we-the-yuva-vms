@@ -1,65 +1,32 @@
+/**
+ * RBAC constants and guards — the single source of truth for how the frontend
+ * reasons about roles and permissions (audit #203).
+ *
+ * POLICY (consensus):
+ * - Every `Permissions.*` constant below MUST be referenced by at least one
+ *   client-side `hasPermission()` / `hasAccess()` guard. Constants with no
+ *   UI wiring have been removed so the object reflects real behavior instead
+ *   of implying an RBAC surface that does not exist.
+ * - Role vs explicit-permission precedence is resolved in ONE place:
+ *   `hasAccess()`. Prefer it over ad-hoc `hasPermission()` || role-threshold
+ *   chains so the whole app makes a consistent choice.
+ * - Client-side guards are defense-in-depth only — the backend enforces the
+ *   real permission on every affected endpoint.
+ */
 export const Permissions = {
-  SYSTEM_CONFIG: 'system:config',
-
   USER_MANAGE: 'user:manage',
-  USER_PROFILE_MANAGE: 'user:profile:manage',
-  USER_PROFILE_VIEW: 'user:profile:view',
-  USER_EVENTS_VIEW: 'user:events:view',
-  USER_VOLUNTEERS_MANAGE: 'user:volunteers:manage',
 
   OPPORTUNITY_CREATE: 'opportunity:create',
   OPPORTUNITY_EDIT: 'opportunity:edit',
-  OPPORTUNITY_VIEW: 'opportunity:view',
-  OPPORTUNITY_APPLY: 'opportunity:apply',
-  OPPORTUNITY_MANAGE: 'opportunity:manage',
 
   EVENT_CREATE: 'event:create',
   EVENT_EDIT: 'event:edit',
   EVENT_MANAGE: 'event:manage',
   EVENT_CHECKIN: 'event:checkin',
 
-  STATS_VIEW_OWN: 'stats:view:own',
-  STATS_VIEW_OBSERVER: 'stats:view:observer',
-
-  STORY_CREATE: 'story:create',
-  STORY_EDIT: 'story:edit',
-  STORY_MODERATE: 'story:moderate',
-  STORY_VIEW_ALL: 'story:view:all',
-
-  TRAINING_CREATE: 'training:create',
-  TRAINING_EDIT: 'training:edit',
-  TRAINING_COMPLETE: 'training:complete',
-
-  ALERT_MANAGE: 'alert:manage',
-
-  FEEDBACK_SUBMIT: 'feedback:submit',
-  FEEDBACK_MANAGE: 'feedback:manage',
-
-  ORG_CREATE: 'org:create',
-  ORG_MANAGE: 'org:manage',
-  ORG_VERIFY: 'org:verify',
-
-  COORDINATOR_MANAGE: 'coordinator:manage',
-
-  LEVEL_VIEW: 'level:view',
-  LEVEL_REQUEST: 'level:request',
-  LEVEL_REVIEW: 'level:review',
-
   BADGE_APPROVE: 'badge:approve',
 
-  CERTIFICATE_VIEW: 'certificate:view',
   CERTIFICATE_DOWNLOAD: 'certificate:download',
-
-  MENTORSHIP_CREATE: 'mentorship:create',
-  MENTORSHIP_MANAGE: 'mentorship:manage',
-
-  YOUTH_PROFILE_MANAGE: 'youth:profile:manage',
-  YOUTH_PROFILE_VIEW: 'youth:profile:view',
-
-  FILE_UPLOAD: 'file:upload',
-
-  CHAT_READ: 'chat:read',
-  CHAT_SEND: 'chat:send',
 
   BLOG_CREATE: 'blog:create',
   BLOG_EDIT: 'blog:edit',
@@ -99,16 +66,48 @@ export const ROLE_HIERARCHY: Record<string, number> = {
   PLATFORM_MANAGER: 4,
 };
 
+// Single source of truth for which roles require a locationId / setup-profile
+// step before they may enter their dashboard. Kept here (instead of duplicated
+// literals across auth-context / proxy) so a role change needs one edit.
+export const REQUIRES_LOCATION_ROLES: readonly string[] = [
+  'COORDINATOR',
+  'ADMIN',
+  'OBSERVER',
+  'ORGANIZATION_ADMIN',
+  'PLATFORM_MANAGER',
+];
+
+/**
+ * Inherits permissions from the role hierarchy. Fails closed for unknown roles
+ * and for any user where `permissions` is undefined (or null).
+ *
+ * NOTE: `user.permissions` is ONLY populated by the backend's `/users/me`
+ * stream (from the role's permission set). If a feature cannot rely on the
+ * server streaming it, route the check through `hasAccess()` instead of
+ * depending purely on the permission array.
+ */
 export function hasPermission(user: { permissions?: string[] } | null, permission: string): boolean {
   return user?.permissions?.includes(permission) ?? false;
 }
 
-export function canAccess(userRole: string, minimumRole: string): boolean {
-  const userLevel = ROLE_HIERARCHY[userRole] ?? -1;
-  const requiredLevel = ROLE_HIERARCHY[minimumRole] ?? -1;
-  return userLevel >= requiredLevel;
-}
-
-export function isAtLeast(userRole: string, targetRole: string): boolean {
-  return canAccess(userRole, targetRole);
+/**
+ * Canonical guard resolving role threshold OR explicit permission in one place.
+ *
+ * A user is granted access if they hold `permission` OR their role is at least
+ * `minimumRole`. Pass either/both; returns false when both are absent or the
+ * user is unknown. Use this file's single decision point instead of writing
+ * ad-hoc `hasPermission(...) || canAccess(...)` chains across components.
+ */
+export function hasAccess(
+  user: { role?: string; permissions?: string[] } | null,
+  options: { permission?: Permission; minimumRole?: string }
+): boolean {
+  if (!user) return false;
+  if (options.permission && hasPermission(user, options.permission)) return true;
+  if (options.minimumRole) {
+    const userLevel = ROLE_HIERARCHY[user.role ?? ''] ?? -1;
+    const requiredLevel = ROLE_HIERARCHY[options.minimumRole] ?? -1;
+    return userLevel >= requiredLevel;
+  }
+  return false;
 }

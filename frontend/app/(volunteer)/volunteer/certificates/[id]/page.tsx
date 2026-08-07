@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import { useToast } from '@/hooks/use-toast';
 
 interface CertificateDetail {
@@ -22,6 +24,10 @@ interface CertificateDetail {
 export default function CertificateDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { user } = useAuth();
+  // Downloading the rendered PDF is gated on the CERTIFICATE_DOWNLOAD
+  // permission (audit #203); the server enforces it on the view endpoint too.
+  const canDownload = hasPermission(user, Permissions.CERTIFICATE_DOWNLOAD);
 
   const { data, isLoading } = useQuery<{ data: CertificateDetail }>({
     queryKey: ['certificate', id],
@@ -131,9 +137,11 @@ export default function CertificateDetailPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button variant="primary" size="sm" onClick={handleDownload}>
-            <Download className="w-4 h-4" /> Download as PDF
-          </Button>
+          {canDownload && (
+            <Button variant="primary" size="sm" onClick={handleDownload}>
+              <Download className="w-4 h-4" /> Download as PDF
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={handleShare}>
             <Share2 className="w-4 h-4" /> Share
           </Button>

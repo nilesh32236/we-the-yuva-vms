@@ -19,6 +19,8 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import { AddToCalendarButton } from '@/components/events/AddToCalendarButton';
 import { Button } from '@/components/ui/Button';
 
@@ -65,6 +67,10 @@ function EventRow({ event }: { event: VolunteerEvent }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [locating, setLocating] = useState(false);
+  const { user } = useAuth();
+  // Check-in/out affordances are gated on the EVENT_CHECKIN permission (audit
+  // #203); the server independently enforces it on /events/:id/checkin.
+  const canCheckIn = hasPermission(user, Permissions.EVENT_CHECKIN);
 
   const attendance = event.attendances?.[0];
   const isCheckedIn = !!attendance?.checkedInAt;
@@ -253,13 +259,13 @@ function EventRow({ event }: { event: VolunteerEvent }) {
 
       {!isCancelled && !isPast && (
         <div className="flex gap-2 pt-1">
-          {!isCheckedIn && (
+          {canCheckIn && !isCheckedIn && (
             <Button type="button" variant="primary" onClick={handleCheckIn} loading={busy}>
               <LogIn className="w-4 h-4" />
               Check In
             </Button>
           )}
-          {isCheckedIn && !isCheckedOut && (
+          {canCheckIn && isCheckedIn && !isCheckedOut && (
             <Button type="button" variant="destructive" onClick={handleCheckOut} loading={busy}>
               <LogOut className="w-4 h-4" />
               Check Out
