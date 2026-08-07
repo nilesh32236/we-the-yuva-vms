@@ -545,7 +545,7 @@ export default function VolunteerProfilePage() {
       {levelData && !editing && (
         <Link
           href="/volunteer/levels"
-          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/30 transition-all duration-200 group card-hover"
+          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/30 transition-all duration-200 motion-reduce:transition-none group card-hover"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

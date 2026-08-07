@@ -11,7 +11,7 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { type MyLevelResponse, MyLevelResponseSchema } from '@/lib/shared';
+import { type MyLevelResponse, MyLevelResponseSchema, LevelListSchema } from '@/lib/shared';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -59,16 +59,6 @@ const TIER_DATA = [
   },
 ];
 
-interface LevelDefinition {
-  id: string;
-  tier: number;
-  name: string;
-  badgeIcon: string;
-  color: string;
-  badgeShape: string;
-  requirements: Record<string, number>;
-}
-
 export default function LevelRequestPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -91,9 +81,9 @@ export default function LevelRequestPage() {
     queryFn: () => api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
   });
 
-  const { data: levelsRes, isLoading: levelsLoading } = useQuery<LevelDefinition[]>({
+  const { data: levelsRes, isLoading: levelsLoading } = useQuery({
     queryKey: ['levels'],
-    queryFn: () => api.get('/levels').then((r) => r.data),
+    queryFn: () => api.get('/levels').then((r) => LevelListSchema.parse(r.data)),
   });
 
   const submitMutation = useMutation({
@@ -223,7 +213,7 @@ export default function LevelRequestPage() {
                               <span className="capitalize">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}
                               </span>
-                              : <span className="font-medium text-brand-text">{val}</span>
+                              : <span className="font-medium text-brand-text">{String(val)}</span>
                             </li>
                           ))}
                         </ul>

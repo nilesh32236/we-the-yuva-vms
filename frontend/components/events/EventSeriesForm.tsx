@@ -7,6 +7,15 @@ import { useMemo } from 'react';
 import { Button } from '../ui/Button';
 import { captureApiError } from '@/lib/sentry';
 
+// Build an ISO datetime from a `YYYY-MM-DD` date + `HH:MM` time using LOCAL
+// time (date inputs yield bare dates, so the emitted value keeps the user's
+// selected calendar day). Returns undefined for unparseable input instead of
+// throwing a RangeError from `.toISOString()`.
+function toLocalIso(dateStr: string, timeStr: string): string | undefined {
+  const d = new Date(`${dateStr}T${timeStr}`);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+}
+
 const DAYS = [
   { value: 0, label: 'Sun' },
   { value: 1, label: 'Mon' },
@@ -67,7 +76,9 @@ const EventSeriesFormSchema = z
     }
     if (
       data.endType === 'on_date' &&
-      (!data.endDate || new Date(data.endDate) <= new Date(data.firstEventDate))
+      // YYYY-MM-DD strings compare correctly lexically and avoid timezone
+      // discrepancies between date-only inputs and the serialized datetime.
+      (!data.endDate || data.endDate <= data.firstEventDate)
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -251,11 +262,11 @@ export function EventSeriesForm({
       const formattedData: EventSeriesOutput = {
         ...data,
         firstEventDate: data.firstEventDate
-          ? new Date(`${data.firstEventDate}T${data.startTime}`).toISOString()
+          ? toLocalIso(data.firstEventDate, data.startTime)
           : undefined,
         endDate:
           data.endType === 'on_date' && data.endDate
-            ? new Date(`${data.endDate}T00:00:00`).toISOString()
+            ? toLocalIso(data.endDate, '00:00')
             : data.endDate,
       };
       await onSubmit(formattedData);

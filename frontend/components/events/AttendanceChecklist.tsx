@@ -51,6 +51,7 @@ const VolunteerRow = memo(function VolunteerRow({
   hoursValue,
   ratingValue,
   isApproving,
+  maxHours,
   onToggle,
   onHoursChange,
   onRatingChange,
@@ -61,6 +62,7 @@ const VolunteerRow = memo(function VolunteerRow({
   hoursValue: string;
   ratingValue: number;
   isApproving: boolean;
+  maxHours: number;
   onToggle: () => void;
   onHoursChange: (value: string) => void;
   onRatingChange: (star: number) => void;
@@ -73,7 +75,9 @@ const VolunteerRow = memo(function VolunteerRow({
   const isApproved = !!volunteer.approvedAt;
   const parsedHours = hoursValue === '' ? null : parseFloat(hoursValue);
   const hoursInvalid =
-    parsedHours === null ? false : Number.isNaN(parsedHours) || parsedHours <= 0 || parsedHours > 24;
+    parsedHours === null
+      ? false
+      : Number.isNaN(parsedHours) || parsedHours <= 0 || parsedHours > maxHours;
 
   return (
     <div className="p-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors">
@@ -155,7 +159,7 @@ const VolunteerRow = memo(function VolunteerRow({
               id={`hours-input-${volunteer.volunteerId}`}
               type="number"
               min="0"
-              max="24"
+              max={maxHours}
               step="0.5"
               aria-invalid={hoursInvalid ? true : undefined}
               aria-describedby={hoursInvalid ? `hours-error-${volunteer.volunteerId}` : undefined}
@@ -168,7 +172,7 @@ const VolunteerRow = memo(function VolunteerRow({
             />
             {hoursInvalid && (
               <p id={`hours-error-${volunteer.volunteerId}`} className="text-xs text-brand-error mt-1">
-                Must be greater than 0 and at most 24
+                Must be greater than 0 and at most {maxHours}
               </p>
             )}
           </div>
@@ -286,7 +290,9 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
     const hours = parseFloat(hoursInputs[v.volunteerId] || '0');
     const rating = ratings[v.volunteerId] || 0;
     const cap =
-      v.checkedInAt && v.checkedOutAt ? calcDuration(v.checkedInAt, v.checkedOutAt) : 24;
+      v.checkedInAt && v.checkedOutAt
+        ? Math.round(calcDuration(v.checkedInAt, v.checkedOutAt) * 2) / 2
+        : 24;
     const parsed = ApproveAttendanceSchema.safeParse({ approvedHours: hours, rating });
     if (!parsed.success) {
       const message =
@@ -363,6 +369,11 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
             hoursValue={hoursInputs[v.volunteerId] ?? ''}
             ratingValue={ratings[v.volunteerId] ?? 0}
             isApproving={approving[v.volunteerId] ?? false}
+            maxHours={
+              v.checkedInAt && v.checkedOutAt
+                ? Math.round(calcDuration(v.checkedInAt, v.checkedOutAt) * 2) / 2
+                : 24
+            }
             onToggle={() => {
               haptic.light();
               setState((s) => ({ ...s, [v.volunteerId]: !s[v.volunteerId] }));

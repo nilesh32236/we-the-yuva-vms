@@ -124,7 +124,8 @@ export default function OrgProfileForm({ org, onCancel }: OrgProfileFormProps) {
           </label>
           <input
             id="org-logo"
-            type="url"
+            type="text"
+            inputMode="url"
             disabled={mutation.isPending}
             aria-invalid={!!errors.logo}
             aria-describedby={errors.logo ? 'org-logo-error' : undefined}

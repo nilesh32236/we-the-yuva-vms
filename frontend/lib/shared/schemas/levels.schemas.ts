@@ -34,6 +34,9 @@ export const LevelRecordSchema = z
   })
   .passthrough();
 
+export const LevelListSchema = z.array(LevelRecordSchema);
+export type LevelList = z.infer<typeof LevelListSchema>;
+
 export const MyLevelResponseSchema = z.object({
   currentLevel: LevelRecordSchema.nullish(),
   points: z.number(),
@@ -54,7 +57,7 @@ export interface NormalizedLevel {
     id: string;
     name: string;
     pointsRequired: number;
-    requirements: Record<string, number>;
+    requirements: Record<string, unknown>;
   } | null;
 }
 
@@ -72,7 +75,7 @@ export function normalizeMyLevel(res: MyLevelResponse): NormalizedLevel {
           id: next.id,
           name: next.name,
           pointsRequired: next.pointsRequired ?? 0,
-          requirements: (next.requirements ?? {}) as Record<string, number>,
+          requirements: next.requirements ?? {},
         }
       : null,
   };
