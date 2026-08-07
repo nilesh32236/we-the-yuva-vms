@@ -24,10 +24,13 @@ export default function AdminBlogPage() {
   // enforces each on the corresponding /blog endpoint as well.
   const canPublish = hasPermission(user, Permissions.BLOG_PUBLISH);
   const canDelete = hasPermission(user, Permissions.BLOG_DELETE);
+  const canEdit = hasPermission(user, Permissions.BLOG_EDIT);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-blog-posts', page],
     queryFn: () => api.get('/blog/all', { params: { limit: 50, page } }).then((r) => r.data),
+    // Do not fetch the admin blog list before the permission gate settles.
+    enabled: hasPermission(user, Permissions.BLOG_VIEW_ALL),
   });
 
   const publishMutation = useMutation({
@@ -158,7 +161,7 @@ export default function AdminBlogPage() {
                       <CheckCircle className="w-4 h-4" /> Publish
                     </Button>
                   )}
-                  {post.status === 'PUBLISHED' && (
+                  {canEdit && post.status === 'PUBLISHED' && (
                     <Button
                       variant="ghost"
                       size="sm"

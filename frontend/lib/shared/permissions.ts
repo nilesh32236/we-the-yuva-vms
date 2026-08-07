@@ -105,8 +105,12 @@ export function hasAccess(
   if (!user) return false;
   if (options.permission && hasPermission(user, options.permission)) return true;
   if (options.minimumRole) {
-    const userLevel = ROLE_HIERARCHY[user.role ?? ''] ?? -1;
-    const requiredLevel = ROLE_HIERARCHY[options.minimumRole] ?? -1;
+    const userLevel = ROLE_HIERARCHY[user.role ?? ''];
+    const requiredLevel = ROLE_HIERARCHY[options.minimumRole];
+    // Fail closed: both the user's role and the minimum role must be known
+    // levels for a role-threshold grant. An unknown role (or a typo'd
+    // minimumRole) must never authorize.
+    if (userLevel === undefined || requiredLevel === undefined) return false;
     return userLevel >= requiredLevel;
   }
   return false;

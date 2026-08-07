@@ -178,7 +178,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.replace('/setup-profile');
       } else if (!ONBOARDING_ROUTES.some((r) => pathname.startsWith(r))) {
         const allowedPrefixes = ROLE_ROUTE_PREFIXES[user.role];
-        if (allowedPrefixes && !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
+        // Fail closed: a role with no route prefix mapping is unknown — treat
+        // it as unauthorized instead of letting the protected tree mount.
+        if (!allowedPrefixes?.some((prefix) => pathname.startsWith(prefix))) {
           router.replace(ROLE_ROUTES[user.role] ?? '/login');
         }
       }
@@ -260,9 +262,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       (REQUIRES_LOCATION_ROLES.includes(user.role) && !user.locationId) ||
       (() => {
         const allowedPrefixes = ROLE_ROUTE_PREFIXES[user.role];
+        // Fail closed: unknown role (no prefix mapping) requires redirect.
         return allowedPrefixes
           ? !allowedPrefixes.some((prefix) => pathname.startsWith(prefix))
-          : false;
+          : true;
       })());
 
   const renderChildren = isPublic || isOnboarding || !user || (!isLoading && !requiresRedirect);
