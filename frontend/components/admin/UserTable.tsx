@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { hasPermission, Permissions, ROLE_HIERARCHY } from '@/lib/shared/permissions';
+import { hasAccess, Permissions, ROLE_HIERARCHY } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -253,9 +253,14 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
               (() => {
                 const targetLevel = ROLE_HIERARCHY[selectedUser.roleRef.name];
                 const myLevel = ROLE_HIERARCHY[currentUser?.role ?? ''];
+                // Hierarchy comparison decides whether the current user outranks
+                // the target user (a per-pair check, not a fixed threshold); the
+                // manager bit goes through the canonical permission guard.
                 const canManageTarget =
                   targetLevel != null && myLevel != null && targetLevel < myLevel;
-                const isUserManager = hasPermission(currentUser, Permissions.USER_MANAGE);
+                const isUserManager = hasAccess(currentUser, {
+                  permission: Permissions.USER_MANAGE,
+                });
                 return (
                   <>
                     {isUserManager && canManageTarget && selectedUser.status !== 'ACTIVE' && (

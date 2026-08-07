@@ -10,16 +10,27 @@ import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
+import { Unauthorized } from '@/components/shared/Unauthorized';
 
 export default function AdminBlogPage() {
   const [page, setPage] = useState(1);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  // Gate mutating blog actions on their permissions (audit #203); the server
+  // enforces each on the corresponding /blog endpoint as well.
+  const canPublish = hasPermission(user, Permissions.BLOG_PUBLISH);
+  const canDelete = hasPermission(user, Permissions.BLOG_DELETE);
+  const canEdit = hasPermission(user, Permissions.BLOG_EDIT);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-blog-posts', page],
     queryFn: () => api.get('/blog/all', { params: { limit: 50, page } }).then((r) => r.data),
+    // Do not fetch the admin blog list before the permission gate settles.
+    enabled: hasPermission(user, Permissions.BLOG_VIEW_ALL),
   });
 
   const publishMutation = useMutation({
@@ -80,6 +91,10 @@ export default function AdminBlogPage() {
     ARCHIVED: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
   };
 
+  // All hooks above — now safe to early-return on the BLOG_VIEW_ALL gate
+  // (audit #203): users without it cannot read the admin blog list.
+  if (!hasPermission(user, Permissions.BLOG_VIEW_ALL)) return <Unauthorized />;
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -133,7 +148,7 @@ export default function AdminBlogPage() {
                 </Link>
 
                 <div className="flex items-center gap-2 shrink-0 ml-4">
-                  {post.status === 'DRAFT' && (
+                  {canPublish && post.status === 'DRAFT' && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -146,7 +161,7 @@ export default function AdminBlogPage() {
                       <CheckCircle className="w-4 h-4" /> Publish
                     </Button>
                   )}
-                  {post.status === 'PUBLISHED' && (
+                  {canEdit && post.status === 'PUBLISHED' && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -159,19 +174,21 @@ export default function AdminBlogPage() {
                       <Archive className="w-4 h-4" /> Archive
                     </Button>
                   )}
-                  <Button
-                    variant="icon"
-                    size="sm"
-                    className="p-3"
-                    loading={deleteMutation.isPending && deleteMutation.variables === post.id}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setDeleteConfirm({ id: post.id, title: post.title });
-                    }}
-                    aria-label={`Delete ${post.title}`}
-                  >
-                    <Trash2 className="w-4 h-4 text-brand-error" />
-                  </Button>
+                  {canDelete && (
+                    <Button
+                      variant="icon"
+                      size="sm"
+                      className="p-3"
+                      loading={deleteMutation.isPending && deleteMutation.variables === post.id}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setDeleteConfirm({ id: post.id, title: post.title });
+                      }}
+                      aria-label={`Delete ${post.title}`}
+                    >
+                      <Trash2 className="w-4 h-4 text-brand-error" />
+                    </Button>
+                  )}
                   <span
                     className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[post.status] ?? ''}`}
                   >
