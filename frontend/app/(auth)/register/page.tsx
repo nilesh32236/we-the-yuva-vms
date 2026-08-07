@@ -547,6 +547,12 @@ export default function RegisterPage() {
             <CallAvailabilityInput
               value={watch('callAvailability')}
               onChange={(val) => setValue('callAvailability', val, { shouldValidate: true })}
+              error={
+                errors.callAvailability?.days?.message ??
+                errors.callAvailability?.startTime?.message ??
+                errors.callAvailability?.endTime?.message ??
+                errors.callAvailability?.slots?.message
+              }
             />
           </fieldset>
 

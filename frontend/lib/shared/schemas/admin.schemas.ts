@@ -16,4 +16,5 @@ export const AdminUserUpdateSchema = z
   })
   .refine((d) => d.status !== undefined || d.role !== undefined, {
     message: 'At least one of status or role must be provided',
+    path: ['status'],
   });

@@ -11,19 +11,70 @@ const CallAvailabilitySlotSchema = z.object({
   endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)'),
 });
 
-const CallAvailabilitySchema = z.object({
-  preference: z.enum(['anytime', 'specific_days', 'custom']),
-  days: z.array(z.number().min(0).max(6)).optional(),
-  startTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
-    .optional(),
-  endTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
-    .optional(),
-  slots: z.array(CallAvailabilitySlotSchema).optional(),
-});
+const CallAvailabilitySchema = z
+  .object({
+    preference: z.enum(['anytime', 'specific_days', 'custom']),
+    days: z.array(z.number().min(0).max(6)).optional(),
+    startTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
+      .optional(),
+    endTime: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
+      .optional(),
+    slots: z.array(CallAvailabilitySlotSchema).optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.preference === 'specific_days') {
+      if (!val.days || val.days.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Select at least one day',
+          path: ['days'],
+        });
+      }
+      if (!val.startTime) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Start time is required',
+          path: ['startTime'],
+        });
+      }
+      if (!val.endTime) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'End time is required',
+          path: ['endTime'],
+        });
+      }
+      if (val.startTime && val.endTime && val.endTime <= val.startTime) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'End time must be after start time',
+          path: ['endTime'],
+        });
+      }
+    }
+    if (val.preference === 'custom') {
+      if (!val.slots || val.slots.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Add at least one time slot',
+          path: ['slots'],
+        });
+      }
+      (val.slots ?? []).forEach((slot, i) => {
+        if (slot.endTime <= slot.startTime) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'End time must be after start time',
+            path: ['slots', i, 'endTime'],
+          });
+        }
+      });
+    }
+  });
 
 export const RegisterSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
