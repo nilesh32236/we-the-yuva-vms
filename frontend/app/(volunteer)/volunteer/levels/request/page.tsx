@@ -11,7 +11,6 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { type MyLevelResponse, MyLevelResponseSchema, LevelListSchema } from '@/lib/shared';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -59,6 +58,17 @@ const TIER_DATA = [
   },
 ];
 
+interface LevelDefinition {
+  id: string;
+  tier: number;
+  name: string;
+  badgeIcon: string;
+  color: string;
+  badgeShape: string;
+  pointsRequired: number;
+  requirements: Record<string, number>;
+}
+
 export default function LevelRequestPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -76,14 +86,14 @@ export default function LevelRequestPage() {
   });
   const selectedLevel = watch('selectedLevel');
 
-  const { data: levelRes, isLoading: levelLoading } = useQuery<MyLevelResponse>({
+  const { data: levelRes, isLoading: levelLoading } = useQuery<{ data: { tier: number } }>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
   });
 
-  const { data: levelsRes, isLoading: levelsLoading } = useQuery({
+  const { data: levelsRes, isLoading: levelsLoading } = useQuery<{ data: LevelDefinition[] }>({
     queryKey: ['levels'],
-    queryFn: () => api.get('/levels').then((r) => LevelListSchema.parse(r.data)),
+    queryFn: () => api.get('/levels').then((r) => r.data),
   });
 
   const submitMutation = useMutation({
@@ -103,8 +113,8 @@ export default function LevelRequestPage() {
     },
   });
 
-  const currentTier = levelRes?.currentLevel?.tier ?? 0;
-  const levels = levelsRes ?? [];
+  const currentTier = levelRes?.data?.tier ?? 0;
+  const levels = levelsRes?.data ?? [];
   const requestableLevels = levels.filter((l) => l.tier > currentTier);
 
   const handleSubmit = formSubmit((data: RequestForm) => {
@@ -184,7 +194,9 @@ export default function LevelRequestPage() {
                   />
                   <div className="flex-1 min-w-0">
                     <p className="font-heading font-semibold text-brand-text">{tierInfo.name}</p>
-                    <p className="text-xs text-brand-muted">Tier {lvl.tier}</p>
+                    <p className="text-xs text-brand-muted">
+                      Tier {lvl.tier} · {lvl.pointsRequired} points required
+                    </p>
                   </div>
                   {isOpen ? (
                     <ChevronUp className="w-5 h-5 text-brand-muted" />
@@ -213,7 +225,7 @@ export default function LevelRequestPage() {
                               <span className="capitalize">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}
                               </span>
-                              : <span className="font-medium text-brand-text">{String(val)}</span>
+                              : <span className="font-medium text-brand-text">{val}</span>
                             </li>
                           ))}
                         </ul>

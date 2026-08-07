@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Trophy } from 'lucide-react';
 import { useState } from 'react';
 import { LeaderboardRow } from '@/components/leaderboard/LeaderboardRow';
+import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
@@ -67,67 +68,71 @@ export default function VolunteerLeaderboardPage() {
       <div className="space-y-3">
         {/* Scope Tabs */}
         <div className="flex gap-1 bg-brand-surface rounded-xl p-1 border border-brand-border w-fit">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={() => setScope('global')}
+            aria-pressed={scope === 'global'}
             className={cn(
-              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
+              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg',
               scope === 'global'
-                ? 'bg-brand-primary text-white shadow-sm'
+                ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                 : 'text-brand-muted hover:text-brand-text'
             )}
           >
             Global
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="ghost"
             onClick={() => setScope('location')}
+            aria-pressed={scope === 'location'}
             className={cn(
-              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
+              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg',
               scope === 'location'
-                ? 'bg-brand-primary text-white shadow-sm'
+                ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                 : 'text-brand-muted hover:text-brand-text'
             )}
           >
             My Location
-          </button>
+          </Button>
         </div>
 
         {/* Timeframe + Sort */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex gap-1 bg-brand-surface rounded-lg p-0.5 border border-brand-border">
             {(['weekly', 'monthly', 'all_time'] as Timeframe[]).map((tf) => (
-              <button
+              <Button
                 key={tf}
-                type="button"
+                variant="ghost"
                 onClick={() => setTimeframe(tf)}
+                aria-pressed={timeframe === tf}
                 className={cn(
-                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  'px-3 py-2 text-sm font-medium rounded-md',
                   timeframe === tf
-                    ? 'bg-brand-primary text-white shadow-sm'
+                    ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                     : 'text-brand-muted hover:text-brand-text'
                 )}
               >
                 {tf === 'weekly' ? 'Weekly' : tf === 'monthly' ? 'Monthly' : 'All Time'}
-              </button>
+              </Button>
             ))}
           </div>
 
           <div className="flex gap-1 bg-brand-surface rounded-lg p-0.5 border border-brand-border">
             {(['points', 'hours'] as SortBy[]).map((sb) => (
-              <button
+              <Button
                 key={sb}
-                type="button"
+                variant="ghost"
                 onClick={() => setSortBy(sb)}
+                aria-pressed={sortBy === sb}
                 className={cn(
-                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  'px-3 py-2 text-sm font-medium rounded-md',
                   sortBy === sb
-                    ? 'bg-brand-primary text-white shadow-sm'
+                    ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                     : 'text-brand-muted hover:text-brand-text'
                 )}
               >
                 {sb === 'points' ? 'Points' : 'Hours'}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

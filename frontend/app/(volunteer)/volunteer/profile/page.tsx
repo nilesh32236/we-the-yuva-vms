@@ -23,7 +23,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { DAYS, TIME_SLOTS } from '@/lib/shared';
-import { type MyLevelResponse, MyLevelResponseSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { LevelBadge } from '@/components/levels/LevelBadge';
@@ -95,9 +94,9 @@ export default function VolunteerProfilePage() {
     staleTime: 60_000,
   });
 
-  const { data: levelData } = useQuery<MyLevelResponse>({
+  const { data: levelData } = useQuery<{ data: { tier: number; points: number; streak: number } }>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
     staleTime: 60_000,
   });
 
@@ -542,22 +541,22 @@ export default function VolunteerProfilePage() {
       {!editing && <ProfileCompletionInline />}
 
       {/* Current Level */}
-      {levelData && !editing && (
+      {levelData?.data && !editing && (
         <Link
           href="/volunteer/levels"
-          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/30 transition-all duration-200 motion-reduce:transition-none group card-hover"
+          className="block bg-brand-surface rounded-2xl border border-brand-border p-5 hover:border-brand-primary/30 transition-all duration-200 group card-hover"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <LevelBadge
-                tier={(levelData.currentLevel?.tier ?? 0)}
+                tier={levelData.data.tier}
                 name={
                   ['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][
-                    (levelData.currentLevel?.tier ?? 0) - 1
+                    levelData.data.tier - 1
                   ] ?? 'Onboarded'
                 }
                 badgeIcon={
-                  ['Sprout', 'Users', 'Wrench', 'Crown'][(levelData.currentLevel?.tier ?? 0) - 1] ?? 'Sprout'
+                  ['Sprout', 'Users', 'Wrench', 'Crown'][levelData.data.tier - 1] ?? 'Sprout'
                 }
                 color={
                   [
@@ -565,10 +564,10 @@ export default function VolunteerProfilePage() {
                     'from-blue-400 to-indigo-600',
                     'from-purple-400 to-violet-600',
                     'from-amber-400 to-orange-600',
-                  ][(levelData.currentLevel?.tier ?? 0) - 1] ?? 'from-green-400 to-emerald-600'
+                  ][levelData.data.tier - 1] ?? 'from-green-400 to-emerald-600'
                 }
                 badgeShape={
-                  ['circle', 'hexagon', 'shield', 'star'][(levelData.currentLevel?.tier ?? 0) - 1] as
+                  ['circle', 'hexagon', 'shield', 'star'][levelData.data.tier - 1] as
                     | 'circle'
                     | 'hexagon'
                     | 'shield'
@@ -580,7 +579,7 @@ export default function VolunteerProfilePage() {
                 <p className="text-xs text-brand-muted">Current Level</p>
                 <p className="font-heading font-semibold text-brand-text">
                   {['Onboarded', 'Mobilizer', 'Problem Solver', 'Leadership'][
-                    (levelData.currentLevel?.tier ?? 0) - 1
+                    levelData.data.tier - 1
                   ] ?? 'Onboarded'}
                 </p>
               </div>
@@ -588,9 +587,9 @@ export default function VolunteerProfilePage() {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-xs text-brand-muted">Points</p>
-                <p className="font-heading font-bold text-brand-text">{levelData.points}</p>
+                <p className="font-heading font-bold text-brand-text">{levelData.data.points}</p>
               </div>
-              <StreakBadge streak={levelData.streak} size="md" />
+              <StreakBadge streak={levelData.data.streak} size="md" />
               <ArrowRight
                 className="w-4 h-4 text-brand-muted group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all"
                 aria-hidden="true"
