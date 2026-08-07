@@ -5,6 +5,7 @@ import { AlertTriangle, Award } from 'lucide-react';
 import { useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/Button';
 import { captureApiError } from '@/lib/sentry';
 
 interface PointsResponse {
@@ -50,13 +51,14 @@ export function PointsCard() {
             {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
               'Failed to load points'}
           </p>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => refetch()}
-            className="text-brand-muted text-xs mt-1 underline cursor-pointer"
+            className="text-brand-muted text-xs mt-1 underline h-auto min-h-0 px-0 py-0 hover:bg-transparent"
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );

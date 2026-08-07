@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { RefreshCw, Sparkles, X } from 'lucide-react';
 import { haptic } from '@/lib/haptic';
 import { captureApiError } from '@/lib/sentry';
+import { Button } from '@/components/ui/Button';
 
 export function AppUpdatePrompt() {
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
@@ -91,24 +92,25 @@ export function AppUpdatePrompt() {
           <p className="text-[10px] text-brand-muted mt-0.5">
             An updated version of WeTheYuva VMS has been downloaded. Reload to apply changes!
           </p>
-          <button
-            type="button"
+          <Button
+            variant="primary"
             onClick={handleUpdate}
-            className="mt-2.5 flex items-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] px-3.5 py-3 rounded-lg cursor-pointer transition-colors duration-100 min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+            className="mt-2.5 text-[10px] px-3.5 py-3"
           >
             <RefreshCw className="w-3 h-3 animate-spin-slow" aria-hidden="true" />
             Reload & Update
-          </button>
+          </Button>
         </div>
 
-        <button
-          type="button"
+        <Button
+          variant="icon"
+          size="icon"
           onClick={handleDismiss}
-          className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg transition-colors cursor-pointer active:scale-90 focus-visible:ring-2 focus-visible:ring-brand-primary"
+          className="rounded-lg"
           aria-label="Dismiss notification"
         >
           <X className="w-3.5 h-3.5" />
-        </button>
+        </Button>
       </div>
     </div>
   );

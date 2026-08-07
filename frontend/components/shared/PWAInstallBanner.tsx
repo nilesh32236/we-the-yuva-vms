@@ -8,6 +8,7 @@ import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useToast } from '@/hooks/use-toast';
 import { haptic } from '@/lib/haptic';
 import { captureApiError } from '@/lib/sentry';
+import { Button } from '@/components/ui/Button';
 
 export function PWAInstallBanner() {
   const { isInstallable, install } = usePWAInstall();
@@ -71,14 +72,15 @@ export function PWAInstallBanner() {
       <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-white/10 blur-xl pointer-events-none" />
 
       {/* Dismiss Button */}
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={handleDismiss}
-        className="absolute top-3 right-3 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors cursor-pointer text-white/80 active:scale-90         focus-visible:ring-2 focus-visible:ring-white/70"
+        className="absolute top-3 right-3 rounded-full bg-white/10 hover:bg-white/20 text-white/80 focus-visible:ring-white/70"
         aria-label="Dismiss banner"
       >
         <X className="w-4 h-4" />
-      </button>
+      </Button>
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
         <div className="space-y-3 max-w-xl">
@@ -122,19 +124,16 @@ export function PWAInstallBanner() {
           </div>
         </div>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
           onClick={handleInstall}
+          loading={installing}
           disabled={installing}
-          className="flex items-center justify-center gap-2.5 bg-white hover:bg-white/90 active:scale-95 text-brand-primary font-heading font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-black/20 transition-colors duration-150 cursor-pointer w-full md:w-auto flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed         focus-visible:ring-2 focus-visible:ring-brand-primary"
+          className="bg-white hover:bg-white/90 text-brand-primary border-none shadow-lg shadow-black/20 font-heading font-bold w-full md:w-auto px-6 py-3"
         >
-          {installing ? (
-            <span className="w-4 h-4 border-2 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
-          ) : (
-            <Download className="w-4 h-4" />
-          )}
+          {!installing && <Download className="w-4 h-4" />}
           {installing ? 'Installing...' : 'Install App'}
-        </button>
+        </Button>
       </div>
     </div>
   );
