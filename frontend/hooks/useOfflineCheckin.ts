@@ -41,6 +41,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   const [isSyncing, setIsSyncing] = useState(false);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryAttemptRef = useRef(0);
+  const syncingRef = useRef(false);
   const prevUserRef = useRef(user);
   const userIdRef = useRef(user?.id);
   const onSuccessRef = useRef(onSuccess);
@@ -71,24 +72,31 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   }, [user]);
 
   const sync = useCallback(async () => {
+    if (syncingRef.current) return;
+    syncingRef.current = true;
     setIsSyncing(true);
-    const result = await syncQueuedCheckins(userIdRef.current);
-    if (result.failed === 0) {
-      retryAttemptRef.current = 0;
-      if (onSuccessRef.current) onSuccessRef.current();
-    } else {
-      const backoff = [10000, 30000, 60000];
-      const delay = backoff[Math.min(retryAttemptRef.current, backoff.length - 1)];
-      retryAttemptRef.current++;
-      if (onErrorRef.current) {
-        onErrorRef.current(
-          `Synced ${result.synced} of ${result.synced + result.failed} check-in(s)`
-        );
+    try {
+      const result = await syncQueuedCheckins(userIdRef.current);
+      if (result.failed === 0) {
+        retryAttemptRef.current = 0;
+        await queryClient.invalidateQueries({ queryKey: ['attendance', eventId] });
+        if (onSuccessRef.current) onSuccessRef.current();
+      } else {
+        const backoff = [10000, 30000, 60000];
+        const delay = backoff[Math.min(retryAttemptRef.current, backoff.length - 1)];
+        retryAttemptRef.current++;
+        if (onErrorRef.current) {
+          onErrorRef.current(
+            `Synced ${result.synced} of ${result.synced + result.failed} check-in(s)`
+          );
+        }
+        retryTimeoutRef.current = setTimeout(sync, delay);
       }
-      retryTimeoutRef.current = setTimeout(sync, delay);
+    } finally {
+      syncingRef.current = false;
+      setIsSyncing(false);
     }
-    setIsSyncing(false);
-  }, []);
+  }, [queryClient, eventId]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -124,8 +132,14 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   }, []);
 
   useEffect(() => {
-    refreshQueue();
-  }, [refreshQueue]);
+    (async () => {
+      const items = await getQueuedCheckins();
+      setQueuedCount(items.length);
+      if (items.length > 0 && typeof navigator !== 'undefined' && navigator.onLine) {
+        sync();
+      }
+    })();
+  }, [sync]);
 
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
