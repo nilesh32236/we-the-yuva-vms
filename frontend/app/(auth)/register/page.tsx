@@ -551,7 +551,9 @@ export default function RegisterPage() {
                 errors.callAvailability?.days?.message ??
                 errors.callAvailability?.startTime?.message ??
                 errors.callAvailability?.endTime?.message ??
-                errors.callAvailability?.slots?.message
+                errors.callAvailability?.slots?.message ??
+                errors.callAvailability?.slots?.[0]?.startTime?.message ??
+                errors.callAvailability?.slots?.[0]?.endTime?.message
               }
             />
           </fieldset>

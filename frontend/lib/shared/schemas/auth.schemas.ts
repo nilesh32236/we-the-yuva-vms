@@ -5,24 +5,28 @@ const AddressSchema = z.object({
   state: z.string().min(1, 'State is required'),
 });
 
+// HH:MM where hours are 0-23 and minutes are 0-59 (the bare regex allows
+// impossible clocks like 99:99).
+const time24 = z
+  .string()
+  .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
+  .refine((v) => {
+    const [h, m] = v.split(':').map(Number);
+    return h >= 0 && h <= 23 && m >= 0 && m <= 59;
+  }, 'Invalid time (use a real 24h clock time)');
+
 const CallAvailabilitySlotSchema = z.object({
   day: z.number().min(0).max(6),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)'),
+  startTime: time24,
+  endTime: time24,
 });
 
 const CallAvailabilitySchema = z
   .object({
     preference: z.enum(['anytime', 'specific_days', 'custom']),
     days: z.array(z.number().min(0).max(6)).optional(),
-    startTime: z
-      .string()
-      .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
-      .optional(),
-    endTime: z
-      .string()
-      .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
-      .optional(),
+    startTime: time24.optional(),
+    endTime: time24.optional(),
     slots: z.array(CallAvailabilitySlotSchema).optional(),
   })
   .superRefine((val, ctx) => {
