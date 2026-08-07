@@ -71,8 +71,9 @@ export default function VolunteerLeaderboardPage() {
           <Button
             variant="ghost"
             onClick={() => setScope('global')}
+            aria-pressed={scope === 'global'}
             className={cn(
-              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
+              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg',
               scope === 'global'
                 ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                 : 'text-brand-muted hover:text-brand-text'
@@ -83,8 +84,9 @@ export default function VolunteerLeaderboardPage() {
           <Button
             variant="ghost"
             onClick={() => setScope('location')}
+            aria-pressed={scope === 'location'}
             className={cn(
-              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg transition-colors',
+              'px-4 py-2.5 min-h-11 text-sm font-medium rounded-lg',
               scope === 'location'
                 ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                 : 'text-brand-muted hover:text-brand-text'
@@ -102,8 +104,9 @@ export default function VolunteerLeaderboardPage() {
                 key={tf}
                 variant="ghost"
                 onClick={() => setTimeframe(tf)}
+                aria-pressed={timeframe === tf}
                 className={cn(
-                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  'px-3 py-2 text-sm font-medium rounded-md',
                   timeframe === tf
                     ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                     : 'text-brand-muted hover:text-brand-text'
@@ -120,8 +123,9 @@ export default function VolunteerLeaderboardPage() {
                 key={sb}
                 variant="ghost"
                 onClick={() => setSortBy(sb)}
+                aria-pressed={sortBy === sb}
                 className={cn(
-                  'px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                  'px-3 py-2 text-sm font-medium rounded-md',
                   sortBy === sb
                     ? 'bg-brand-primary text-white shadow-sm hover:bg-brand-primary hover:text-white'
                     : 'text-brand-muted hover:text-brand-text'

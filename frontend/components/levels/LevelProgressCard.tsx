@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { api } from '@/lib/api';
-import { type MyLevelResponse, MyLevelResponseSchema, normalizeMyLevel } from '@/lib/shared';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { StreakBadge } from './StreakBadge';
 import { TierPathVisualizer } from './TierPathVisualizer';
@@ -46,15 +45,24 @@ const TIER_DATA = [
   },
 ];
 
+interface LevelData {
+  tier: number;
+  points: number;
+  pointsToNext: number;
+  streak: number;
+  hoursVolunteered: number;
+  nextLevel: { name: string; pointsRequired: number } | null;
+}
+
 export function LevelProgressCard() {
-  const { data, isLoading, isError, error, refetch } = useQuery<MyLevelResponse>({
+  const { data, isLoading, isError, error, refetch } = useQuery<{ data: LevelData }>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
+    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
     staleTime: 60000,
   });
 
   useEffect(() => {
-    if (!isLoading && !isError && !data) {
+    if (!isLoading && !isError && !data?.data) {
       Sentry.captureMessage('LevelProgressCard: response missing level data', 'warning');
     }
   }, [data, isLoading, isError]);
@@ -81,7 +89,7 @@ export function LevelProgressCard() {
     );
   }
 
-  const level = data ? normalizeMyLevel(data) : null;
+  const level = data?.data;
   if (!level) {
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-error/20 p-5">

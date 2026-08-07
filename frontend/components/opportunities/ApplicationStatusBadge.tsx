@@ -11,10 +11,6 @@ const CONFIG = {
     label: 'Rejected',
     className: 'bg-brand-error/10 text-brand-error border-brand-error/20',
   },
-  WITHDRAWN: {
-    label: 'Withdrawn',
-    className: 'bg-brand-muted/10 text-brand-muted border-brand-muted/20',
-  },
 } as const;
 
 const UNKNOWN = { label: 'Unknown', className: 'bg-brand-muted/10 text-brand-muted border-brand-muted/20' };

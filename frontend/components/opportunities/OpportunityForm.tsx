@@ -15,9 +15,9 @@ import { Unauthorized } from '../shared/Unauthorized';
 import * as Sentry from '@sentry/nextjs';
 
 const CreateLocationSchema = z.object({
-  name: z.string().min(1, 'Location name is required').max(100, 'Location name too long'),
-  district: z.string().max(100, 'District too long').optional(),
-  state: z.string().max(100, 'State too long').optional(),
+  name: z.string().min(1, 'Location name is required'),
+  district: z.string().optional(),
+  state: z.string().optional(),
 });
 
 const CATEGORIES = [
