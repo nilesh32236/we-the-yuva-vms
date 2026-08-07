@@ -102,9 +102,11 @@ export const OnboardingSchema = z.object({
     volunteerType: z.enum(VOLUNTEER_TYPES, {
       errorMap: () => ({ message: 'Select volunteer type' }),
     }),
-    availabilityPattern: z.enum(AVAILABILITY_PATTERNS),
-    hoursPerWeek: z.number().min(1, 'At least 1 hour per week').max(168),
-    sessionDuration: z.number().min(0.5, 'Minimum 30 minutes'),
+    availabilityPattern: z.enum(AVAILABILITY_PATTERNS, {
+      errorMap: () => ({ message: 'Select availability pattern' }),
+    }),
+    hoursPerWeek: z.coerce.number().finite().min(1, 'At least 1 hour per week').max(168),
+    sessionDuration: z.coerce.number().finite().min(0.5, 'Minimum 30 minutes'),
   }),
   step4: z.object({
     education: z.string().min(1, 'Education is required').max(200),

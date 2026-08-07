@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const PeerEndorsementSchema = z.object({
-  userId: z.string().cuid(),
+  userId: z.string().min(1).max(100),
   name: z.string().min(1).max(100),
   statement: z.string().min(1).max(2000),
 });
