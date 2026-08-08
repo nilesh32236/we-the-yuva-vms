@@ -30,6 +30,7 @@ export const LevelRecordSchema = z
     color: z.string().optional(),
     gradient: z.string().optional(),
     badgeShape: z.string().optional(),
+    pointsRequired: z.number().int().optional(),
   })
   .passthrough();
 
