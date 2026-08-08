@@ -25,6 +25,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import {
+  type MyLevelResponse,
+  MyLevelResponseSchema,
+  normalizeMyLevel,
+} from '@/lib/shared';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -71,20 +76,6 @@ const TIER_DATA = [
   },
 ];
 
-interface LevelData {
-  tier: number;
-  points: number;
-  pointsToNext: number;
-  streak: number;
-  hoursVolunteered: number;
-  nextLevel: {
-    name: string;
-    pointsRequired: number;
-    requirements: Record<string, number>;
-    levelId: string;
-  } | null;
-}
-
 interface ProgressData {
   currentTier: number;
   eventsAttended: number;
@@ -111,9 +102,10 @@ export default function VolunteerLevelsPage() {
     data: levelRes,
     isLoading: levelLoading,
     isError: isLevelError,
-  } = useQuery<{ data: LevelData }>({
+  } = useQuery<MyLevelResponse>({
     queryKey: ['my-level'],
-    queryFn: () => api.get('/levels/users/me/level').then((r) => r.data),
+    queryFn: () =>
+      api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
   });
 
   const {
@@ -195,20 +187,26 @@ export default function VolunteerLevelsPage() {
     },
   });
 
-  const level = levelRes?.data;
+  const level = levelRes ? normalizeMyLevel(levelRes) : null;
   const progress = progressRes?.data;
   const requests = requestsRes?.data ?? [];
 
   // Backend is 0-indexed, TIER_DATA is 1-indexed — subtract 1 to align
   const currentTier = TIER_DATA[(level?.tier ?? 1) - 1] ?? TIER_DATA[0];
   const isMaxLevel = (level?.tier ?? 0) >= TIER_DATA.length;
+  // The backend has no "points to next level" threshold — level-ups are
+  // requirement-based (see RequirementChecklist). Only render the points
+  // progress bar when the API actually provides a point threshold, so a
+  // fabricated "0 points" never shows.
+  const pointsToNext = level?.pointsToNext ?? 0;
   const progressPct =
-    level && level.pointsToNext > 0
-      ? Math.min((level.points / level.pointsToNext) * 100, 100)
-      : 100;
+    level && pointsToNext > 0 ? Math.min((level.points / pointsToNext) * 100, 100) : 0;
 
   const allRequirementsMet = level?.nextLevel?.requirements
     ? Object.entries(level.nextLevel.requirements).every(([key, required]) => {
+        // Requirement values may be non-numeric (e.g. requiresFollowUp: true);
+        // only numeric criteria are countable progress.
+        if (typeof required !== 'number') return true;
         const current =
           (progress as unknown as Record<string, number>)?.[key as keyof ProgressData] ?? 0;
         return current >= required;
@@ -303,7 +301,7 @@ export default function VolunteerLevelsPage() {
       </div>
 
       {/* Progress to next */}
-      {!isMaxLevel && level && (
+      {!isMaxLevel && level && pointsToNext > 0 && (
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-heading font-semibold text-sm text-brand-text">
@@ -326,7 +324,7 @@ export default function VolunteerLevelsPage() {
           <div className="flex items-center justify-between text-xs text-brand-muted">
             <span>
               <span className="font-semibold text-brand-text">{level.points}</span> /{' '}
-              {level.pointsToNext} points
+              {pointsToNext} points
             </span>
             {level.streak > 0 && <StreakBadge streak={level.streak} />}
           </div>
@@ -445,7 +443,7 @@ export default function VolunteerLevelsPage() {
                   onClick={handleNotesSubmit((data) => {
                     if (level?.nextLevel)
                       requestMutation.mutate({
-                        levelId: level.nextLevel.levelId,
+                        levelId: level.nextLevel.id,
                         notes: data.notes,
                       });
                   })}
