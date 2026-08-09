@@ -1,20 +1,12 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  ArrowRight,
-  CheckCircle,
-  Download,
-  FileText,
-  Loader2,
-  Search,
-  X,
-  XCircle,
-} from 'lucide-react';
+import { ArrowRight, CheckCircle, Download, FileText, Search, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
-import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
 
 interface LevelRequest {
@@ -72,14 +64,9 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <h2 id="review-title" className="font-heading font-bold text-lg text-brand-text">
             Review Request
           </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close dialog"
-            className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
-          >
+          <Button type="button" variant="icon" onClick={onClose} aria-label="Close dialog">
             <X className="w-4 h-4 text-brand-muted" />
-          </button>
+          </Button>
         </div>
 
         <div className="p-6 space-y-4">
@@ -140,32 +127,28 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
         </div>
 
         <div className="flex gap-3 px-6 pb-6">
-          <button
+          <Button
             type="button"
+            variant="destructive"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
+            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-3.5 min-h-11 rounded-xl border border-brand-error text-brand-error text-sm font-semibold hover:bg-brand-error/5 cursor-pointer transition-colors disabled:opacity-60"
+            className="flex-1"
           >
-            {reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED' ? (
-              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
-            ) : (
-              <XCircle className="w-4 h-4 inline mr-1" />
-            )}
+            {!reviewMutation.isPending && <XCircle className="w-4 h-4" />}
             Reject
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="primary"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
+            loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
             disabled={reviewMutation.isPending}
-            className="flex-1 py-3.5 min-h-11 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-secondary cursor-pointer transition-colors disabled:opacity-60"
+            className="flex-1"
           >
-            {reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED' ? (
-              <Loader2 className="w-4 h-4 animate-spin inline mr-1" />
-            ) : (
-              <CheckCircle className="w-4 h-4 inline mr-1" />
-            )}
+            {!reviewMutation.isPending && <CheckCircle className="w-4 h-4" />}
             Approve
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -293,13 +276,9 @@ export default function AdminLevelRequestsPage() {
                   })}
                 </p>
                 {req.status === 'PENDING' && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer px-4 py-2.5 min-h-11"
-                  >
+                  <Button type="button" variant="ghost" onClick={() => setSelectedRequest(req)}>
                     Review
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

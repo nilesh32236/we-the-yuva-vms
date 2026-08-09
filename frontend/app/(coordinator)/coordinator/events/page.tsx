@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClipboardList, Download, Pencil, Plus, QrCode, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
@@ -60,13 +61,13 @@ export default function CoordinatorEventsPage() {
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Events</h1>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
-            className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer active-bounce"
           >
             <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
-          </button>
+          </Button>
           <Link
             href="/coordinator/events/new"
             className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary transition-colors cursor-pointer active-bounce"
@@ -182,16 +183,17 @@ export default function CoordinatorEventsPage() {
                             <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
                           </Link>
                           {ev.status === 'SCHEDULED' && (
-                            <button
+                            <Button
                               type="button"
+                              variant="icon"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               disabled={cancelling === ev.id}
-                              className="p-3 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer active-bounce"
+                              className="hover:bg-brand-error/10 hover:text-brand-error"
                               title="Cancel event"
                               aria-label="Cancel event"
                             >
                               <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
-                            </button>
+                            </Button>
                           )}
                           <AddToCalendarButton eventId={ev.id} variant="icon" />
                         </div>
@@ -231,20 +233,22 @@ export default function CoordinatorEventsPage() {
               Cancel &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Keep
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="destructive"
+                size="sm"
                 onClick={handleCancelConfirm}
-                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors active-bounce"
               >
                 Cancel Event
-              </button>
+              </Button>
             </div>
           </div>
         </div>
