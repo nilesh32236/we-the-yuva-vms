@@ -196,13 +196,14 @@ function CallAvailabilityInput({
               </Button>
             </div>
           ))}
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={addSlot}
-            className="text-xs text-brand-primary hover:underline cursor-pointer"
+            className="text-xs text-brand-primary hover:underline cursor-pointer p-0 h-auto hover:bg-transparent"
           >
             + Add time slot
-          </button>
+          </Button>
         </div>
       )}
 

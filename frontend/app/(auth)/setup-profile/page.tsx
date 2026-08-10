@@ -312,14 +312,16 @@ export default function SetupProfilePage() {
           >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{formError}</p>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => setFormError(null)}
               className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0 p-2 min-w-11 min-h-11"
               aria-label="Dismiss error"
             >
               <X className="w-4 h-4" aria-hidden="true" />
-            </button>
+            </Button>
           </div>
         )}
 

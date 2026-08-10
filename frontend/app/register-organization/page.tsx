@@ -356,14 +356,15 @@ export default function RegisterOrganizationPage() {
                 const d = docs.find((d) => d.type === 'REGISTRATION_CERTIFICATE');
                 if (!d) {
                   return (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
                       onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
-                      className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
+                      className="w-full h-auto p-6 flex flex-col rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
                     >
                       <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                       <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
-                    </button>
+                    </Button>
                   );
                 }
                 return (
@@ -378,15 +379,16 @@ export default function RegisterOrganizationPage() {
                       </div>
                       {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
                     </div>
-                    <button
+                    <Button
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
+                      variant="ghost"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer hover:bg-transparent hover:text-brand-error/80"
                       onClick={() =>
                         removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'))
                       }
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 );
               })()}
@@ -398,14 +400,15 @@ export default function RegisterOrganizationPage() {
                 const d = docs.find((d) => d.type === 'GOVT_ID');
                 if (!d) {
                   return (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
                       onClick={() => addDoc('GOVT_ID')}
-                      className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
+                      className="w-full h-auto p-6 flex flex-col rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
                     >
                       <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                       <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
-                    </button>
+                    </Button>
                   );
                 }
                 return (
@@ -420,13 +423,14 @@ export default function RegisterOrganizationPage() {
                       </div>
                       {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
                     </div>
-                    <button
+                    <Button
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
+                      variant="ghost"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer hover:bg-transparent hover:text-brand-error/80"
                       onClick={() => removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'))}
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 );
               })()}
@@ -438,13 +442,14 @@ export default function RegisterOrganizationPage() {
                 const d = docs.find((d) => d.type === 'OTHER');
                 if (!d) {
                   return (
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
                       onClick={() => addDoc('OTHER')}
-                      className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
+                      className="w-full h-auto p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-colors text-center cursor-pointer"
                     >
                       <span className="text-sm text-brand-muted">+ Add optional document</span>
-                    </button>
+                    </Button>
                   );
                 }
                 return (
@@ -459,13 +464,14 @@ export default function RegisterOrganizationPage() {
                       </div>
                       {d.uploading && <Loader2 className="w-4 h-4 animate-spin text-brand-muted" />}
                     </div>
-                    <button
+                    <Button
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer"
+                      variant="ghost"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:underline cursor-pointer hover:bg-transparent hover:text-brand-error/80"
                       onClick={() => removeDoc(docs.findIndex((x) => x.type === 'OTHER'))}
                     >
                       Remove
-                    </button>
+                    </Button>
                   </div>
                 );
               })()}
@@ -509,13 +515,14 @@ export default function RegisterOrganizationPage() {
                   <Building2 className="w-4 h-4 inline mr-1.5 text-brand-primary" />
                   {watchedName || 'Organization'}
                 </h3>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setStep(0)}
-                  className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center"
+                  className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center hover:bg-transparent"
                 >
                   Edit
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -525,13 +532,14 @@ export default function RegisterOrganizationPage() {
                   <FileText className="w-4 h-4 inline mr-1.5 text-brand-primary" />
                   Documents ({docs.length})
                 </h3>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setStep(1)}
-                  className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center"
+                  className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center hover:bg-transparent"
                 >
                   Edit
-                </button>
+                </Button>
               </div>
               {docs.map((d) => (
                 <div key={d.fileName} className="flex items-center gap-2 text-sm text-brand-text">
