@@ -150,8 +150,8 @@ export default function AdminOrgDetailPage() {
               alt={`${org.name} logo`}
               width={64}
               height={64}
+              sizes="64px"
               className="w-16 h-16 rounded-2xl object-cover border border-brand-border flex-shrink-0"
-              unoptimized
             />
           ) : (
             <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 flex items-center justify-center flex-shrink-0">

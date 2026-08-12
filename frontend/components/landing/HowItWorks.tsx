@@ -1,7 +1,5 @@
-'use client';
-
 import { Search, Handshake, BarChart3 } from 'lucide-react';
-import { useInView } from '@/hooks/useInView';
+import { Reveal } from '@/components/shared/Reveal';
 
 const steps = [
   {
@@ -25,8 +23,6 @@ const steps = [
 ];
 
 export function HowItWorks() {
-  const { ref, inView } = useInView(0.1);
-
   return (
     <section className="bg-brand-surface py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-6">
@@ -40,10 +36,7 @@ export function HowItWorks() {
           <p className="mt-3 text-brand-muted">Three steps. One platform. A lifetime of impact.</p>
         </div>
 
-        <div
-          ref={ref}
-          className={`stagger-group mt-16 grid gap-8 md:grid-cols-3 ${inView ? 'in-view' : ''}`}
-        >
+        <Reveal stagger className="mt-16 grid gap-8 md:grid-cols-3">
           {steps.map((step) => (
             <div key={step.step} className="group relative">
               <div className="card-hover rounded-2xl border border-brand-border bg-brand-surface p-8">
@@ -58,7 +51,7 @@ export function HowItWorks() {
               </div>
             </div>
           ))}
-        </div>
+        </Reveal>
       </div>
     </section>
   );

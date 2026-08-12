@@ -1,6 +1,4 @@
-'use client';
-
-import { useInView } from '@/hooks/useInView';
+import { Reveal } from '@/components/shared/Reveal';
 
 const levels = [
   {
@@ -38,15 +36,9 @@ const levels = [
 ];
 
 export function LevelPathway() {
-  const { ref, inView } = useInView();
-
   return (
-    <section
-      id="pathway"
-      ref={ref}
-      className={`bg-muted dark:bg-brand-surface/50 py-20 sm:py-28 motion-safe:transition-opacity motion-safe:duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-    >
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="pathway" className="bg-muted dark:bg-brand-surface/50 py-20 sm:py-28">
+      <Reveal className="mx-auto max-w-6xl px-6" threshold={0.15}>
         <h2 className="text-3xl sm:text-4xl font-bold text-brand-text dark:text-white text-center">
           Four levels, one goal
         </h2>
@@ -83,7 +75,7 @@ export function LevelPathway() {
             );
           })}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

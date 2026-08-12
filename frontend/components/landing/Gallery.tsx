@@ -1,7 +1,5 @@
-'use client';
-
 import Image from 'next/image';
-import { useInView } from '@/hooks/useInView';
+import { Reveal } from '@/components/shared/Reveal';
 
 const images = [
   {
@@ -37,16 +35,9 @@ const images = [
 ];
 
 export function Gallery() {
-  const { ref, inView } = useInView(0.1);
-
   return (
     <section id="gallery" className="bg-brand-bg py-20 sm:py-28 dark:bg-brand-surface/50">
-      <div
-        ref={ref}
-        className={`mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 motion-safe:transition-opacity motion-safe:duration-700 ${
-          inView ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
+      <Reveal className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-center text-3xl font-bold text-brand-text sm:text-4xl dark:text-white">
           From the field
         </h2>
@@ -54,9 +45,7 @@ export function Gallery() {
           What volunteering with WeTheYuva looks like.
         </p>
 
-        <div
-          className={`stagger-group mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 ${inView ? 'in-view' : ''}`}
-        >
+        <Reveal stagger className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
           {images.map((img, index) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: static image array never reorders
             <div key={index} className="group relative aspect-square overflow-hidden rounded-xl">
@@ -76,8 +65,8 @@ export function Gallery() {
               </p>
             </div>
           ))}
-        </div>
-      </div>
+        </Reveal>
+      </Reveal>
     </section>
   );
 }

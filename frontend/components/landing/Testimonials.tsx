@@ -1,7 +1,5 @@
-'use client';
-
 import Image from 'next/image';
-import { useInView } from '@/hooks/useInView';
+import { Reveal } from '@/components/shared/Reveal';
 
 const testimonials = [
   {
@@ -28,21 +26,14 @@ const testimonials = [
 ];
 
 export function Testimonials() {
-  const { ref, inView } = useInView(0.1);
-
   return (
     <section id="testimonials" className="bg-brand-surface py-20 sm:py-28 dark:bg-brand-bg">
-      <div
-        ref={ref}
-        className={`mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 motion-safe:transition-opacity motion-safe:duration-700 ${
-          inView ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
+      <Reveal className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <h2 className="text-center text-3xl font-bold text-brand-text sm:text-4xl dark:text-white">
           What volunteers say
         </h2>
 
-        <div className={`stagger-group mt-12 grid gap-6 md:grid-cols-3 ${inView ? 'in-view' : ''}`}>
+        <Reveal stagger className="mt-12 grid gap-6 md:grid-cols-3">
           {testimonials.map((t) => (
             <div
               key={t.name}
@@ -68,8 +59,8 @@ export function Testimonials() {
               </div>
             </div>
           ))}
-        </div>
-      </div>
+        </Reveal>
+      </Reveal>
     </section>
   );
 }

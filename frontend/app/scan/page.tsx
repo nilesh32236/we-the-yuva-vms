@@ -1,15 +1,16 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Html5Qrcode } from 'html5-qrcode';
-import { Camera, CheckCircle, Keyboard, QrCode, WifiOff, XCircle } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import type { Html5Qrcode } from 'html5-qrcode';
+import { Camera, CheckCircle, Keyboard, QrCode, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
+import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { useOfflineCheckin } from '@/hooks/useOfflineCheckin';
 
 const ManualTokenSchema = z.object({
   token: z.string().min(1, 'Please enter a check-in code'),
@@ -26,7 +27,7 @@ function ScanInner() {
   } = useForm<ManualTokenInput>({
     resolver: zodResolver(ManualTokenSchema),
   });
-  const [result, setResult] = useState<'success' | 'error' | 'queued' | null>(null);
+  const [result, setResult] = useState<'success' | 'error' | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [mode, setMode] = useState<'camera' | 'manual'>('camera');
   const [scannerReady, setScannerReady] = useState(false);
@@ -37,36 +38,30 @@ function ScanInner() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scannerContainer = useRef<HTMLDivElement>(null);
 
-  const { checkinAsync, isPending } = useOfflineCheckin({
-    eventId: eventId ?? '',
+  const checkinMutation = useMutation({
+    mutationFn: (qrToken: string) =>
+      api.post(`/events/${eventId}/checkin`, { qrToken }).then((r) => r.data),
     onSuccess: () => {
       haptic.success();
       setResult('success');
       setTimeout(() => router.push('/volunteer/events'), 2000);
     },
-    onError: (msg) => {
+    onError: (err: { response?: { data?: { error?: string } } }) => {
       haptic.error();
       setResult('error');
-      setErrorMsg(msg);
+      setErrorMsg(err.response?.data?.error ?? 'Check-in failed');
     },
   });
 
   const doCheckin = useCallback(
-    async (qrToken: string) => {
+    (qrToken: string) => {
       if (!eventId) {
         setErrorMsg('Missing event ID');
         return;
       }
-      try {
-        const result = await checkinAsync({ qrToken });
-        if ((result as { queued?: boolean })?.queued) {
-          setResult('queued');
-        }
-      } catch {
-        // onError callback handles the UI
-      }
+      checkinMutation.mutate(qrToken);
     },
-    [eventId, checkinAsync]
+    [eventId, checkinMutation]
   );
 
   // Auto-submit from URL params
@@ -84,52 +79,64 @@ function ScanInner() {
     if (!scannerContainer.current) return;
     if (result) return;
 
-    const scanner = new Html5Qrcode('qr-scanner-container');
-    scannerRef.current = scanner;
+    let cancelled = false;
+    let scanner: Html5Qrcode | null = null;
 
-    scanner
-      .start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText) => {
-          // Extract token from URL if it's a full URL, otherwise use raw text
-          const qrToken = decodedText;
-          try {
-            const url = new URL(decodedText);
-            const t = url.searchParams.get('token');
-            const eid = url.searchParams.get('eventId');
-            if (t && eid) {
-              scanner.stop().catch(() => {});
-              scannerRef.current = null;
-              if (eid === eventId || !eventId) {
-                doCheckin(t);
-              } else {
-                setErrorMsg('This QR code is for a different event');
+    const initScanner = async () => {
+      const { Html5Qrcode: Html5QrcodeClass } = await import('html5-qrcode');
+      if (cancelled || !scannerContainer.current) return;
+      scanner = new Html5QrcodeClass('qr-scanner-container');
+      scannerRef.current = scanner;
+
+      try {
+        await scanner.start(
+          { facingMode: 'environment' },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+          },
+          (decodedText) => {
+            // Extract token from URL if it's a full URL, otherwise use raw text
+            const qrToken = decodedText;
+            try {
+              const url = new URL(decodedText);
+              const t = url.searchParams.get('token');
+              const eid = url.searchParams.get('eventId');
+              if (t && eid) {
+                scanner?.stop().catch(() => {});
+                scannerRef.current = null;
+                if (eid === eventId || !eventId) {
+                  doCheckin(t);
+                } else {
+                  setErrorMsg('This QR code is for a different event');
+                }
+                return;
               }
-              return;
+            } catch {
+              // Not a URL, treat raw text as token
             }
-          } catch {
-            // Not a URL, treat raw text as token
+            scanner?.stop().catch(() => {});
+            scannerRef.current = null;
+            doCheckin(qrToken);
+          },
+          () => {
+            // QR scan failed frame - ignore, keep scanning
           }
-          scanner.stop().catch(() => {});
-          scannerRef.current = null;
-          doCheckin(qrToken);
-        },
-        () => {
-          // QR scan failed frame - ignore, keep scanning
+        );
+        if (!cancelled) setScannerReady(true);
+      } catch {
+        if (!cancelled) {
+          setErrorMsg('Camera access denied or unavailable. Switch to manual entry.');
+          setMode('manual');
         }
-      )
-      .then(() => setScannerReady(true))
-      .catch((_err) => {
-        setErrorMsg('Camera access denied or unavailable. Switch to manual entry.');
-        setMode('manual');
-      });
+      }
+    };
+
+    initScanner();
 
     return () => {
-      scanner.stop().catch(() => {});
+      cancelled = true;
+      scanner?.stop().catch(() => {});
       scannerRef.current = null;
       setScannerReady(false);
     };
@@ -150,7 +157,7 @@ function ScanInner() {
     return (
       <main id="main" className="max-w-md mx-auto mt-20 text-center space-y-6 px-4">
         <div aria-live="polite">
-          {isPending ? (
+          {checkinMutation.isPending ? (
             <div className="space-y-4">
               <div className="w-16 h-16 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin mx-auto" />
               <p className="text-brand-muted">Processing check-in...</p>
@@ -160,17 +167,6 @@ function ScanInner() {
               <CheckCircle className="w-16 h-16 text-brand-primary mx-auto" />
               <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
               <p className="text-brand-muted">Redirecting to your events...</p>
-            </div>
-          ) : result === 'queued' ? (
-            <div className="space-y-4">
-              <WifiOff className="w-16 h-16 text-brand-accent mx-auto" />
-              <h2 className="font-heading font-bold text-xl text-brand-text">
-                Check-in queued offline
-              </h2>
-              <p className="text-brand-muted">It will sync automatically when you're back online.</p>
-              <Button variant="ghost" onClick={() => router.push('/volunteer/events')}>
-                Back to Events
-              </Button>
             </div>
           ) : (
             <div className="space-y-4">
@@ -212,19 +208,6 @@ function ScanInner() {
         <div className="text-center space-y-4 py-8">
           <CheckCircle className="w-16 h-16 text-brand-primary mx-auto" />
           <h2 className="font-heading font-bold text-xl text-brand-text">Checked In!</h2>
-        </div>
-      ) : result === 'queued' ? (
-        <div className="text-center space-y-4 py-8">
-          <WifiOff className="w-16 h-16 text-brand-accent mx-auto" />
-          <h2 className="font-heading font-bold text-xl text-brand-text">
-            Check-in queued offline
-          </h2>
-          <p className="text-sm text-brand-muted">
-            It will sync automatically when you're back online.
-          </p>
-          <Button variant="ghost" onClick={() => router.push('/volunteer/events')}>
-            Back to Events
-          </Button>
         </div>
       ) : (
         <>
@@ -310,7 +293,7 @@ function ScanInner() {
                     id="token"
                     type="text"
                     {...registerToken('token')}
-                    disabled={isPending}
+                    disabled={checkinMutation.isPending}
                     aria-invalid={!!tokenErrors.token}
                     placeholder="Paste or type the check-in code"
                     className={`w-full px-4 py-3 rounded-xl bg-background border text-base focus:outline-none focus:ring-2 focus:ring-brand-primary/40 ${tokenErrors.token ? 'border-brand-error' : 'border-brand-border'}`}
@@ -321,7 +304,7 @@ function ScanInner() {
                     </p>
                   )}
                 </div>
-                <Button type="submit" loading={isPending} className="w-full">
+                <Button type="submit" loading={checkinMutation.isPending} className="w-full">
                   Check In
                 </Button>
               </form>

@@ -278,12 +278,6 @@
   }
 }
 
-/* ─── NProgress Top Loading Bar ──────────────────────────────── */
-#nprogress .bar {
-  background: var(--color-brand-primary) !important;
-  height: 3px !important;
-}
-
 /* ─── Staggered Reveal Utility ───────────────────────────────── */
 .stagger-group > * {
   opacity: 0;
