@@ -360,9 +360,9 @@ export default function RegisterOrganizationPage() {
                       variant="outline"
                       type="button"
                       onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
-                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary [&_svg]:size-6 [&_svg]:shrink-0"
+                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary "
                     >
-                      <Upload className="mx-auto text-brand-muted" />
+                      <Upload className="w-6 h-6 mx-auto text-brand-muted" />
                       <span className="block text-sm font-normal text-brand-muted">
                         Click to upload (PDF, PNG, JPG)
                       </span>
@@ -406,9 +406,9 @@ export default function RegisterOrganizationPage() {
                       variant="outline"
                       type="button"
                       onClick={() => addDoc('GOVT_ID')}
-                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary [&_svg]:size-6 [&_svg]:shrink-0"
+                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary "
                     >
-                      <Upload className="mx-auto text-brand-muted" />
+                      <Upload className="w-6 h-6 mx-auto text-brand-muted" />
                       <span className="block text-sm font-normal text-brand-muted">
                         Click to upload (PDF, PNG, JPG)
                       </span>
@@ -450,7 +450,7 @@ export default function RegisterOrganizationPage() {
                       variant="outline"
                       type="button"
                       onClick={() => addDoc('OTHER')}
-                      className="w-full h-auto p-4 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary [&_svg]:size-6 [&_svg]:shrink-0"
+                      className="w-full h-auto p-4 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary "
                     >
                       <span className="block text-sm font-normal text-brand-muted">
                         + Add optional document
@@ -525,7 +525,7 @@ export default function RegisterOrganizationPage() {
                   variant="ghost"
                   type="button"
                   onClick={() => setStep(0)}
-                  className="text-xs text-brand-primary hover:text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center font-normal"
+                  className="text-xs text-brand-primary hover:text-brand-primary hover:bg-transparent hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center font-normal"
                 >
                   Edit
                 </Button>
@@ -542,7 +542,7 @@ export default function RegisterOrganizationPage() {
                   variant="ghost"
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-xs text-brand-primary hover:text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center font-normal"
+                  className="text-xs text-brand-primary hover:text-brand-primary hover:bg-transparent hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center font-normal"
                 >
                   Edit
                 </Button>
