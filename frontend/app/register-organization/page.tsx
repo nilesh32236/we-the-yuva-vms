@@ -384,7 +384,7 @@ export default function RegisterOrganizationPage() {
                     <Button
                       variant="ghost"
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:bg-brand-error/10 hover:text-brand-error hover:underline cursor-pointer"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:bg-brand-error/10 hover:text-brand-error hover:underline cursor-pointer font-normal"
                       onClick={() =>
                         removeDoc(docs.findIndex((x) => x.type === 'REGISTRATION_CERTIFICATE'))
                       }
@@ -430,7 +430,7 @@ export default function RegisterOrganizationPage() {
                     <Button
                       variant="ghost"
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:bg-brand-error/10 hover:text-brand-error hover:underline cursor-pointer"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:bg-brand-error/10 hover:text-brand-error hover:underline cursor-pointer font-normal"
                       onClick={() => removeDoc(docs.findIndex((x) => x.type === 'GOVT_ID'))}
                     >
                       Remove
@@ -473,7 +473,7 @@ export default function RegisterOrganizationPage() {
                     <Button
                       variant="ghost"
                       type="button"
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:bg-brand-error/10 hover:text-brand-error hover:underline cursor-pointer"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-xs text-brand-error hover:bg-brand-error/10 hover:text-brand-error hover:underline cursor-pointer font-normal"
                       onClick={() => removeDoc(docs.findIndex((x) => x.type === 'OTHER'))}
                     >
                       Remove
@@ -525,7 +525,7 @@ export default function RegisterOrganizationPage() {
                   variant="ghost"
                   type="button"
                   onClick={() => setStep(0)}
-                  className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center"
+                  className="text-xs text-brand-primary hover:text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center font-normal"
                 >
                   Edit
                 </Button>
@@ -542,7 +542,7 @@ export default function RegisterOrganizationPage() {
                   variant="ghost"
                   type="button"
                   onClick={() => setStep(1)}
-                  className="text-xs text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center"
+                  className="text-xs text-brand-primary hover:text-brand-primary hover:underline min-h-[44px] min-w-[44px] p-2 flex items-center justify-center font-normal"
                 >
                   Edit
                 </Button>
