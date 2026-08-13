@@ -6,6 +6,7 @@ import 'nprogress/nprogress.css';
 import './globals.css';
 import { Providers } from './providers';
 import { AppUpdatePrompt } from '@/components/shared/AppUpdatePrompt';
+import { SerwistProvider } from './serwist';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icons/icon-192.png',
     apple: '/icons/icon-192.png',
   },
   openGraph: {
@@ -67,16 +68,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${poppins.variable} ${inter.variable}`} suppressHydrationWarning>
       <body className="bg-brand-bg text-brand-text font-body antialiased">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-primary focus:text-white focus:rounded-xl focus:outline-none"
-        >
-          Skip to main content
-        </a>
-        <Providers>{children}</Providers>
-        <Analytics />
-        <SpeedInsights />
-        <AppUpdatePrompt />
+        <SerwistProvider swUrl="/serwist/sw.js">
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-primary focus:text-white focus:rounded-xl focus:outline-none"
+          >
+            Skip to main content
+          </a>
+          <Providers>{children}</Providers>
+          <Analytics />
+          <SpeedInsights />
+          <AppUpdatePrompt />
+        </SerwistProvider>
       </body>
     </html>
   );
