@@ -129,14 +129,16 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
-
       if (!isOnline) {
         try {
-          await queueCheckin({
-            eventId,
-            qrToken: body.qrToken,
-            location: body.lat != null ? { lat: body.lat, lng: body.lng ?? 0 } : undefined,
-          }, userIdRef.current);
+          await queueCheckin(
+            {
+              eventId,
+              qrToken: body.qrToken,
+              location: body.lat != null ? { lat: body.lat, lng: body.lng ?? 0 } : undefined,
+            },
+            userIdRef.current
+          );
         } catch {
           throw new Error('Failed to queue check-in offline');
         }

@@ -37,7 +37,9 @@ export function usePushNotifications() {
         if (notifPermission !== 'granted') return;
       }
 
-      const response = await api.get('/vapid-public-key').then((r) => r.data);
+      const response = await api
+        .get<{ publicKey?: string }>('/vapid-public-key')
+        .then((r) => r.data);
       const publicKey = response.publicKey;
       if (typeof publicKey !== 'string' || !publicKey) {
         throw new Error('Invalid VAPID configuration from server');

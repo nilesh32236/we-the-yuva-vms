@@ -13,6 +13,7 @@ Volunteer Management System (VMS) for **WeTheYuva** — connecting volunteers wi
 - **Typecheck**: `pnpm typecheck` → `tsc --noEmit`
 - **Build**: `pnpm build` → `next build`
 - **Package manager**: pnpm
+- **Hooks naming**: hooks in `hooks/` use camelCase (`useFoo.ts`), consistent with the React `useX` prefix convention; exception: generated shadcn files (e.g. `use-toast.ts`) keep kebab-case
 
 ## Routing Structure (Route Groups)
 
