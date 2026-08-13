@@ -362,7 +362,7 @@ export default function RegisterOrganizationPage() {
                       onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
                       className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary [&_svg]:size-6 [&_svg]:shrink-0"
                     >
-                      <Upload className="w-6 h-6 mx-auto text-brand-muted" />
+                      <Upload className="mx-auto text-brand-muted" />
                       <span className="block text-sm font-normal text-brand-muted">
                         Click to upload (PDF, PNG, JPG)
                       </span>
@@ -408,7 +408,7 @@ export default function RegisterOrganizationPage() {
                       onClick={() => addDoc('GOVT_ID')}
                       className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary [&_svg]:size-6 [&_svg]:shrink-0"
                     >
-                      <Upload className="w-6 h-6 mx-auto text-brand-muted" />
+                      <Upload className="mx-auto text-brand-muted" />
                       <span className="block text-sm font-normal text-brand-muted">
                         Click to upload (PDF, PNG, JPG)
                       </span>
