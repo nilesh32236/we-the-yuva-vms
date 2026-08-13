@@ -151,7 +151,7 @@ export default function RegisterOrganizationPage() {
       <div className="mx-auto max-w-2xl px-4 sm:px-6">
         <Link
           href="/organization/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors mb-6"
+          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text mb-6"
         >
           <ChevronLeft className="w-4 h-4" />
           Back to Dashboard
@@ -175,7 +175,7 @@ export default function RegisterOrganizationPage() {
                 role="status"
                 aria-current={i === step ? 'step' : undefined}
                 aria-label={`Step ${i + 1}: ${label}`}
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-colors
+                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold
                   ${i < step ? 'bg-brand-primary text-white' : ''}
                   ${i === step ? 'bg-brand-primary text-white ring-4 ring-brand-primary/20' : ''}
                   ${i > step ? 'bg-brand-border text-brand-muted' : ''}`}
@@ -360,7 +360,7 @@ export default function RegisterOrganizationPage() {
                       variant="outline"
                       type="button"
                       onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
-                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
+                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                     >
                       <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                       <p className="text-sm font-normal text-brand-muted">
@@ -406,7 +406,7 @@ export default function RegisterOrganizationPage() {
                       variant="outline"
                       type="button"
                       onClick={() => addDoc('GOVT_ID')}
-                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
+                      className="w-full h-auto p-6 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                     >
                       <Upload className="w-6 h-6 mx-auto text-brand-muted mb-2" />
                       <p className="text-sm font-normal text-brand-muted">
@@ -450,7 +450,7 @@ export default function RegisterOrganizationPage() {
                       variant="outline"
                       type="button"
                       onClick={() => addDoc('OTHER')}
-                      className="w-full h-auto p-4 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 transition-colors text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
+                      className="w-full h-auto p-4 flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 text-center cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary"
                     >
                       <span className="text-sm font-normal text-brand-muted">
                         + Add optional document
