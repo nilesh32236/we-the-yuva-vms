@@ -29,6 +29,7 @@ import {
   getOpportunityHandler,
   listApplicationsHandler,
   listMyApplicationsHandler,
+  listOpportunitiesHandler,
   recommendedHandler,
   updateApplicationStatusHandler,
   updateOpportunityHandler,
@@ -123,5 +124,71 @@ describe('opportunities.controller full coverage', () => {
     vi.mocked(svc.listMyApplications).mockResolvedValue([]);
     await listMyApplicationsHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  describe('listOpportunitiesHandler org scoping', () => {
+    it('auto-scopes to caller org for ORGANIZATION_ADMIN', async () => {
+      req.user = {
+        id: 'user-1',
+        role: 'ORGANIZATION_ADMIN',
+        permissions: [],
+        organizationId: 'org-1',
+      };
+      req.query = { page: '1', limit: '20' };
+      await listOpportunitiesHandler(req as Request, res as Response, next);
+      expect(svc.listOpportunities).toHaveBeenCalledWith(
+        expect.objectContaining({ organizationId: 'org-1' }),
+        expect.any(Object),
+        'user-1'
+      );
+    });
+
+    it('auto-scopes to caller org for COORDINATOR', async () => {
+      req.user = {
+        id: 'user-1',
+        role: 'COORDINATOR',
+        permissions: [],
+        organizationId: 'org-2',
+      };
+      req.query = {};
+      await listOpportunitiesHandler(req as Request, res as Response, next);
+      expect(svc.listOpportunities).toHaveBeenCalledWith(
+        expect.objectContaining({ organizationId: 'org-2' }),
+        expect.any(Object),
+        'user-1'
+      );
+    });
+
+    it('keeps volunteers unscoped', async () => {
+      req.user = {
+        id: 'user-1',
+        role: 'VOLUNTEER',
+        permissions: [],
+        organizationId: null,
+      };
+      req.query = {};
+      await listOpportunitiesHandler(req as Request, res as Response, next);
+      expect(svc.listOpportunities).toHaveBeenCalledWith(
+        expect.objectContaining({ organizationId: undefined }),
+        expect.any(Object),
+        'user-1'
+      );
+    });
+
+    it('prefers an explicit organizationId query filter over the caller org', async () => {
+      req.user = {
+        id: 'user-1',
+        role: 'ORGANIZATION_ADMIN',
+        permissions: [],
+        organizationId: 'org-1',
+      };
+      req.query = { organizationId: 'org-2' };
+      await listOpportunitiesHandler(req as Request, res as Response, next);
+      expect(svc.listOpportunities).toHaveBeenCalledWith(
+        expect.objectContaining({ organizationId: 'org-2' }),
+        expect.any(Object),
+        'user-1'
+      );
+    });
   });
 });

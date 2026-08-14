@@ -5,8 +5,11 @@ import { Download } from 'lucide-react';
 import { useState } from 'react';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useAuth } from '@/lib/auth-context';
 import { api, downloadCsv } from '@/lib/api';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
@@ -15,6 +18,9 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrgAdminEventsPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const canManageEvents = hasPermission(user, Permissions.EVENT_MANAGE);
   const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
     queryKey: ['org-admin-events', page],
@@ -26,14 +32,26 @@ export default function OrgAdminEventsPage() {
     <div className="space-y-5 max-w-6xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Events</h1>
-        <Button
-          variant="outline"
-          onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
-          className="gap-1.5 rounded-xl border-brand-border text-brand-muted hover:text-brand-text"
-        >
-          <Download className="w-4 h-4" aria-hidden="true" />
-          Export CSV
-        </Button>
+        {canManageEvents && (
+          <Button
+            variant="outline"
+            onClick={async () => {
+              try {
+                await downloadCsv('/events/export/csv', 'events.csv');
+              } catch {
+                toast({
+                  title: 'Export failed',
+                  description: 'You do not have permission to export events.',
+                  variant: 'destructive',
+                });
+              }
+            }}
+            className="gap-1.5 rounded-xl border-brand-border text-brand-muted hover:text-brand-text"
+          >
+            <Download className="w-4 h-4" aria-hidden="true" />
+            Export CSV
+          </Button>
+        )}
       </div>
 
       {isLoading ? (

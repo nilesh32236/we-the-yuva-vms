@@ -54,6 +54,12 @@ export async function listOpportunitiesHandler(
     const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
 
+    // Org-bound staff only ever see their own org's opportunities unless they
+    // explicitly filter by another org (system roles such as ADMIN /
+    // PLATFORM_MANAGER keep the full view).
+    const isOrgBound =
+      req.user!.role === 'ORGANIZATION_ADMIN' || req.user!.role === 'COORDINATOR';
+
     const filters = {
       category: req.query.category as string | undefined,
       skills: (() => {
@@ -69,7 +75,9 @@ export async function listOpportunitiesHandler(
       isRemote: req.query.isRemote !== undefined ? req.query.isRemote === 'true' : undefined,
       locationId: req.query.locationId as string | undefined,
       search: req.query.search as string | undefined,
-      organizationId: req.query.organizationId as string | undefined,
+      organizationId:
+        (req.query.organizationId as string | undefined) ??
+        (isOrgBound ? req.user!.organizationId ?? undefined : undefined),
     };
 
     const result = await listOpportunities(filters, { page, limit }, req.user!.id);

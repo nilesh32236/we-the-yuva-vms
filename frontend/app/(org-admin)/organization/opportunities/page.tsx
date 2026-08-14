@@ -1,12 +1,14 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
@@ -15,10 +17,18 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrgAdminOpportunitiesPage() {
+  const { user } = useAuth();
+  const canCreate = hasPermission(user, Permissions.OPPORTUNITY_CREATE);
+  const canEdit = hasPermission(user, Permissions.OPPORTUNITY_EDIT);
   const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
     queryKey: ['org-admin-opportunities', page],
-    queryFn: () => api.get('/opportunities', { params: { limit: 50, page } }).then((r) => r.data),
+    queryFn: () =>
+      api
+        .get('/opportunities', {
+          params: { limit: 50, page, organizationId: user?.organizationId ?? undefined },
+        })
+        .then((r) => r.data),
     staleTime: 30_000,
   });
 
@@ -26,12 +36,14 @@ export default function OrgAdminOpportunitiesPage() {
     <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between">
         <h1 className="font-heading font-bold text-xl text-brand-text">Opportunities</h1>
-        <Link
-          href="/organization/opportunities/new"
-          className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary active-bounce transition-colors cursor-pointer"
-        >
-          <Plus className="w-4 h-4" aria-hidden="true" /> New Opportunity
-        </Link>
+        {canCreate && (
+          <Link
+            href="/organization/opportunities/new"
+            className="flex items-center gap-2 bg-brand-primary text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-brand-secondary active-bounce transition-colors cursor-pointer"
+          >
+            <Plus className="w-4 h-4" aria-hidden="true" /> New Opportunity
+          </Link>
+        )}
       </div>
 
       {isLoading ? (
@@ -78,6 +90,7 @@ export default function OrgAdminOpportunitiesPage() {
                     >
                       Slots
                     </th>
+                    <th scope="col" className="px-4 py-3 w-20" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-brand-border">
@@ -106,6 +119,20 @@ export default function OrgAdminOpportunitiesPage() {
                         </td>
                         <td className="px-4 py-3 text-brand-muted hidden md:table-cell">
                           {opp._count?.applications ?? 0} / {opp.totalSlots}
+                        </td>
+                        <td className="px-4 py-3">
+                          {canEdit && (
+                            <div className="flex items-center gap-1">
+                              <Link
+                                href={`/organization/opportunities/${opp.id}/edit`}
+                                className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors active-bounce"
+                                title="Edit"
+                                aria-label="Edit opportunity"
+                              >
+                                <Pencil className="w-4 h-4" aria-hidden="true" />
+                              </Link>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )
