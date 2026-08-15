@@ -38,7 +38,11 @@ export function PushSubscriber() {
     if (manualSubscribeRef.current) return;
 
     // Fire silent background subscription to refresh registration on backend
-    subscribe().catch((err) => { captureApiError(err, 'push auto-subscribe failed'); });
+    subscribe().then((result) => {
+      if (result.status === 'failed') {
+        captureApiError(new Error('push auto-subscribe failed'), 'push auto-subscribe failed');
+      }
+    });
   }, [user, permission, mounted, subscribe]);
 
   // 2. Handle soft permission prompt presentation
@@ -85,22 +89,27 @@ export function PushSubscriber() {
     haptic.medium();
     setSubscribing(true);
     manualSubscribeRef.current = true;
-    try {
-      await subscribe();
+    const result = await subscribe();
+    if (result.status === 'subscribed') {
       setShowPrompt(false);
-    } catch (err) {
-      // subscribe() now rethrows on failure — clear the guard so a later
-      // permission/user change can retry instead of being blocked forever.
+      toast({
+        title: 'Notifications enabled',
+        description: "You'll get updates on volunteering matches.",
+      });
+    } else if (result.status === 'failed') {
+      // Clear the guard so a later permission/user change can retry instead of
+      // being blocked forever.
       manualSubscribeRef.current = false;
-      captureApiError(err, 'enable notifications failed');
+      captureApiError(new Error('enable notifications failed'), 'enable notifications failed');
       toast({
         title: 'Could not enable notifications',
         description: 'Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setSubscribing(false);
+    } else if (result.status === 'denied') {
+      setShowPrompt(false);
     }
+    setSubscribing(false);
   };
 
   return (
