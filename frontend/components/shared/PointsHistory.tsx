@@ -3,10 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Award, Clock } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
-import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
-import { captureApiError } from '@/lib/sentry';
 import { SkeletonCard } from './SkeletonCard';
+import { captureApiError } from '@/lib/sentry';
 
 interface PointTransaction {
   id: string;
@@ -96,15 +95,13 @@ export function PointsHistory() {
               {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
                 'Failed to load points history'}
             </p>
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
               onClick={() => refetch()}
-              className="text-brand-primary h-auto p-0 hover:bg-transparent hover:underline"
+              className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-md"
             >
               Retry
-            </Button>
+            </button>
           </div>
         </div>
       </div>
