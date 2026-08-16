@@ -12,6 +12,7 @@ import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/Button';
 import { captureApiError } from '@/lib/sentry';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   VOLUNTEER: { label: 'Volunteer', color: 'text-brand-primary', bg: 'bg-brand-primary/10' },
@@ -88,9 +89,8 @@ export function TopNav() {
     data: unreadData,
     isError: unreadIsError,
     error: unreadError,
-    refetch: unreadRefetch,
   } = useQuery({
-    queryKey: ['notifications', 'unread-count'],
+    queryKey: queryKeys.notifications.unreadCount(),
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
     enabled: !!user,
     refetchInterval: 30000,
@@ -103,7 +103,7 @@ export function TopNav() {
     error: notifError,
     refetch: notifRefetch,
   } = useQuery({
-    queryKey: ['notifications', 'recent'],
+    queryKey: queryKeys.notifications.recent(),
     queryFn: () =>
       api.get<{ data: BackendNotification[] }>('/notifications?limit=5').then((r) => r.data),
     enabled: open && !!user,
@@ -113,8 +113,8 @@ export function TopNav() {
   const markReadMut = useMutation({
     mutationFn: (id: string) => api.post(`/notifications/${id}/read`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unreadCount() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.recent() });
     },
     onError: (err: unknown) => {
       captureApiError(err, 'Failed to mark notification as read');
@@ -131,8 +131,8 @@ export function TopNav() {
   const markAllReadMut = useMutation({
     mutationFn: () => api.post('/notifications/read-all'),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications', 'recent'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unreadCount() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.recent() });
     },
     onError: (err: unknown) => {
       captureApiError(err, 'Failed to mark all as read');
@@ -148,6 +148,7 @@ export function TopNav() {
 
   const unreadCount = unreadData?.count ?? 0;
   const items = notifData?.data ?? [];
+  const pendingReadId = markReadMut.isPending ? markReadMut.variables : null;
   const panelRef = useRef<HTMLDivElement>(null);
   const notifDropdownRef = useFocusTrap(open);
 
@@ -225,15 +226,7 @@ export function TopNav() {
         <div className="relative" ref={panelRef}>
           <Button
             variant="icon"
-            onClick={() => {
-              setOpen((v) => {
-                if (!v) {
-                  notifRefetch();
-                  unreadRefetch();
-                }
-                return !v;
-              });
-            }}
+            onClick={() => setOpen((v) => !v)}
             className="relative rounded-xl duration-200"
             aria-label="Notifications"
             aria-haspopup="true"
@@ -276,6 +269,8 @@ export function TopNav() {
                     variant="ghost"
                     size="sm"
                     onClick={() => markAllReadMut.mutate()}
+                    loading={markAllReadMut.isPending}
+                    disabled={markAllReadMut.isPending}
                     className="text-xs"
                   >
                     Mark all read
@@ -308,7 +303,7 @@ export function TopNav() {
                         type="button"
                         key={n.id}
                         onClick={() => {
-                          markReadMut.mutate(n.id);
+                          if (pendingReadId !== n.id) markReadMut.mutate(n.id);
                           if (n.link) router.push(n.link);
                         }}
                         className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-brand-primary/5' : ''}`}

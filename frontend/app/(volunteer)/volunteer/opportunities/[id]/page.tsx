@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 const CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
@@ -44,13 +45,13 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
   const qc = useQueryClient();
 
   const { data: opp, isLoading } = useQuery({
-    queryKey: ['opportunity', id],
+    queryKey: queryKeys.opportunities.detail(id),
     queryFn: () => api.get(`/opportunities/${id}`).then((r) => r.data),
     staleTime: 60_000,
   });
 
   const { data: myApplications } = useQuery({
-    queryKey: ['my-applications'],
+    queryKey: queryKeys.applications.my(),
     queryFn: () =>
       api
         .get('/opportunities/my-applications')
@@ -77,19 +78,19 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
   const apply = useMutation({
     mutationFn: () => api.post(`/opportunities/${id}/apply`),
     onMutate: async () => {
-      await qc.cancelQueries({ queryKey: ['my-applications'] });
-      await qc.cancelQueries({ queryKey: ['opportunity', id] });
+      await qc.cancelQueries({ queryKey: queryKeys.applications.my() });
+      await qc.cancelQueries({ queryKey: queryKeys.opportunities.detail(id) });
 
-      const previousMyApplications = qc.getQueryData<ApplicationInfo[]>(['my-applications']);
-      const previousOpportunity = qc.getQueryData<OpportunityInfo>(['opportunity', id]);
+      const previousMyApplications = qc.getQueryData<ApplicationInfo[]>(queryKeys.applications.my());
+      const previousOpportunity = qc.getQueryData<OpportunityInfo>(queryKeys.opportunities.detail(id));
 
-      qc.setQueryData<ApplicationInfo[]>(['my-applications'], (old = []) => [
+      qc.setQueryData<ApplicationInfo[]>(queryKeys.applications.my(), (old = []) => [
         ...old,
         { id: 'optimistic', opportunityId: id, status: 'PENDING' },
       ]);
 
       if (previousOpportunity) {
-        qc.setQueryData<OpportunityInfo>(['opportunity', id], {
+        qc.setQueryData<OpportunityInfo>(queryKeys.opportunities.detail(id), {
           ...previousOpportunity,
           _count: {
             ...previousOpportunity._count,
@@ -102,10 +103,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     },
     onError: (e: unknown, _variables: unknown, context) => {
       if (context?.previousMyApplications) {
-        qc.setQueryData(['my-applications'], context.previousMyApplications);
+        qc.setQueryData(queryKeys.applications.my(), context.previousMyApplications);
       }
       if (context?.previousOpportunity) {
-        qc.setQueryData(['opportunity', id], context.previousOpportunity);
+        qc.setQueryData(queryKeys.opportunities.detail(id), context.previousOpportunity);
       }
 
       const axiosError = e as { response?: { data?: { error?: string } } };
@@ -119,9 +120,9 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       toast({ title: 'Applied!', description: 'Your application has been submitted.' });
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ['my-applications'] });
-      qc.invalidateQueries({ queryKey: ['opportunity', id] });
-      qc.invalidateQueries({ queryKey: ['opportunities'] });
+      qc.invalidateQueries({ queryKey: queryKeys.applications.my() });
+      qc.invalidateQueries({ queryKey: queryKeys.opportunities.detail(id) });
+      qc.invalidateQueries({ queryKey: queryKeys.opportunities.all });
     },
   });
 
@@ -131,18 +132,18 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       return api.delete(`/opportunities/applications/${myApp.id}`);
     },
     onMutate: async () => {
-      await qc.cancelQueries({ queryKey: ['my-applications'] });
-      await qc.cancelQueries({ queryKey: ['opportunity', id] });
+      await qc.cancelQueries({ queryKey: queryKeys.applications.my() });
+      await qc.cancelQueries({ queryKey: queryKeys.opportunities.detail(id) });
 
-      const previousMyApplications = qc.getQueryData<ApplicationInfo[]>(['my-applications']);
-      const previousOpportunity = qc.getQueryData<OpportunityInfo>(['opportunity', id]);
+      const previousMyApplications = qc.getQueryData<ApplicationInfo[]>(queryKeys.applications.my());
+      const previousOpportunity = qc.getQueryData<OpportunityInfo>(queryKeys.opportunities.detail(id));
 
-      qc.setQueryData<ApplicationInfo[]>(['my-applications'], (old = []) =>
+      qc.setQueryData<ApplicationInfo[]>(queryKeys.applications.my(), (old = []) =>
         old.filter((a) => a.opportunityId !== id)
       );
 
       if (previousOpportunity) {
-        qc.setQueryData<OpportunityInfo>(['opportunity', id], {
+        qc.setQueryData<OpportunityInfo>(queryKeys.opportunities.detail(id), {
           ...previousOpportunity,
           _count: {
             ...previousOpportunity._count,
@@ -155,10 +156,10 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
     },
     onError: (e: unknown, _variables: unknown, context) => {
       if (context?.previousMyApplications) {
-        qc.setQueryData(['my-applications'], context.previousMyApplications);
+        qc.setQueryData(queryKeys.applications.my(), context.previousMyApplications);
       }
       if (context?.previousOpportunity) {
-        qc.setQueryData(['opportunity', id], context.previousOpportunity);
+        qc.setQueryData(queryKeys.opportunities.detail(id), context.previousOpportunity);
       }
       const axiosError = e as { response?: { data?: { error?: string } } };
       toast({
@@ -171,9 +172,9 @@ export default function OpportunityDetailPage({ params }: { params: Promise<{ id
       toast({ title: 'Withdrawn', description: 'Your application has been withdrawn.' });
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ['my-applications'] });
-      qc.invalidateQueries({ queryKey: ['opportunity', id] });
-      qc.invalidateQueries({ queryKey: ['opportunities'] });
+      qc.invalidateQueries({ queryKey: queryKeys.applications.my() });
+      qc.invalidateQueries({ queryKey: queryKeys.opportunities.detail(id) });
+      qc.invalidateQueries({ queryKey: queryKeys.opportunities.all });
     },
   });
 

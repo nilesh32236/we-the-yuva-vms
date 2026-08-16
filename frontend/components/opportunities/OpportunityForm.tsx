@@ -11,6 +11,7 @@ import { api } from '@/lib/api';
 import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
 import { hasPermission } from '@/lib/shared/permissions';
+import { queryKeys } from '@/lib/shared/query-keys';
 import { Unauthorized } from '../shared/Unauthorized';
 import * as Sentry from '@sentry/nextjs';
 
@@ -376,7 +377,7 @@ const LocationArraySchema = z.array(LocationSchema);
 function LocationSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['locations'],
+    queryKey: queryKeys.locations.list(),
     queryFn: () => api.get('/locations').then((r) => LocationArraySchema.parse(r.data.data)),
     staleTime: 300_000,
   });
@@ -429,7 +430,7 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
       setNewDistrict('');
       setNewState('');
       setShowNewForm(false);
-      queryClient.invalidateQueries({ queryKey: ['locations'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.locations.list() });
     } catch (err: unknown) {
       Sentry.captureException(err);
       const msg =

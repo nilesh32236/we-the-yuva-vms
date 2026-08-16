@@ -2,10 +2,11 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Award, Clock } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { api } from '@/lib/api';
 import { SkeletonCard } from './SkeletonCard';
 import { captureApiError } from '@/lib/sentry';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 interface PointTransaction {
   id: string;
@@ -13,6 +14,10 @@ interface PointTransaction {
   reason: string;
   reference: string | null;
   createdAt: string;
+}
+
+interface FormattedTx extends PointTransaction {
+  formattedDate: string;
 }
 
 const REASON_LABELS: Record<string, string> = {
@@ -41,14 +46,17 @@ function formatReason(reason: string): string {
 }
 
 export function PointsHistory() {
-  const { data, isLoading, isError, error, refetch } = useQuery<PointTransaction[]>({
-    queryKey: ['my-points-history'],
+  const {
+    data: formattedTx,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery<PointTransaction[], Error, FormattedTx[]>({
+    queryKey: queryKeys.myPointsHistory(),
     queryFn: () => api.get('/levels/users/me/points/history').then((r) => r.data),
     staleTime: 60_000,
-  });
-
-  const formattedTx = useMemo(
-    () =>
+    select: (data) =>
       (data ?? []).slice(0, 10).map((tx) => ({
         ...tx,
         formattedDate: new Date(tx.createdAt).toLocaleDateString('en-IN', {
@@ -57,8 +65,7 @@ export function PointsHistory() {
           year: 'numeric',
         }),
       })),
-    [data]
-  );
+  });
 
   useEffect(() => {
     if (isError && error) {
@@ -108,7 +115,7 @@ export function PointsHistory() {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!formattedTx || formattedTx.length === 0) {
     return (
       <div className="bg-brand-surface rounded-2xl border border-brand-border overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-border">

@@ -9,6 +9,7 @@ import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { captureApiError } from '@/lib/sentry';
+import { queryKeys } from '@/lib/shared/query-keys';
 import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { Unauthorized } from '../shared/Unauthorized';
@@ -37,16 +38,12 @@ function ReviewModal({ request, onClose }: { request: PendingApproval; onClose: 
       api.post(`/badges/${request.user.id}/${request.badge.id}/${action}`, {
         reviewNote: reviewNote || undefined,
       }),
-    onSuccess: async (_data, variables) => {
+    onSuccess: (_data, variables) => {
       toast({
         title: `Request ${variables.action === 'approve' ? 'approved' : 'rejected'}`,
       });
       onClose();
-      try {
-        await qc.refetchQueries({ queryKey: ['admin-badge-pending'], type: 'active' });
-      } catch {
-        toast({ title: 'Error', description: 'Queue refresh failed', variant: 'destructive' });
-      }
+      qc.invalidateQueries({ queryKey: queryKeys.adminBadges.all });
     },
     onError: (err: unknown) => {
       captureApiError(err, 'badge review failed');
@@ -158,7 +155,7 @@ export function BadgeApprovalQueue({ requiredPermission = Permissions.BADGE_APPR
   const [selectedRequest, setSelectedRequest] = useState<PendingApproval | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ['admin-badge-pending', debouncedSearch],
+    queryKey: queryKeys.adminBadges.pending(debouncedSearch),
     enabled: canManage,
     queryFn: () =>
       api

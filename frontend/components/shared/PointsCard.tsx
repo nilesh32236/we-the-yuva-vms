@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { captureApiError } from '@/lib/sentry';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 interface PointsResponse {
   currentPoints: number;
@@ -14,7 +15,7 @@ interface PointsResponse {
 
 export function PointsCard() {
   const { data, isLoading, isError, error, refetch } = useQuery<PointsResponse>({
-    queryKey: ['my-points'],
+    queryKey: queryKeys.myPoints(),
     queryFn: () => api.get('/levels/users/me/points').then((r) => r.data),
     staleTime: 60_000,
   });
