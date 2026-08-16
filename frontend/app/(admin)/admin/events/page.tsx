@@ -43,7 +43,7 @@ export default function AdminEventsPage() {
               });
             }
           }}
-          className="gap-2 rounded-xl"
+          className="rounded-xl font-semibold"
         >
           <Download className="w-4 h-4" /> Export CSV
         </Button>
