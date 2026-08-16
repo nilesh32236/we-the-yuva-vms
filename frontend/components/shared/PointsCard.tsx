@@ -3,8 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Award } from 'lucide-react';
 import { useEffect } from 'react';
-import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { api } from '@/lib/api';
 import { captureApiError } from '@/lib/sentry';
 
 interface PointsResponse {
@@ -50,13 +51,15 @@ export function PointsCard() {
             {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
               'Failed to load points'}
           </p>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => refetch()}
-            className="text-brand-muted text-xs mt-1 underline cursor-pointer"
+            className="text-brand-muted h-auto p-0 hover:bg-transparent underline mt-1"
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );
