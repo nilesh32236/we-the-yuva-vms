@@ -56,7 +56,7 @@ export function PointsCard() {
             variant="link"
             size="none"
             onClick={() => refetch()}
-            className="text-brand-muted text-xs mt-1"
+            className="text-brand-muted text-xs mt-1 font-medium underline"
           >
             Retry
           </Button>

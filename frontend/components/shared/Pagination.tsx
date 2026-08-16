@@ -19,7 +19,7 @@ export function Pagination({ page, totalPages, setPage }: PaginationProps) {
         variant="outline"
         onClick={() => setPage(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="text-brand-muted border-brand-border hover:bg-brand-bg card-hover rounded-xl"
+        className="text-brand-muted card-hover rounded-xl"
       >
         <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         Previous
@@ -32,7 +32,7 @@ export function Pagination({ page, totalPages, setPage }: PaginationProps) {
         variant="outline"
         onClick={() => setPage(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="text-brand-muted border-brand-border hover:bg-brand-bg card-hover rounded-xl"
+        className="text-brand-muted card-hover rounded-xl"
       >
         Next
         <ChevronRight className="w-4 h-4" aria-hidden="true" />
