@@ -101,7 +101,7 @@ export function PointsHistory() {
               variant="link"
               size="xs"
               onClick={() => refetch()}
-              className="text-sm font-medium hover:text-brand-primary"
+              className="text-sm"
             >
               Retry
             </Button>
