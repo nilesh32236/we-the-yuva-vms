@@ -33,6 +33,7 @@ const sizes = {
   md: 'text-sm px-4 py-3 min-h-[44px]',
   lg: 'text-base px-5 py-3 min-h-[44px]',
   icon: 'min-h-[44px] min-w-[44px]',
+  xs: 'min-h-[24px] py-0.5 px-2 text-xs',
   'link-sm': 'min-h-[24px] text-sm',
   'link-xs': 'min-h-[24px] text-xs',
 };
