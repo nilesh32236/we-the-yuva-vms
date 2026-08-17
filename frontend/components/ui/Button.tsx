@@ -16,7 +16,7 @@ const variants = {
     'border border-brand-error text-brand-error hover:bg-brand-error/5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   link: 'text-brand-primary hover:underline disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   'ghost-destructive':
-    'text-brand-muted hover:text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:hover:text-red-400 active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-colors',
+    'text-brand-muted hover:text-brand-error hover:bg-brand-error/10 dark:hover:bg-brand-error/20 dark:hover:text-brand-error active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-colors',
 };
 
 const spinnerColors: Record<string, string> = {
