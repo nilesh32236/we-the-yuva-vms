@@ -96,13 +96,7 @@ export function PointsHistory() {
               {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
                 'Failed to load points history'}
             </p>
-            <Button
-              type="button"
-              variant="link"
-              size="xs"
-              onClick={() => refetch()}
-              className="text-sm font-medium no-underline hover:text-brand-primary"
-            >
+            <Button type="button" variant="link" size="link-sm" onClick={() => refetch()}>
               Retry
             </Button>
           </div>
