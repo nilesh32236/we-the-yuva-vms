@@ -137,7 +137,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
             loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
             disabled={reviewMutation.isPending}
-            className="flex-1"
+            className="flex-1 font-semibold rounded-xl py-3.5"
             aria-label="Reject"
           >
             <XCircle className="w-4 h-4 inline mr-1" />
@@ -148,7 +148,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
             loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
             disabled={reviewMutation.isPending}
-            className="flex-1"
+            className="flex-1 font-semibold rounded-xl py-3.5"
             aria-label="Approve"
           >
             <CheckCircle className="w-4 h-4 inline mr-1" />
