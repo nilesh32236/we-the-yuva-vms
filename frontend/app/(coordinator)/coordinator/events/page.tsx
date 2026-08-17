@@ -63,8 +63,8 @@ export default function CoordinatorEventsPage() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
+            size="compact"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
-            className="text-sm font-semibold px-4 py-2.5 active-bounce min-h-11 rounded-xl"
           >
             <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
           </Button>
