@@ -36,7 +36,7 @@ const sizes = {
   md: 'text-sm px-4 py-3 min-h-[44px]',
   lg: 'text-base px-5 py-3 min-h-[44px]',
   icon: 'min-h-[44px] min-w-[44px]',
-  compact: 'text-sm px-4 py-2.5 min-h-[44px]',
+  compact: 'text-sm font-semibold px-4 py-2.5 min-h-[44px] rounded-xl active-bounce',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
