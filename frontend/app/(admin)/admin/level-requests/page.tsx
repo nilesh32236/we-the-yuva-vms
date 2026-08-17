@@ -138,6 +138,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
             disabled={reviewMutation.isPending}
             className="flex-1"
+            aria-label="Reject"
           >
             <XCircle className="w-4 h-4 inline mr-1" />
             Reject
@@ -148,6 +149,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
             disabled={reviewMutation.isPending}
             className="flex-1"
+            aria-label="Approve"
           >
             <CheckCircle className="w-4 h-4 inline mr-1" />
             Approve
@@ -282,7 +284,7 @@ export default function AdminLevelRequestsPage() {
                   <Button
                     variant="ghost"
                     onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold text-brand-primary hover:underline px-4 py-2.5 min-h-11"
+                    className="text-sm font-semibold text-brand-primary hover:text-brand-primary hover:underline px-4 py-2.5 min-h-11"
                   >
                     Review
                   </Button>

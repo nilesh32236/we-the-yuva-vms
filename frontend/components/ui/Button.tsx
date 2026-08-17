@@ -15,7 +15,7 @@ const variants = {
   'outline-destructive':
     'border border-destructive/50 text-destructive hover:bg-destructive/10 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   'ghost-destructive':
-    'text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
+    'text-muted-foreground hover:text-destructive hover:bg-destructive/10 active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
 };
 
 const spinnerColors: Record<string, string> = {
