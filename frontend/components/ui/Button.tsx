@@ -10,6 +10,8 @@ const variants = {
   ghost:
     'text-brand-primary hover:text-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
   link: 'text-brand-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+  'link-muted':
+    'text-brand-muted underline hover:text-brand-text disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
   icon: 'p-2 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed',
   destructive:
     'bg-brand-error text-white hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
@@ -21,6 +23,7 @@ const spinnerColors: Record<string, string> = {
   outline: 'border-current/30 border-t-current',
   ghost: 'border-current/30 border-t-current',
   link: 'border-current/30 border-t-current',
+  'link-muted': 'border-current/30 border-t-current',
   icon: 'border-current/30 border-t-current',
   destructive: 'border-white/30 border-t-white',
 };
@@ -31,6 +34,8 @@ const sizes = {
   lg: 'text-base px-5 py-3 min-h-[44px]',
   icon: 'min-h-[44px] min-w-[44px]',
   xs: 'min-h-[24px] py-0.5 px-2 text-xs',
+  'link-sm': 'min-h-[24px] text-sm',
+  'link-xs': 'min-h-[24px] text-xs',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
