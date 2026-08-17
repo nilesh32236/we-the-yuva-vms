@@ -64,6 +64,7 @@ export default function CoordinatorEventsPage() {
           <Button
             variant="outline"
             size="compact"
+            className="font-semibold rounded-xl active-bounce"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
           >
             <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
