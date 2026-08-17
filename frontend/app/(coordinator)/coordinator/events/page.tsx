@@ -232,7 +232,11 @@ export default function CoordinatorEventsPage() {
               Cancel &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              <Button
+                variant="outline"
+                className="active-bounce"
+                onClick={() => setConfirmAction(null)}
+              >
                 Keep
               </Button>
               <Button variant="destructive" onClick={handleCancelConfirm}>

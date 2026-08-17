@@ -6,7 +6,7 @@ const variants = {
     'bg-brand-primary text-white hover:bg-brand-secondary disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   cta: 'bg-brand-cta text-white hover:bg-brand-cta/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   outline:
-    'border border-brand-border text-brand-text hover:bg-brand-bg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
+    'border border-brand-border text-brand-text hover:bg-brand-bg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   ghost:
     'text-brand-primary hover:text-brand-secondary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
   icon: 'p-2 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed',
@@ -36,7 +36,7 @@ const sizes = {
   md: 'text-sm px-4 py-3 min-h-[44px]',
   lg: 'text-base px-5 py-3 min-h-[44px]',
   icon: 'min-h-[44px] min-w-[44px]',
-  compact: 'text-sm font-semibold px-4 py-2.5 min-h-[44px] rounded-xl active-bounce',
+  compact: 'text-sm px-4 py-2.5 min-h-[44px]',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
