@@ -279,7 +279,11 @@ export default function AdminLevelRequestsPage() {
                   })}
                 </p>
                 {req.status === 'PENDING' && (
-                  <Button variant="ghost" onClick={() => setSelectedRequest(req)}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setSelectedRequest(req)}
+                    className="text-sm font-semibold text-brand-primary hover:underline px-4 py-2.5 min-h-11"
+                  >
                     Review
                   </Button>
                 )}

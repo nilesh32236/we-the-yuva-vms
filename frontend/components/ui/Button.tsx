@@ -13,9 +13,9 @@ const variants = {
   destructive:
     'bg-brand-error text-white hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   'outline-destructive':
-    'border border-brand-error text-brand-error hover:bg-brand-error/5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
+    'border border-destructive/50 text-destructive hover:bg-destructive/10 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   'ghost-destructive':
-    'text-brand-error hover:bg-brand-error/5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
+    'text-muted-foreground hover:text-destructive hover:bg-destructive/10 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
 };
 
 const spinnerColors: Record<string, string> = {
@@ -73,7 +73,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       {...props}
     >
       {loading ? (
-        <span className={`w-4 h-4 border-2 rounded-full motion-safe:animate-spin ${spinnerColors[variant]}`} />
+        <span
+          className={`w-4 h-4 border-2 rounded-full motion-safe:animate-spin ${spinnerColors[variant]}`}
+        />
       ) : (
         children
       )}
