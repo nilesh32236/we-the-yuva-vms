@@ -14,7 +14,7 @@ const variants = {
     'bg-brand-error text-white hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   'outline-destructive':
     'border border-brand-error text-brand-error hover:bg-brand-error/5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
-  link: 'text-brand-primary hover:underline disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
+  link: 'text-sm font-semibold text-brand-primary hover:underline disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer px-4 py-2.5 min-h-[44px]',
   'ghost-destructive':
     'text-brand-muted hover:text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:hover:text-red-400 active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-colors',
 };
