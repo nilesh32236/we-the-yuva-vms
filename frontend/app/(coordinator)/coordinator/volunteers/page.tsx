@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { api, downloadCsv } from '@/lib/api';
 
 export default function CoordinatorVolunteersPage() {
@@ -31,13 +32,9 @@ export default function CoordinatorVolunteersPage() {
     <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-heading font-bold text-xl text-brand-text">Volunteers</h1>
-        <button
-          type="button"
-          onClick={handleExport}
-          className="flex items-center gap-2 border border-brand-border text-brand-text text-sm font-medium px-4 py-2.5 rounded-xl hover:bg-brand-bg transition-colors cursor-pointer active-bounce"
-        >
+        <Button variant="outline" onClick={handleExport}>
           <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
-        </button>
+        </Button>
       </div>
 
       <div className="relative">
