@@ -32,7 +32,7 @@ export default function CoordinatorVolunteersPage() {
     <div className="space-y-5 max-w-5xl">
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-heading font-bold text-xl text-brand-text">Volunteers</h1>
-        <Button variant="outline" size="export" className="active-bounce" onClick={handleExport}>
+        <Button variant="outline" size="compact" onClick={handleExport}>
           <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
         </Button>
       </div>

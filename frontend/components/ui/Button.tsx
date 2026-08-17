@@ -16,7 +16,7 @@ const variants = {
     'border border-brand-error text-brand-error hover:bg-brand-error/5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   link: 'text-brand-primary hover:underline disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   'ghost-destructive':
-    'text-brand-error hover:bg-brand-error/5 dark:hover:bg-red-950/30 dark:hover:text-red-400 active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-colors',
+    'text-brand-muted hover:text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:hover:text-red-400 active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-colors',
 };
 
 const spinnerColors: Record<string, string> = {
@@ -28,6 +28,7 @@ const spinnerColors: Record<string, string> = {
   destructive: 'border-white/30 border-t-white',
   'outline-destructive': 'border-current/30 border-t-current',
   'ghost-destructive': 'border-current/30 border-t-current',
+  link: 'border-current/30 border-t-current',
 };
 
 const sizes = {
@@ -35,7 +36,7 @@ const sizes = {
   md: 'text-sm px-4 py-3 min-h-[44px]',
   lg: 'text-base px-5 py-3 min-h-[44px]',
   icon: 'min-h-[44px] min-w-[44px]',
-  export: 'text-sm font-semibold px-4 py-2.5 min-h-[44px] rounded-xl',
+  compact: 'text-sm font-semibold px-4 py-2.5 min-h-[44px] rounded-xl active-bounce',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
