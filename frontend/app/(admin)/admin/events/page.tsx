@@ -32,7 +32,7 @@ export default function AdminEventsPage() {
         <Button
           type="button"
           variant="outline"
-          className="gap-2 px-4 py-2.5"
+          className="gap-2 px-4 py-2.5 font-semibold rounded-xl"
           onClick={async () => {
             try {
               await downloadCsv('/events/export/csv', 'events.csv');

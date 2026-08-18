@@ -170,7 +170,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 title="Close"
                                 aria-label="Close opportunity"
                               >
-                                <Trash2 className="w-4 h-4 text-brand-muted" aria-hidden="true" />
+                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </Button>
                             </>
                           )}
