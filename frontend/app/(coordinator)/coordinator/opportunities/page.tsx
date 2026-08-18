@@ -209,11 +209,7 @@ export default function CoordinatorOpportunitiesPage() {
               Close &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                className="active-bounce"
-                onClick={() => setConfirmAction(null)}
-              >
+              <Button variant="outline" onClick={() => setConfirmAction(null)}>
                 Cancel
               </Button>
               <Button variant="destructive" onClick={executeClose}>

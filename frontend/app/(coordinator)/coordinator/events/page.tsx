@@ -64,6 +64,7 @@ export default function CoordinatorEventsPage() {
           <Button
             variant="outline"
             size="compact"
+            className="font-semibold rounded-xl active-bounce"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
           >
             <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
@@ -232,11 +233,7 @@ export default function CoordinatorEventsPage() {
               Cancel &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                className="active-bounce"
-                onClick={() => setConfirmAction(null)}
-              >
+              <Button variant="outline" onClick={() => setConfirmAction(null)}>
                 Keep
               </Button>
               <Button variant="destructive" onClick={handleCancelConfirm}>

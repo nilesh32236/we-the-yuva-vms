@@ -12,13 +12,11 @@ const variants = {
   icon: 'p-2 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed',
   destructive:
     'bg-brand-error text-white hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
-  'outline-export':
-    'border border-brand-border text-brand-text hover:bg-brand-bg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer font-semibold rounded-xl active-bounce',
   'outline-destructive':
     'border border-brand-error text-brand-error hover:bg-brand-error/5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   link: 'text-brand-primary hover:underline disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   'ghost-destructive':
-    'text-brand-muted hover:text-brand-error hover:bg-brand-error/10 dark:hover:bg-brand-error/20 dark:hover:text-brand-error active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-colors',
+    'text-brand-muted hover:text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:hover:text-red-400 active-bounce disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer transition-colors',
 };
 
 const spinnerColors: Record<string, string> = {
@@ -28,7 +26,6 @@ const spinnerColors: Record<string, string> = {
   ghost: 'border-current/30 border-t-current',
   icon: 'border-current/30 border-t-current',
   destructive: 'border-white/30 border-t-white',
-  'outline-export': 'border-current/30 border-t-current',
   'outline-destructive': 'border-current/30 border-t-current',
   'ghost-destructive': 'border-current/30 border-t-current',
   link: 'border-current/30 border-t-current',
@@ -39,7 +36,7 @@ const sizes = {
   md: 'text-sm px-4 py-3 min-h-[44px]',
   lg: 'text-base px-5 py-3 min-h-[44px]',
   icon: 'min-h-[44px] min-w-[44px]',
-  compact: 'text-sm px-4 py-2.5 min-h-[44px]',
+  compact: 'text-sm font-semibold px-4 py-2.5 min-h-[44px] rounded-xl active-bounce',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
