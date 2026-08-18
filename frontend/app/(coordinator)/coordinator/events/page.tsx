@@ -64,7 +64,7 @@ export default function CoordinatorEventsPage() {
           <Button
             type="button"
             variant="outline"
-            className="gap-2 font-semibold rounded-xl"
+            className="gap-2 px-4 py-2.5 font-semibold rounded-xl"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
           >
             <Download className="w-4 h-4" aria-hidden="true" /> Export CSV

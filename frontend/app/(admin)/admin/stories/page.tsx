@@ -17,6 +17,8 @@ export default function AdminStoriesPage() {
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null);
   const [page, setPage] = useState(1);
 
+  const [pendingMods, setPendingMods] = useState<Set<string>>(new Set());
+
   const { data, isLoading } = useQuery({
     queryKey: ['admin-stories', page],
     queryFn: () => api.get('/stories/all', { params: { limit: 100, page } }).then((r) => r.data),
@@ -26,6 +28,20 @@ export default function AdminStoriesPage() {
   const moderateMut = useMutation({
     mutationFn: ({ id, published }: { id: string; published: boolean }) =>
       api.patch(`/stories/${id}/moderate`, { published }),
+    onMutate: (variables) => {
+      setPendingMods((prev) => {
+        const next = new Set(prev);
+        next.add(variables.id);
+        return next;
+      });
+    },
+    onSettled: (_data, _error, variables) => {
+      setPendingMods((prev) => {
+        const next = new Set(prev);
+        next.delete(variables.id);
+        return next;
+      });
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-stories'] });
       toast({ title: 'Story updated' });
@@ -107,11 +123,12 @@ export default function AdminStoriesPage() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() =>
-                      moderateMut.mutate({ id: story.id, published: !story.published })
-                    }
-                    loading={moderateMut.isPending && moderateMut.variables?.id === story.id}
-                    disabled={moderateMut.isPending && moderateMut.variables?.id === story.id}
+                    onClick={() => {
+                      if (pendingMods.has(story.id)) return;
+                      moderateMut.mutate({ id: story.id, published: !story.published });
+                    }}
+                    loading={pendingMods.has(story.id)}
+                    disabled={pendingMods.size > 0 && !pendingMods.has(story.id)}
                     className="gap-1.5 text-xs font-medium py-3 rounded-xl border-brand-border"
                   >
                     {story.published ? (

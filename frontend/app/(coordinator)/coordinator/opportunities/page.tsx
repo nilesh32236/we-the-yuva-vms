@@ -167,6 +167,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 size="icon"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 loading={closing === opp.id}
+                                disabled={closing !== null}
                                 className="text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 active-bounce"
                                 title="Close"
                                 aria-label="Close opportunity"
