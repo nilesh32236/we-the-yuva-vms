@@ -111,7 +111,7 @@ export default function AdminStoriesPage() {
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
                     loading={moderateMut.isPending && moderateMut.variables?.id === story.id}
-                    disabled={moderateMut.isPending}
+                    disabled={moderateMut.isPending && moderateMut.variables?.id === story.id}
                     className="gap-1.5 text-xs font-medium py-3 rounded-xl border-brand-border"
                   >
                     {story.published ? (

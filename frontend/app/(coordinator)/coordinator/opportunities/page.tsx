@@ -163,6 +163,7 @@ export default function CoordinatorOpportunitiesPage() {
                               <Button
                                 type="button"
                                 variant="icon"
+                                size="icon"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 loading={closing === opp.id}
                                 disabled={closing === opp.id}

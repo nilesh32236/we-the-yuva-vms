@@ -187,6 +187,7 @@ export default function CoordinatorEventsPage() {
                             <Button
                               type="button"
                               variant="icon"
+                              size="icon"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               loading={cancelling === ev.id}
                               className="text-brand-muted hover:bg-brand-error/10 hover:text-brand-error active:scale-95 transition-colors"
