@@ -31,7 +31,7 @@ export default function CoordinatorOpportunitiesPage() {
     staleTime: 30_000,
   });
 
-  const handleClose = async (id: string, title: string) => {
+  const handleClose = (id: string, title: string) => {
     if (closing) return;
     setConfirmAction({ id, title });
   };
@@ -39,18 +39,19 @@ export default function CoordinatorOpportunitiesPage() {
   const executeClose = async () => {
     if (!confirmAction || closing) return;
     const { id } = confirmAction;
-    setConfirmAction(null);
     setClosing(id);
     try {
       await api.delete(`/opportunities/${id}`);
       toast({ title: 'Opportunity closed' });
       qc.invalidateQueries({ queryKey: ['coordinator-opportunities'] });
+      setConfirmAction(null);
     } catch {
       toast({
         title: 'Error',
         description: 'Could not close opportunity.',
         variant: 'destructive',
       });
+      setConfirmAction(null);
     } finally {
       setClosing(null);
     }
@@ -216,7 +217,7 @@ export default function CoordinatorOpportunitiesPage() {
               <Button type="button" variant="outline" onClick={() => setConfirmAction(null)}>
                 Cancel
               </Button>
-              <Button type="button" variant="destructive" onClick={executeClose} loading={closing !== null} disabled={closing !== null}>
+              <Button type="button" variant="destructive" onClick={executeClose} loading={closing !== null}>
                 Confirm
               </Button>
             </div>

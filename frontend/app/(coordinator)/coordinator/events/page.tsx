@@ -37,20 +37,21 @@ export default function CoordinatorEventsPage() {
   };
 
   const handleCancelConfirm = async () => {
-    if (!confirmAction) return;
+    if (!confirmAction || cancelling) return;
     const { id } = confirmAction;
-    setConfirmAction(null);
     setCancelling(id);
     try {
       await api.delete(`/events/${id}`);
       toast({ title: 'Event cancelled' });
       qc.invalidateQueries({ queryKey: ['coordinator-events'] });
+      setConfirmAction(null);
     } catch {
       toast({
         title: 'Error',
         description: 'Could not cancel event.',
         variant: 'destructive',
       });
+      setConfirmAction(null);
     } finally {
       setCancelling(null);
     }
@@ -238,7 +239,7 @@ export default function CoordinatorEventsPage() {
               <Button type="button" variant="outline" onClick={() => setConfirmAction(null)}>
                 Keep
               </Button>
-              <Button type="button" variant="destructive" onClick={handleCancelConfirm}>
+              <Button type="button" variant="destructive" onClick={handleCancelConfirm} loading={cancelling !== null}>
                 Cancel Event
               </Button>
             </div>

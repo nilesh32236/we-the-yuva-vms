@@ -34,7 +34,7 @@ export default function AdminOpportunitiesPage() {
     staleTime: 30_000,
   });
 
-  const handleClose = async (id: string, title: string) => {
+  const handleClose = (id: string, title: string) => {
     if (closing) return;
     setConfirmAction({ id, title });
   };
@@ -42,14 +42,15 @@ export default function AdminOpportunitiesPage() {
   const executeClose = async () => {
     if (!confirmAction || closing) return;
     const { id } = confirmAction;
-    setConfirmAction(null);
     setClosing(id);
     try {
       await api.delete(`/opportunities/${id}`);
       toast({ title: 'Opportunity closed' });
       qc.invalidateQueries({ queryKey: ['admin-opportunities'] });
+      setConfirmAction(null);
     } catch {
       toast({ title: 'Error', variant: 'destructive' });
+      setConfirmAction(null);
     } finally {
       setClosing(null);
     }
