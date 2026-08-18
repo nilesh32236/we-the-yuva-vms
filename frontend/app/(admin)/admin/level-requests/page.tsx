@@ -12,6 +12,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useToast } from '@/hooks/use-toast';
@@ -293,13 +294,15 @@ export default function AdminLevelRequestsPage() {
                   })}
                 </p>
                 {req.status === 'PENDING' && (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setSelectedRequest(req)}
-                    className="text-sm font-semibold text-brand-primary hover:underline cursor-pointer px-4 py-2.5 min-h-11"
+                    className="hover:underline"
                   >
                     Review
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

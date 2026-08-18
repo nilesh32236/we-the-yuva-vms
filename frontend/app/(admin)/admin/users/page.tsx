@@ -90,14 +90,15 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
           <h2 id="create-user-title" className="font-heading font-bold text-lg text-brand-text">
             Create User
           </h2>
-          <button
+          <Button
             type="button"
+            variant="icon"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-11 h-11 rounded-lg flex items-center justify-center hover:bg-brand-bg cursor-pointer transition-colors"
+            className="w-11 h-11"
           >
-            <X className="w-4 h-4 text-brand-muted" />
-          </button>
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit(handleCreateUser)}>
