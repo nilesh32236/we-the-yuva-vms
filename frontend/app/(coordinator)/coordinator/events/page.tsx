@@ -192,7 +192,7 @@ export default function CoordinatorEventsPage() {
                               title="Cancel event"
                               aria-label="Cancel event"
                             >
-                              <Trash2 className="w-3.5 h-3.5 text-brand-muted" aria-hidden="true" />
+                              <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                             </Button>
                           )}
                           <AddToCalendarButton eventId={ev.id} variant="icon" />
