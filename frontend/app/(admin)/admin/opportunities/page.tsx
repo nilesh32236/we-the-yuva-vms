@@ -35,11 +35,12 @@ export default function AdminOpportunitiesPage() {
   });
 
   const handleClose = async (id: string, title: string) => {
+    if (closing) return;
     setConfirmAction({ id, title });
   };
 
   const executeClose = async () => {
-    if (!confirmAction) return;
+    if (!confirmAction || closing) return;
     const { id } = confirmAction;
     setConfirmAction(null);
     setClosing(id);
@@ -163,8 +164,7 @@ export default function AdminOpportunitiesPage() {
                               size="icon"
                               onClick={() => handleClose(opp.id, opp.title)}
                               loading={closing === opp.id}
-                              disabled={closing === opp.id}
-                              className="hover:bg-brand-error/10 hover:text-brand-error"
+                              className="hover:bg-brand-error/10 hover:text-brand-error active-bounce"
                               aria-label={`Close ${opp.title}`}
                               title="Close"
                             >

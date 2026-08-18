@@ -32,11 +32,12 @@ export default function CoordinatorOpportunitiesPage() {
   });
 
   const handleClose = async (id: string, title: string) => {
+    if (closing) return;
     setConfirmAction({ id, title });
   };
 
   const executeClose = async () => {
-    if (!confirmAction) return;
+    if (!confirmAction || closing) return;
     const { id } = confirmAction;
     setConfirmAction(null);
     setClosing(id);
@@ -166,8 +167,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 size="icon"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 loading={closing === opp.id}
-                                disabled={closing === opp.id}
-                                className="text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400"
+                                className="text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 active-bounce"
                                 title="Close"
                                 aria-label="Close opportunity"
                               >
@@ -215,7 +215,7 @@ export default function CoordinatorOpportunitiesPage() {
               <Button type="button" variant="outline" onClick={() => setConfirmAction(null)}>
                 Cancel
               </Button>
-              <Button type="button" variant="destructive" onClick={executeClose} disabled={closing !== null}>
+              <Button type="button" variant="destructive" onClick={executeClose} loading={closing !== null} disabled={closing !== null}>
                 Confirm
               </Button>
             </div>
