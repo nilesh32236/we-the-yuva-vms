@@ -165,11 +165,12 @@ export default function CoordinatorOpportunitiesPage() {
                                 variant="icon"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 loading={closing === opp.id}
-                                className="hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400"
+                                disabled={closing === opp.id}
+                                className="text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400"
                                 title="Close"
                                 aria-label="Close opportunity"
                               >
-                                <Trash2 className="w-4 h-4" aria-hidden="true" />
+                                <Trash2 className="w-4 h-4 text-brand-muted" aria-hidden="true" />
                               </Button>
                             </>
                           )}
@@ -213,7 +214,7 @@ export default function CoordinatorOpportunitiesPage() {
               <Button type="button" variant="outline" onClick={() => setConfirmAction(null)}>
                 Cancel
               </Button>
-              <Button type="button" variant="destructive" onClick={executeClose}>
+              <Button type="button" variant="destructive" onClick={executeClose} disabled={closing !== null}>
                 Confirm
               </Button>
             </div>

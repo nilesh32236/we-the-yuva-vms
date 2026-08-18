@@ -162,6 +162,7 @@ export default function AdminOpportunitiesPage() {
                               variant="icon"
                               onClick={() => handleClose(opp.id, opp.title)}
                               loading={closing === opp.id}
+                              disabled={closing === opp.id}
                               className="hover:bg-brand-error/10 hover:text-brand-error"
                               aria-label={`Close ${opp.title}`}
                               title="Close"

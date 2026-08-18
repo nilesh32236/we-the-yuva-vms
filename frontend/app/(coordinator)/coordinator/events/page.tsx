@@ -188,11 +188,11 @@ export default function CoordinatorEventsPage() {
                               variant="icon"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               loading={cancelling === ev.id}
-                              className="hover:bg-brand-error/10 hover:text-brand-error"
+                              className="text-brand-muted hover:bg-brand-error/10 hover:text-brand-error active:scale-95 transition-colors"
                               title="Cancel event"
                               aria-label="Cancel event"
                             >
-                              <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
+                              <Trash2 className="w-3.5 h-3.5 text-brand-muted" aria-hidden="true" />
                             </Button>
                           )}
                           <AddToCalendarButton eventId={ev.id} variant="icon" />
