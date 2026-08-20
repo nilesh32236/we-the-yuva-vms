@@ -1,4 +1,6 @@
 import { type IRouter, Router } from 'express';
+import type { Request } from 'express';
+import rateLimit from 'express-rate-limit';
 import { ConsentSchema, RegisterSchema, SendOtpSchema, VerifyOtpSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -12,6 +14,50 @@ import {
 } from './auth.controller';
 
 export const authRouter: IRouter = Router();
+
+function emailKey(req: Request): string {
+  const email =
+    typeof (req.body as { email?: unknown } | undefined)?.email === 'string'
+      ? (req.body as { email: string }).email.toLowerCase()
+      : 'unknown';
+  return `${req.ip}:${email}`;
+}
+
+const sendOtpLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  keyGenerator: (req) => `send-otp:${emailKey(req)}`,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many OTP requests. Please try again later.' },
+});
+
+const sendOtpIpLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  keyGenerator: (req) => `send-otp-ip:${req.ip}`,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many OTP requests from this device. Please try again later.' },
+});
+
+const verifyOtpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => `verify-otp:${emailKey(req)}`,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many verification attempts. Please try again later.' },
+});
+
+const verifyOtpIpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 25,
+  keyGenerator: (req) => `verify-otp-ip:${req.ip}`,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many verification attempts from this device. Please try again later.' },
+});
 
 // Public routes
 /**
@@ -54,7 +100,7 @@ authRouter.post('/register', validate(RegisterSchema), register);
  *       200:
  *         description: OTP sent
  */
-authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
+authRouter.post('/send-otp', sendOtpIpLimiter, sendOtpLimiter, validate(SendOtpSchema), sendOtp);
 
 /**
  * @openapi
@@ -75,7 +121,7 @@ authRouter.post('/send-otp', validate(SendOtpSchema), sendOtp);
  *       200:
  *         description: Login successful, tokens set in cookies
  */
-authRouter.post('/verify-otp', validate(VerifyOtpSchema), verifyOtpHandler);
+authRouter.post('/verify-otp', verifyOtpIpLimiter, verifyOtpLimiter, validate(VerifyOtpSchema), verifyOtpHandler);
 
 /**
  * @openapi

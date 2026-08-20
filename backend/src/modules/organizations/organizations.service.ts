@@ -111,7 +111,26 @@ export async function registerOrganization(adminUserId: string, data: RegisterOr
   });
 }
 
-export async function getOrganization(orgId: string) {
+async function assertOrgAccess(userId: string, orgId: string, message = 'Not authorized to access this organization') {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { organizationId: true, roleRef: { select: { name: true } } },
+  });
+  if (!user) throw new AppError('User not found', 404);
+
+  const isMember = user.organizationId === orgId;
+  const isSysAdmin = hasSystemRole(user.roleRef.name);
+
+  if (!isMember && !isSysAdmin) {
+    throw new AppError(message, 403);
+  }
+
+  return user;
+}
+
+export async function getOrganization(orgId: string, userId: string) {
+  await assertOrgAccess(userId, orgId);
+
   const org = await prisma.organization.findUnique({
     where: { id: orgId },
     include: {
@@ -186,7 +205,7 @@ export async function listOrganizations(params: { status?: string; page: number;
   ]);
 
   return {
-    orgs,
+    data: orgs,
     total,
     page: params.page,
     limit: params.limit,
@@ -240,8 +259,11 @@ export async function addOrganizationDocument(
   orgId: string,
   fileName: string,
   fileUrl: string,
-  type: string
+  type: string,
+  userId: string
 ) {
+  await assertOrgAccess(userId, orgId, 'Not authorized to add documents to this organization');
+
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
   if (!org) {
     throw new AppError('Organization not found', 404);
@@ -252,7 +274,9 @@ export async function addOrganizationDocument(
   });
 }
 
-export async function getOrganizationDocuments(orgId: string) {
+export async function getOrganizationDocuments(orgId: string, userId: string) {
+  await assertOrgAccess(userId, orgId, 'Not authorized to view documents for this organization');
+
   const org = await prisma.organization.findUnique({ where: { id: orgId } });
   if (!org) {
     throw new AppError('Organization not found', 404);
@@ -373,7 +397,9 @@ export async function addCoordinatorToOrg(
   });
 }
 
-export async function listCoordinators(orgId: string, page = 1, limit = 20) {
+export async function listCoordinators(orgId: string, userId: string, page = 1, limit = 20) {
+  await assertOrgAccess(userId, orgId, 'Not authorized to view coordinators for this organization');
+
   const skip = (page - 1) * limit;
   const where = {
     organizationId: orgId,

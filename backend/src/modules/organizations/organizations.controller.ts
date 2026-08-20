@@ -24,7 +24,7 @@ export async function registerOrgHandler(req: Request, res: Response, next: Next
 
 export async function getOrgHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const org = await getOrganization(req.params.id);
+    const org = await getOrganization(req.params.id, req.user!.id);
     res.status(200).json(org);
   } catch (err) {
     next(err);
@@ -45,7 +45,7 @@ export async function uploadDocumentHandler(req: Request, res: Response, next: N
     const { id } = req.params;
     const { fileName, fileUrl, type } = req.body;
 
-    const doc = await addOrganizationDocument(id, fileName, fileUrl, type);
+    const doc = await addOrganizationDocument(id, fileName, fileUrl, type, req.user!.id);
     res.status(201).json(doc);
   } catch (err) {
     next(err);
@@ -54,7 +54,7 @@ export async function uploadDocumentHandler(req: Request, res: Response, next: N
 
 export async function getDocumentsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const docs = await getOrganizationDocuments(req.params.id);
+    const docs = await getOrganizationDocuments(req.params.id, req.user!.id);
     res.status(200).json(docs);
   } catch (err) {
     next(err);
@@ -91,7 +91,9 @@ export async function addCoordinatorHandler(req: Request, res: Response, next: N
 
 export async function listCoordinatorsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const coordinators = await listCoordinators(req.params.id);
+    const page = Math.max(1, Number.parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, Number.parseInt(req.query.limit as string, 10) || 20));
+    const coordinators = await listCoordinators(req.params.id, req.user!.id, page, limit);
     res.status(200).json(coordinators);
   } catch (err) {
     next(err);

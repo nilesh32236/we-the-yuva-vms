@@ -58,7 +58,7 @@ export async function adminOrgStatsHandler(_req: Request, res: Response, next: N
 
 export async function adminGetOrgDocumentsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const docs = await getOrganizationDocuments(req.params.id);
+    const docs = await getOrganizationDocuments(req.params.id, req.user!.id);
     res.status(200).json(docs);
   } catch (err) {
     next(err);

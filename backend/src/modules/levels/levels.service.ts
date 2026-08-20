@@ -151,26 +151,28 @@ export async function createLevelRequest(
 
   const isAutoApproved = await checkAutoPromotion(userId, level);
 
-  const result = await prisma.userLevel.create({
-    data: {
-      userId,
-      levelId,
-      status: isAutoApproved ? 'AUTO_APPROVED' : 'PENDING',
-      proofUrls: data.proofUrls ?? [],
-      videoUrl: data.videoUrl,
-      proofData: data.proofData as Prisma.InputJsonValue,
-      notes: data.notes,
-      peerEndorsements: data.peerEndorsements as Prisma.InputJsonValue,
-      approvedAt: isAutoApproved ? new Date() : null,
-    },
-    include: { level: true },
-  });
-
-  if (isAutoApproved) {
-    await prisma.$transaction(async (tx) => {
-      await awardLevelPoints(tx, userId, level.id, level.id);
+  const result = await prisma.$transaction(async (tx) => {
+    const created = await tx.userLevel.create({
+      data: {
+        userId,
+        levelId,
+        status: isAutoApproved ? 'AUTO_APPROVED' : 'PENDING',
+        proofUrls: data.proofUrls ?? [],
+        videoUrl: data.videoUrl,
+        proofData: data.proofData as Prisma.InputJsonValue,
+        notes: data.notes,
+        peerEndorsements: data.peerEndorsements as Prisma.InputJsonValue,
+        approvedAt: isAutoApproved ? new Date() : null,
+      },
+      include: { level: true },
     });
-    await Promise.allSettled([
+
+    if (isAutoApproved) {
+      await awardLevelPoints(tx, userId, level.id, level.id);
+    }
+
+    return created;
+  });
       generateCertificate(userId, level.id).catch((err) =>
         logger.warn('Failed to generate certificate on level approval', {
           err,
