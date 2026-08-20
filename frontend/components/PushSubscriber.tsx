@@ -8,6 +8,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { haptic } from '@/lib/haptic';
 import { useToast } from '@/hooks/use-toast';
 import { captureApiError } from '@/lib/sentry';
+import { Button } from '@/components/ui/Button';
 
 export function PushSubscriber() {
   const { user } = useAuth();
@@ -121,14 +122,14 @@ export function PushSubscriber() {
             <span className="text-xs font-bold font-heading text-brand-text">Enable Updates</span>
           </div>
 
-          <button
-            type="button"
+          <Button
+            variant="icon"
+            size="icon"
             onClick={handleDismiss}
-            className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg transition-colors cursor-pointer active:scale-90 focus-visible:ring-2 focus-visible:ring-brand-primary"
             aria-label="Not now"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
 
         {/* Content */}
@@ -149,23 +150,23 @@ export function PushSubscriber() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 pt-1.5">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={handleDismiss}
-            className="flex-1 py-2 text-[10px] font-semibold text-brand-muted hover:text-brand-text bg-brand-bg/50 hover:bg-brand-bg rounded-xl transition-colors duration-100 cursor-pointer active:scale-95 text-center min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
+            className="flex-1 text-[10px] font-semibold bg-brand-bg/50 hover:bg-brand-bg rounded-xl"
           >
             Not Now
-          </button>
+          </Button>
 
-          <button
-            type="button"
+          <Button
             onClick={handleSubscribe}
-            disabled={subscribing || !!error}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-brand-primary hover:bg-brand-secondary active:scale-95 text-white font-heading font-bold text-[10px] py-2 rounded-xl shadow-md shadow-brand-primary/20 transition-colors duration-100 cursor-pointer disabled:opacity-60 text-center min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary"
+            disabled={!!error}
+            loading={subscribing}
+            className="flex-1 font-heading font-bold text-[10px] rounded-xl shadow-md shadow-brand-primary/20"
           >
             <Sparkles className="w-3 h-3 text-emerald-200" />
             {subscribing ? 'Enabling...' : 'Enable'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

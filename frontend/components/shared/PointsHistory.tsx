@@ -6,6 +6,7 @@ import { useEffect, useMemo } from 'react';
 import { api } from '@/lib/api';
 import { SkeletonCard } from './SkeletonCard';
 import { captureApiError } from '@/lib/sentry';
+import { Button } from '@/components/ui/Button';
 
 interface PointTransaction {
   id: string;
@@ -95,13 +96,14 @@ export function PointsHistory() {
               {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
                 'Failed to load points history'}
             </p>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => refetch()}
-              className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-md"
+              className="text-brand-primary hover:underline"
             >
               Retry
-            </button>
+            </Button>
           </div>
         </div>
       </div>
