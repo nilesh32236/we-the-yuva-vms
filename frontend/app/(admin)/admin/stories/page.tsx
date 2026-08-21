@@ -125,7 +125,8 @@ export default function AdminStoriesPage() {
                     variant="outline-destructive"
                     size="sm"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
-                    disabled={moderateMut.isPending && moderateMut.variables?.id === story.id}
+                    disabled={deleteMut.isPending && deleteMut.variables === story.id}
+                    loading={deleteMut.isPending && deleteMut.variables === story.id}
                   >
                     Delete
                   </Button>

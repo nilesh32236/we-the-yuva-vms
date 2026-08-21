@@ -15,7 +15,7 @@ const variants = {
   'outline-destructive':
     'border border-brand-error text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:text-red-400 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   'ghost-destructive':
-    'text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+    'text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:text-red-400 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   'icon-destructive':
     'p-3 rounded-lg hover:bg-brand-error/10 dark:hover:bg-red-950/30 text-brand-muted hover:text-brand-error dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active-bounce min-h-11 min-w-11',
 };
