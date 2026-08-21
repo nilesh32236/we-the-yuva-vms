@@ -9,6 +9,7 @@ import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
 
 export default function AdminStoriesPage() {
   const qc = useQueryClient();
@@ -102,28 +103,31 @@ export default function AdminStoriesPage() {
                     <ExternalLink className="w-3.5 h-3.5" />
                     View
                   </Link>
-                  <button
-                    type="button"
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() =>
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
                     disabled={moderateMut.isPending}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer disabled:opacity-60"
+                    loading={moderateMut.isPending && moderateMut.variables?.id === story.id}
                   >
-                    {story.published ? (
-                      <XCircle className="w-3.5 h-3.5" />
-                    ) : (
-                      <CheckCircle className="w-3.5 h-3.5" />
+                    {!(moderateMut.isPending && moderateMut.variables?.id === story.id) && (
+                      story.published ? (
+                        <XCircle className="w-3.5 h-3.5" />
+                      ) : (
+                        <CheckCircle className="w-3.5 h-3.5" />
+                      )
                     )}
                     {story.published ? 'Unpublish' : 'Publish'}
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant="outline-destructive"
+                    size="sm"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border text-brand-error hover:bg-brand-error/10 transition-colors cursor-pointer"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             )
