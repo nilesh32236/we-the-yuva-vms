@@ -64,7 +64,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
           <h2 id="review-title" className="font-heading font-bold text-lg text-brand-text">
             Review Request
           </h2>
-          <Button variant="icon" onClick={onClose} aria-label="Close dialog">
+          <Button type="button" variant="icon" className="w-11 h-11" onClick={onClose} aria-label="Close dialog">
             <X className="w-4 h-4 text-brand-muted" />
           </Button>
         </div>
@@ -128,6 +128,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
 
         <div className="flex gap-3 px-6 pb-6">
           <Button
+            type="button"
             variant="outline-destructive"
             onClick={() => reviewMutation.mutate({ status: 'REJECTED' })}
             disabled={reviewMutation.isPending}
@@ -138,6 +139,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             Reject
           </Button>
           <Button
+            type="button"
             variant="primary"
             onClick={() => reviewMutation.mutate({ status: 'APPROVED' })}
             disabled={reviewMutation.isPending}
@@ -274,7 +276,7 @@ export default function AdminLevelRequestsPage() {
                   })}
                 </p>
                 {req.status === 'PENDING' && (
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedRequest(req)}>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedRequest(req)}>
                     Review
                   </Button>
                 )}

@@ -62,6 +62,7 @@ export default function CoordinatorEventsPage() {
         <h1 className="font-heading font-bold text-xl text-brand-text">Events</h1>
         <div className="flex items-center gap-2">
           <Button
+            type="button"
             variant="outline"
             className="active-bounce"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
@@ -184,6 +185,7 @@ export default function CoordinatorEventsPage() {
                           </Link>
                           {ev.status === 'SCHEDULED' && (
                             <Button
+                              type="button"
                               variant="icon-destructive"
                               onClick={() => handleCancel(ev.id, ev.title)}
                               disabled={cancelling === ev.id}
@@ -233,6 +235,7 @@ export default function CoordinatorEventsPage() {
             </p>
             <div className="flex justify-end gap-2">
               <Button
+                type="button"
                 variant="outline"
                 onClick={() => setConfirmAction(null)}
                 disabled={!!cancelling}
@@ -240,6 +243,7 @@ export default function CoordinatorEventsPage() {
                 Keep
               </Button>
               <Button
+                type="button"
                 variant="destructive"
                 onClick={handleCancelConfirm}
                 disabled={!!cancelling}

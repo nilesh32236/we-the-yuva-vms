@@ -104,6 +104,7 @@ export default function AdminStoriesPage() {
                     View
                   </Link>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() =>
@@ -120,10 +121,11 @@ export default function AdminStoriesPage() {
                     {story.published ? 'Unpublish' : 'Publish'}
                   </Button>
                   <Button
+                    type="button"
                     variant="outline-destructive"
                     size="sm"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
-                    disabled={moderateMut.isPending}
+                    disabled={moderateMut.isPending && moderateMut.variables?.id === story.id}
                   >
                     Delete
                   </Button>
