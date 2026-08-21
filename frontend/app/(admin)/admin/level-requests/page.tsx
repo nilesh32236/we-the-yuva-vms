@@ -134,9 +134,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             loading={reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED'}
             className="flex-1 py-3.5"
           >
-            {!(reviewMutation.isPending && reviewMutation.variables?.status === 'REJECTED') && (
-              <XCircle className="w-4 h-4 inline mr-1" />
-            )}
+            <XCircle className="w-4 h-4 inline mr-1" />
             Reject
           </Button>
           <Button
@@ -146,9 +144,7 @@ function ReviewModal({ request, onClose }: { request: LevelRequest; onClose: () 
             loading={reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED'}
             className="flex-1 py-3.5"
           >
-            {!(reviewMutation.isPending && reviewMutation.variables?.status === 'APPROVED') && (
-              <CheckCircle className="w-4 h-4 inline mr-1" />
-            )}
+            <CheckCircle className="w-4 h-4 inline mr-1" />
             Approve
           </Button>
         </div>

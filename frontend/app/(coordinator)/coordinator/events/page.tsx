@@ -63,6 +63,7 @@ export default function CoordinatorEventsPage() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
+            className="active-bounce"
             onClick={() => downloadCsv('/events/export/csv', 'events.csv')}
           >
             <Download className="w-4 h-4" aria-hidden="true" /> Export CSV
@@ -190,7 +191,7 @@ export default function CoordinatorEventsPage() {
                               title="Cancel event"
                               aria-label="Cancel event"
                             >
-                              {cancelling !== ev.id && <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />}
+                              <Trash2 className="w-3.5 h-3.5" aria-hidden="true" />
                             </Button>
                           )}
                           <AddToCalendarButton eventId={ev.id} variant="icon" />
@@ -234,12 +235,15 @@ export default function CoordinatorEventsPage() {
               <Button
                 variant="outline"
                 onClick={() => setConfirmAction(null)}
+                disabled={!!cancelling}
               >
                 Keep
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleCancelConfirm}
+                disabled={!!cancelling}
+                loading={!!cancelling}
               >
                 Cancel Event
               </Button>

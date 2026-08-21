@@ -161,6 +161,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 <Pencil className="w-4 h-4" aria-hidden="true" />
                               </Link>
                               <Button
+                                type="button"
                                 variant="icon-destructive"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 disabled={closing === opp.id}
@@ -168,7 +169,7 @@ export default function CoordinatorOpportunitiesPage() {
                                 title="Close"
                                 aria-label="Close opportunity"
                               >
-                                {closing !== opp.id && <Trash2 className="w-4 h-4" aria-hidden="true" />}
+                                <Trash2 className="w-4 h-4" aria-hidden="true" />
                               </Button>
                             </>
                           )}
@@ -210,14 +211,19 @@ export default function CoordinatorOpportunitiesPage() {
             </p>
             <div className="flex justify-end gap-2">
               <Button
+                type="button"
                 variant="outline"
                 onClick={() => setConfirmAction(null)}
+                disabled={!!closing}
               >
                 Cancel
               </Button>
               <Button
+                type="button"
                 variant="destructive"
                 onClick={executeClose}
+                disabled={!!closing}
+                loading={!!closing}
               >
                 Confirm
               </Button>

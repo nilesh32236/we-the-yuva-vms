@@ -13,11 +13,11 @@ const variants = {
   destructive:
     'bg-brand-error text-white hover:bg-brand-error/90 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer active-bounce',
   'outline-destructive':
-    'border border-brand-error text-brand-error hover:bg-brand-error/10 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
+    'border border-brand-error text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:text-red-400 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer',
   'ghost-destructive':
-    'text-brand-error hover:bg-brand-error/10 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
+    'text-brand-error hover:bg-brand-error/10 dark:hover:bg-red-950/30 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer',
   'icon-destructive':
-    'p-2 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active-bounce',
+    'p-3 rounded-lg hover:bg-brand-error/10 dark:hover:bg-red-950/30 text-brand-muted hover:text-brand-error dark:hover:text-red-400 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed active-bounce min-h-11 min-w-11',
 };
 
 const spinnerColors: Record<string, string> = {
@@ -29,7 +29,7 @@ const spinnerColors: Record<string, string> = {
   destructive: 'border-white/30 border-t-white',
   'outline-destructive': 'border-current/30 border-t-current',
   'ghost-destructive': 'border-current/30 border-t-current',
-  'icon-destructive': 'border-current/30 border-t-current',
+  'icon-destructive': 'border-brand-error/30 border-t-brand-error dark:border-red-400/30 dark:border-t-red-400',
 };
 
 const sizes = {

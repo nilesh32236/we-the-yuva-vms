@@ -112,12 +112,10 @@ export default function AdminStoriesPage() {
                     disabled={moderateMut.isPending}
                     loading={moderateMut.isPending && moderateMut.variables?.id === story.id}
                   >
-                    {!(moderateMut.isPending && moderateMut.variables?.id === story.id) && (
-                      story.published ? (
-                        <XCircle className="w-3.5 h-3.5" />
-                      ) : (
-                        <CheckCircle className="w-3.5 h-3.5" />
-                      )
+                    {story.published ? (
+                      <XCircle className="w-3.5 h-3.5" />
+                    ) : (
+                      <CheckCircle className="w-3.5 h-3.5" />
                     )}
                     {story.published ? 'Unpublish' : 'Publish'}
                   </Button>
@@ -125,6 +123,7 @@ export default function AdminStoriesPage() {
                     variant="outline-destructive"
                     size="sm"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
+                    disabled={moderateMut.isPending}
                   >
                     Delete
                   </Button>
