@@ -133,12 +133,34 @@ enum RecurrenceFrequency {
 }
 
 enum VolunteerType {
-  STUDENT
-  PROFESSIONAL
+  STUDENT_VOLUNTEER
+  LONG_TERM
+  INTERNSHIP
+  OTHER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ReferralSource {
+  FRIEND
+  COLLEGE
+  PARTNER_ORG
+  SOCIAL_MEDIA
+  WEBSITE
+  CURRENT_VOLUNTEER
+  NEWSPAPER
   EVENT
-  RECURRING
-  REMOTE
-  EMERGENCY
+  OTHER
+}
+
+enum ChallengeStatus {
+  ACTIVE
+  COMPLETED
 }
 
 enum OrganizationStatus {
@@ -184,9 +206,9 @@ model Role {
 // ─── Organization ────────────────────────────────────────────────
 
 model Organization {
-  id          String            @id @default(cuid())
+  id          String             @id @default(cuid())
   name        String
-  slug        String?           @unique
+  slug        String?            @unique
   description String?
   address     String?
   phone       String?
@@ -196,8 +218,8 @@ model Organization {
   socialMedia Json?
   status      OrganizationStatus @default(PENDING)
   verifiedAt  DateTime?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 
   documents     OrganizationDocument[]
   users         User[]
@@ -212,7 +234,7 @@ model OrganizationDocument {
   organizationId String
   fileName       String
   fileUrl        String
-  type           String   // REGISTRATION_CERTIFICATE, GOVT_ID, etc.
+  type           String // REGISTRATION_CERTIFICATE, GOVT_ID, etc.
   uploadedAt     DateTime @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -223,31 +245,31 @@ model OrganizationDocument {
 // ─── Models ──────────────────────────────────────────────────────
 
 model User {
-  id         String        @id @default(cuid())
-  email      String?       @unique
-  name       String
-  phone      String?       @unique
+  id          String     @id @default(cuid())
+  email       String?    @unique
+  name        String
+  phone       String?    @unique
   dateOfBirth DateTime?
-  address    Json?         // { city, state }
-  roleId     String
-  roleRef    Role           @relation(fields: [roleId], references: [id])
-  status     UserStatus    @default(PENDING)
-  locationId String?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  address     Json? // { city, state }
+  roleId      String
+  roleRef     Role       @relation(fields: [roleId], references: [id])
+  status      UserStatus @default(PENDING)
+  locationId  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   // Referral system
-  referralCode String     @unique @default(cuid())
+  referralCode String  @unique @default(cuid())
   referredById String?
-  referredBy   User?      @relation("UserReferrals", fields: [referredById], references: [id], onDelete: SetNull)
-  referrals    User[]     @relation("UserReferrals")
+  referredBy   User?   @relation("UserReferrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals    User[]  @relation("UserReferrals")
 
   // Onboarding
   profileComplete Boolean @default(false)
 
   // Call availability & motivation
-  callAvailability Json?  // { preference, days, startTime, endTime, slots }
-  whyVoluntary   String?  // Max 500 chars
+  callAvailability Json? // { preference, days, startTime, endTime, slots }
+  whyVoluntary     String? // Max 500 chars
 
   // Organization
   organizationId String?
@@ -256,19 +278,27 @@ model User {
   // Volunteer type
   volunteerType VolunteerType?
 
+  // Part I registration (client form)
+  gender             Gender?
+  whatsappNumber     String?
+  referralSource     ReferralSource?
+  referralSourceName String?
+
+  kindnessChallenge KindnessChallenge?
+
   // Tier / Level System
-  currentLevelId String?
-  currentLevel   Level?     @relation(fields: [currentLevelId], references: [id])
-  points         Int        @default(0)
-  levelRequests  UserLevel[] @relation("UserLevelRequests")
-  levelReviews   UserLevel[] @relation("LevelReviewer")
+  currentLevelId    String?
+  currentLevel      Level?             @relation(fields: [currentLevelId], references: [id])
+  points            Int                @default(0)
+  levelRequests     UserLevel[]        @relation("UserLevelRequests")
+  levelReviews      UserLevel[]        @relation("LevelReviewer")
   pointTransactions PointTransaction[]
-  earnedBadges   UserBadge[]
-  badgeApprovals BadgeApproval[] @relation("UserBadgeApprovals")
-  badgeReviews   BadgeApproval[] @relation("BadgeReviewer")
-  mentorships    Mentorship[] @relation("MentorRelation")
-  mentees        Mentorship[] @relation("MenteeRelation")
-  certificates   Certificate[]
+  earnedBadges      UserBadge[]
+  badgeApprovals    BadgeApproval[]    @relation("UserBadgeApprovals")
+  badgeReviews      BadgeApproval[]    @relation("BadgeReviewer")
+  mentorships       Mentorship[]       @relation("MentorRelation")
+  mentees           Mentorship[]       @relation("MenteeRelation")
+  certificates      Certificate[]
 
   location      Location?         @relation(fields: [locationId], references: [id])
   profile       VolunteerProfile?
@@ -277,18 +307,18 @@ model User {
   consent       ConsentRecord?
   staffProfile  StaffProfile?
 
-  createdOpportunities Opportunity[] @relation("CreatedOpportunities")
-  applications         Application[] @relation("VolunteerApplications")
-  attendances          Attendance[]  @relation("VolunteerAttendances")
-  approvedAttendances  Attendance[]  @relation("ApprovedBy")
+  createdOpportunities Opportunity[]            @relation("CreatedOpportunities")
+  applications         Application[]            @relation("VolunteerApplications")
+  attendances          Attendance[]             @relation("VolunteerAttendances")
+  approvedAttendances  Attendance[]             @relation("ApprovedBy")
   courseProgress       CourseProgress[]
   lessonCompletions    LessonCompletion[]
   pushSubscriptions    PushSubscription[]
   notifications        Notification[]
   stories              Story[]
-  authoredPosts        BlogPost[] @relation("AuthoredPosts")
-  feedbackSubmissions  EventFeedback[] @relation("VolunteerFeedback")
-  auditLogs            AuditLog[] @relation("AuditLogAuthor")
+  authoredPosts        BlogPost[]               @relation("AuthoredPosts")
+  feedbackSubmissions  EventFeedback[]          @relation("VolunteerFeedback")
+  auditLogs            AuditLog[]               @relation("AuditLogAuthor")
   notificationPrefs    NotificationPreference[]
   alertSubscriptions   AlertSubscription[]
   chatMessages         ChatMessage[]
@@ -303,20 +333,20 @@ model User {
 }
 
 model VolunteerProfile {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  skills       String[]
-  interests    String[]
-  availability Json
-  education    String?
-  bio          String?
-  details      Json?
-  avatarUrl    String?
-  totalHours   Float    @default(0)
-  currentStreak Int     @default(0)
-  longestStreak Int     @default(0)
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  skills        String[]
+  interests     String[]
+  availability  Json
+  education     String?
+  bio           String?
+  details       Json?
+  avatarUrl     String?
+  totalHours    Float     @default(0)
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
   lastActiveAt  DateTime?
-  updatedAt    DateTime @updatedAt
+  updatedAt     DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -332,18 +362,18 @@ model StaffProfile {
 }
 
 model YouthProfile {
-  id                   String   @id @default(cuid())
-  userId               String   @unique
+  id     String @id @default(cuid())
+  userId String @unique
 
   // Initial self-assessment (post-registration / Level 0 orientation)
-  initialResponses     Json?    // { aspirations: string[], learningGoals: string, skills: string[], interests: string[] }
-  initialCompletedAt   DateTime?
+  initialResponses   Json? // { aspirations: string[], learningGoals: string, skills: string[], interests: string[] }
+  initialCompletedAt DateTime?
 
   // End-of-cycle reflection (triggered at Level 3 growth)
-  reflectionResponses  Json?    // { skillsDeveloped: string[], growthAreas: string[], confidenceLevel: 1-5, impactDescription: string }
+  reflectionResponses   Json? // { skillsDeveloped: string[], growthAreas: string[], confidenceLevel: 1-5, impactDescription: string }
   reflectionCompletedAt DateTime?
 
-  updatedAt            DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -392,6 +422,8 @@ model ConsentRecord {
   userId                String   @unique
   privacyPolicyAccepted Boolean
   mediaConsentAccepted  Boolean
+  onboardingInfoCorrect Boolean?
+  onboardingCommitment  Boolean?
   acceptedAt            DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -472,10 +504,10 @@ model Event {
   updatedAt     DateTime    @updatedAt
 
   // Recurring event
-  seriesId      String?
-  series        EventSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  seriesId String?
+  series   EventSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
 
-  opportunity Opportunity  @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  opportunity Opportunity     @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
   attendances Attendance[]
   feedback    EventFeedback[]
 
@@ -487,30 +519,30 @@ model Event {
 }
 
 model EventSeries {
-  id              String              @id @default(cuid())
-  opportunityId   String
-  title           String
-  description     String?
-  frequency       RecurrenceFrequency
-  daysOfWeek      Int[]               // [0,6] for Sat/Sun, [1,2,3,4,5] for weekdays
-  interval        Int                 @default(1) // every N days/weeks/months
-  startDate       DateTime            @default(now())
-  startTime       String              // HH:MM
-  endTime         String              // HH:MM
-  venue           String?
-  isVirtual       Boolean             @default(false)
-  meetingLink     String?
-  capacity        Int
-  endDate         DateTime?           // stop generating after this date
-  maxOccurrences  Int?                // or stop after N events
-  currentCount    Int                 @default(0) // how many events generated so far
-  isActive        Boolean             @default(true) // pause/stop the series
-  customRule      Json?               // for complex recurrence patterns
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id             String              @id @default(cuid())
+  opportunityId  String
+  title          String
+  description    String?
+  frequency      RecurrenceFrequency
+  daysOfWeek     Int[] // [0,6] for Sat/Sun, [1,2,3,4,5] for weekdays
+  interval       Int                 @default(1) // every N days/weeks/months
+  startDate      DateTime            @default(now())
+  startTime      String // HH:MM
+  endTime        String // HH:MM
+  venue          String?
+  isVirtual      Boolean             @default(false)
+  meetingLink    String?
+  capacity       Int
+  endDate        DateTime? // stop generating after this date
+  maxOccurrences Int? // or stop after N events
+  currentCount   Int                 @default(0) // how many events generated so far
+  isActive       Boolean             @default(true) // pause/stop the series
+  customRule     Json? // for complex recurrence patterns
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 
-  opportunity     Opportunity         @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
-  events          Event[]
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  events      Event[]
 
   @@index([opportunityId])
   @@index([frequency])
@@ -536,8 +568,8 @@ model Attendance {
   approvedById  String?
   approvedAt    DateTime?
 
-  markedAt      DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  markedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   event       Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   volunteer   User        @relation("VolunteerAttendances", fields: [volunteerId], references: [id], onDelete: Cascade)
@@ -553,44 +585,44 @@ model Attendance {
 // ─── Training Models ──────────────────────────────────────────────
 
 model Course {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String
   category    CourseCategory
-  isRequired  Boolean  @default(false)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isRequired  Boolean        @default(false)
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
-  lessons   Lesson[]
-  progress  CourseProgress[]
+  lessons  Lesson[]
+  progress CourseProgress[]
 
   @@index([category])
 }
 
 model Lesson {
-  id          String   @id @default(cuid())
-  courseId    String
-  title       String
-  content     String
-  type        LessonType @default(TEXT)
-  mediaUrl    String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
+  id        String     @id @default(cuid())
+  courseId  String
+  title     String
+  content   String
+  type      LessonType @default(TEXT)
+  mediaUrl  String?
+  order     Int        @default(0)
+  createdAt DateTime   @default(now())
 
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
   completions LessonCompletion[]
 
   @@index([courseId])
 }
 
 model CourseProgress {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   courseId    String
-  completed   Boolean  @default(false)
+  completed   Boolean   @default(false)
   completedAt DateTime?
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime  @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
@@ -620,8 +652,8 @@ model ChatRoom {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
-  messages     ChatMessage[]
+  opportunity Opportunity   @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  messages    ChatMessage[]
 
   @@index([opportunityId])
 }
@@ -657,15 +689,15 @@ model PushSubscription {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
   title     String
   body      String
   type      NotificationType @default(INFO)
   link      String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -677,7 +709,7 @@ model EventFeedback {
   id              String   @id @default(cuid())
   eventId         String
   volunteerId     String
-  rating          Int      // 1-5
+  rating          Int // 1-5
   comments        String?
   learnings       String?
   confidenceLevel Int?
@@ -700,7 +732,8 @@ model Story {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kindnessChallenge KindnessChallenge?
 
   @@index([published])
   @@index([createdAt])
@@ -731,13 +764,13 @@ model BlogPost {
 }
 
 model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  action    AuditLogAction
-  targetId  String?  // the ID of the resource being acted on
+  id         String         @id @default(cuid())
+  userId     String
+  action     AuditLogAction
+  targetId   String? // the ID of the resource being acted on
   targetType String? // 'User', 'Opportunity', 'Event', etc.
-  metadata  Json?    // arbitrary extra data
-  createdAt DateTime @default(now())
+  metadata   Json? // arbitrary extra data
+  createdAt  DateTime       @default(now())
 
   user User @relation("AuditLogAuthor", fields: [userId], references: [id], onDelete: Cascade)
 
@@ -747,11 +780,11 @@ model AuditLog {
 }
 
 model NotificationPreference {
-  id     String @id @default(cuid())
+  id     String                     @id @default(cuid())
   userId String
   type   NotificationPreferenceType
-  email  Boolean @default(true)
-  push   Boolean @default(true)
+  email  Boolean                    @default(true)
+  push   Boolean                    @default(true)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -809,9 +842,9 @@ model UserLevel {
   reviewedAt       DateTime?
   approvedAt       DateTime?
 
-  user     User   @relation("UserLevelRequests", fields: [userId], references: [id], onDelete: Cascade)
-  level    Level  @relation(fields: [levelId], references: [id], onDelete: Cascade)
-  reviewer User?  @relation("LevelReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  user     User  @relation("UserLevelRequests", fields: [userId], references: [id], onDelete: Cascade)
+  level    Level @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  reviewer User? @relation("LevelReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status])
@@ -871,7 +904,7 @@ model BadgeApproval {
   requestedAt DateTime            @default(now())
   reviewedAt  DateTime?
   reviewedBy  String?
-  reviewer    User?    @relation("BadgeReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  reviewer    User?               @relation("BadgeReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
   reviewNote  String?
 
   user  User  @relation("UserBadgeApprovals", fields: [userId], references: [id], onDelete: Cascade)
@@ -910,4 +943,33 @@ model Certificate {
 
   @@index([userId])
   @@index([levelId])
+}
+
+model KindnessChallenge {
+  id              String            @id @default(cuid())
+  userId          String            @unique
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  acts            String[]
+  startDate       DateTime
+  endDate         DateTime
+  status          ChallengeStatus   @default(ACTIVE)
+  completedAt     DateTime?
+  part2UnlockedAt DateTime?
+  storyId         String?           @unique
+  story           Story?            @relation(fields: [storyId], references: [id], onDelete: SetNull)
+  checkIns        KindnessCheckIn[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([status])
+}
+
+model KindnessCheckIn {
+  id          String            @id @default(cuid())
+  challengeId String
+  challenge   KindnessChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  day         Int
+  checkedInAt DateTime          @default(now())
+
+  @@unique([challengeId, day])
 }

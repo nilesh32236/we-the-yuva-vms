@@ -89,10 +89,8 @@ export type UserRole =
   | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 export type VolunteerType =
-  | 'STUDENT'
-  | 'PROFESSIONAL'
-  | 'EVENT'
-  | 'RECURRING'
-  | 'REMOTE'
-  | 'EMERGENCY';
+  | 'STUDENT_VOLUNTEER'
+  | 'LONG_TERM'
+  | 'INTERNSHIP'
+  | 'OTHER';
 export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED';
