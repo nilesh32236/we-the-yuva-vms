@@ -54,12 +54,24 @@ function stripHtml(value: string): string {
 
 export async function createStory(
   userId: string,
-  data: { title: string; content: string; mediaUrl?: string }
+  data: { title: string; content: string; mediaUrl?: string; challengeId?: string },
+  now: Date = new Date()
 ) {
   const story = await prisma.story.create({
-    data: { ...data, title: stripHtml(data.title), content: stripHtml(data.content), userId },
+    data: {
+      title: stripHtml(data.title),
+      content: stripHtml(data.content),
+      mediaUrl: data.mediaUrl,
+      userId,
+    },
   });
   await logAudit({ userId, action: 'STORY_CREATE', targetId: story.id, targetType: 'Story' });
+
+  if (data.challengeId) {
+    const { completeWithStory } = await import('../kindness-challenge/kindness-challenge.service');
+    await completeWithStory(data.challengeId, userId, story.id, now);
+  }
+
   return story;
 }
 
