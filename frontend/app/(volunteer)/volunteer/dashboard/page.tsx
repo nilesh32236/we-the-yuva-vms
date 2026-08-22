@@ -10,6 +10,7 @@ import { PointsHistory } from '@/components/shared/PointsHistory';
 import { LevelProgressCard } from '@/components/levels/LevelProgressCard';
 import { PWAInstallBanner } from '@/components/shared/PWAInstallBanner';
 import { ProfileCompletionBanner } from '@/components/dashboard/ProfileCompletionBanner';
+import { KindnessChallengeCard } from '@/components/volunteer/KindnessChallengeCard';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
@@ -85,6 +86,8 @@ export default function VolunteerDashboardPage() {
           Failed to load data. Please try again later.
         </div>
       )}
+
+      <KindnessChallengeCard />
 
       {/* Stats */}
       {isLoading ? (
