@@ -110,7 +110,8 @@ export default function AdminStoriesPage() {
                     onClick={() =>
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
-                    disabled={moderateMut.isPending}
+                    disabled={moderateMut.isPending && (moderateMut.variables as {id:string} | undefined)?.id === story.id}
+                    loading={moderateMut.isPending && (moderateMut.variables as {id:string} | undefined)?.id === story.id}
                   >
                     {story.published ? (
                       <XCircle className="w-3.5 h-3.5" />
@@ -124,6 +125,8 @@ export default function AdminStoriesPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
+                    disabled={deleteMut.isPending}
+                    loading={deleteMut.isPending && (deleteMut.variables as string | undefined) === story.id}
                     className="text-brand-error border-brand-error/30 hover:bg-brand-error/10"
                   >
                     Delete

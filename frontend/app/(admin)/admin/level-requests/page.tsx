@@ -286,6 +286,7 @@ export default function AdminLevelRequestsPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
+                    className="font-semibold hover:underline"
                     onClick={() => setSelectedRequest(req)}
                   >
                     Review
