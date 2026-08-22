@@ -138,7 +138,7 @@ describe('getReminderTargets', () => {
     vi.mocked(prisma.kindnessChallenge.findMany).mockResolvedValue([
       { userId: 'a', startDate: new Date('2026-08-21T18:30:00Z'), storyId: null, checkIns: [{ day: 1 }] }, // day 2, no ci
       { userId: 'b', startDate: new Date('2026-08-14T18:30:00Z'), storyId: null, checkIns: [] },           // day 9 → SHARE
-      { userId: 'c', startDate: new Date('2026-08-21T18:30:00Z'), storyId: 's1', checkIns: [] },           // done → none
+      { userId: 'c', startDate: new Date('2026-08-21T18:30:00Z'), storyId: 's1', checkIns: [{ day: 2 }] }, // checked in → no reminder (storyId ignored for CHECKIN per spec)
     ] as never);
 
     const { getReminderTargets } = await import('../kindness-challenge.service');

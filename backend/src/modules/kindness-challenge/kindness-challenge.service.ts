@@ -51,7 +51,8 @@ export async function startChallenge(
   const existing = await prisma.kindnessChallenge.findUnique({ where: { userId } });
   if (existing) throw new AppError('You have already started the Kindness Challenge', 409);
 
-  const daysAhead = istDayNumber(now, input.startDate) - 1;
+  // daysAhead = IST calendar days from now to startDate
+  const daysAhead = 1 - istDayNumber(input.startDate, now);
   if (daysAhead < 0) throw new AppError('Start date cannot be in the past', 422);
   if (daysAhead > MAX_START_DAYS_AHEAD) throw new AppError('Start date is too far in the future', 422);
 
@@ -81,11 +82,17 @@ export async function checkIn(userId: string, now: Date = new Date()) {
     throw new AppError('Already checked in today', 409);
   }
 
-  return prisma.kindnessChallenge.update({
-    where: { id: challenge.id },
-    data: { checkIns: { create: [{ day }] } },
-    include: { checkIns: { orderBy: { day: 'asc' } } },
-  });
+  try {
+    return await prisma.kindnessChallenge.update({
+      where: { id: challenge.id },
+      data: { checkIns: { create: [{ day }] } },
+      include: { checkIns: { orderBy: { day: 'asc' } } },
+    });
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code;
+    if (code === 'P2002') throw new AppError('Already checked in today', 409);
+    throw err;
+  }
 }
 
 async function completeChallenge(id: string, storyId: string, now: Date) {
@@ -117,9 +124,13 @@ export async function linkExistingStory(userId: string, storyId: string, now: Da
   if (!story) throw new AppError('Story not found', 404);
   try {
     return await completeChallenge(challenge.id, storyId, now);
-  } catch (err) {
-    logger.warn('Story link failed', { userId, storyId, error: (err as Error).message });
-    throw new AppError('That story is already linked to a challenge', 409);
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code;
+    if (code === 'P2002') {
+      logger.warn('Story link failed', { userId, storyId, error: (err as Error).message });
+      throw new AppError('That story is already linked to a challenge', 409);
+    }
+    throw err;
   }
 }
 
@@ -133,7 +144,7 @@ export async function getReminderTargets(now: Date = new Date()) {
   const targets: Array<{ userId: string; kind: 'CHECKIN' | 'SHARE'; day: number }> = [];
   for (const c of challenges) {
     const day = istDayNumber(c.startDate, now);
-    if (day >= 1 && day <= CHALLENGE_DAYS && !c.checkIns.some((ci) => ci.day === day) && !c.storyId) {
+    if (day >= 1 && day <= CHALLENGE_DAYS && !c.checkIns.some((ci) => ci.day === day)) {
       targets.push({ userId: c.userId, kind: 'CHECKIN', day });
     } else if (day > CHALLENGE_DAYS && day <= CHALLENGE_DAYS + SHARE_NUDGE_WINDOW_DAYS && !c.storyId) {
       targets.push({ userId: c.userId, kind: 'SHARE', day });

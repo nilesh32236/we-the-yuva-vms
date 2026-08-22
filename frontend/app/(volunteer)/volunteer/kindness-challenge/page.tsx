@@ -82,13 +82,14 @@ export default function KindnessChallengePage() {
   if (!data) return <NotStarted acts={acts} setActs={setActs} startDate={startDate} setStartDate={setStartDate} onStart={() => start.mutate()} busy={start.isPending} />;
 
   const { challenge, view } = data;
-  const shareUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/volunteer/stories/new?challenge=${challenge.id}`
-      : '';
-  const shareText = encodeURIComponent(
-    `I just completed the 7-Day Kindness Challenge with WeTheYuva! Read my story: ${shareUrl}`
-  );
+  const handleWaShare = () => {
+    const origin = window.location.origin;
+    const shareUrl = `${origin}/volunteer/stories/new?challenge=${challenge.id}`;
+    const shareText = encodeURIComponent(
+      `I just completed the 7-Day Kindness Challenge with WeTheYuva! Read my story: ${shareUrl}`
+    );
+    window.open(`https://wa.me/?text=${shareText}`, '_blank');
+  };
 
   if (challenge.status === 'COMPLETED') {
     return (
@@ -109,7 +110,7 @@ export default function KindnessChallengePage() {
         <p className="text-brand-muted text-sm">
           Reflection prompt: “What changed in me or in the other person because of this small act of kindness?”
         </p>
-        <Button variant="cta" fullWidth onClick={() => window.open(`https://wa.me/?text=${shareText}`, '_blank')}>
+        <Button variant="cta" fullWidth onClick={handleWaShare}>
           <Share2 className="w-4 h-4" /> Share Your Story via WhatsApp
         </Button>
         <Button variant="outline" fullWidth onClick={() => router.push(`/volunteer/stories/new?challenge=${challenge.id}`)}>

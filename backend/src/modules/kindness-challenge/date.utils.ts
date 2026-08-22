@@ -12,5 +12,5 @@ function istEpochDay(d: Date): number {
 
 /** Day 1 = startDate's IST calendar date. */
 export function istDayNumber(startDate: Date, now: Date = new Date()): number {
-  return Math.round(istEpochDay(now) - istEpochDay(startDate)) + 1;
+  return istEpochDay(now) - istEpochDay(startDate) + 1;
 }

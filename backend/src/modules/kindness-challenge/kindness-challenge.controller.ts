@@ -33,6 +33,8 @@ export async function adminListChallengesHandler(req: Request, res: Response, _n
 
 export async function adminExportChallengesHandler(req: Request, res: Response, _next: NextFunction) {
   const { status, source } = req.query as { status?: 'ACTIVE' | 'COMPLETED'; source?: string };
+  // TODO: stream with res.write/pipeline for large tenants; currently buffered (ok for <10k rows).
+  // If dataset grows, add pagination or cursor streaming and enforce a max limit.
   const rows = await listChallengesForAdmin({ status, source });
 
   const esc = (v: unknown) => `"${String(v ?? '').replaceAll('"', '""')}"`;

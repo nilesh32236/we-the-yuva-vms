@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { LinkStorySchema, StartChallengeSchema } from '@/shared';
+import { AdminChallengeQuerySchema, LinkStorySchema, StartChallengeSchema } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
 import { validate } from '../../middleware/validate.middleware';
@@ -41,6 +41,6 @@ kindnessRouter.post('/check-in', requirePermission(Permissions.CHALLENGE_PARTICI
 
 kindnessRouter.patch('/link-story', requirePermission(Permissions.CHALLENGE_PARTICIPATE), validate(LinkStorySchema), linkStoryHandler);
 
-kindnessRouter.get('/admin', requirePermission(Permissions.CHALLENGE_VIEW_ALL), adminListChallengesHandler);
+kindnessRouter.get('/admin', requirePermission(Permissions.CHALLENGE_VIEW_ALL), validate(AdminChallengeQuerySchema), adminListChallengesHandler);
 
-kindnessRouter.get('/admin/export', requirePermission(Permissions.CHALLENGE_VIEW_ALL), adminExportChallengesHandler);
+kindnessRouter.get('/admin/export', requirePermission(Permissions.CHALLENGE_VIEW_ALL), validate(AdminChallengeQuerySchema), adminExportChallengesHandler);

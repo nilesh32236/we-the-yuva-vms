@@ -57,6 +57,53 @@ export async function createStory(
   data: { title: string; content: string; mediaUrl?: string; challengeId?: string },
   now: Date = new Date()
 ) {
+  // Pre-validate challenge eligibility BEFORE creating story to avoid orphan
+  if (data.challengeId) {
+    const { istDayNumber } = await import('../kindness-challenge/date.utils');
+    const challenge = await prisma.kindnessChallenge.findUnique({ where: { id: data.challengeId } });
+    if (!challenge || challenge.userId !== userId) throw new AppError('Challenge not found', 404);
+    if (challenge.status !== 'ACTIVE') throw new AppError('Challenge is already completed', 409);
+    if (istDayNumber(challenge.startDate, now) < 7) throw new AppError('Come back on Day 7 to share your story', 422);
+
+    // Atomic: create story + complete challenge in a transaction when available
+    const prismaAny = prisma as unknown as { $transaction: (fn: (tx: typeof prisma) => Promise<unknown>) => Promise<unknown> };
+    let story: { id: string };
+    if (typeof prismaAny.$transaction === 'function') {
+      story = (await prismaAny.$transaction(async (tx) => {
+        const s = await tx.story.create({
+          data: {
+            title: stripHtml(data.title),
+            content: stripHtml(data.content),
+            mediaUrl: data.mediaUrl,
+            userId,
+          },
+        });
+        await tx.kindnessChallenge.update({
+          where: { id: challenge.id },
+          data: { storyId: s.id, status: 'COMPLETED', completedAt: now, part2UnlockedAt: now },
+        });
+        return s;
+      })) as { id: string };
+    } else {
+      // Fallback for test mocks without $transaction
+      const s = await prisma.story.create({
+        data: {
+          title: stripHtml(data.title),
+          content: stripHtml(data.content),
+          mediaUrl: data.mediaUrl,
+          userId,
+        },
+      });
+      await prisma.kindnessChallenge.update({
+        where: { id: challenge.id },
+        data: { storyId: s.id, status: 'COMPLETED', completedAt: now, part2UnlockedAt: now },
+      });
+      story = s as { id: string };
+    }
+    await logAudit({ userId, action: 'STORY_CREATE', targetId: story.id, targetType: 'Story' });
+    return story as Awaited<ReturnType<typeof prisma.story.create>>;
+  }
+
   const story = await prisma.story.create({
     data: {
       title: stripHtml(data.title),
@@ -66,12 +113,6 @@ export async function createStory(
     },
   });
   await logAudit({ userId, action: 'STORY_CREATE', targetId: story.id, targetType: 'Story' });
-
-  if (data.challengeId) {
-    const { completeWithStory } = await import('../kindness-challenge/kindness-challenge.service');
-    await completeWithStory(data.challengeId, userId, story.id, now);
-  }
-
   return story;
 }
 
