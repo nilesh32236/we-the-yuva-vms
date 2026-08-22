@@ -13,6 +13,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Organizations', href: '/admin/organizations', icon: 'Building2' },
   { label: 'Opportunities', href: '/admin/opportunities', icon: 'Briefcase' },
   { label: 'Events', href: '/admin/events', icon: 'Calendar' },
+  { label: 'Kindness Tracker', href: '/admin/kindness-challenge', icon: 'Sprout' },
   { label: 'Stories', href: '/admin/stories', icon: 'BookOpen' },
   { label: 'Blog', href: '/admin/blog', icon: 'FileText' },
   { label: 'Level Requests', href: '/admin/level-requests', icon: 'TrendingUp' },
