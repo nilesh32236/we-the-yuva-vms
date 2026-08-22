@@ -37,7 +37,11 @@ export async function adminExportChallengesHandler(req: Request, res: Response, 
   // If dataset grows, add pagination or cursor streaming and enforce a max limit.
   const rows = await listChallengesForAdmin({ status, source });
 
-  const esc = (v: unknown) => `"${String(v ?? '').replaceAll('"', '""')}"`;
+  const esc = (v: unknown) => {
+    let s = String(v ?? '');
+    if (/^[=+\-@]/.test(s)) s = `'${s}`;
+    return `"${s.replaceAll('"', '""')}"`;
+  };
   const header = 'name,email,whatsapp,registered_at,referral_source,status,checkins,story_shared,part2_unlocked,start_date';
   const body = rows.map((r) =>
     [

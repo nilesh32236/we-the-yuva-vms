@@ -7,6 +7,8 @@ vi.mock('@/lib/prisma', () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      updateMany: vi.fn(),
+      findUniqueOrThrow: vi.fn(),
       findMany: vi.fn(),
     },
     story: { findFirst: vi.fn() },
@@ -117,14 +119,15 @@ describe('linkExistingStory', () => {
   it('completes challenge when story owned + unlinked', async () => {
     vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ ...activeChallenge } as never);
     vi.mocked(prisma.story.findFirst).mockResolvedValue({ id: 's1', userId: 'u1' } as never);
-    vi.mocked(prisma.kindnessChallenge.update).mockResolvedValue(activeChallenge as never);
+    vi.mocked(prisma.kindnessChallenge.updateMany).mockResolvedValue({ count: 1 } as never);
+    vi.mocked(prisma.kindnessChallenge.findUniqueOrThrow).mockResolvedValue({ ...activeChallenge, storyId: 's1', status: 'COMPLETED' } as never);
     await linkExistingStory('u1', 's1', DAY7);
-    expect(prisma.kindnessChallenge.update).toHaveBeenCalledWith(
+    expect(prisma.kindnessChallenge.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
+        where: expect.objectContaining({ id: 'ch1', status: 'ACTIVE', storyId: null }),
         data: expect.objectContaining({
           storyId: 's1',
           status: 'COMPLETED',
-          part2UnlockedAt: expect.any(Date),
         }),
       })
     );

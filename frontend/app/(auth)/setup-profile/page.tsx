@@ -45,16 +45,34 @@ const STEPS = [
 
 const STEP_FIELDS: string[][] = [
   ['gender', 'whatsappNumber', 'address.city', 'address.district', 'address.state', 'address.pincode'],
-  ['education', 'currentStatus'],
+  [
+    'education',
+    'currentStatus',
+    'student.institution',
+    'student.course',
+    'student.yearSemester',
+    'student.city',
+    'professional.company',
+    'professional.designation',
+    'professional.industry',
+    'professional.city',
+    'selfEmployed.profession',
+    'selfEmployed.organizationName',
+    'selfEmployed.city',
+  ],
   ['volunteerType', 'opportunityInterests', 'whyVoluntary', 'skills', 'digitalReadiness.smartphone', 'digitalReadiness.whatsapp', 'digitalReadiness.laptop', 'digitalReadiness.onlineVolunteering'],
-  ['referralSource'],
+  ['referralSource', 'referralSourceName'],
   [], // custom component, validated inline
   ['declarations.infoCorrect', 'declarations.commitmentsAccepted'],
 ];
 
 const tomorrowIso = () => {
-  const d = new Date(Date.now() + 86_400_000);
-  return d.toISOString().slice(0, 10);
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 };
 
 const defaultValues: OnboardingData = {

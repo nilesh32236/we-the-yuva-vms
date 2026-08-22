@@ -59,7 +59,7 @@ export async function createStory(
 ) {
   // Pre-validate challenge eligibility BEFORE creating story to avoid orphan
   if (data.challengeId) {
-    const { istDayNumber } = await import('../kindness-challenge/date.utils');
+    const { istDayNumber } = await import('@/modules/kindness-challenge/date.utils');
     const challenge = await prisma.kindnessChallenge.findUnique({ where: { id: data.challengeId } });
     if (!challenge || challenge.userId !== userId) throw new AppError('Challenge not found', 404);
     if (challenge.status !== 'ACTIVE') throw new AppError('Challenge is already completed', 409);
@@ -78,14 +78,15 @@ export async function createStory(
             userId,
           },
         });
-        await tx.kindnessChallenge.update({
-          where: { id: challenge.id },
+        const completion = await tx.kindnessChallenge.updateMany({
+          where: { id: challenge.id, userId, status: 'ACTIVE', storyId: null },
           data: { storyId: s.id, status: 'COMPLETED', completedAt: now, part2UnlockedAt: now },
         });
+        if (completion.count !== 1) throw new AppError('Challenge is already completed', 409);
         return s;
       })) as { id: string };
     } else {
-      // Fallback for test mocks without $transaction
+      // Fallback for test mocks without $transaction (cannot guarantee atomicity)
       const s = await prisma.story.create({
         data: {
           title: stripHtml(data.title),
@@ -94,10 +95,11 @@ export async function createStory(
           userId,
         },
       });
-      await prisma.kindnessChallenge.update({
-        where: { id: challenge.id },
+      const completion = await (prisma.kindnessChallenge as unknown as { updateMany: (args: unknown) => Promise<{ count: number }> }).updateMany({
+        where: { id: challenge.id, userId, status: 'ACTIVE', storyId: null },
         data: { storyId: s.id, status: 'COMPLETED', completedAt: now, part2UnlockedAt: now },
       });
+      if (completion.count !== 1) throw new AppError('Challenge is already completed', 409);
       story = s as { id: string };
     }
     await logAudit({ userId, action: 'STORY_CREATE', targetId: story.id, targetType: 'Story' });

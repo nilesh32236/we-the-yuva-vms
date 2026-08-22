@@ -75,7 +75,17 @@ ALTER TYPE "OpportunityCategory" ADD VALUE 'ACTIVE_CITIZENSHIP';
 -- AlterEnum
 BEGIN;
 CREATE TYPE "VolunteerType_new" AS ENUM ('STUDENT_VOLUNTEER', 'LONG_TERM', 'INTERNSHIP', 'OTHER');
-ALTER TABLE "User" ALTER COLUMN "volunteerType" TYPE "VolunteerType_new" USING ("volunteerType"::text::"VolunteerType_new");
+ALTER TABLE "User" ALTER COLUMN "volunteerType" TYPE "VolunteerType_new" USING (
+  CASE "volunteerType"::text
+    WHEN 'STUDENT' THEN 'STUDENT_VOLUNTEER'::"VolunteerType_new"
+    WHEN 'PROFESSIONAL' THEN 'LONG_TERM'::"VolunteerType_new"
+    WHEN 'EVENT' THEN 'OTHER'::"VolunteerType_new"
+    WHEN 'RECURRING' THEN 'LONG_TERM'::"VolunteerType_new"
+    WHEN 'REMOTE' THEN 'OTHER'::"VolunteerType_new"
+    WHEN 'EMERGENCY' THEN 'OTHER'::"VolunteerType_new"
+    ELSE 'OTHER'::"VolunteerType_new"
+  END
+);
 ALTER TYPE "VolunteerType" RENAME TO "VolunteerType_old";
 ALTER TYPE "VolunteerType_new" RENAME TO "VolunteerType";
 DROP TYPE "VolunteerType_old";
@@ -128,12 +138,16 @@ ADD COLUMN     "dateOfBirth" TIMESTAMP(3),
 ADD COLUMN     "gender" "Gender",
 ADD COLUMN     "phone" TEXT,
 ADD COLUMN     "profileComplete" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "referralCode" TEXT NOT NULL,
+ADD COLUMN     "referralCode" TEXT,
 ADD COLUMN     "referralSource" "ReferralSource",
 ADD COLUMN     "referralSourceName" TEXT,
 ADD COLUMN     "referredById" TEXT,
 ADD COLUMN     "whatsappNumber" TEXT,
 ADD COLUMN     "whyVoluntary" TEXT;
+
+-- Backfill referralCode for existing rows before NOT NULL constraint
+UPDATE "User" SET "referralCode" = "id" WHERE "referralCode" IS NULL;
+ALTER TABLE "User" ALTER COLUMN "referralCode" SET NOT NULL;
 
 -- AlterTable
 ALTER TABLE "VolunteerProfile" ADD COLUMN     "details" JSONB,

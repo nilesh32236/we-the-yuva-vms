@@ -290,12 +290,12 @@ export async function getProfileStatus(userId: string) {
   const hasVolunteerType = user.volunteerType != null;
 
   const availability = user.profile?.availability as
-    | { days?: string[]; timeSlots?: string[] }
+    | { days?: string[]; timeSlots?: string[]; preferredDaysTimes?: string }
     | undefined;
   const hasAvailability =
     availability != null &&
-    (availability.days?.length ?? 0) > 0 &&
-    (availability.timeSlots?.length ?? 0) > 0;
+    (((availability.days?.length ?? 0) > 0 && (availability.timeSlots?.length ?? 0) > 0) ||
+      typeof availability.preferredDaysTimes === 'string' && availability.preferredDaysTimes.trim().length > 0);
 
   if (!hasSkills) missingFields.push('skills');
   if (!hasInterests) missingFields.push('interests');
@@ -414,6 +414,7 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
 
     const details = {
       fieldOfStudy: data.fieldOfStudy || undefined,
+      currentStatus: data.currentStatus,
       student: data.student,
       professional: data.professional,
       selfEmployed: data.selfEmployed,
@@ -425,6 +426,7 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
 
     const profileData = {
       skills: data.skills,
+      interests: data.opportunityInterests,
       education: data.education,
       avatarUrl: data.avatarUrl || undefined,
       availability: data.timeCommitment.preferredDaysTimes
@@ -443,10 +445,11 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
       where: { userId },
       create: {
         userId,
-        privacyPolicyAccepted: true,
+        privacyPolicyAccepted: false,
         mediaConsentAccepted: false,
         onboardingInfoCorrect: data.declarations.infoCorrect,
         onboardingCommitment: data.declarations.commitmentsAccepted,
+        acceptedAt: new Date(),
       },
       update: {
         onboardingInfoCorrect: data.declarations.infoCorrect,

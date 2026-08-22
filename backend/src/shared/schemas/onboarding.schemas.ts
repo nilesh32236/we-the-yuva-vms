@@ -132,6 +132,7 @@ export type OnboardingData = z.infer<typeof OnboardingSchema>;
 // Shape persisted to VolunteerProfile.details (validated on write via OnboardingSchema)
 export const VolunteerDetailsSchema = z.object({
   fieldOfStudy: z.string().optional(),
+  currentStatus: z.enum(CURRENT_STATUSES).optional(),
   student: StudentInfoSchema.optional(),
   professional: ProfessionalInfoSchema.optional(),
   selfEmployed: SelfEmployedInfoSchema.optional(),

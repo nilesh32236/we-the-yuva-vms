@@ -1,8 +1,8 @@
 import { type ChallengeStatus, type KindnessChallenge } from '@prisma/client';
-import { AppError } from '../../middleware/error.middleware';
-import { logger } from '../../lib/logger';
-import { prisma } from '../../lib/prisma';
-import { istDayNumber } from './date.utils';
+import { AppError } from '@/middleware/error.middleware';
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
+import { istDayNumber } from '@/modules/kindness-challenge/date.utils';
 
 const CHALLENGE_DAYS = 7;
 const SHARE_NUDGE_WINDOW_DAYS = 30;
@@ -58,9 +58,15 @@ export async function startChallenge(
 
   const startDate = new Date(input.startDate.getTime());
   const endDate = new Date(startDate.getTime() + CHALLENGE_DAYS * 86_400_000);
-  return prisma.kindnessChallenge.create({
-    data: { userId, acts: input.acts, startDate, endDate, status: 'ACTIVE' },
-  });
+  try {
+    return await prisma.kindnessChallenge.create({
+      data: { userId, acts: input.acts, startDate, endDate, status: 'ACTIVE' },
+    });
+  } catch (err: unknown) {
+    const code = (err as { code?: string }).code;
+    if (code === 'P2002') throw new AppError('You have already started the Kindness Challenge', 409);
+    throw err;
+  }
 }
 
 export async function getMyChallenge(userId: string, now: Date = new Date()) {
@@ -96,10 +102,12 @@ export async function checkIn(userId: string, now: Date = new Date()) {
 }
 
 async function completeChallenge(id: string, storyId: string, now: Date) {
-  return prisma.kindnessChallenge.update({
-    where: { id },
+  const result = await prisma.kindnessChallenge.updateMany({
+    where: { id, status: 'ACTIVE', storyId: null },
     data: { storyId, status: 'COMPLETED' as ChallengeStatus, completedAt: now, part2UnlockedAt: now },
   });
+  if (result.count !== 1) throw new AppError('Challenge is already completed', 409);
+  return prisma.kindnessChallenge.findUniqueOrThrow({ where: { id } });
 }
 
 export async function completeWithStory(challengeId: string, userId: string, storyId: string, now: Date = new Date()) {
