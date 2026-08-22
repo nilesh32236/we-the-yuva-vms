@@ -3,10 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CheckCircle, ExternalLink, XCircle } from 'lucide-react';
 import Link from 'next/link';
-import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useState } from 'react';
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
@@ -102,13 +103,14 @@ export default function AdminStoriesPage() {
                     <ExternalLink className="w-3.5 h-3.5" />
                     View
                   </Link>
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={() =>
                       moderateMut.mutate({ id: story.id, published: !story.published })
                     }
                     disabled={moderateMut.isPending}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer disabled:opacity-60"
                   >
                     {story.published ? (
                       <XCircle className="w-3.5 h-3.5" />
@@ -116,14 +118,16 @@ export default function AdminStoriesPage() {
                       <CheckCircle className="w-3.5 h-3.5" />
                     )}
                     {story.published ? 'Unpublish' : 'Publish'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={() => setConfirmDelete({ id: story.id, title: story.title })}
-                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-3 rounded-xl border border-brand-border text-brand-error hover:bg-brand-error/10 transition-colors cursor-pointer"
+                    className="text-brand-error border-brand-error/30 hover:bg-brand-error/10"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             )

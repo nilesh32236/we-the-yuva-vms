@@ -3,23 +3,23 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft,
-  Calendar,
-  MapPin,
-  Video,
   Building2,
-  ShieldAlert,
-  Clock,
+  Calendar,
   CheckCircle2,
-  XCircle,
+  Clock,
+  MapPin,
+  ShieldAlert,
   UserCheck,
   Users,
+  Video,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { z } from 'zod';
 import { StatsCard } from '@/components/charts/StatsCard';
-import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
+import { api } from '@/lib/api';
 
 const STATUS_STYLES: Record<string, string> = {
   SCHEDULED: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',

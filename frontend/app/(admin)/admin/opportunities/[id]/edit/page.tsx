@@ -4,10 +4,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import type { OpportunityInput } from '@/lib/shared';
 import { OpportunityForm } from '@/components/opportunities/OpportunityForm';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import type { OpportunityInput } from '@/lib/shared';
 import { Permissions } from '@/lib/shared/permissions';
 
 export default function AdminEditOpportunityPage() {
