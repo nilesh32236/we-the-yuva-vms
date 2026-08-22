@@ -1,4 +1,4 @@
-import type { OnboardingInput, StaffProfileInput, VolunteerProfileInput } from '@/shared';
+import type { OnboardingData, StaffProfileInput, VolunteerProfileInput } from '@/shared';
 import type { Prisma } from '@prisma/client';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
@@ -387,7 +387,7 @@ export async function upsertStaffProfile(userId: string, data: StaffProfileInput
   });
 }
 
-export async function submitOnboarding(userId: string, data: OnboardingInput) {
+export async function submitOnboarding(userId: string, data: OnboardingData) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { roleRef: { select: { name: true } } },
@@ -401,56 +401,60 @@ export async function submitOnboarding(userId: string, data: OnboardingInput) {
     await tx.user.update({
       where: { id: userId },
       data: {
-        volunteerType: data.volunteerType,
         gender: data.gender,
-        whatsappNumber: data.whatsappNumber,
+        whatsappNumber: data.whatsappNumber || null,
         address: data.address,
-        referralSource: data.referralSource,
-        referralSourceName: data.referralSourceName ?? null,
         whyVoluntary: data.whyVoluntary,
+        volunteerType: data.volunteerType,
+        referralSource: data.referralSource,
+        referralSourceName: data.referralSourceName || null,
         profileComplete: true,
       },
     });
 
-    // Consent declarations
+    const details = {
+      fieldOfStudy: data.fieldOfStudy || undefined,
+      student: data.student,
+      professional: data.professional,
+      selfEmployed: data.selfEmployed,
+      timeCommitment: data.timeCommitment,
+      opportunityInterests: data.opportunityInterests,
+      digitalReadiness: data.digitalReadiness,
+      onboardingCompletedAt: new Date().toISOString(),
+    };
+
+    const profileData = {
+      skills: data.skills,
+      education: data.education,
+      avatarUrl: data.avatarUrl || undefined,
+      availability: data.timeCommitment.preferredDaysTimes
+        ? { preferredDaysTimes: data.timeCommitment.preferredDaysTimes }
+        : {},
+      details,
+    };
+
+    await tx.volunteerProfile.upsert({
+      where: { userId },
+      create: { userId, ...profileData },
+      update: profileData,
+    });
+
     await tx.consentRecord.upsert({
       where: { userId },
       create: {
         userId,
         privacyPolicyAccepted: true,
-        mediaConsentAccepted: true,
+        mediaConsentAccepted: false,
         onboardingInfoCorrect: data.declarations.infoCorrect,
         onboardingCommitment: data.declarations.commitmentsAccepted,
       },
       update: {
         onboardingInfoCorrect: data.declarations.infoCorrect,
         onboardingCommitment: data.declarations.commitmentsAccepted,
+        acceptedAt: new Date(),
       },
     });
 
-    const profileData: any = {
-      skills: data.skills,
-      interests: data.opportunityInterests,
-      availability: data.timeCommitment ?? {},
-      education: data.education,
-      bio: data.whyVoluntary,
-      avatarUrl: data.avatarUrl ?? undefined,
-      details: {
-        fieldOfStudy: data.fieldOfStudy,
-        student: data.student,
-        professional: data.professional,
-        selfEmployed: data.selfEmployed,
-        timeCommitment: data.timeCommitment,
-        opportunityInterests: data.opportunityInterests,
-        digitalReadiness: data.digitalReadiness,
-        onboardingCompletedAt: new Date().toISOString(),
-      },
-    };
-
-    return tx.volunteerProfile.upsert({
-      where: { userId },
-      create: { userId, ...profileData },
-      update: profileData,
-    });
+    return tx.volunteerProfile.findUnique({ where: { userId } });
   });
 }

@@ -9,9 +9,10 @@ vi.mock('@/lib/prisma', () => ({
       update: vi.fn(),
       count: vi.fn(),
     },
-    volunteerProfile: { findUnique: vi.fn() },
+    volunteerProfile: { findUnique: vi.fn(), upsert: vi.fn() },
     staffProfile: { upsert: vi.fn() },
     location: { upsert: vi.fn() },
+    consentRecord: { upsert: vi.fn() },
     $transaction: vi.fn(),
   },
 }));
@@ -23,6 +24,7 @@ import {
   getCoordinatorVolunteers,
   getMe,
   getUserProfile,
+  submitOnboarding,
   updateUser,
   upsertStaffProfile,
   upsertVolunteerProfile,
@@ -321,6 +323,67 @@ describe('users.service', () => {
         designation: 'Teacher',
       });
       expect(result.staffProfile).toBeDefined();
+    });
+  });
+
+  describe('submitOnboarding', () => {
+    const baseData = {
+      gender: 'FEMALE',
+      whatsappNumber: '+919876543210',
+      address: { city: 'Mumbai', district: 'Mumbai', state: 'Maharashtra', pincode: '400001' },
+      avatarUrl: '',
+      education: 'B.Com',
+      fieldOfStudy: '',
+      currentStatus: 'WORKING_PROFESSIONAL',
+      professional: { company: 'Acme', designation: 'Designer', industry: 'IT', city: 'Mumbai' },
+      volunteerType: 'LONG_TERM',
+      timeCommitment: { hoursPerWeek: 4 },
+      opportunityInterests: ['ENVIRONMENT'],
+      whyVoluntary: 'To help my community.',
+      skills: ['Design'],
+      digitalReadiness: { smartphone: true, whatsapp: true, laptop: true, onlineVolunteering: true, tools: ['Emailing'] },
+      referralSource: 'SOCIAL_MEDIA',
+      referralSourceName: '',
+      declarations: { infoCorrect: true, commitmentsAccepted: true },
+    } as never;
+
+    it('throws 403 for non-volunteers', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        roleRef: { name: 'ADMIN' },
+      } as never);
+      await expect(submitOnboarding('u1', baseData)).rejects.toMatchObject({ status: 403 });
+    });
+
+    it('updates user + upserts profile + consent + sets profileComplete', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({ roleRef: { name: 'VOLUNTEER' } } as never);
+      const txClient: any = {
+        user: { update: vi.fn().mockResolvedValue({}) },
+        volunteerProfile: { upsert: vi.fn().mockResolvedValue({}), findUnique: vi.fn().mockResolvedValue({ id: 'vp-1' }) },
+        consentRecord: { upsert: vi.fn().mockResolvedValue({}) },
+      };
+      const tx = vi.fn((cb: unknown) => (cb as any)(txClient));
+      vi.mocked(prisma.$transaction).mockImplementation(tx as never);
+
+      await submitOnboarding('u1', baseData);
+
+      expect(txClient.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'u1' },
+          data: expect.objectContaining({
+            gender: 'FEMALE',
+            whatsappNumber: '+919876543210',
+            volunteerType: 'LONG_TERM',
+            referralSource: 'SOCIAL_MEDIA',
+            profileComplete: true,
+            whyVoluntary: 'To help my community.',
+          }),
+        })
+      );
+      expect(txClient.consentRecord.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          update: expect.objectContaining({ onboardingInfoCorrect: true, onboardingCommitment: true }),
+        })
+      );
     });
   });
 });

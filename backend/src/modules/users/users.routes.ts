@@ -97,7 +97,7 @@ usersRouter.put(
   updateVolunteerProfile
 );
 
-usersRouter.post(
+usersRouter.put(
   '/me/onboarding',
   requirePermission(Permissions.USER_PROFILE_MANAGE),
   validate(OnboardingSchema),
