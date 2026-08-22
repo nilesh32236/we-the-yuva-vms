@@ -9,8 +9,9 @@ import {
   User,
   GraduationCap,
   Heart,
-  Clock,
-  BookOpen,
+  Megaphone,
+  Sprout,
+  FileCheck,
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -24,44 +25,56 @@ import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../lib/api';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
-import { StepSkills } from '../../../components/setup-profile/StepSkills';
-import { StepInterests } from '../../../components/setup-profile/StepInterests';
-import { StepAvailability } from '../../../components/setup-profile/StepAvailability';
-import { StepEducation } from '../../../components/setup-profile/StepEducation';
-import { StepBio } from '../../../components/setup-profile/StepBio';
+import { Step1PersonalInfo } from '../../../components/onboarding/Step1PersonalInfo';
+import { Step2Education } from '../../../components/onboarding/Step2Education';
+import { Step3VolunteerProfile } from '../../../components/onboarding/Step3VolunteerProfile';
+import { Step4Referral } from '../../../components/onboarding/Step4Referral';
+import { Step5KindnessOptIn, type KindnessOptIn } from '../../../components/onboarding/Step5KindnessOptIn';
+import { Step6Declaration } from '../../../components/onboarding/Step6Declaration';
 
 const DRAFT_KEY = 'setup-profile-draft';
 
 const STEPS = [
-  { icon: User, label: 'Skills & Languages' },
-  { icon: Heart, label: 'Interests & Causes' },
-  { icon: Clock, label: 'Availability' },
+  { icon: User, label: 'Personal Info' },
   { icon: GraduationCap, label: 'Education' },
-  { icon: BookOpen, label: 'Bio & Social' },
+  { icon: Heart, label: 'Volunteer Profile' },
+  { icon: Megaphone, label: 'How You Found Us' },
+  { icon: Sprout, label: 'Kindness Challenge' },
+  { icon: FileCheck, label: 'Declaration' },
 ] as const;
 
-const STEP_KEYS = ['step1', 'step2', 'step3', 'step4', 'step5'] as const;
+const STEP_FIELDS: string[][] = [
+  ['gender', 'whatsappNumber', 'address.city', 'address.district', 'address.state', 'address.pincode'],
+  ['education', 'currentStatus'],
+  ['volunteerType', 'opportunityInterests', 'whyVoluntary', 'skills', 'digitalReadiness.smartphone', 'digitalReadiness.whatsapp', 'digitalReadiness.laptop', 'digitalReadiness.onlineVolunteering'],
+  ['referralSource'],
+  [], // custom component, validated inline
+  ['declarations.infoCorrect', 'declarations.commitmentsAccepted'],
+];
+
+const tomorrowIso = () => {
+  const d = new Date(Date.now() + 86_400_000);
+  return d.toISOString().slice(0, 10);
+};
 
 const defaultValues: OnboardingData = {
-  step1: { skills: [], expertise: [], languages: [] },
-  step2: { causes: [], interests: [], preferredActivities: [] },
-  step3: {
-    volunteerType: '' as never,
-    availabilityPattern: '' as never,
-    hoursPerWeek: 0,
-    sessionDuration: 0,
-  },
-  step4: { education: '', occupation: '', experience: '', certifications: [] },
-  step5: { bio: '', avatarUrl: '', socialLinks: {} },
-};
-
-const STEP_FIELDS: Record<string, string[]> = {
-  step1: ['skills', 'expertise', 'languages'],
-  step2: ['causes', 'interests', 'preferredActivities'],
-  step3: ['volunteerType', 'availabilityPattern', 'hoursPerWeek', 'sessionDuration'],
-  step4: ['education', 'occupation', 'experience', 'certifications'],
-  step5: ['bio', 'avatarUrl', 'socialLinks'],
-};
+  gender: '' as never,
+  whatsappNumber: '',
+  address: { city: '', district: '', state: '', pincode: '' },
+  avatarUrl: '',
+  education: '',
+  fieldOfStudy: '',
+  currentStatus: '' as never,
+  volunteerType: '' as never,
+  timeCommitment: {},
+  opportunityInterests: [],
+  whyVoluntary: '',
+  skills: [],
+  digitalReadiness: { smartphone: false, whatsapp: false, laptop: false, onlineVolunteering: false, tools: [] },
+  referralSource: '' as never,
+  referralSourceName: '',
+  declarations: { infoCorrect: false as never, commitmentsAccepted: false as never },
+} as never;
 
 export default function SetupProfilePage() {
   const router = useRouter();
@@ -70,6 +83,8 @@ export default function SetupProfilePage() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [kindness, setKindness] = useState<KindnessOptIn>({ optedIn: false, acts: [], startDate: tomorrowIso() });
+  const [kindnessError, setKindnessError] = useState<string | null>(null);
 
   const {
     register,
@@ -161,7 +176,25 @@ export default function SetupProfilePage() {
     setStep(newStep);
   };
 
+  const validateStep = async (stepIndex: number): Promise<boolean> => {
+    const fields = STEP_FIELDS[stepIndex];
+    if (fields.length === 0) return true;
+    const results = await Promise.all(fields.map((f) => trigger(f as never)));
+    const valid = results.every(Boolean);
+    if (!valid) toast({ title: 'Please fix the highlighted fields', variant: 'destructive' });
+    return valid;
+  };
+
   const handleNext = async () => {
+    if (step === 4) {
+      if (!kindness.optedIn) return goToStep(step + 1);
+      if (kindness.acts.length === 0 || !kindness.startDate) {
+        setKindnessError('Select at least one act of kindness and a start date');
+        return;
+      }
+      setKindnessError(null);
+      return goToStep(step + 1);
+    }
     if (await validateStep(step)) {
       goToStep(step + 1);
     }
@@ -177,21 +210,16 @@ export default function SetupProfilePage() {
     router.push(ROLE_ROUTES[freshUser?.role ?? ''] ?? '/login');
   };
 
-  const validateStep = async (stepIndex: number): Promise<boolean> => {
-    const stepKey = STEP_KEYS[stepIndex];
-    const fields = STEP_FIELDS[stepKey];
-    const results = await Promise.all(
-      fields.map((field) => trigger(`${stepKey}.${field}` as never))
-    );
-    const valid = results.every(Boolean);
-    if (!valid) {
-      toast({ title: 'Please fix the highlighted fields', variant: 'destructive' });
-    }
-    return valid;
-  };
-
   const handleSubmitForm = async () => {
     for (let i = 0; i < STEPS.length; i++) {
+      if (i === 4) {
+        if (kindness.optedIn && (kindness.acts.length === 0 || !kindness.startDate)) {
+          setKindnessError('Select at least one act of kindness and a start date');
+          goToStep(i);
+          return;
+        }
+        continue;
+      }
       const valid = await validateStep(i);
       if (!valid) {
         goToStep(i);
@@ -203,9 +231,22 @@ export default function SetupProfilePage() {
     setIsSubmitting(true);
     try {
       const data = watch();
-      await api.post('/users/me/onboarding', data);
-      toast({ title: 'Profile saved! Welcome to WeTheYuva.', variant: 'default' });
-      await handleComplete();
+      await api.put('/users/me/onboarding', data);
+
+      if (kindness.optedIn) {
+        try {
+          await api.post('/kindness-challenge', {
+            acts: kindness.acts,
+            startDate: kindness.startDate,
+          });
+        } catch {
+          // Non-fatal: challenge can be started from the dashboard card later
+          toast({ title: 'Heads up', description: 'Profile saved, but the challenge could not be started. You can start it from your dashboard.' });
+        }
+      }
+      localStorage.removeItem(DRAFT_KEY);
+      const freshUser = await refetch();
+      router.push(ROLE_ROUTES[freshUser?.role ?? ''] ?? '/login');
     } catch (err) {
       const message =
         (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
@@ -231,14 +272,15 @@ export default function SetupProfilePage() {
   }
 
   const progress = ((step + 1) / STEPS.length) * 100;
-  const CurrentStepComponent = [
-    StepSkills,
-    StepInterests,
-    StepAvailability,
-    StepEducation,
-    StepBio,
-  ][step];
   const stepProps = { register, setValue, watch, errors };
+  const stepComponents = [
+    <Step1PersonalInfo key={0} {...stepProps} />,
+    <Step2Education key={1} {...stepProps} />,
+    <Step3VolunteerProfile key={2} {...stepProps} />,
+    <Step4Referral key={3} {...stepProps} />,
+    <Step5KindnessOptIn key={4} value={kindness} onChange={setKindness} />,
+    <Step6Declaration key={5} {...stepProps} />,
+  ];
 
   return (
     <div className="space-y-4 max-w-2xl mx-auto pb-12">
@@ -302,8 +344,18 @@ export default function SetupProfilePage() {
         aria-busy={isSubmitting}
       >
         <section aria-live="polite">
-          <CurrentStepComponent {...stepProps} />
+          {stepComponents[step]}
         </section>
+
+        {kindnessError && (
+          <div className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error" role="alert">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <p className="flex-1">{kindnessError}</p>
+            <button type="button" onClick={() => setKindnessError(null)} className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0 p-2 min-w-11 min-h-11" aria-label="Dismiss error">
+              <X className="w-4 h-4" aria-hidden="true" />
+            </button>
+          </div>
+        )}
 
         {formError && (
           <div
