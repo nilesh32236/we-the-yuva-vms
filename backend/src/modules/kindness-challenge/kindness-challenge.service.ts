@@ -133,7 +133,7 @@ export async function getReminderTargets(now: Date = new Date()) {
   const targets: Array<{ userId: string; kind: 'CHECKIN' | 'SHARE'; day: number }> = [];
   for (const c of challenges) {
     const day = istDayNumber(c.startDate, now);
-    if (day >= 1 && day <= CHALLENGE_DAYS && !c.checkIns.some((ci) => ci.day === day)) {
+    if (day >= 1 && day <= CHALLENGE_DAYS && !c.checkIns.some((ci) => ci.day === day) && !c.storyId) {
       targets.push({ userId: c.userId, kind: 'CHECKIN', day });
     } else if (day > CHALLENGE_DAYS && day <= CHALLENGE_DAYS + SHARE_NUDGE_WINDOW_DAYS && !c.storyId) {
       targets.push({ userId: c.userId, kind: 'SHARE', day });

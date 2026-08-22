@@ -130,3 +130,23 @@ describe('linkExistingStory', () => {
     );
   });
 });
+
+describe('getReminderTargets', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('flags unchecked ACTIVE challenges mid-window and share nudges after', async () => {
+    vi.mocked(prisma.kindnessChallenge.findMany).mockResolvedValue([
+      { userId: 'a', startDate: new Date('2026-08-21T18:30:00Z'), storyId: null, checkIns: [{ day: 1 }] }, // day 2, no ci
+      { userId: 'b', startDate: new Date('2026-08-14T18:30:00Z'), storyId: null, checkIns: [] },           // day 9 → SHARE
+      { userId: 'c', startDate: new Date('2026-08-21T18:30:00Z'), storyId: 's1', checkIns: [] },           // done → none
+    ] as never);
+
+    const { getReminderTargets } = await import('../kindness-challenge.service');
+    const targets = await getReminderTargets(new Date('2026-08-23T10:00:00Z'));
+
+    expect(targets).toEqual([
+      { userId: 'a', kind: 'CHECKIN', day: 2 },
+      { userId: 'b', kind: 'SHARE', day: 9 },
+    ]);
+  });
+});

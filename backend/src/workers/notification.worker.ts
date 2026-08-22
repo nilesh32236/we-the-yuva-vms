@@ -352,6 +352,36 @@ function accountSuspendedTemplate(): string {
 </html>`.trim();
 }
 
+async function handleKindnessReminders() {
+  const { getReminderTargets } = await import('../modules/kindness-challenge/kindness-challenge.service');
+  const targets = await getReminderTargets();
+
+  for (const t of targets) {
+    if (t.kind === 'CHECKIN') {
+      await Promise.allSettled([
+        createInAppNotification(
+          t.userId,
+          'Kindness Challenge — Day ' + t.day,
+          'Take a moment to check in for today\u2019s act of kindness.',
+          '/volunteer/kindness-challenge'
+        ),
+        sendPushToUser(t.userId, 'Kindness Challenge — Day ' + t.day, 'Check in for today\u2019s act of kindness.', '/volunteer/kindness-challenge'),
+      ]);
+    } else {
+      await Promise.allSettled([
+        createInAppNotification(
+          t.userId,
+          'Share your Kindness story!',
+          'Your 7 days are complete. Share your reflection to unlock Part II.',
+          '/volunteer/stories/new'
+        ),
+        sendPushToUser(t.userId, 'Share your Kindness story!', 'Share your reflection to unlock Part II.', '/volunteer/stories/new'),
+      ]);
+    }
+  }
+  logger.info('Kindness reminders processed', { count: targets.length });
+}
+
 // ─── Worker ───────────────────────────────────────────────────────
 
 export let notificationWorker: Worker | null = null;
@@ -927,6 +957,8 @@ if (redis && notificationsQueue) {
           jobsEnqueued: reminderJobs.length,
           jobId: job.id,
         });
+      } else if (job.name === 'kindness-reminders') {
+        await handleKindnessReminders();
       }
     },
     {
