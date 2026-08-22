@@ -64,12 +64,10 @@ export function StepAvailability({ setValue, watch, errors }: StepAvailabilityPr
               setValue('step3.volunteerType', val as never, { shouldValidate: true })
             }
             labelMap={{
-              STUDENT: 'Student',
-              PROFESSIONAL: 'Professional',
-              EVENT: 'Event Based',
-              RECURRING: 'Recurring / Regular',
-              REMOTE: 'Remote',
-              EMERGENCY: 'Emergency Response',
+              STUDENT_VOLUNTEER: 'Student Volunteer',
+              LONG_TERM: 'Long-term Volunteer',
+              INTERNSHIP: 'Internship Volunteer',
+              OTHER: 'Other',
             }}
             error={errors.step3?.volunteerType?.message}
           />

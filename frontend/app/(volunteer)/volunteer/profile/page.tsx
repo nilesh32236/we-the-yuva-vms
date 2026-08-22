@@ -46,7 +46,7 @@ const profileSchema = z
   })
   .refine(
     (data) => {
-      if (data.volunteerType === 'STUDENT' && !data.education) {
+      if (data.volunteerType === 'STUDENT_VOLUNTEER' && !data.education) {
         return false;
       }
       return true;
@@ -278,7 +278,7 @@ export default function VolunteerProfilePage() {
           className={selectCls('volunteerType')}
         >
           <option value="">Select Type</option>
-          {['STUDENT', 'PROFESSIONAL', 'EVENT', 'RECURRING', 'REMOTE', 'EMERGENCY'].map((t) => (
+          {['STUDENT_VOLUNTEER', 'LONG_TERM', 'INTERNSHIP', 'OTHER'].map((t) => (
             <option key={t} value={t}>
               {t.charAt(0) + t.slice(1).toLowerCase()}
             </option>

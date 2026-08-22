@@ -15,12 +15,10 @@ import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
-  STUDENT: 'Student',
-  PROFESSIONAL: 'Professional',
-  EVENT: 'Event',
-  RECURRING: 'Recurring',
-  REMOTE: 'Remote',
-  EMERGENCY: 'Emergency',
+  STUDENT_VOLUNTEER: 'Student Volunteer',
+  LONG_TERM: 'Long-term Volunteer',
+  INTERNSHIP: 'Internship Volunteer',
+  OTHER: 'Other',
 };
 
 export default function VolunteerDashboardPage() {
