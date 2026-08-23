@@ -96,33 +96,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isError = userQuery.isError;
   const fetchError = (() => {
     if (!userQuery.error) return null;
-    if (
-      userQuery.error &&
-      typeof userQuery.error === 'object' &&
-      'response' in userQuery.error &&
-      (userQuery.error as { response?: { status?: number } }).response?.status &&
-      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
-    ) {
-      return 'Server error. Please try logging in again.';
-    }
-    return null;
+    const hasResponse = 'response' in (userQuery.error ?? {});
+    const status = (userQuery.error as { response?: { status?: number } })?.response?.status;
+    // 401 is handled as "logged out" inside the queryFn (returns null, no error),
+    // but keep the exclusion as a defensive guard against future changes.
+    if (hasResponse && status === 401) return null;
+    return 'Connection problem. Please try again.';
   })();
 
   useEffect(() => {
-    if (
-      userQuery.error &&
-      typeof userQuery.error === 'object' &&
-      'response' in userQuery.error &&
-      (userQuery.error as { response?: { status?: number } }).response?.status &&
-      (userQuery.error as { response?: { status?: number } }).response!.status! >= 500
-    ) {
-      toast({
-        title: 'Authentication error',
-        description: 'Server error. Please try again.',
-        variant: 'destructive',
-        role: 'alert',
-      });
-    }
+    if (!userQuery.error) return;
+    const hasResponse = 'response' in (userQuery.error ?? {});
+    const status = (userQuery.error as { response?: { status?: number } })?.response?.status;
+    if (hasResponse && status === 401) return;
+    toast({
+      title: 'Authentication error',
+      description: 'Could not verify your session. Please try again.',
+      variant: 'destructive',
+      role: 'alert',
+    });
   }, [userQuery.error]);
   const profileStatus = profileStatusQuery.data ?? null;
   const profileStatusError = profileStatusQuery.isError

@@ -1,5 +1,6 @@
 import { api } from './api';
 import { encrypt, decrypt } from './crypto-utils';
+import { captureApiError } from './sentry';
 
 import { CheckInSchema } from '@/lib/shared';
 
@@ -26,11 +27,24 @@ function decodeLocation(s: string): { lat: number; lng: number } | undefined {
   }
 }
 
-async function decryptCheckin(item: QueuedCheckin, userId: string): Promise<QueuedCheckin> {
+async function decryptCheckin(
+  item: QueuedCheckin,
+  userId: string
+): Promise<{ item: QueuedCheckin; invalid: boolean }> {
   const decrypted = { ...item };
+  let invalid = false;
   if (item.encryptedQrToken) {
     const plain = await decrypt(item.encryptedQrToken, userId);
-    if (plain) decrypted.qrToken = plain;
+    if (plain) {
+      decrypted.qrToken = plain;
+    } else {
+      invalid = true;
+      captureApiError(
+        new Error('Failed to decrypt offline check-in qrToken'),
+        'offline check-in decrypt failed',
+        { userId }
+      );
+    }
   }
   if (item.encryptedLocation) {
     const plain = await decrypt(item.encryptedLocation, userId);
@@ -39,7 +53,7 @@ async function decryptCheckin(item: QueuedCheckin, userId: string): Promise<Queu
       if (loc) decrypted.location = loc;
     }
   }
-  return decrypted;
+  return { item: decrypted, invalid };
 }
 
 const DB_NAME = 'wetheyuva-offline';
@@ -129,7 +143,7 @@ export async function removeQueuedCheckin(id: number): Promise<void> {
       tx.onerror = () => reject(tx.error);
     });
   } catch (err) {
-    console.error('[OfflineQueue] Failed to remove queued check-in:', err);
+    captureApiError(err, 'failed to remove queued check-in');
   }
 }
 
@@ -147,11 +161,23 @@ export async function clearQueue(): Promise<void> {
   }
 }
 
-export async function syncQueuedCheckins(userId?: string): Promise<{ synced: number; failed: number }> {
+export async function syncQueuedCheckins(
+  userId?: string
+): Promise<{ synced: number; failed: number; dropped: number; error?: boolean }> {
   try {
     let items = await getQueuedCheckins();
+    let dropped = 0;
     if (userId) {
-      items = await Promise.all(items.map((item) => decryptCheckin(item, userId)));
+      const decrypted = await Promise.all(items.map((item) => decryptCheckin(item, userId)));
+      items = [];
+      for (const d of decrypted) {
+        if (d.invalid && d.item.id != null) {
+          dropped++;
+          await removeQueuedCheckin(d.item.id).catch(() => {});
+        } else {
+          items.push(d.item);
+        }
+      }
     }
 
     // Deduplicate: group by eventId+qrToken, keep most recent
@@ -187,6 +213,12 @@ export async function syncQueuedCheckins(userId?: string): Promise<{ synced: num
         failed++;
         const retryCount = (item.retryCount ?? 0) + 1;
         if (retryCount >= MAX_RETRIES) {
+          dropped++;
+          captureApiError(
+            new Error(`Offline check-in permanently dropped after ${MAX_RETRIES} attempts`),
+            'queued check-in dropped after max retries',
+            { eventId: item.eventId }
+          );
           await removeQueuedCheckin(item.id!).catch(() => {});
         } else {
           try {
@@ -199,8 +231,9 @@ export async function syncQueuedCheckins(userId?: string): Promise<{ synced: num
         }
       }
     }
-    return { synced, failed };
-  } catch {
-    return { synced: 0, failed: 0 };
+    return { synced, failed, dropped };
+  } catch (err) {
+    captureApiError(err, 'offline check-in sync failed catastrophically');
+    return { synced: 0, failed: 0, dropped: 0, error: true };
   }
 }

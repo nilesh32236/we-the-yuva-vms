@@ -43,7 +43,7 @@ function NewStoryContent() {
     } catch (err) {
       const message =
         (err as ApiError)?.normalizedMessage ??
-        (err as ApiError)?.response?.data?.error ??
+        ((err as ApiError)?.response?.data as { error?: string } | undefined)?.error ??
         'Could not submit story.';
       toast({ title: 'Error', description: message, variant: 'destructive' });
     }
