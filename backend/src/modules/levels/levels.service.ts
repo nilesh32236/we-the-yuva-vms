@@ -173,26 +173,6 @@ export async function createLevelRequest(
 
     return created;
   });
-      generateCertificate(userId, level.id).catch((err) =>
-        logger.warn('Failed to generate certificate on level approval', {
-          err,
-          userId,
-          levelId: level.id,
-        })
-      ),
-      checkAndAwardBadges(userId).catch((err) =>
-        logger.warn('Failed to check and award badges on auto-promotion', { err, userId })
-      ),
-      (notificationsQueue?.add('level-up', { userId, levelName: level.name }) ?? Promise.resolve())
-        .catch((err) =>
-          logger.warn('Failed to enqueue level-up notification', {
-            err,
-            userId,
-            levelName: level.name,
-          })
-        ),
-    ]);
-  }
 
   return result;
 }
