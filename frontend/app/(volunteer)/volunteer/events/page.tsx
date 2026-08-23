@@ -23,6 +23,7 @@ import { useAuth } from '@/lib/auth-context';
 import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import { AddToCalendarButton } from '@/components/events/AddToCalendarButton';
 import { Button } from '@/components/ui/Button';
+import { useOfflineCheckin, useOfflineCheckinSync } from '@/hooks/useOfflineCheckin';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-brand-cta/10 text-brand-cta',
@@ -63,7 +64,7 @@ interface VolunteerEvent {
   }[];
 }
 
-function EventRow({ event }: { event: VolunteerEvent }) {
+function EventRow({ event, isOffline }: { event: VolunteerEvent; isOffline: boolean }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [locating, setLocating] = useState(false);
@@ -78,18 +79,17 @@ function EventRow({ event }: { event: VolunteerEvent }) {
   const isPast = new Date(event.eventDate) < new Date();
   const isCancelled = event.status === 'CANCELLED';
 
-  const checkIn = useMutation({
-    mutationFn: (body: object) => api.post(`/events/${event.id}/checkin`, body),
+  const {
+    checkin: checkIn,
+    isPending: checkInPending,
+  } = useOfflineCheckin({
+    eventId: event.id,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['my-events'] });
       toast({ title: 'Checked in!', description: 'Your check-in has been recorded.' });
     },
-    onError: (e: { response?: { data?: { error?: string } } }) =>
-      toast({
-        title: 'Check-in failed',
-        description: e?.response?.data?.error ?? 'Try again',
-        variant: 'destructive',
-      }),
+    onError: (msg) =>
+      toast({ title: 'Check-in failed', description: msg, variant: 'destructive' }),
   });
 
   const checkOut = useMutation({
@@ -111,7 +111,11 @@ function EventRow({ event }: { event: VolunteerEvent }) {
     setLocating(true);
     const location = await getLocation();
     setLocating(false);
-    checkIn.mutate(location ?? {});
+    const body = location ?? {};
+    if (isOffline) {
+      toast({ title: 'Offline check-in', description: 'Queued — will sync automatically.' });
+    }
+    checkIn(body);
   }
 
   async function handleCheckOut() {
@@ -122,7 +126,7 @@ function EventRow({ event }: { event: VolunteerEvent }) {
     checkOut.mutate(location ?? {});
   }
 
-  const busy = locating || checkIn.isPending || checkOut.isPending;
+  const busy = locating || checkInPending || checkOut.isPending;
 
   return (
     <div
@@ -294,6 +298,7 @@ export default function VolunteerEventsPage() {
     queryFn: () => api.get('/users/me/events', { params: { page, limit: 20 } }).then((r) => r.data),
     staleTime: 30_000,
   });
+  const { isOnline } = useOfflineCheckinSync('');
 
   const events: VolunteerEvent[] = data?.data ?? [];
   const now = new Date();
@@ -333,7 +338,7 @@ export default function VolunteerEventsPage() {
         ) : (
           <div className="space-y-3">
             {upcoming.map((e: VolunteerEvent) => (
-              <EventRow key={e.id} event={e} />
+              <EventRow key={e.id} event={e} isOffline={!isOnline} />
             ))}
           </div>
         )}
@@ -344,7 +349,7 @@ export default function VolunteerEventsPage() {
           <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Past Events</h2>
           <div className="space-y-3">
             {past.map((e: VolunteerEvent) => (
-              <EventRow key={e.id} event={e} />
+              <EventRow key={e.id} event={e} isOffline={!isOnline} />
             ))}
           </div>
         </section>

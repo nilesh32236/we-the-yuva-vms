@@ -1,8 +1,6 @@
-// Phase 2: Outside MVP Phase 1 scope. Keep for Phase 2 implementation.
-// See /issues/PHASE2_SCOPE.md
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: Array<string>;
@@ -22,10 +20,12 @@ export function usePWAInstall() {
   useEffect(() => {
     // Check if currently running in standalone display mode (installed)
     const checkStandalone = () => {
-      const isStandaloneMode =
-        window.matchMedia('(display-mode: standalone)').matches ||
+      const isIosStandalone =
         ('standalone' in navigator &&
-          (navigator as Navigator & { standalone?: boolean }).standalone === true);
+          (navigator as Navigator & { standalone?: boolean }).standalone === true) ||
+        document.referrer.includes('installed');
+      const isStandaloneMode =
+        window.matchMedia('(display-mode: standalone)').matches || isIosStandalone;
       setIsStandalone(isStandaloneMode);
     };
 
@@ -54,7 +54,7 @@ export function usePWAInstall() {
     };
   }, []);
 
-  const install = async () => {
+  const install = useCallback(async () => {
     if (!installPromptEvent) {
       return false;
     }
@@ -72,7 +72,7 @@ export function usePWAInstall() {
     }
 
     return false;
-  };
+  }, [installPromptEvent]);
 
   return {
     isInstallable: !!installPromptEvent && !isStandalone,

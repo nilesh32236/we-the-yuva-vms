@@ -220,25 +220,41 @@ export async function syncQueuedCheckins(
         });
         await removeQueuedCheckin(item.id!);
         synced++;
-      } catch {
+      } catch (err) {
         failed++;
-        const retryCount = (item.retryCount ?? 0) + 1;
-        if (retryCount >= MAX_RETRIES) {
-          dropped++;
-          captureApiError(
-            new Error(`Offline check-in permanently dropped after ${MAX_RETRIES} attempts`),
-            'queued check-in dropped after max retries',
-            { eventId: item.eventId }
-          );
-          await removeQueuedCheckin(item.id!).catch(() => {});
-        } else {
-          try {
-            const db = await openDb();
-            const tx = db.transaction(STORE_NAME, 'readwrite');
-            tx.objectStore(STORE_NAME).put({ ...item, retryCount });
-          } catch {
-            // Best-effort retry tracking
+        const status = (err as { response?: { status?: number } }).response?.status;
+        if (status === 401 || status === 403) {
+          continue;
+        }
+        // Definitive server rejection (e.g. 400 "QR code expired", 409 "Already
+        // checked in"): keep counting retries and drop only after MAX_RETRIES so
+        // a stale queued entry cannot retry forever.
+        const isDefinitiveRejection = status != null && status >= 400 && status < 500;
+        if (isDefinitiveRejection) {
+          const retryCount = (item.retryCount ?? 0) + 1;
+          if (retryCount >= MAX_RETRIES) {
+            await removeQueuedCheckin(item.id!).catch(() => {});
+            dropped++;
+            captureApiError(
+              new Error(`Offline check-in permanently dropped after ${MAX_RETRIES} attempts`),
+              'queued check-in dropped after max retries',
+              { eventId: item.eventId }
+            );
+          } else {
+            await new Promise<void>((resolve) => {
+              openDb().then((db) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).put({ ...item, retryCount });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => resolve();
+              }).catch(() => resolve());
+            });
           }
+        } else {
+          // Network/timeout/5xx (e.g. HF Spaces cold start): keep the item
+          // queued. Do NOT increment retryCount — a later definitive 4xx should
+          // still get its full MAX_RETRIES attempts, and the exponential backoff
+          // in useOfflineCheckin keeps retrying this item.
         }
       }
     }
