@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { captureApiError } from '@/lib/sentry';
+import { Button } from '@/components/ui/Button';
 import { queryKeys } from '@/lib/shared/query-keys';
 
 interface PointsResponse {
@@ -51,13 +52,14 @@ export function PointsCard() {
             {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
               'Failed to load points'}
           </p>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => refetch()}
-            className="text-brand-muted text-xs mt-1 underline cursor-pointer"
+            className="text-brand-muted text-xs mt-1 underline px-0 py-0 min-h-0 h-auto hover:bg-transparent justify-start"
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );
