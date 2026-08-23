@@ -1,17 +1,9 @@
 import { z } from 'zod';
+import { VOLUNTEER_TYPES } from './onboarding.schemas';
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
 export const TIME_SLOTS = ['Morning', 'Afternoon', 'Evening', 'Weekend'] as const;
-
-export const VOLUNTEER_TYPES = [
-  'STUDENT',
-  'PROFESSIONAL',
-  'EVENT',
-  'RECURRING',
-  'REMOTE',
-  'EMERGENCY',
-] as const;
 
 export const VolunteerProfileSchema = z.object({
   volunteerType: z.enum(VOLUNTEER_TYPES, {
@@ -31,32 +23,6 @@ export const VolunteerProfileSchema = z.object({
   }),
   bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
   education: z.string().max(200).optional(),
-});
-
-export const StaffProfileSchema = z.object({
-  locationName: z.string().min(1, 'Location name is required').max(100, 'Location name too long'),
-  district: z
-    .string()
-    .min(1, 'District cannot be empty')
-    .max(100, 'District name too long')
-    .optional(),
-  state: z.string().min(1, 'State cannot be empty').max(100, 'State name too long').optional(),
-  department: z
-    .string()
-    .min(1, 'Department cannot be empty')
-    .max(100, 'Department name too long')
-    .optional(),
-  designation: z
-    .string()
-    .min(1, 'Designation cannot be empty')
-    .max(100, 'Designation too long')
-    .optional(),
-});
-
-export const UpdateMeSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  email: z.string().email('Invalid email').optional(),
-  volunteerType: z.enum(VOLUNTEER_TYPES).optional(),
 });
 
 export const MISSING_FIELD_KEYS = ['skills', 'interests', 'volunteerType', 'availability'] as const;

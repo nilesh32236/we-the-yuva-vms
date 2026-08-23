@@ -1,124 +1,155 @@
 import { z } from 'zod';
-import { VOLUNTEER_TYPES } from './profile.schemas';
 
-export const EXPERTISE_OPTIONS = [
-  'TEACHING',
-  'PUBLIC_SPEAKING',
-  'EVENT_MANAGEMENT',
-  'PHOTOGRAPHY',
-  'GRAPHIC_DESIGN',
-  'SOCIAL_MEDIA',
-  'CONTENT_WRITING',
-  'FUNDRAISING',
-  'COUNSELLING',
-  'LEADERSHIP',
-  'PROJECT_MANAGEMENT',
-  'WEB_DEVELOPMENT',
-  'SOFTWARE_DEVELOPMENT',
-  'VIDEO_EDITING',
-  'TRANSLATION',
-  'FIRST_AID',
-  'ACCOUNTING',
-  'LEGAL_SUPPORT',
-  'DATA_ENTRY',
-  'ADMINISTRATION',
-] as const;
-
-export const LANGUAGES = [
-  'HINDI',
-  'ENGLISH',
-  'GUJARATI',
-  'MARATHI',
-  'TAMIL',
-  'TELUGU',
+export const VOLUNTEER_TYPES = ['STUDENT_VOLUNTEER', 'LONG_TERM', 'INTERNSHIP', 'OTHER'] as const;
+export const GENDERS = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const;
+export const CURRENT_STATUSES = [
+  'STUDENT',
+  'WORKING_PROFESSIONAL',
+  'SELF_EMPLOYED',
+  'HOMEMAKER',
+  'RETIRED',
+  'JOB_SEEKER',
   'OTHER',
 ] as const;
-
-export const CAUSES = [
-  'EDUCATION',
-  'HEALTH',
-  'ENVIRONMENT',
-  'COMMUNITY',
-  'ARTS',
-  'SPORTS',
-  'TECHNOLOGY',
-  'ACTIVE_CITIZENSHIP',
+export const REFERRAL_SOURCES = [
+  'FRIEND',
+  'COLLEGE',
+  'PARTNER_ORG',
+  'SOCIAL_MEDIA',
+  'WEBSITE',
+  'CURRENT_VOLUNTEER',
+  'NEWSPAPER',
+  'EVENT',
   'OTHER',
 ] as const;
+export const OPPORTUNITY_INTERESTS = ['EDUCATION', 'ACTIVE_CITIZENSHIP', 'ENVIRONMENT'] as const;
 
-export const INTEREST_OPTIONS = [
-  'TEACHING_MENTORING',
-  'HEALTHCARE',
-  'ENVIRONMENT_CONSERVATION',
-  'COMMUNITY_SERVICE',
-  'ARTS_CULTURE',
-  'SPORTS_COACHING',
-  'DIGITAL_LITERACY',
-  'WOMEN_EMPOWERMENT',
-  'YOUTH_DEVELOPMENT',
-  'DISASTER_RELIEF',
-  'ANIMAL_WELFARE',
-  'RURAL_DEVELOPMENT',
-] as const;
+const requiredString = z.string().trim().min(1, 'This field is required');
 
-export const PREFERRED_ACTIVITIES = [
-  'FIELD_WORK',
-  'OFFICE_SUPPORT',
-  'TEACHING',
-  'EVENT_MANAGEMENT',
-  'CONTENT_CREATION',
-  'PHOTOGRAPHY',
-  'SOCIAL_MEDIA',
-  'FUNDRAISING',
-  'DATA_ENTRY',
-  'COUNSELLING',
-  'MENTORING',
-  'RESEARCH',
-] as const;
-
-export const AVAILABILITY_PATTERNS = ['WEEKDAYS', 'WEEKENDS', 'BOTH', 'FLEXIBLE'] as const;
-
-export const SocialLinksSchema = z
-  .object({
-    linkedin: z.string().url().optional().or(z.literal('')),
-    instagram: z.string().url().optional().or(z.literal('')),
-    twitter: z.string().url().optional().or(z.literal('')),
-    facebook: z.string().url().optional().or(z.literal('')),
-  })
-  .optional();
-
-export const OnboardingSchema = z.object({
-  step1: z.object({
-    skills: z.array(z.string()).min(1, 'Select at least one skill'),
-    expertise: z.array(z.string()).default([]),
-    languages: z.array(z.string()).default([]),
-  }),
-  step2: z.object({
-    causes: z.array(z.string()).min(1, 'Select at least one cause'),
-    interests: z.array(z.string()).default([]),
-    preferredActivities: z.array(z.string()).default([]),
-  }),
-  step3: z.object({
-    volunteerType: z.enum(VOLUNTEER_TYPES, {
-      errorMap: () => ({ message: 'Select volunteer type' }),
-    }),
-    availabilityPattern: z.enum(AVAILABILITY_PATTERNS, {
-      errorMap: () => ({ message: 'Select availability pattern' }),
-    }),
-    hoursPerWeek: z.coerce.number().finite().min(1, 'At least 1 hour per week').max(168),
-    sessionDuration: z.coerce.number().finite().min(0.5, 'Minimum 30 minutes'),
-  }),
-  step4: z.object({
-    education: z.string().min(1, 'Education is required').max(200),
-    occupation: z.string().min(1, 'Occupation is required').max(200),
-    experience: z.string().min(1, 'Experience is required').max(500),
-    certifications: z.array(z.string()).default([]),
-  }),
-  step5: z.object({
-    bio: z.string().max(300, 'Bio must be 300 characters or less'),
-    avatarUrl: z.string().optional(),
-    socialLinks: SocialLinksSchema,
-  }),
+export const StudentInfoSchema = z.object({
+  institution: requiredString,
+  course: requiredString,
+  yearSemester: requiredString,
+  city: requiredString,
 });
 
+export const ProfessionalInfoSchema = z.object({
+  company: requiredString,
+  designation: requiredString,
+  industry: z.string().trim().min(1),
+  city: requiredString,
+});
+
+export const SelfEmployedInfoSchema = z.object({
+  profession: requiredString,
+  organizationName: z.string().trim().max(120).optional().or(z.literal('')),
+  city: requiredString,
+});
+
+const TimeCommitmentSchema = z.object({
+  hoursPerWeek: z.coerce.number().min(0).max(100).optional(),
+  hoursPerMonth: z.coerce.number().min(0).max(500).optional(),
+  preferredDaysTimes: z.string().trim().max(200).optional(),
+});
+
+const DigitalReadinessSchema = z.object({
+  smartphone: z.boolean(),
+  whatsapp: z.boolean(),
+  laptop: z.boolean(),
+  onlineVolunteering: z.boolean(),
+  tools: z.array(z.string().trim().min(1)).max(20).default([]),
+});
+
+export const AddressSchema = z.object({
+  city: requiredString,
+  district: requiredString,
+  state: requiredString,
+  pincode: z.string().trim().regex(/^[1-9][0-9]{5}$/, 'Enter a valid 6-digit PIN code'),
+});
+
+export const DeclarationsSchema = z.object({
+  infoCorrect: z.literal(true),
+  commitmentsAccepted: z.literal(true),
+});
+
+export const OnboardingSchema = z
+  .object({
+    gender: z.enum(GENDERS),
+    whatsappNumber: z
+      .string()
+      .trim()
+      .regex(/^\+?[0-9]{10,15}$/, 'Enter a valid WhatsApp number'),
+    address: AddressSchema,
+    avatarUrl: z.union([z.string().url(), z.literal('')]).optional(),
+    education: requiredString.max(80),
+    fieldOfStudy: z.string().trim().max(120).optional().or(z.literal('')),
+    currentStatus: z.enum(CURRENT_STATUSES),
+    student: StudentInfoSchema.optional(),
+    professional: ProfessionalInfoSchema.optional(),
+    selfEmployed: SelfEmployedInfoSchema.optional(),
+    volunteerType: z.enum(VOLUNTEER_TYPES),
+    timeCommitment: TimeCommitmentSchema,
+    opportunityInterests: z.array(z.enum(OPPORTUNITY_INTERESTS)).min(1, 'Select at least one'),
+    whyVoluntary: z.string().trim().min(1).max(500),
+    skills: z.array(z.string().trim().min(1)).min(1, 'Add at least one skill').max(20),
+    digitalReadiness: DigitalReadinessSchema,
+    referralSource: z.enum(REFERRAL_SOURCES),
+    referralSourceName: z.string().trim().max(120).optional().or(z.literal('')),
+    declarations: DeclarationsSchema,
+  })
+  .superRefine((data, ctx) => {
+    if (data.currentStatus === 'STUDENT' && !data.student) {
+      ctx.addIssue({ code: 'custom', path: ['student'], message: 'Student details are required' });
+    }
+    if (data.currentStatus === 'WORKING_PROFESSIONAL' && !data.professional) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['professional'],
+        message: 'Professional details are required',
+      });
+    }
+    if ((data.currentStatus === 'SELF_EMPLOYED' || data.currentStatus === 'OTHER') && !data.selfEmployed) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['selfEmployed'],
+        message: 'Profession details are required',
+      });
+    }
+    if (
+      ['FRIEND', 'COLLEGE', 'PARTNER_ORG', 'CURRENT_VOLUNTEER'].includes(data.referralSource) &&
+      !data.referralSourceName
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['referralSourceName'],
+        message: 'Please give the name of your reference',
+      });
+    }
+  });
+
 export type OnboardingData = z.infer<typeof OnboardingSchema>;
+
+// Shape persisted to VolunteerProfile.details (validated on write via OnboardingSchema)
+export const VolunteerDetailsSchema = z.object({
+  fieldOfStudy: z.string().optional(),
+  currentStatus: z.enum(CURRENT_STATUSES).optional(),
+  student: StudentInfoSchema.optional(),
+  professional: ProfessionalInfoSchema.optional(),
+  selfEmployed: SelfEmployedInfoSchema.optional(),
+  timeCommitment: TimeCommitmentSchema.optional(),
+  opportunityInterests: z.array(z.enum(OPPORTUNITY_INTERESTS)).optional(),
+  digitalReadiness: DigitalReadinessSchema.optional(),
+});
+export type VolunteerDetails = z.infer<typeof VolunteerDetailsSchema>;
+
+export const StaffProfileSchema = z.object({
+  locationName: z.string().trim().min(1),
+  district: z.string().trim().max(80).optional().or(z.literal('')),
+  state: z.string().trim().max(80).optional().or(z.literal('')),
+});
+export type StaffProfileInput = z.infer<typeof StaffProfileSchema>;
+
+export const UpdateMeSchema = z.object({
+  name: z.string().trim().min(1).max(80).optional(),
+  phone: z.string().trim().max(15).optional(),
+});

@@ -26,6 +26,7 @@ interface AuthContextValue {
   user: AuthUser | null;
   isLoading: boolean;
   fetchError: string | null;
+  isError: boolean;
   profileStatus: ProfileStatus | null;
   profileStatusError: string | null;
   refetch: () => Promise<AuthUser | null>;
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const profileStatusQuery = useQuery<ProfileStatus | null>({
     queryKey: ['profile-status'],
+    enabled: !isPublicRoute(pathname),
     queryFn: async () => {
       try {
         const res = await api.get<ProfileStatus>('/users/me/profile-status');
@@ -91,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const user = userQuery.data ?? null;
   const isLoading = userQuery.isLoading;
+  const isError = userQuery.isError;
   const fetchError = (() => {
     if (!userQuery.error) return null;
     if (
@@ -131,14 +134,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // DISABLED queries, and on public routes (login, verify-otp) the auth-user
     // query is enabled:false. That made post-OTP refetch a no-op, so auth state
     // never populated and the redirect never happened until a hard refresh.
-    // Fetching matching queries directly via query.fetch() works in all cases.
+    // Fetching matching queries via fetchQuery works in all cases.
+    //
+    // staleTime: 0 forces a server read — post-mutation (consent, onboarding,
+    // OTP) state must never resolve from a still-fresh cache entry, or the
+    // redirect guard bounces straight back to /consent.
     const refetchByKey = async (queryKey: string[]) => {
       const queries = queryClient.getQueryCache().findAll({ queryKey });
       await Promise.all(
         queries.map((query) =>
-          query.fetch().catch(() => {
-            // Mirror refetchQueries semantics: never throw unless requested.
-          })
+          queryClient
+            .fetchQuery({
+              queryKey: query.queryKey,
+              queryFn: query.options.queryFn,
+              staleTime: 0,
+              retry: query.options.retry,
+            })
+            .catch(() => {
+              // Mirror refetchQueries semantics: never throw unless requested.
+            })
         )
       );
     };
@@ -241,8 +255,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const providerValue = useMemo(
-    () => ({ user, isLoading, fetchError, profileStatus, profileStatusError, refetch, logout }),
-    [user, isLoading, fetchError, profileStatus, profileStatusError, refetch, logout],
+    () => ({ user, isLoading, fetchError, isError, profileStatus, profileStatusError, refetch, logout }),
+    [user, isLoading, fetchError, isError, profileStatus, profileStatusError, refetch, logout],
   );
 
   // IMPORTANT-3 (audit #203): Never mount protected trees before the

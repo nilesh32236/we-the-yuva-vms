@@ -1,15 +1,7 @@
 import { z } from 'zod';
+import { VOLUNTEER_TYPES } from './onboarding.schemas';
 
 export const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-
-export const VOLUNTEER_TYPES = [
-  'STUDENT',
-  'PROFESSIONAL',
-  'EVENT',
-  'RECURRING',
-  'REMOTE',
-  'EMERGENCY',
-] as const;
 
 export const TIME_SLOTS = ['Morning', 'Afternoon', 'Evening', 'Weekend'] as const;
 
@@ -33,16 +25,12 @@ export const VolunteerProfileSchema = z.object({
   education: z.string().max(200).optional(),
 });
 
-export const StaffProfileSchema = z.object({
-  locationName: z.string().min(1, 'Location name is required').max(100, 'Location name too long'),
-  district: z.string().max(100, 'District name too long').optional(),
-  state: z.string().max(100, 'State name too long').optional(),
-  department: z.string().max(100, 'Department name too long').optional(),
-  designation: z.string().max(100, 'Designation too long').optional(),
+export const MISSING_FIELD_KEYS = ['skills', 'interests', 'volunteerType', 'availability'] as const;
+
+export const ProfileStatusSchema = z.object({
+  isComplete: z.boolean(),
+  missingFields: z.array(z.enum(MISSING_FIELD_KEYS)),
+  completionPercentage: z.number().int().min(0).max(100),
 });
 
-export const UpdateMeSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  email: z.string().email('Invalid email').optional(),
-  volunteerType: z.enum(VOLUNTEER_TYPES).optional(),
-});
+export type ProfileStatus = z.infer<typeof ProfileStatusSchema>;

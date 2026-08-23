@@ -1,16 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  StaffProfileSchema,
-  UpdateMeSchema,
-  VolunteerProfileSchema,
-} from '../schemas/profile.schemas';
+import { VolunteerProfileSchema } from '../schemas/profile.schemas';
+import { StaffProfileSchema, UpdateMeSchema } from '../schemas/onboarding.schemas';
 
 describe('profile.schemas', () => {
   describe('VolunteerProfileSchema', () => {
     it('should accept valid volunteer profile', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         skills: ['Teaching'],
         interests: ['Education'],
         availability: { days: ['Mon', 'Tue'], timeSlots: ['Morning', 'Afternoon'] },
@@ -21,7 +18,7 @@ describe('profile.schemas', () => {
 
     it('should accept profile without bio', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'PROFESSIONAL',
+        volunteerType: 'LONG_TERM',
         skills: ['Mentoring'],
         interests: ['Community'],
         availability: { days: ['Sat'], timeSlots: ['Weekend'] },
@@ -31,7 +28,7 @@ describe('profile.schemas', () => {
 
     it('should reject empty skills', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         skills: [],
         interests: ['Education'],
         availability: { days: ['Mon'], timeSlots: ['Morning'] },
@@ -41,7 +38,7 @@ describe('profile.schemas', () => {
 
     it('should reject empty interests', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         skills: ['Teaching'],
         interests: [],
         availability: { days: ['Mon'], timeSlots: ['Morning'] },
@@ -51,7 +48,7 @@ describe('profile.schemas', () => {
 
     it('should reject empty days', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         skills: ['Teaching'],
         interests: ['Education'],
         availability: { days: [], timeSlots: ['Morning'] },
@@ -61,7 +58,7 @@ describe('profile.schemas', () => {
 
     it('should reject empty time slots', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         skills: ['Teaching'],
         interests: ['Education'],
         availability: { days: ['Mon'], timeSlots: [] },
@@ -81,7 +78,7 @@ describe('profile.schemas', () => {
 
     it('should reject bio over 500 chars', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         skills: ['Teaching'],
         interests: ['Education'],
         availability: { days: ['Mon'], timeSlots: ['Morning'] },
@@ -92,7 +89,7 @@ describe('profile.schemas', () => {
 
     it('should reject invalid day', () => {
       const result = VolunteerProfileSchema.safeParse({
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         skills: ['Teaching'],
         interests: ['Education'],
         availability: { days: ['InvalidDay'], timeSlots: ['Morning'] },
@@ -107,8 +104,6 @@ describe('profile.schemas', () => {
         locationName: 'Mumbai',
         district: 'Mumbai',
         state: 'Maharashtra',
-        department: 'Education',
-        designation: 'Teacher',
       });
       expect(result.success).toBe(true);
     });
@@ -135,24 +130,23 @@ describe('profile.schemas', () => {
     it('should accept all optional fields', () => {
       const result = UpdateMeSchema.safeParse({
         name: 'New Name',
-        email: 'new@example.com',
-        volunteerType: 'REMOTE',
+        phone: '+919876543210',
       });
       expect(result.success).toBe(true);
     });
 
-    it('should reject short name', () => {
-      const result = UpdateMeSchema.safeParse({ name: 'A' });
+    it('should reject empty name', () => {
+      const result = UpdateMeSchema.safeParse({ name: '' });
       expect(result.success).toBe(false);
     });
 
-    it('should reject invalid email', () => {
-      const result = UpdateMeSchema.safeParse({ email: 'bad' });
+    it('should reject phone too long', () => {
+      const result = UpdateMeSchema.safeParse({ phone: '1'.repeat(16) });
       expect(result.success).toBe(false);
     });
 
-    it('should reject invalid volunteerType', () => {
-      const result = UpdateMeSchema.safeParse({ volunteerType: 'INVALID' });
+    it('should reject name too long', () => {
+      const result = UpdateMeSchema.safeParse({ name: 'a'.repeat(81) });
       expect(result.success).toBe(false);
     });
   });

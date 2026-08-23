@@ -13,6 +13,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'My Applications', href: '/volunteer/applications', icon: 'FileText' },
   { label: 'My Events', href: '/volunteer/events', icon: 'Calendar' },
   { label: 'Training', href: '/volunteer/training', icon: 'BookOpen' },
+  { label: 'Kindness Challenge', href: '/volunteer/kindness-challenge', icon: 'Sprout' },
+  { label: 'Part II', href: '/volunteer/part2', icon: 'Lock' },
   { label: 'Stories', href: '/volunteer/stories', icon: 'BookOpen' },
   { label: 'Levels', href: '/volunteer/levels', icon: 'TrendingUp' },
   { label: 'Leaderboard', href: '/volunteer/leaderboard', icon: 'Trophy' },

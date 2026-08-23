@@ -57,16 +57,6 @@ function getAccessToken(): string | null {
   return accessTokenMemory;
 }
 
-// Track last returned access token from refresh to detect missing rotation
-let lastRefreshAccessToken: string | null = null;
-
-function checkTokenRotation(token: string) {
-  if (token === lastRefreshAccessToken) {
-    console.warn('[Auth] Refresh returned same access token — refresh token may not be rotating');
-  }
-  lastRefreshAccessToken = token;
-}
-
 // biome-ignore lint/suspicious/noExplicitAny: error type unknown
 let refreshPromise: Promise<any> | null = null;
 
@@ -87,7 +77,6 @@ api.interceptors.request.use(async (config) => {
         }
         const data = await refreshPromise;
         if (data.accessToken) {
-          checkTokenRotation(data.accessToken);
           setAccessToken(data.accessToken);
           config.headers.Authorization = `Bearer ${data.accessToken}`;
         } else {
@@ -100,10 +89,11 @@ api.interceptors.request.use(async (config) => {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch {
-      const freshToken = getAccessToken();
-      if (freshToken) {
-        config.headers.Authorization = `Bearer ${freshToken}`;
-      }
+      // Preemptive refresh failed (network / 5xx). The in-memory token is
+      // expired — do not re-attach it as Bearer, or the doomed request would
+      // 401 and trigger a duplicate refresh in the response interceptor. Drop
+      // it so follow-up requests go out cookie-authenticated (withCredentials).
+      setAccessToken(null);
     }
   }
   return config;
@@ -139,7 +129,6 @@ api.interceptors.response.use(
         }
         const data = await refreshPromise;
         if (data.accessToken) {
-          checkTokenRotation(data.accessToken);
           setAccessToken(data.accessToken);
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         }

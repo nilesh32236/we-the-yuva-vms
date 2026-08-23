@@ -3,13 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  if (process.env.NODE_ENV === 'production') {
-    console.log('Skipping seed in production');
-    return;
-  }
-  console.log('🌱 Seeding demo data...\n');
-
-  // ─── Default Roles with Permissions ───────────────────────────
+  // ─── Default Roles with Permissions (always seeded, even in production) ──
+  // Prod DB has zero Role rows if this is skipped — then POST /api/v1/auth/register
+  // with role=VOLUNTEER fails with 500 "Invalid role: VOLUNTEER". Roles are
+  // idempotent via upsert where name, so safe to run in any env.
   const defaultRoles = [
     {
       name: 'VOLUNTEER',
@@ -37,6 +34,7 @@ async function main() {
         'youth:profile:view',
         'chat:read',
         'chat:send',
+        'challenge:participate',
       ],
     },
     {
@@ -183,6 +181,7 @@ async function main() {
         'badge:approve',
         'chat:read',
         'chat:send',
+        'challenge:view:all',
       ],
     },
     {
@@ -202,6 +201,12 @@ async function main() {
     )
   );
   console.log(`✅ ${createdRoles.length} roles`);
+
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Skipping demo data seed in production (roles seeded)');
+    return;
+  }
+  console.log('🌱 Seeding demo data...\n');
 
   const roleByName = Object.fromEntries(createdRoles.map((r) => [r.name, r.id]));
 
@@ -307,7 +312,7 @@ async function main() {
         email: 'vol1@wetheyuva.org',
         name: 'Arjun Mehta',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -328,7 +333,7 @@ async function main() {
         email: 'vol2@wetheyuva.org',
         name: 'Kavya Nair',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'PROFESSIONAL',
+        volunteerType: 'LONG_TERM',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -349,7 +354,7 @@ async function main() {
         email: 'vol3@wetheyuva.org',
         name: 'Rohan Kulkarni',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'PROFESSIONAL',
+        volunteerType: 'LONG_TERM',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -370,7 +375,7 @@ async function main() {
         email: 'vol4@wetheyuva.org',
         name: 'Meera Iyer',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'EVENT',
+        volunteerType: 'OTHER',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {

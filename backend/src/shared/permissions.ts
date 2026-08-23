@@ -71,6 +71,10 @@ export const Permissions = {
   BLOG_DELETE: 'blog:delete',
   BLOG_PUBLISH: 'blog:publish',
   BLOG_VIEW_ALL: 'blog:view:all',
+
+  // Kindness Challenge
+  CHALLENGE_PARTICIPATE: 'challenge:participate',
+  CHALLENGE_VIEW_ALL: 'challenge:view:all',
 } as const;
 
 export type Permission = (typeof Permissions)[keyof typeof Permissions];
