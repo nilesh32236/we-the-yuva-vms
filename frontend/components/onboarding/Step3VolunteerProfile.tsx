@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
+import { round1, WEEKS_PER_MONTH } from '@/lib/shared/schemas/onboarding.schemas';
 
 const TYPES = [
   { value: 'STUDENT_VOLUNTEER', label: 'Student Volunteer' },
@@ -30,7 +31,10 @@ const YESNO = [
 export function Step3VolunteerProfile({ register, setValue, watch, errors }: StepProps) {
   const skills = watch('skills') ?? [];
   const tools = watch('digitalReadiness.tools') ?? [];
+  const hoursPerWeek = watch('timeCommitment.hoursPerWeek');
+  const hoursPerMonth = watch('timeCommitment.hoursPerMonth');
   const [skillDraft, setSkillDraft] = useState('');
+  const lastEditedRef = useRef<'week' | 'month' | null>(null);
 
   const addSkill = () => {
     const v = skillDraft.trim();
@@ -60,20 +64,85 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
         <FieldError message={errors.volunteerType?.message} />
       </fieldset>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-1.5">
-          <label htmlFor="hoursPerWeek" className="text-sm font-medium text-brand-text">Hours per week</label>
-          <input id="hoursPerWeek" type="number" min={0} max={100} className={inputCls} {...register('timeCommitment.hoursPerWeek')} />
+          <label htmlFor="hoursPerWeek" className="text-sm font-medium text-brand-text">Hours per week *</label>
+          <input
+            id="hoursPerWeek"
+            type="number"
+            step="0.1"
+            inputMode="decimal"
+            className={inputCls}
+            {...register('timeCommitment.hoursPerWeek', {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  lastEditedRef.current = null;
+                  setValue('timeCommitment.hoursPerWeek', undefined as never, { shouldDirty: true, shouldValidate: true });
+                  setValue('timeCommitment.hoursPerMonth', undefined as never, { shouldDirty: true, shouldValidate: true });
+                  return;
+                }
+                const v = Number(raw);
+                if (Number.isFinite(v)) {
+                  lastEditedRef.current = 'week';
+                  setValue('timeCommitment.hoursPerWeek', v as never, { shouldValidate: true, shouldDirty: true });
+                  setValue('timeCommitment.hoursPerMonth', round1(v * WEEKS_PER_MONTH) as never, { shouldValidate: true, shouldDirty: true });
+                }
+              },
+            })}
+          />
+          {hoursPerWeek != null && Number.isFinite(Number(hoursPerWeek)) && (
+            <p className="text-xs text-brand-muted">≈ {round1(Number(hoursPerWeek) * WEEKS_PER_MONTH)} h/month</p>
+          )}
+          <FieldError message={(errors.timeCommitment as { hoursPerWeek?: { message?: string } })?.hoursPerWeek?.message} />
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="hoursPerMonth" className="text-sm font-medium text-brand-text">Hours per month</label>
-          <input id="hoursPerMonth" type="number" min={0} max={500} className={inputCls} {...register('timeCommitment.hoursPerMonth')} />
+          <label htmlFor="hoursPerMonth" className="text-sm font-medium text-brand-text">Hours per month *</label>
+          <input
+            id="hoursPerMonth"
+            type="number"
+            step="0.1"
+            inputMode="decimal"
+            className={inputCls}
+            {...register('timeCommitment.hoursPerMonth', {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                const raw = e.target.value;
+                if (raw === '') {
+                  lastEditedRef.current = null;
+                  setValue('timeCommitment.hoursPerMonth', undefined as never, { shouldDirty: true, shouldValidate: true });
+                  setValue('timeCommitment.hoursPerWeek', undefined as never, { shouldDirty: true, shouldValidate: true });
+                  return;
+                }
+                const v = Number(raw);
+                if (Number.isFinite(v)) {
+                  lastEditedRef.current = 'month';
+                  setValue('timeCommitment.hoursPerMonth', v as never, { shouldValidate: true, shouldDirty: true });
+                  setValue('timeCommitment.hoursPerWeek', round1(v / WEEKS_PER_MONTH) as never, { shouldValidate: true, shouldDirty: true });
+                }
+              },
+            })}
+          />
+          {hoursPerMonth != null && Number.isFinite(Number(hoursPerMonth)) && (
+            <p className="text-xs text-brand-muted">≈ {round1(Number(hoursPerMonth) / WEEKS_PER_MONTH)} h/week</p>
+          )}
+          <FieldError message={(errors.timeCommitment as { hoursPerMonth?: { message?: string } })?.hoursPerMonth?.message} />
         </div>
-        <div className="space-y-1.5 col-span-2">
+        {/* grid-cols-3 sync: third col keeps layout balanced; Session Duration retained elsewhere if needed */}
+        <div className="hidden md:block" aria-hidden="true" />
+        <div className="space-y-1.5 col-span-1 md:col-span-3">
           <label htmlFor="preferredDaysTimes" className="text-sm font-medium text-brand-text">Preferred days &amp; times</label>
-          <input id="preferredDaysTimes" placeholder="e.g. Weekends, 10am–1pm" className={inputCls} {...register('timeCommitment.preferredDaysTimes')} />
+          <input
+            id="preferredDaysTimes"
+            placeholder="e.g. Mon/Wed evenings, weekends"
+            className={inputCls}
+            {...register('timeCommitment.preferredDaysTimes')}
+          />
+          <FieldError message={(errors.timeCommitment as { preferredDaysTimes?: { message?: string } })?.preferredDaysTimes?.message} />
         </div>
       </div>
+      {(errors.timeCommitment as { message?: string })?.message && (
+        <FieldError message={(errors.timeCommitment as { message?: string })?.message} />
+      )}
 
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium text-brand-text">Opportunities that interest you *</legend>
