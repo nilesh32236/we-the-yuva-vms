@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 
@@ -8,6 +9,14 @@ export function usePushNotifications() {
   const { user } = useAuth();
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default');
   const [error, setError] = useState<string | null>(null);
+
+  const vapidQuery = useQuery({
+    queryKey: ['vapid-public-key'],
+    queryFn: () => api.get('/vapid-public-key').then((r) => r.data),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    enabled: !!user,
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -37,8 +46,7 @@ export function usePushNotifications() {
         if (notifPermission !== 'granted') return;
       }
 
-      const response = await api.get('/vapid-public-key').then((r) => r.data);
-      const publicKey = response.publicKey;
+      const publicKey = vapidQuery.data?.publicKey;
       if (typeof publicKey !== 'string' || !publicKey) {
         throw new Error('Invalid VAPID configuration from server');
       }
@@ -63,7 +71,7 @@ export function usePushNotifications() {
       // later instead of silently swallowing the failure forever.
       throw err;
     }
-  }, [permission]);
+  }, [permission, vapidQuery.data]);
 
   const unsubscribe = useCallback(async () => {
     try {
