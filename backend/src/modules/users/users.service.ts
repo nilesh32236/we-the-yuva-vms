@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
+<<<<<<< HEAD
 import { WEEKS_PER_MONTH, round1 } from '../../shared/schemas/onboarding.schemas';
 
 // ─── Extended User Functions ──────────────────────────────────────
@@ -398,6 +399,20 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
     throw new AppError('Only volunteers can submit onboarding', 403);
   }
 
+  // T11: derive missing week/month and validate mismatch (×4.33, 1 decimal, 0.06 tolerance)
+  const tc = { ...(data.timeCommitment as { hoursPerWeek?: number; hoursPerMonth?: number; preferredDaysTimes?: string }) };
+  if (tc.hoursPerWeek != null && tc.hoursPerMonth == null) tc.hoursPerMonth = round1(tc.hoursPerWeek * WEEKS_PER_MONTH);
+  if (tc.hoursPerMonth != null && tc.hoursPerWeek == null) tc.hoursPerWeek = round1(tc.hoursPerMonth / WEEKS_PER_MONTH);
+  if (
+    tc.hoursPerWeek != null &&
+    tc.hoursPerMonth != null &&
+    Math.abs(tc.hoursPerMonth - tc.hoursPerWeek * WEEKS_PER_MONTH) > 0.06
+  ) {
+    throw new AppError('Hours per week/month mismatch', 400);
+  }
+  // persist derived timeCommitment back onto data for downstream writes
+  (data as { timeCommitment: typeof tc }).timeCommitment = tc;
+
   return prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: userId },
@@ -413,21 +428,7 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
       },
     });
 
-    // Bidirectional derive for timeCommitment (×4.33, 1 decimal, tolerance 0.06)
-    let { hoursPerWeek, hoursPerMonth, preferredDaysTimes } = data.timeCommitment as {
-      hoursPerWeek?: number;
-      hoursPerMonth?: number;
-      preferredDaysTimes?: string;
-    };
-    if (hoursPerWeek != null && hoursPerMonth == null) hoursPerMonth = round1(hoursPerWeek * WEEKS_PER_MONTH);
-    if (hoursPerMonth != null && hoursPerWeek == null) hoursPerWeek = round1(hoursPerMonth / WEEKS_PER_MONTH);
-    if (
-      hoursPerWeek != null &&
-      hoursPerMonth != null &&
-      Math.abs(hoursPerMonth - hoursPerWeek * WEEKS_PER_MONTH) > 0.06
-    )
-      throw new AppError('Hours per week/month mismatch', 400);
-    const timeCommitment = { hoursPerWeek, hoursPerMonth, preferredDaysTimes };
+    const timeCommitment = tc;
 
     const details = {
       fieldOfStudy: data.fieldOfStudy || undefined,
@@ -449,6 +450,8 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
       availability: data.timeCommitment.preferredDaysTimes
         ? { preferredDaysTimes: data.timeCommitment.preferredDaysTimes }
         : {},
+      hoursPerMonth: tc.hoursPerMonth ?? null,
+      preferredDaysTimes: tc.preferredDaysTimes ?? null,
       details,
     };
 
