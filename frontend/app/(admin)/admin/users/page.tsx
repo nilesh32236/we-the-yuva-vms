@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 const ROLES = ['ALL', 'VOLUNTEER', 'COORDINATOR', 'ADMIN', 'OBSERVER'];
 const STATUSES = ['ALL', 'ACTIVE', 'PENDING', 'INACTIVE', 'SUSPENDED'];
@@ -51,7 +52,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
         locationName: data.locationName || undefined,
       }),
     onSuccess: (_data, variables) => {
-      qc.invalidateQueries({ queryKey: ['admin-users'] });
+      qc.invalidateQueries({ queryKey: queryKeys.adminUsers.all });
       toast({
         title: 'User created',
         description: `${variables.name} can now log in with ${variables.email}`,
@@ -207,7 +208,6 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 }
 
 export default function AdminUsersPage() {
-  const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [role, setRole] = useState('ALL');
   const [status, setStatus] = useState('ALL');
@@ -215,7 +215,7 @@ export default function AdminUsersPage() {
   const [showCreate, setShowCreate] = useState(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-users', search, role, status, page],
+    queryKey: queryKeys.adminUsers.list({ search, role, status, page }),
     queryFn: () =>
       api
         .get('/admin/users', {
@@ -300,10 +300,7 @@ export default function AdminUsersPage() {
         <div className="text-center py-12 text-brand-muted text-sm">No users found</div>
       ) : (
         <>
-          <UserTable
-            users={data?.data ?? []}
-            onUpdated={() => qc.invalidateQueries({ queryKey: ['admin-users'] })}
-          />
+          <UserTable users={data?.data ?? []} />
           <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
           {data?.total && (
             <p className="text-sm text-brand-muted text-center mt-2">{data.total} total users</p>

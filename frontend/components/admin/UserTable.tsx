@@ -1,11 +1,12 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import { queryKeys } from '@/lib/shared/query-keys';
 import { hasAccess, Permissions, ROLE_HIERARCHY } from '@/lib/shared/permissions';
 import * as Sentry from '@sentry/nextjs';
 
@@ -34,11 +35,11 @@ interface User {
 
 interface UserTableProps {
   users: User[];
-  onUpdated: () => void;
 }
 
-export function UserTable({ users = [], onUpdated }: UserTableProps) {
+export function UserTable({ users = [] }: UserTableProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
@@ -52,7 +53,6 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
         ? `User ${(variables.data as { status?: string }).status?.toLowerCase()}`
         : `Role changed to ${(variables.data as { role?: string }).role}`;
       toast({ title: msg });
-      onUpdated();
     },
     onError: (err: unknown) => {
       Sentry.captureException(err);
@@ -67,6 +67,7 @@ export function UserTable({ users = [], onUpdated }: UserTableProps) {
     onSettled: () => {
       setOpenMenu(null);
       setMenuPosition(null);
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers.all });
     },
   });
 

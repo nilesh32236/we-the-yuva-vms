@@ -8,6 +8,7 @@ import { memo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 const CATEGORY_COLORS: Record<string, string> = {
   EDUCATION: 'bg-brand-primary/10 text-brand-primary',
@@ -55,7 +56,7 @@ interface OpportunityListData {
   [key: string]: unknown;
 }
 
-type OpportunityCacheData = OpportunityInfo[] | OpportunityListData;
+type OpportunityCacheData = OpportunityInfo[] | OpportunityListData | OpportunityInfo;
 
 const OpportunityCard = memo(function OpportunityCard({
   opportunity: opp,
@@ -76,39 +77,57 @@ const OpportunityCard = memo(function OpportunityCard({
     mutationFn: () => api.post(`/opportunities/${opp.id}/apply`),
     onMutate: async () => {
       try {
-        await qc.cancelQueries({ queryKey: ['opportunities'] });
+        await qc.cancelQueries({ queryKey: queryKeys.opportunities.all });
       } catch {
         // Cancellation failed; proceed with the optimistic update anyway.
       }
 
       const previousQueries = qc.getQueriesData<OpportunityCacheData>({
-        queryKey: ['opportunities'],
+        queryKey: queryKeys.opportunities.all,
       });
 
-      qc.setQueriesData<OpportunityCacheData>({ queryKey: ['opportunities'] }, (oldData) => {
-        if (!oldData) return oldData;
+      qc.setQueriesData<OpportunityCacheData>(
+        { queryKey: queryKeys.opportunities.all },
+        (oldData) => {
+          if (!oldData) return oldData;
 
-        const isArray = Array.isArray(oldData);
-        const items = isArray ? oldData : (oldData as OpportunityListData).data;
-        if (!Array.isArray(items)) return oldData;
+          const isArray = Array.isArray(oldData);
+          const items = isArray ? oldData : (oldData as OpportunityListData).data;
 
-        const updated = items.map((item) => {
-          if (item.id === opp.id) {
+          if (Array.isArray(items)) {
+            const updated = items.map((item) => {
+              if (item.id === opp.id) {
+                return {
+                  ...item,
+                  userApplication: { status: 'PENDING' },
+                  acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
+                  _count: {
+                    ...item._count,
+                    applications: (item._count?.applications ?? 0) + 1,
+                  },
+                };
+              }
+              return item;
+            });
+
+            return isArray ? updated : { ...(oldData as OpportunityListData), data: updated };
+          }
+
+          const single = oldData as OpportunityInfo;
+          if (single && single.id === opp.id) {
             return {
-              ...item,
+              ...single,
               userApplication: { status: 'PENDING' },
-              acceptedCount: item.acceptedCount ?? item._count?.applications ?? 0,
               _count: {
-                ...item._count,
-                applications: (item._count?.applications ?? 0) + 1,
+                ...single._count,
+                applications: (single._count?.applications ?? 0) + 1,
               },
             };
           }
-          return item;
-        });
 
-        return isArray ? updated : { ...(oldData as OpportunityListData), data: updated };
-      });
+          return oldData;
+        }
+      );
 
       return { previousQueries };
     },
@@ -142,8 +161,8 @@ const OpportunityCard = memo(function OpportunityCard({
       onApplied?.(opp.id);
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ['opportunities'] });
-      qc.invalidateQueries({ queryKey: ['my-applications'] });
+      qc.invalidateQueries({ queryKey: queryKeys.opportunities.all });
+      qc.invalidateQueries({ queryKey: queryKeys.applications.my() });
     },
   });
 

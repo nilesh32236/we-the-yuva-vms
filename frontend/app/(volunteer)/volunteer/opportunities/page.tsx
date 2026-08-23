@@ -7,6 +7,7 @@ import { Pagination } from '@/components/shared/Pagination';
 import { OpportunityCard } from '@/components/opportunities/OpportunityCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 const CATEGORIES = [
   'ALL',
@@ -43,7 +44,7 @@ export default function VolunteerOpportunitiesPage() {
   const [page, setPage] = useState(1);
 
   const { data: recommended, isLoading: loadingRec } = useQuery({
-    queryKey: ['opportunities', 'recommended'],
+    queryKey: queryKeys.opportunities.recommended(),
     queryFn: () => api.get('/opportunities/recommended').then((r) => r.data),
     staleTime: 60_000,
   });
@@ -53,7 +54,7 @@ export default function VolunteerOpportunitiesPage() {
     isLoading: loadingList,
     isError: listError,
   } = useQuery({
-    queryKey: ['opportunities', 'list', search, category, page],
+    queryKey: queryKeys.opportunities.list({ search, category, page }),
     queryFn: () =>
       api
         .get('/opportunities', {
