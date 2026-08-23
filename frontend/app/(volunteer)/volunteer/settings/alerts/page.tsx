@@ -307,17 +307,18 @@ export default function AlertSubscriptionsPage() {
                         </div>
                       )}
                     </div>
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => {
                         haptic.light();
                         deleteMut.mutate(s.id);
                       }}
-                      className="p-2.5 rounded-lg text-brand-muted hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-brand-error transition-colors cursor-pointer shrink-0"
+                      className="text-brand-muted hover:bg-brand-error/10 hover:text-brand-error shrink-0"
                       aria-label="Remove alert"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </div>
                 )
               )}

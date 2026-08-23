@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
@@ -159,16 +160,17 @@ export default function CoordinatorOpportunitiesPage() {
                               >
                                 <Pencil className="w-4 h-4" aria-hidden="true" />
                               </Link>
-                              <button
-                                type="button"
+                              <Button
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => handleClose(opp.id, opp.title)}
                                 disabled={closing === opp.id}
-                                className="p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-brand-muted hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer active-bounce"
+                                className="hover:bg-brand-error/10 text-brand-muted hover:text-brand-error"
                                 title="Close"
                                 aria-label="Close opportunity"
                               >
                                 <Trash2 className="w-4 h-4" aria-hidden="true" />
-                              </button>
+                              </Button>
                             </>
                           )}
                         </div>
@@ -208,20 +210,18 @@ export default function CoordinatorOpportunitiesPage() {
               Close &ldquo;{confirmAction.title}&rdquo;? This cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
+              <Button
+                variant="outline"
                 onClick={() => setConfirmAction(null)}
-                className="px-4 py-2 text-sm rounded-lg border border-brand-border text-brand-text hover:bg-brand-bg cursor-pointer transition-colors active-bounce"
               >
                 Cancel
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="destructive"
                 onClick={executeClose}
-                className="px-4 py-2 text-sm rounded-lg bg-brand-error text-white hover:opacity-90 cursor-pointer transition-colors active-bounce"
               >
                 Confirm
-              </button>
+              </Button>
             </div>
           </div>
         </div>
