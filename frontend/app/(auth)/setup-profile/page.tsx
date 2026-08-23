@@ -205,7 +205,10 @@ export default function SetupProfilePage() {
 
   const handleNext = async () => {
     if (step === 4) {
-      if (!kindness.optedIn) return goToStep(step + 1);
+      if (!kindness.optedIn) {
+        setKindnessError(null);
+        return goToStep(step + 1);
+      }
       if (kindness.acts.length === 0 || !kindness.startDate) {
         setKindnessError('Select at least one act of kindness and a start date');
         return;
