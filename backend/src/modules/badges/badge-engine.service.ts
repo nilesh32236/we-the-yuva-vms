@@ -27,15 +27,26 @@ export async function awardPoints(
   reference?: string,
   tx?: Prisma.TransactionClient
 ) {
-  const client = tx ?? prisma;
-  await client.pointTransaction.create({
-    data: { userId, amount, reason, reference },
-  });
-  await client.user.update({
-    where: { id: userId },
-    data: { points: { increment: amount } },
-  });
-  if (!tx) invalidateCache();
+  if (tx) {
+    await tx.pointTransaction.create({
+      data: { userId, amount, reason, reference },
+    });
+    await tx.user.update({
+      where: { id: userId },
+      data: { points: { increment: amount } },
+    });
+  } else {
+    await prisma.$transaction(async (innerTx) => {
+      await innerTx.pointTransaction.create({
+        data: { userId, amount, reason, reference },
+      });
+      await innerTx.user.update({
+        where: { id: userId },
+        data: { points: { increment: amount } },
+      });
+    });
+    invalidateCache();
+  }
 }
 
 interface BatchData {

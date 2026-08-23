@@ -188,48 +188,52 @@ export async function completeLesson(lessonId: string, userId: string) {
   });
   if (!lesson) throw new AppError('Lesson not found', 404);
 
-  // Mark lesson complete (idempotent)
-  await prisma.lessonCompletion.upsert({
-    where: { userId_lessonId: { userId, lessonId } },
-    create: { userId, lessonId },
-    update: {},
-  });
-
-  // Check if all lessons in course are done
-  const [totalLessons, completedLessons] = await Promise.all([
-    prisma.lesson.count({ where: { courseId: lesson.courseId } }),
-    prisma.lessonCompletion.count({
-      where: { userId, lesson: { courseId: lesson.courseId } },
-    }),
-  ]);
-
-  if (completedLessons >= totalLessons) {
-    await prisma.courseProgress.upsert({
-      where: { userId_courseId: { userId, courseId: lesson.courseId } },
-      create: { userId, courseId: lesson.courseId, completed: true, completedAt: new Date() },
-      update: { completed: true, completedAt: new Date() },
-    });
-
-    if (notificationsQueue) {
-      notificationsQueue
-        .add('training-completion', {
-          userId,
-          courseTitle: lesson.course.title,
-          courseId: lesson.course.id,
-        })
-        .catch((err) =>
-          logger.warn('Failed to enqueue training notification', { error: (err as Error).message })
-        );
-    }
-  } else {
-    await prisma.courseProgress.upsert({
-      where: { userId_courseId: { userId, courseId: lesson.courseId } },
-      create: { userId, courseId: lesson.courseId, completed: false },
+  const courseCompleted = await prisma.$transaction(async (tx) => {
+    // Mark lesson complete (idempotent)
+    await tx.lessonCompletion.upsert({
+      where: { userId_lessonId: { userId, lessonId } },
+      create: { userId, lessonId },
       update: {},
     });
+
+    // Check if all lessons in course are done
+    const [totalLessons, completedLessons] = await Promise.all([
+      tx.lesson.count({ where: { courseId: lesson.courseId } }),
+      tx.lessonCompletion.count({
+        where: { userId, lesson: { courseId: lesson.courseId } },
+      }),
+    ]);
+
+    if (completedLessons >= totalLessons) {
+      await tx.courseProgress.upsert({
+        where: { userId_courseId: { userId, courseId: lesson.courseId } },
+        create: { userId, courseId: lesson.courseId, completed: true, completedAt: new Date() },
+        update: { completed: true, completedAt: new Date() },
+      });
+    } else {
+      await tx.courseProgress.upsert({
+        where: { userId_courseId: { userId, courseId: lesson.courseId } },
+        create: { userId, courseId: lesson.courseId, completed: false },
+        update: {},
+      });
+    }
+
+    return completedLessons >= totalLessons;
+  });
+
+  if (courseCompleted && notificationsQueue) {
+    notificationsQueue
+      .add('training-completion', {
+        userId,
+        courseTitle: lesson.course.title,
+        courseId: lesson.course.id,
+      })
+      .catch((err) =>
+        logger.warn('Failed to enqueue training notification', { error: (err as Error).message })
+      );
   }
 
-  return { lessonId, courseCompleted: completedLessons >= totalLessons };
+  return { lessonId, courseCompleted };
 }
 
 // Seed default courses if none exist

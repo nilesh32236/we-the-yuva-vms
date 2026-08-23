@@ -151,46 +151,28 @@ export async function createLevelRequest(
 
   const isAutoApproved = await checkAutoPromotion(userId, level);
 
-  const result = await prisma.userLevel.create({
-    data: {
-      userId,
-      levelId,
-      status: isAutoApproved ? 'AUTO_APPROVED' : 'PENDING',
-      proofUrls: data.proofUrls ?? [],
-      videoUrl: data.videoUrl,
-      proofData: data.proofData as Prisma.InputJsonValue,
-      notes: data.notes,
-      peerEndorsements: data.peerEndorsements as Prisma.InputJsonValue,
-      approvedAt: isAutoApproved ? new Date() : null,
-    },
-    include: { level: true },
-  });
-
-  if (isAutoApproved) {
-    await prisma.$transaction(async (tx) => {
-      await awardLevelPoints(tx, userId, level.id, level.id);
+  const result = await prisma.$transaction(async (tx) => {
+    const created = await tx.userLevel.create({
+      data: {
+        userId,
+        levelId,
+        status: isAutoApproved ? 'AUTO_APPROVED' : 'PENDING',
+        proofUrls: data.proofUrls ?? [],
+        videoUrl: data.videoUrl,
+        proofData: data.proofData as Prisma.InputJsonValue,
+        notes: data.notes,
+        peerEndorsements: data.peerEndorsements as Prisma.InputJsonValue,
+        approvedAt: isAutoApproved ? new Date() : null,
+      },
+      include: { level: true },
     });
-    await Promise.allSettled([
-      generateCertificate(userId, level.id).catch((err) =>
-        logger.warn('Failed to generate certificate on level approval', {
-          err,
-          userId,
-          levelId: level.id,
-        })
-      ),
-      checkAndAwardBadges(userId).catch((err) =>
-        logger.warn('Failed to check and award badges on auto-promotion', { err, userId })
-      ),
-      (notificationsQueue?.add('level-up', { userId, levelName: level.name }) ?? Promise.resolve())
-        .catch((err) =>
-          logger.warn('Failed to enqueue level-up notification', {
-            err,
-            userId,
-            levelName: level.name,
-          })
-        ),
-    ]);
-  }
+
+    if (isAutoApproved) {
+      await awardLevelPoints(tx, userId, level.id, level.id);
+    }
+
+    return created;
+  });
 
   return result;
 }

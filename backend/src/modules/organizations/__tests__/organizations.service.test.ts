@@ -121,18 +121,26 @@ describe('organizations.service', () => {
 
   describe('getOrganization', () => {
     it('should throw 404 when org not found', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        organizationId: 'bad-id',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.organization.findUnique).mockResolvedValue(null);
-      await expect(getOrganization('bad-id')).rejects.toThrow('Organization not found');
+      await expect(getOrganization('bad-id', 'user-1')).rejects.toThrow('Organization not found');
     });
 
     it('should return organization with members and documents', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        organizationId: 'org-1',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.organization.findUnique).mockResolvedValue({
         id: 'org-1',
         name: 'Test Org',
         documents: [],
         users: [],
       } as never);
-      const org = await getOrganization('org-1');
+      const org = await getOrganization('org-1', 'user-1');
       expect(org.name).toBe('Test Org');
     });
   });
@@ -391,7 +399,7 @@ describe('organizations.service', () => {
       ] as never);
       vi.mocked(prisma.organization.count).mockResolvedValue(1);
       const result = await listOrganizations({ page: 1, limit: 20 });
-      expect(result.orgs).toHaveLength(1);
+      expect((result as { data: unknown[] }).data).toHaveLength(1);
       expect(result.totalPages).toBe(1);
     });
 
@@ -407,35 +415,51 @@ describe('organizations.service', () => {
 
   describe('addOrganizationDocument', () => {
     it('should throw 404 when org not found', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        organizationId: 'bad-id',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.organization.findUnique).mockResolvedValue(null);
       await expect(
-        addOrganizationDocument('bad-id', 'doc.pdf', 'https://url', 'PAN')
+        addOrganizationDocument('bad-id', 'doc.pdf', 'https://url', 'PAN', 'user-1')
       ).rejects.toThrow('Organization not found');
     });
 
     it('should create document', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        organizationId: 'org-1',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.organization.findUnique).mockResolvedValue({ id: 'org-1' } as never);
       vi.mocked(prisma.organizationDocument.create).mockResolvedValue({
         id: 'doc-1',
         fileName: 'doc.pdf',
       } as never);
-      const result = await addOrganizationDocument('org-1', 'doc.pdf', 'https://url', 'PAN');
+      const result = await addOrganizationDocument('org-1', 'doc.pdf', 'https://url', 'PAN', 'user-1');
       expect(result.fileName).toBe('doc.pdf');
     });
   });
 
   describe('getOrganizationDocuments', () => {
     it('should throw 404 when org not found', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        organizationId: 'bad-id',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.organization.findUnique).mockResolvedValue(null);
-      await expect(getOrganizationDocuments('bad-id')).rejects.toThrow('Organization not found');
+      await expect(getOrganizationDocuments('bad-id', 'user-1')).rejects.toThrow('Organization not found');
     });
 
     it('should return documents', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        organizationId: 'org-1',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.organization.findUnique).mockResolvedValue({ id: 'org-1' } as never);
       vi.mocked(prisma.organizationDocument.findMany).mockResolvedValue([
         { id: 'doc-1', fileName: 'doc.pdf' },
       ] as never);
-      const result = await getOrganizationDocuments('org-1');
+      const result = await getOrganizationDocuments('org-1', 'user-1');
       expect(result).toHaveLength(1);
     });
   });

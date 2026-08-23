@@ -9,7 +9,22 @@ export async function getOrCreateRoom(opportunityId: string) {
   });
 }
 
-export async function getMessages(opportunityId: string, page = 1, limit = 50) {
+export async function getMessages(opportunityId: string, userId: string, page = 1, limit = 50) {
+  const opportunity = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+    select: { id: true, createdById: true, organizationId: true },
+  });
+  if (!opportunity) throw new AppError('Opportunity not found', 404);
+
+  const isCoordinator = opportunity.createdById === userId;
+  const isAcceptedVolunteer = !isCoordinator && await prisma.application.findFirst({
+    where: { opportunityId, volunteerId: userId, status: 'ACCEPTED' },
+    select: { id: true },
+  });
+  if (!isCoordinator && !isAcceptedVolunteer) {
+    throw new AppError('You are not authorized to read messages in this chat room', 403);
+  }
+
   const skip = (page - 1) * limit;
   const [data, total] = await Promise.all([
     prisma.chatMessage.findMany({

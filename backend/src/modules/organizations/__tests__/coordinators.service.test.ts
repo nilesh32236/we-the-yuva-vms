@@ -81,11 +81,15 @@ describe('coordinators.service (via organizations.service)', () => {
 
   describe('listCoordinators', () => {
     it('should list coordinators for an org', async () => {
+      vi.mocked(prisma.user.findUnique).mockResolvedValue({
+        organizationId: 'org-1',
+        roleRef: { name: 'ORGANIZATION_ADMIN' },
+      } as never);
       vi.mocked(prisma.user.findMany).mockResolvedValue([
         { id: 'c1', name: 'C1', email: 'c1@t.com', status: 'ACTIVE', createdAt: new Date() },
       ] as never);
 
-      const result = await listCoordinators('org-1');
+      const result = await listCoordinators('org-1', 'user-1');
       expect(result.data).toHaveLength(1);
     });
   });

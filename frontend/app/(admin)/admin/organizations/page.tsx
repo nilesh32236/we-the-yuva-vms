@@ -75,7 +75,7 @@ export default function AdminOrganizationsPage() {
             <SkeletonCard key={i} />
           ))}
         </div>
-      ) : !data?.orgs?.length ? (
+      ) : !data?.data?.length ? (
         <div className="bg-brand-surface rounded-2xl border border-brand-border p-12 text-center">
           <Building2 className="w-12 h-12 text-brand-muted mx-auto mb-4 opacity-20" />
           <p className="font-medium text-brand-text">No organizations found</p>
@@ -83,7 +83,7 @@ export default function AdminOrganizationsPage() {
         </div>
       ) : (
         <>
-          <OrganizationTable orgs={data.orgs} />
+          <OrganizationTable orgs={data.data} />
 
           <Pagination page={page} totalPages={data?.totalPages ?? 0} setPage={setPage} />
         </>
