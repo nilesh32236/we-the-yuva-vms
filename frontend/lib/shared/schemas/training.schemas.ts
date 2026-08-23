@@ -14,7 +14,7 @@ export const CreateCourseSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   category: z.enum(['GENERAL', 'ORIENTATION', 'SAFETY', 'LEADERSHIP', 'SKILLS', 'OTHER']),
   isRequired: z.boolean().optional(),
-  order: z.number().int().optional(),
+  order: z.coerce.number().int().optional(),
 });
 
 export const UpdateCourseSchema = z.object({
@@ -24,7 +24,7 @@ export const UpdateCourseSchema = z.object({
     .enum(['GENERAL', 'ORIENTATION', 'SAFETY', 'LEADERSHIP', 'SKILLS', 'OTHER'])
     .optional(),
   isRequired: z.boolean().optional(),
-  order: z.number().int().optional(),
+  order: z.coerce.number().int().optional(),
 });
 
 export const CreateLessonSchema = z.object({
@@ -32,7 +32,7 @@ export const CreateLessonSchema = z.object({
   content: z.string().min(1, 'Content is required'),
   type: z.enum(['TEXT', 'VIDEO', 'PDF']).optional(),
   mediaUrl: z.string().url('Must be a valid URL').optional(),
-  order: z.number().int().optional(),
+  order: z.coerce.number().int().optional(),
 });
 
 export const UpdateLessonSchema = z.object({
@@ -40,5 +40,5 @@ export const UpdateLessonSchema = z.object({
   content: z.string().min(1, 'Content is required').optional(),
   type: z.enum(['TEXT', 'VIDEO', 'PDF']).optional(),
   mediaUrl: z.string().url('Must be a valid URL').optional(),
-  order: z.number().int().optional(),
+  order: z.coerce.number().int().optional(),
 });

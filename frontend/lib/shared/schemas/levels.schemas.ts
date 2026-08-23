@@ -7,8 +7,16 @@ export const PeerEndorsementSchema = z.object({
 });
 
 export const CreateLevelRequestSchema = z.object({
-  proofUrls: z.array(z.string().url()).optional(),
-  videoUrl: z.string().url().optional(),
+  proofUrls: z
+    .preprocess(
+      (v) => (Array.isArray(v) ? v.filter((s) => s !== '') : v),
+      z.array(z.string().url('Enter a valid URL'))
+    )
+    .optional(),
+  videoUrl: z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z.string().url('Enter a valid URL').optional()
+  ),
   proofData: z.record(z.unknown()).optional(),
   notes: z.string().max(1000).optional(),
   peerEndorsements: z.array(PeerEndorsementSchema).optional(),

@@ -72,7 +72,10 @@ export const EventSchema = z
     venue: z.string().max(200, 'Venue name too long').optional(),
     capacity: z.coerce.number().finite().int().positive('Capacity must be a positive integer'),
     isVirtual: z.boolean(),
-    meetingLink: z.string().url('Must be a valid URL').optional(),
+    meetingLink: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().url('Must be a valid URL').optional()
+    ),
   })
   .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
     message: 'Meeting link is required for virtual events',
@@ -83,7 +86,7 @@ export const EventSchema = z
     path: ['endTime'],
   });
 
-export const ApplySchema = z.object({}).optional();
+export const ApplySchema = z.object({}).strict().optional();
 
 export const ApplicationStatusSchema = z.object({
   status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'WITHDRAWN']),
@@ -122,7 +125,10 @@ export const EventSeriesSchema = z
     endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
     venue: z.string().max(200, 'Venue name too long').optional(),
     isVirtual: z.boolean().default(false),
-    meetingLink: z.string().url('Must be a valid URL').optional(),
+    meetingLink: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().url('Must be a valid URL').optional()
+    ),
     capacity: z.coerce.number().finite().int().positive('Capacity must be a positive integer'),
     endDate: optionalDate('End date must be a valid date and time'),
     maxOccurrences: z.coerce.number().finite().int().positive().optional(),
