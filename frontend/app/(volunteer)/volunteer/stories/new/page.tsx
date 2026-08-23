@@ -2,7 +2,8 @@
 
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { FileUpload } from '@/components/shared/FileUpload';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
@@ -12,8 +13,10 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateStorySchema, type ApiError } from '@/lib/shared';
 
-export default function NewStoryPage() {
+function NewStoryContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const challengeId = searchParams.get('challenge') ?? undefined;
   const { toast } = useToast();
 
   const {
@@ -33,6 +36,7 @@ export default function NewStoryPage() {
         title: data.title.trim(),
         content: data.content.trim(),
         mediaUrl: data.mediaUrl || undefined,
+        challengeId,
       });
       toast({ title: 'Story submitted!', description: 'It will be published after review.' });
       router.push('/volunteer/stories');
@@ -116,5 +120,13 @@ export default function NewStoryPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function NewStoryPage() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl p-6 text-sm text-brand-muted">Loading...</div>}>
+      <NewStoryContent />
+    </Suspense>
   );
 }

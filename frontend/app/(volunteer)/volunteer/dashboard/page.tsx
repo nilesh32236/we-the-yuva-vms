@@ -10,17 +10,16 @@ import { PointsHistory } from '@/components/shared/PointsHistory';
 import { LevelProgressCard } from '@/components/levels/LevelProgressCard';
 import { PWAInstallBanner } from '@/components/shared/PWAInstallBanner';
 import { ProfileCompletionBanner } from '@/components/dashboard/ProfileCompletionBanner';
+import { KindnessChallengeCard } from '@/components/volunteer/KindnessChallengeCard';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
 
 const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
-  STUDENT: 'Student',
-  PROFESSIONAL: 'Professional',
-  EVENT: 'Event',
-  RECURRING: 'Recurring',
-  REMOTE: 'Remote',
-  EMERGENCY: 'Emergency',
+  STUDENT_VOLUNTEER: 'Student Volunteer',
+  LONG_TERM: 'Long-term Volunteer',
+  INTERNSHIP: 'Internship Volunteer',
+  OTHER: 'Other',
 };
 
 export default function VolunteerDashboardPage() {
@@ -87,6 +86,8 @@ export default function VolunteerDashboardPage() {
           Failed to load data. Please try again later.
         </div>
       )}
+
+      <KindnessChallengeCard />
 
       {/* Stats */}
       {isLoading ? (

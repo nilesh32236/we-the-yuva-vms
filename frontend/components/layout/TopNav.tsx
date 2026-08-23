@@ -39,12 +39,10 @@ const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string }> 
 };
 
 const VOLUNTEER_TYPE_LABELS: Record<string, string> = {
-  STUDENT: 'Student',
-  PROFESSIONAL: 'Professional',
-  EVENT: 'Event',
-  RECURRING: 'Recurring',
-  REMOTE: 'Remote',
-  EMERGENCY: 'Emergency',
+  STUDENT_VOLUNTEER: 'Student Volunteer',
+  LONG_TERM: 'Long-term Volunteer',
+  INTERNSHIP: 'Internship Volunteer',
+  OTHER: 'Other',
 };
 
 const TYPE_ICON: Record<string, React.ElementType> = {

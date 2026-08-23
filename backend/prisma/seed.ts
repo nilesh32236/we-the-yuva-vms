@@ -37,6 +37,7 @@ async function main() {
         'youth:profile:view',
         'chat:read',
         'chat:send',
+        'challenge:participate',
       ],
     },
     {
@@ -183,6 +184,7 @@ async function main() {
         'badge:approve',
         'chat:read',
         'chat:send',
+        'challenge:view:all',
       ],
     },
     {
@@ -307,7 +309,7 @@ async function main() {
         email: 'vol1@wetheyuva.org',
         name: 'Arjun Mehta',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'STUDENT',
+        volunteerType: 'STUDENT_VOLUNTEER',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -328,7 +330,7 @@ async function main() {
         email: 'vol2@wetheyuva.org',
         name: 'Kavya Nair',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'PROFESSIONAL',
+        volunteerType: 'LONG_TERM',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -349,7 +351,7 @@ async function main() {
         email: 'vol3@wetheyuva.org',
         name: 'Rohan Kulkarni',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'PROFESSIONAL',
+        volunteerType: 'LONG_TERM',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
@@ -370,7 +372,7 @@ async function main() {
         email: 'vol4@wetheyuva.org',
         name: 'Meera Iyer',
         roleId: roleByName.VOLUNTEER,
-        volunteerType: 'EVENT',
+        volunteerType: 'OTHER',
         status: 'ACTIVE',
         consent: { create: { privacyPolicyAccepted: true, mediaConsentAccepted: true } },
         profile: {
