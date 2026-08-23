@@ -13,16 +13,19 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { user, isLoading, fetchError, refetch } = useAuth();
+  const { user, isLoading, fetchError, isError, refetch } = useAuth();
   const router = useRouter();
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
-    // A 5xx from /users/me is a transient server error — do NOT log the user
-    // out. proxy.ts is the authoritative server-side guard; show a retry screen
-    // instead of bouncing to /login on a transient backend failure.
-    if (fetchError) {
+    // Any non-401 error — a 5xx from /users/me OR a network/offline error (the
+    // latter leaving fetchError null because the queryFn throws before it can
+    // surface a response) — is transient. Do NOT log the user out: proxy.ts is
+    // the authoritative server-side guard; show a retry screen and stay mounted
+    // until refetch succeeds. Only a clean unauthenticated state (queryFn
+    // returned null without throwing) means the session is genuinely gone.
+    if (fetchError || isError) {
       setShowContent(false);
       return;
     }
@@ -33,13 +36,17 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     } else {
       setShowContent(true);
     }
-  }, [user, isLoading, fetchError, allowedRoles, router]);
+  }, [user, isLoading, fetchError, isError, allowedRoles, router]);
 
-  if (fetchError) {
+  if (fetchError || isError) {
     return (
       <div className="flex flex-col items-center justify-center h-dvh gap-3 px-4 text-center">
-        <p className="text-sm font-medium text-brand-text">We couldn&apos;t load your session.</p>
-        <p className="text-xs text-brand-muted max-w-sm">{fetchError}</p>
+        <p className="text-sm font-medium text-brand-text">
+          {fetchError ? 'We couldn&apos;t load your session.' : 'Network trouble.'}
+        </p>
+        <p className="text-xs text-brand-muted max-w-sm">
+          {fetchError ?? 'You seem to be offline or disconnected. Retry when your connection is back.'}
+        </p>
         <Button onClick={() => refetch()} variant="outline" size="sm">
           Retry
         </Button>
