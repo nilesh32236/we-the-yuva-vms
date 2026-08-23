@@ -72,6 +72,8 @@ jobs:
           mode: review
           model: 'opencode/deepseek-v4-flash-free'
           github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          git_user_name: nilesh32236
+          git_user_email: nilesh32236@gmail.com
           project_context: |
             Monorepo: WeTheYuva Volunteer Management System
 
@@ -135,6 +137,8 @@ jobs:
           max_fix_iterations: 3
           run_checks_after_fix: 'cd frontend && pnpm typecheck && pnpm lint && cd ../backend && pnpm typecheck && pnpm lint'
           github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          git_user_name: nilesh32236
+          git_user_email: nilesh32236@gmail.com
           project_context: |
             Monorepo: WeTheYuva Volunteer Management System
 
@@ -174,6 +178,8 @@ jobs:
           audit_create_issues: true
           audit_auto_fix: true
           github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          git_user_name: nilesh32236
+          git_user_email: nilesh32236@gmail.com
           project_context: |
             Monorepo: WeTheYuva Volunteer Management System
 
@@ -213,6 +219,8 @@ jobs:
           max_fix_iterations: 3
           run_checks_after_fix: 'cd frontend && pnpm typecheck && pnpm lint && cd ../backend && pnpm typecheck && pnpm lint'
           github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          git_user_name: nilesh32236
+          git_user_email: nilesh32236@gmail.com
           project_context: |
             Monorepo: WeTheYuva Volunteer Management System
 

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     user: { findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
-    role: { findUnique: vi.fn() },
+    role: { findUnique: vi.fn(), upsert: vi.fn() },
     refreshToken: { findUnique: vi.fn() },
     consentRecord: { findUnique: vi.fn(), create: vi.fn() },
     auditLog: { createMany: vi.fn().mockResolvedValue({ count: 2 }) },
@@ -186,14 +186,34 @@ describe('auth.controller', () => {
       expect(next).toHaveBeenCalledWith(expect.objectContaining({ status: 409 }));
     });
 
-    it('should return 500 when VOLUNTEER role not found', async () => {
+    it('should auto-create VOLUNTEER role when not found (resilient fallback)', async () => {
       req.body = { ...baseBody };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.role.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.role.upsert).mockResolvedValue({
+        id: 'role-vol',
+        name: 'VOLUNTEER',
+        permissions: [],
+      } as never);
+      vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
+
+      await register(req as Request, res as Response, next);
+
+      expect(prisma.role.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { name: 'VOLUNTEER' } })
+      );
+      expect(prisma.user.create).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    it('should return 400 when role is invalid and not found', async () => {
+      req.body = { ...baseBody, role: 'BOGUS_ROLE' };
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
       vi.mocked(prisma.role.findUnique).mockResolvedValue(null);
 
       await register(req as Request, res as Response, next);
 
-      expect(next).toHaveBeenCalledWith(expect.objectContaining({ status: 500 }));
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ status: 400 }));
     });
   });
 

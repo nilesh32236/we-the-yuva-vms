@@ -10,6 +10,7 @@ vi.mock('@/lib/prisma', () => ({
       delete: vi.fn(),
       count: vi.fn(),
     },
+    kindnessChallenge: { findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn(), findUniqueOrThrow: vi.fn() },
   },
 }));
 
@@ -46,6 +47,32 @@ describe('stories.service', () => {
       });
       expect(result.title).not.toContain('<script>');
       expect(result.title).toContain('Clean Title');
+    });
+
+    it('links and completes an eligible challenge when challengeId given', async () => {
+      vi.mocked(prisma.story.create).mockResolvedValue({ id: 'story-9' } as never);
+      vi.mocked(prisma.kindnessChallenge!.findUnique).mockResolvedValue({
+        id: 'ch1', userId: 'user-1', status: 'ACTIVE', startDate: new Date('2026-08-21T18:30:00Z'),
+      } as never);
+      vi.mocked(prisma.kindnessChallenge!.updateMany).mockResolvedValue({ count: 1 } as never);
+      vi.mocked(prisma.kindnessChallenge!.findUniqueOrThrow).mockResolvedValue({ id: 'ch1' } as never);
+
+      await createStory('user-1', { title: 'T', content: 'C', challengeId: 'ch1' }, new Date('2026-08-28T00:00:00Z'));
+
+      expect(prisma.kindnessChallenge!.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ id: 'ch1', status: 'ACTIVE' }) })
+      );
+    });
+
+    it('rejects when challenge not yet on day 7', async () => {
+      vi.mocked(prisma.story.create).mockResolvedValue({ id: 'story-9' } as never);
+      vi.mocked(prisma.kindnessChallenge!.findUnique).mockResolvedValue({
+        id: 'ch1', userId: 'user-1', status: 'ACTIVE', startDate: new Date('2026-08-21T18:30:00Z'),
+      } as never);
+
+      await expect(
+        createStory('user-1', { title: 'T', content: 'C', challengeId: 'ch1' }, new Date('2026-08-23T00:00:00Z'))
+      ).rejects.toMatchObject({ status: 422 });
     });
   });
 

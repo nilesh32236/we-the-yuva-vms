@@ -86,6 +86,16 @@ function VerifyOtpContent() {
 
   const handleVerify = useCallback(
     async (digits: string[]) => {
+      // Belt-and-braces: an expired code must never be submitted — only the
+      // "Resend code" path (which resets the countdown) re-enables the inputs.
+      if (countdown <= 0) {
+        toast({
+          title: 'Code expired',
+          description: 'Please request a new code.',
+          variant: 'destructive',
+        });
+        return;
+      }
       const code = digits.join('');
       // Guard against double-submission (strict mode, concurrent renders)
       if (submitted.current) return;
@@ -125,19 +135,20 @@ function VerifyOtpContent() {
         setIsVerifying(false);
       }
     },
-    [email, refetch, toast, setValue]
+    [countdown, email, refetch, toast, setValue]
   );
 
   const otpValue = watch('otp');
 
   // Auto-submit when all 6 digits are entered
   useEffect(() => {
+    if (countdown <= 0) return;
     if (otpValue.length === 6 && !isVerifying && !navHandled) {
       trigger('otp').then((valid) => {
         if (valid) handleVerify(otpValue.split(''));
       });
     }
-  }, [otpValue, isVerifying, handleVerify, navHandled, trigger]);
+  }, [otpValue, isVerifying, handleVerify, navHandled, trigger, countdown]);
 
   const handleResend = async () => {
     try {
@@ -201,7 +212,7 @@ function VerifyOtpContent() {
                   field.onChange(digits.join(''));
                   submitted.current = false;
                 }}
-                disabled={isVerifying}
+                disabled={isVerifying || countdown <= 0}
                 error={!!errors.otp}
               />
             )}

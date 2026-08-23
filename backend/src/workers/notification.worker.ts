@@ -11,11 +11,15 @@ import { updateStreaks } from './streak.handler';
 import { cleanupPendingUsers } from '../modules/auth/auth.service';
 
 if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    `mailto:${env.SMTP_FROM || 'admin@wetheyuva.org'}`,
-    env.VAPID_PUBLIC_KEY,
-    env.VAPID_PRIVATE_KEY
-  );
+  try {
+    webpush.setVapidDetails(
+      `mailto:${env.SMTP_FROM || 'admin@wetheyuva.org'}`,
+      env.VAPID_PUBLIC_KEY,
+      env.VAPID_PRIVATE_KEY
+    );
+  } catch (err) {
+    logger.warn('Invalid VAPID keys - push notifications disabled', { error: (err as Error).message });
+  }
 } else {
   logger.warn('VAPID keys not configured - push notifications disabled');
 }
@@ -350,6 +354,36 @@ function accountSuspendedTemplate(): string {
   </table>
 </body>
 </html>`.trim();
+}
+
+async function handleKindnessReminders() {
+  const { getReminderTargets } = await import('../modules/kindness-challenge/kindness-challenge.service');
+  const targets = await getReminderTargets();
+
+  for (const t of targets) {
+    if (t.kind === 'CHECKIN') {
+      await Promise.allSettled([
+        createInAppNotification(
+          t.userId,
+          'Kindness Challenge — Day ' + t.day,
+          'Take a moment to check in for today\u2019s act of kindness.',
+          '/volunteer/kindness-challenge'
+        ),
+        sendPushToUser(t.userId, 'Kindness Challenge — Day ' + t.day, 'Check in for today\u2019s act of kindness.', '/volunteer/kindness-challenge'),
+      ]);
+    } else {
+      await Promise.allSettled([
+        createInAppNotification(
+          t.userId,
+          'Share your Kindness story!',
+          'Your 7 days are complete. Share your reflection to unlock Part II.',
+          '/volunteer/stories/new'
+        ),
+        sendPushToUser(t.userId, 'Share your Kindness story!', 'Share your reflection to unlock Part II.', '/volunteer/stories/new'),
+      ]);
+    }
+  }
+  logger.info('Kindness reminders processed', { count: targets.length });
 }
 
 // ─── Worker ───────────────────────────────────────────────────────
@@ -927,6 +961,8 @@ if (redis && notificationsQueue) {
           jobsEnqueued: reminderJobs.length,
           jobId: job.id,
         });
+      } else if (job.name === 'kindness-reminders') {
+        await handleKindnessReminders();
       }
     },
     {

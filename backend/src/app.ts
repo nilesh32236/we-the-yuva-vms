@@ -40,6 +40,7 @@ import { blogRouter } from './modules/blog/blog.routes';
 import { mentorshipRouter } from './modules/mentorship/mentorship.routes';
 import { certificatesRouter } from './modules/certificates/certificates.routes';
 import { chatRouter } from './modules/chat/chat.routes';
+import { kindnessRouter } from './modules/kindness-challenge/kindness-challenge.routes';
 import { youthProfilesRouter } from './modules/youth-profiles/youth-profiles.routes';
 
 export function createApp(): Express {
@@ -132,6 +133,7 @@ export function createApp(): Express {
   // Routes
   app.use('/api/v1/auth', authRouter);
   app.use('/api/v1/users', usersRouter);
+  app.use('/api/v1/kindness-challenge', kindnessRouter);
   app.use('/api/v1/opportunities', opportunitiesRouter);
   app.use('/api/v1/opportunities/:opportunityId/events', opportunityEventsRouter);
   app.use('/api/v1/opportunities/:opportunityId/event-series', opportunityEventSeriesRouter);

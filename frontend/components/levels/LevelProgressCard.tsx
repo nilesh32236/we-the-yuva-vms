@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { api } from '@/lib/api';
 import { type MyLevelResponse, MyLevelResponseSchema, normalizeMyLevel } from '@/lib/shared';
+import { queryKeys } from '@/lib/shared/query-keys';
 import { SkeletonCard } from '../shared/SkeletonCard';
 import { StreakBadge } from './StreakBadge';
 import { TierPathVisualizer } from './TierPathVisualizer';
@@ -48,7 +49,7 @@ const TIER_DATA = [
 
 export function LevelProgressCard() {
   const { data, isLoading, isError, error, refetch } = useQuery<MyLevelResponse>({
-    queryKey: ['my-level'],
+    queryKey: queryKeys.myLevel(),
     queryFn: () =>
       api.get('/levels/users/me/level').then((r) => MyLevelResponseSchema.parse(r.data)),
     staleTime: 60000,

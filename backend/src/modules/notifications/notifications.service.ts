@@ -7,11 +7,15 @@ import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
 
 if (env.VAPID_PUBLIC_KEY && env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    `mailto:${env.SMTP_FROM || 'admin@wetheyuva.org'}`,
-    env.VAPID_PUBLIC_KEY,
-    env.VAPID_PRIVATE_KEY
-  );
+  try {
+    webpush.setVapidDetails(
+      `mailto:${env.SMTP_FROM || 'admin@wetheyuva.org'}`,
+      env.VAPID_PUBLIC_KEY,
+      env.VAPID_PRIVATE_KEY
+    );
+  } catch (err) {
+    logger.warn('Invalid VAPID keys - push notifications disabled', { error: (err as Error).message });
+  }
 } else {
   logger.warn('VAPID keys not configured - push notifications disabled');
 }

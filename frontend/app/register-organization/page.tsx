@@ -32,8 +32,9 @@ export default function RegisterOrganizationPage() {
 
   useEffect(() => {
     if (!isAuthLoading && user?.role !== 'ORGANIZATION_ADMIN') {
-      if (!user) router.push('/login');
-      else router.push('/');
+      // replace() so a dead-end route never pollutes browser history
+      if (!user) router.replace('/login');
+      else router.replace('/');
     }
   }, [user, isAuthLoading, router]);
 
@@ -144,7 +145,18 @@ export default function RegisterOrganizationPage() {
     }
   };
 
-  if (isAuthLoading || !user || user.role !== 'ORGANIZATION_ADMIN') return null;
+  if (isAuthLoading || !user || user.role !== 'ORGANIZATION_ADMIN') {
+    return (
+      <main
+        id="main"
+        className="min-h-[60vh] flex items-center justify-center"
+        role="status"
+        aria-label="Redirecting"
+      >
+        <div className="w-10 h-10 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin" />
+      </main>
+    );
+  }
 
   return (
     <main id="main" className="min-h-screen bg-brand-bg py-8 sm:py-12" aria-busy={isSubmitting}>

@@ -32,11 +32,8 @@ import type {
   OrganizationDocumentSchema,
   RegisterOrganizationSchema,
 } from '../schemas/organization.schemas';
-import type {
-  StaffProfileSchema,
-  UpdateMeSchema,
-  VolunteerProfileSchema,
-} from '../schemas/profile.schemas';
+import type { VolunteerProfileSchema } from '../schemas/profile.schemas';
+import type { UpdateMeSchema } from '../schemas/onboarding.schemas';
 import type {
   CreateStorySchema,
   ModerateStorySchema,
@@ -55,7 +52,6 @@ export type VerifyOtpInput = z.infer<typeof VerifyOtpSchema>;
 export type ConsentInput = z.infer<typeof ConsentSchema>;
 
 export type VolunteerProfileInput = z.infer<typeof VolunteerProfileSchema>;
-export type StaffProfileInput = z.infer<typeof StaffProfileSchema>;
 export type UpdateMeInput = z.infer<typeof UpdateMeSchema>;
 export type OpportunityInput = z.infer<typeof OpportunitySchema>;
 export type EventInput = z.infer<typeof EventSchema>;
@@ -136,10 +132,8 @@ export type UserRole =
   | 'OBSERVER';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 export type VolunteerType =
-  | 'STUDENT'
-  | 'PROFESSIONAL'
-  | 'EVENT'
-  | 'RECURRING'
-  | 'REMOTE'
-  | 'EMERGENCY';
+  | 'STUDENT_VOLUNTEER'
+  | 'LONG_TERM'
+  | 'INTERNSHIP'
+  | 'OTHER';
 export type OrganizationStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED';

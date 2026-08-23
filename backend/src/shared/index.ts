@@ -1,6 +1,7 @@
 export * from './schemas/admin.schemas';
 export * from './schemas/alerts.schemas';
 export * from './schemas/auth.schemas';
+export * from './schemas/kindness-challenge.schemas';
 export * from './schemas/feedback.schemas';
 export * from './schemas/notifications.schemas';
 export * from './schemas/opportunity.schemas';
