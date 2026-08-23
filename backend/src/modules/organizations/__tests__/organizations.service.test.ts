@@ -399,7 +399,7 @@ describe('organizations.service', () => {
       ] as never);
       vi.mocked(prisma.organization.count).mockResolvedValue(1);
       const result = await listOrganizations({ page: 1, limit: 20 });
-      expect(result.orgs).toHaveLength(1);
+      expect((result as { data: unknown[] }).data).toHaveLength(1);
       expect(result.totalPages).toBe(1);
     });
 
