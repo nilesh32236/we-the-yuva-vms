@@ -56,7 +56,7 @@ describe('coordinators.controller (via organizations.controller)', () => {
   });
 
   it('listCoordinatorsHandler should return 200', async () => {
-    vi.mocked(ctrl.listCoordinators).mockResolvedValue([]);
+    vi.mocked(ctrl.listCoordinators).mockResolvedValue({ data: [], total: 0, page: 1, limit: 20, totalPages: 0 } as never);
     req.params = { id: 'org-1' };
     await listCoordinatorsHandler(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(200);
