@@ -8,12 +8,8 @@ vi.mock('../organizations.service', () => ({
 }));
 
 const ctrl = await import('../organizations.service');
-
-import {
-  addCoordinatorHandler,
-  listCoordinatorsHandler,
-  removeCoordinatorHandler,
-} from '../organizations.controller';
+const { addCoordinatorHandler, listCoordinatorsHandler, removeCoordinatorHandler } =
+  await import('../organizations.controller');
 
 describe('coordinators.controller (via organizations.controller)', () => {
   let req: Partial<Request>;
