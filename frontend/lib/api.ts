@@ -38,7 +38,9 @@ export async function downloadCsv(url: string, filename = 'export.csv') {
     previouslyFocused?.focus();
   } catch (err) {
     previouslyFocused?.focus();
-    const message = err instanceof Error ? err.message : 'Download failed. Please try again.';
+    const message =
+      (err as { normalizedMessage?: string })?.normalizedMessage ??
+      (err instanceof Error ? err.message : 'Download failed. Please try again.');
     throw new Error(message);
   }
 }
@@ -51,11 +53,31 @@ let accessTokenMemory: string | null = null;
 
 export function setAccessToken(token: string | null) {
   accessTokenMemory = token;
+  // A non-null token means a fresh session/refresh succeeded — clear the flag.
+  if (token) refreshFailed = false;
 }
 
 function getAccessToken(): string | null {
   return accessTokenMemory;
 }
+
+// Track last returned access token from refresh to detect missing rotation
+let lastRefreshAccessToken: string | null = null;
+let rotationWarningFired = false;
+
+function checkTokenRotation(token: string) {
+  if (token === lastRefreshAccessToken) {
+    if (!rotationWarningFired) {
+      rotationWarningFired = true;
+      console.warn('[Auth] Refresh returned same access token — refresh token may not be rotating');
+    }
+  }
+  lastRefreshAccessToken = token;
+}
+
+// Set when a preemptive refresh fails; the response interceptor skips its own
+// refresh attempt and goes straight to /login, avoiding a duplicate round-trip.
+let refreshFailed = false;
 
 // biome-ignore lint/suspicious/noExplicitAny: error type unknown
 let refreshPromise: Promise<any> | null = null;
@@ -108,6 +130,18 @@ api.interceptors.response.use(
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
     const isLoggedOut =
       typeof sessionStorage !== 'undefined' && sessionStorage.getItem('logged_out') === 'true';
+
+    const redirectToLoginIfProtected = () => {
+      if (
+        typeof window !== 'undefined' &&
+        !window.location.pathname.startsWith('/login') &&
+        !isAuthEndpoint &&
+        !isPublicRoute(window.location.pathname)
+      ) {
+        window.location.href = '/login';
+      }
+    };
+
     // Fail closed: if the user believes they logged out (even if the /auth/logout
     // POST failed), never mint a fresh token via /auth/refresh on a stale cookie.
     if (
@@ -117,6 +151,13 @@ api.interceptors.response.use(
       !isLoggedOut
     ) {
       originalRequest._retry = true;
+
+      if (refreshFailed) {
+        // A preemptive refresh already failed — don't attempt a duplicate
+        // refresh round-trip; go straight to the login redirect.
+        redirectToLoginIfProtected();
+        return Promise.reject(error);
+      }
 
       try {
         if (!refreshPromise) {
@@ -134,14 +175,8 @@ api.interceptors.response.use(
         }
         return api(originalRequest);
       } catch {
-        if (
-          typeof window !== 'undefined' &&
-          !window.location.pathname.startsWith('/login') &&
-          !isAuthEndpoint &&
-          !isPublicRoute(window.location.pathname)
-        ) {
-          window.location.href = '/login';
-        }
+        refreshFailed = true;
+        redirectToLoginIfProtected();
         return Promise.reject(error);
       }
     }

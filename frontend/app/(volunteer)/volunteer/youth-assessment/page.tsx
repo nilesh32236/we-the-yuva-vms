@@ -311,7 +311,7 @@ export default function YouthAssessmentPage() {
     } catch (err) {
       const message =
         (err as ApiError)?.normalizedMessage ??
-        (err as ApiError)?.response?.data?.error ??
+        ((err as ApiError)?.response?.data as { error?: string } | undefined)?.error ??
         'Failed to save assessment';
       toast({ title: message, variant: 'destructive' });
     } finally {

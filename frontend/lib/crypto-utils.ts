@@ -57,7 +57,7 @@ export async function encrypt(plaintext: string, userId: string): Promise<string
   return arrayBufferToBase64(combined.buffer);
 }
 
-export async function decrypt(encryptedBase64: string, userId: string): Promise<string> {
+export async function decrypt(encryptedBase64: string, userId: string): Promise<string | null> {
   try {
     const key = await deriveKey(userId);
     const combined = base64ToArrayBuffer(encryptedBase64);
@@ -66,6 +66,6 @@ export async function decrypt(encryptedBase64: string, userId: string): Promise<
     const decrypted = await crypto.subtle.decrypt({ name: ALGORITHM, iv }, key, data);
     return new TextDecoder().decode(decrypted);
   } catch {
-    return '';
+    return null;
   }
 }

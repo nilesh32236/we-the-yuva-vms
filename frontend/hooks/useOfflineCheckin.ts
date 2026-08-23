@@ -77,7 +77,15 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     setIsSyncing(true);
     try {
       const result = await syncQueuedCheckins(userIdRef.current);
-      if (result.failed === 0) {
+      if (result.error) {
+        const backoff = [10000, 30000, 60000];
+        const delay = backoff[Math.min(retryAttemptRef.current, backoff.length - 1)];
+        retryAttemptRef.current++;
+        if (onErrorRef.current) {
+          onErrorRef.current('Offline check-in sync failed. It will be retried automatically.');
+        }
+        retryTimeoutRef.current = setTimeout(sync, delay);
+      } else if (result.failed === 0) {
         retryAttemptRef.current = 0;
         await queryClient.invalidateQueries({ queryKey: ['attendance', eventId] });
         if (onSuccessRef.current) onSuccessRef.current();
@@ -86,8 +94,10 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
         const delay = backoff[Math.min(retryAttemptRef.current, backoff.length - 1)];
         retryAttemptRef.current++;
         if (onErrorRef.current) {
+          const droppedMsg =
+            result.dropped > 0 ? ` ${result.dropped} check-in(s) could not be submitted.` : '';
           onErrorRef.current(
-            `Synced ${result.synced} of ${result.synced + result.failed} check-in(s)`
+            `Synced ${result.synced} of ${result.synced + result.failed} check-in(s).${droppedMsg}`
           );
         }
         retryTimeoutRef.current = setTimeout(sync, delay);
@@ -96,7 +106,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       syncingRef.current = false;
       setIsSyncing(false);
     }
-  }, [queryClient, eventId]);
+  }, []);
 
   useEffect(() => {
     const handleOnline = () => {
