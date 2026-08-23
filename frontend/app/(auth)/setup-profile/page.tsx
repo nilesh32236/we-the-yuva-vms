@@ -60,7 +60,7 @@ const STEP_FIELDS: string[][] = [
     'selfEmployed.organizationName',
     'selfEmployed.city',
   ],
-  ['volunteerType', 'opportunityInterests', 'whyVoluntary', 'skills', 'digitalReadiness.smartphone', 'digitalReadiness.whatsapp', 'digitalReadiness.laptop', 'digitalReadiness.onlineVolunteering'],
+  ['volunteerType', 'timeCommitment.hoursPerWeek', 'timeCommitment.hoursPerMonth', 'timeCommitment.preferredDaysTimes', 'opportunityInterests', 'whyVoluntary', 'skills', 'digitalReadiness.smartphone', 'digitalReadiness.whatsapp', 'digitalReadiness.laptop', 'digitalReadiness.onlineVolunteering'],
   ['referralSource', 'referralSourceName'],
   [], // custom component, validated inline
   ['declarations.infoCorrect', 'declarations.commitmentsAccepted'],

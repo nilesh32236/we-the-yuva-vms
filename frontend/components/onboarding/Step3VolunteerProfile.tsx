@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
+import { WEEKS_PER_MONTH, round1 } from '@/lib/shared/schemas/onboarding.schemas';
 
 const TYPES = [
   { value: 'STUDENT_VOLUNTEER', label: 'Student Volunteer' },
@@ -31,6 +32,44 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
   const skills = watch('skills') ?? [];
   const tools = watch('digitalReadiness.tools') ?? [];
   const [skillDraft, setSkillDraft] = useState('');
+  const lastEditedRef = useRef<'week' | 'month' | null>(null);
+  const weekVal = watch('timeCommitment.hoursPerWeek');
+  const monthVal = watch('timeCommitment.hoursPerMonth');
+
+  const handleWeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      setValue('timeCommitment.hoursPerWeek', undefined as never, { shouldDirty: true });
+      setValue('timeCommitment.hoursPerMonth', undefined as never, { shouldDirty: true });
+      return;
+    }
+    const v = Number(raw);
+    if (Number.isFinite(v)) {
+      lastEditedRef.current = 'week';
+      setValue('timeCommitment.hoursPerWeek', v as never, { shouldValidate: true, shouldDirty: true });
+      setValue('timeCommitment.hoursPerMonth', round1(v * WEEKS_PER_MONTH) as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      setValue('timeCommitment.hoursPerMonth', undefined as never, { shouldDirty: true });
+      setValue('timeCommitment.hoursPerWeek', undefined as never, { shouldDirty: true });
+      return;
+    }
+    const v = Number(raw);
+    if (Number.isFinite(v)) {
+      lastEditedRef.current = 'month';
+      setValue('timeCommitment.hoursPerMonth', v as never, { shouldValidate: true, shouldDirty: true });
+      setValue('timeCommitment.hoursPerWeek', round1(v / WEEKS_PER_MONTH) as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
 
   const addSkill = () => {
     const v = skillDraft.trim();
@@ -60,18 +99,53 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
         <FieldError message={errors.volunteerType?.message} />
       </fieldset>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <label htmlFor="hoursPerWeek" className="text-sm font-medium text-brand-text">Hours per week</label>
-          <input id="hoursPerWeek" type="number" min={0} max={100} className={inputCls} {...register('timeCommitment.hoursPerWeek')} />
+          <label htmlFor="hoursPerWeek" className="text-sm font-medium text-brand-text">
+            Hours per week *
+          </label>
+          <input
+            id="hoursPerWeek"
+            type="number"
+            step="0.1"
+            inputMode="decimal"
+            className={inputCls}
+            {...register('timeCommitment.hoursPerWeek', { onChange: handleWeekChange })}
+          />
+          {Number.isFinite(Number(weekVal)) && (
+            <p className="text-xs text-brand-muted">≈ {round1(Number(weekVal) * WEEKS_PER_MONTH)} h/month</p>
+          )}
+          <FieldError message={(errors.timeCommitment as Record<string, { message?: string}>)?.hoursPerWeek?.message} />
         </div>
         <div className="space-y-1.5">
-          <label htmlFor="hoursPerMonth" className="text-sm font-medium text-brand-text">Hours per month</label>
-          <input id="hoursPerMonth" type="number" min={0} max={500} className={inputCls} {...register('timeCommitment.hoursPerMonth')} />
+          <label htmlFor="hoursPerMonth" className="text-sm font-medium text-brand-text">
+            Hours per month *
+          </label>
+          <input
+            id="hoursPerMonth"
+            type="number"
+            step="0.1"
+            inputMode="decimal"
+            className={inputCls}
+            {...register('timeCommitment.hoursPerMonth', { onChange: handleMonthChange })}
+          />
+          {Number.isFinite(Number(monthVal)) && (
+            <p className="text-xs text-brand-muted">≈ {round1(Number(monthVal) / WEEKS_PER_MONTH)} h/week</p>
+          )}
+          <FieldError message={(errors.timeCommitment as Record<string, { message?: string}>)?.hoursPerMonth?.message} />
         </div>
-        <div className="space-y-1.5 col-span-2">
-          <label htmlFor="preferredDaysTimes" className="text-sm font-medium text-brand-text">Preferred days &amp; times</label>
-          <input id="preferredDaysTimes" placeholder="e.g. Weekends, 10am–1pm" className={inputCls} {...register('timeCommitment.preferredDaysTimes')} />
+        <div className="space-y-1.5 md:col-span-2">
+          <label htmlFor="preferredDaysTimes" className="text-sm font-medium text-brand-text">
+            Preferred days &amp; times
+          </label>
+          <input
+            id="preferredDaysTimes"
+            placeholder="e.g. Mon/Wed evenings, weekends"
+            maxLength={500}
+            className={inputCls}
+            {...register('timeCommitment.preferredDaysTimes')}
+          />
+          <FieldError message={(errors.timeCommitment as Record<string, { message?: string}>)?.preferredDaysTimes?.message} />
         </div>
       </div>
 
