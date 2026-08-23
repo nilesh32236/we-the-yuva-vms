@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
+import { WEEKS_PER_MONTH, round1 } from '../../shared/schemas/onboarding.schemas';
 
 // ─── Extended User Functions ──────────────────────────────────────
 
@@ -412,13 +413,29 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
       },
     });
 
+    // Bidirectional derive for timeCommitment (×4.33, 1 decimal, tolerance 0.06)
+    let { hoursPerWeek, hoursPerMonth, preferredDaysTimes } = data.timeCommitment as {
+      hoursPerWeek?: number;
+      hoursPerMonth?: number;
+      preferredDaysTimes?: string;
+    };
+    if (hoursPerWeek != null && hoursPerMonth == null) hoursPerMonth = round1(hoursPerWeek * WEEKS_PER_MONTH);
+    if (hoursPerMonth != null && hoursPerWeek == null) hoursPerWeek = round1(hoursPerMonth / WEEKS_PER_MONTH);
+    if (
+      hoursPerWeek != null &&
+      hoursPerMonth != null &&
+      Math.abs(hoursPerMonth - hoursPerWeek * WEEKS_PER_MONTH) > 0.06
+    )
+      throw new AppError('Hours per week/month mismatch', 400);
+    const timeCommitment = { hoursPerWeek, hoursPerMonth, preferredDaysTimes };
+
     const details = {
       fieldOfStudy: data.fieldOfStudy || undefined,
       currentStatus: data.currentStatus,
       student: data.student,
       professional: data.professional,
       selfEmployed: data.selfEmployed,
-      timeCommitment: data.timeCommitment,
+      timeCommitment,
       opportunityInterests: data.opportunityInterests,
       digitalReadiness: data.digitalReadiness,
       onboardingCompletedAt: new Date().toISOString(),
