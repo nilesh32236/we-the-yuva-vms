@@ -3,7 +3,6 @@ import type { Prisma } from '@prisma/client';
 import { hasSystemRole } from '../../shared/helpers';
 import { prisma } from '../../lib/prisma';
 import { AppError } from '../../middleware/error.middleware';
-<<<<<<< HEAD
 import { WEEKS_PER_MONTH, round1 } from '../../shared/schemas/onboarding.schemas';
 
 // ─── Extended User Functions ──────────────────────────────────────
