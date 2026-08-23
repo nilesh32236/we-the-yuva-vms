@@ -357,9 +357,9 @@ export default function RegisterOrganizationPage() {
                 if (!d) {
                   return (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       onClick={() => addDoc('REGISTRATION_CERTIFICATE')}
-                      className="h-auto w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 flex-col gap-2"
+                      className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 flex-col gap-2"
                     >
                       <Upload className="w-6 h-6 mx-auto text-brand-muted" />
                       <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
@@ -400,9 +400,9 @@ export default function RegisterOrganizationPage() {
                 if (!d) {
                   return (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       onClick={() => addDoc('GOVT_ID')}
-                      className="h-auto w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 flex-col gap-2"
+                      className="w-full p-6 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-primary hover:bg-brand-bg/50 flex-col gap-2"
                     >
                       <Upload className="w-6 h-6 mx-auto text-brand-muted" />
                       <p className="text-sm text-brand-muted">Click to upload (PDF, PNG, JPG)</p>
@@ -441,9 +441,9 @@ export default function RegisterOrganizationPage() {
                 if (!d) {
                   return (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       onClick={() => addDoc('OTHER')}
-                      className="w-full h-auto p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 text-brand-muted"
+                      className="w-full p-4 rounded-xl border-2 border-dashed border-brand-border hover:border-brand-border/80 hover:bg-brand-bg/50 text-brand-muted"
                     >
                       + Add optional document
                     </Button>
