@@ -61,8 +61,78 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
     const roleName = role ?? 'VOLUNTEER';
-    const roleRecord = await prisma.role.findUnique({ where: { name: roleName } });
-    if (!roleRecord) throw new AppError(`Invalid role: ${roleName}`, 500);
+    // Resilient lookup: prod DB may have zero roles if seed was skipped (see prisma/seed.ts).
+    // Use upsert so concurrent registrations don't race on role creation. Default perms
+    // match backend/prisma/seed.ts VOLUNTEER/ORGANIZATION_ADMIN definitions.
+    const defaultPerms: Record<string, string[]> = {
+      VOLUNTEER: [
+        'opportunity:view',
+        'opportunity:apply',
+        'event:checkin',
+        'stats:view:own',
+        'story:create',
+        'story:edit',
+        'feedback:submit',
+        'training:complete',
+        'alert:manage',
+        'user:events:view',
+        'user:profile:manage',
+        'level:view',
+        'level:request',
+        'certificate:view',
+        'certificate:download',
+        'mentorship:create',
+        'mentorship:manage',
+        'file:upload',
+        'youth:profile:manage',
+        'youth:profile:view',
+        'chat:read',
+        'chat:send',
+        'challenge:participate',
+      ],
+      ORGANIZATION_ADMIN: [
+        'org:create',
+        'coordinator:manage',
+        'org:manage',
+        'org:verify',
+        'opportunity:view',
+        'opportunity:create',
+        'opportunity:edit',
+        'opportunity:manage',
+        'event:create',
+        'event:edit',
+        'event:manage',
+        'event:checkin',
+        'stats:view:own',
+        'story:create',
+        'story:edit',
+        'feedback:manage',
+        'alert:manage',
+        'user:profile:manage',
+        'user:profile:view',
+        'user:volunteers:manage',
+        'level:view',
+        'level:review',
+        'certificate:view',
+        'certificate:download',
+        'mentorship:create',
+        'mentorship:manage',
+        'file:upload',
+        'youth:profile:view',
+        'chat:read',
+        'chat:send',
+      ],
+    };
+    let roleRecord = await prisma.role.findUnique({ where: { name: roleName } });
+    if (!roleRecord) {
+      const perms = defaultPerms[roleName];
+      if (!perms) throw new AppError(`Invalid role: ${roleName}`, 400);
+      roleRecord = await prisma.role.upsert({
+        where: { name: roleName },
+        update: {},
+        create: { name: roleName, description: roleName, permissions: perms },
+      });
+    }
 
     let referredById: string | undefined;
     if (reference) {
