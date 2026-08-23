@@ -8,8 +8,12 @@ vi.mock('../organizations.service', () => ({
 }));
 
 const ctrl = await import('../organizations.service');
-const { addCoordinatorHandler, listCoordinatorsHandler, removeCoordinatorHandler } =
-  await import('../organizations.controller');
+
+import {
+  addCoordinatorHandler,
+  listCoordinatorsHandler,
+  removeCoordinatorHandler,
+} from '../organizations.controller';
 
 describe('coordinators.controller (via organizations.controller)', () => {
   let req: Partial<Request>;
@@ -21,13 +25,14 @@ describe('coordinators.controller (via organizations.controller)', () => {
     req = {
       body: {},
       params: {},
+      query: {},
       user: {
         id: 'admin-id',
         role: 'ORGANIZATION_ADMIN',
         permissions: [],
         organizationId: 'org-1',
       },
-    };
+    } as unknown as Request;
     res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
