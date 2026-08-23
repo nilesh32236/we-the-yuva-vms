@@ -20,9 +20,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { StatsCard } from '@/components/charts/StatsCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
-import { Button } from '@/components/ui/Button';
 
 interface Document {
   id: string;

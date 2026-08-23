@@ -3,10 +3,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Search, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { Pagination } from '@/components/shared/Pagination';
-import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { useState } from 'react';
+import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
+import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
@@ -156,16 +157,19 @@ export default function AdminOpportunitiesPage() {
                         </td>
                         <td className="px-4 py-3">
                           {opp.status === 'ACTIVE' && (
-                            <button
+                            <Button
                               type="button"
+                              variant="icon"
+                              size="icon"
                               onClick={() => handleClose(opp.id, opp.title)}
                               disabled={closing === opp.id}
-                              className="p-3 rounded-lg hover:bg-brand-error/10 text-brand-muted hover:text-brand-error transition-colors cursor-pointer"
+                              loading={closing === opp.id}
+                              className="hover:text-brand-error hover:bg-brand-error/10"
                               aria-label={`Close ${opp.title}`}
                               title="Close"
                             >
                               <Trash2 className="w-4 h-4" />
-                            </button>
+                            </Button>
                           )}
                         </td>
                         <td className="px-4 py-3">
