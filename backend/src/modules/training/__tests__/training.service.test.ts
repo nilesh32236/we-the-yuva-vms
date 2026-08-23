@@ -4,6 +4,11 @@ vi.mock('@/lib/queue', () => ({ notificationsQueue: null }));
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
+    $transaction: vi.fn(async (cb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const p: any = (await import('@/lib/prisma')).prisma;
+      return cb(p);
+    }),
     course: {
       create: vi.fn(),
       findUnique: vi.fn(),
