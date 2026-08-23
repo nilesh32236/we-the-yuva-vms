@@ -23,7 +23,7 @@ import { useAuth } from '@/lib/auth-context';
 import { hasPermission, Permissions } from '@/lib/shared/permissions';
 import { AddToCalendarButton } from '@/components/events/AddToCalendarButton';
 import { Button } from '@/components/ui/Button';
-import { useOfflineCheckin } from '@/hooks/useOfflineCheckin';
+import { useOfflineCheckin, useOfflineCheckinSync } from '@/hooks/useOfflineCheckin';
 
 const STATUS_COLORS: Record<string, string> = {
   SCHEDULED: 'bg-brand-cta/10 text-brand-cta',
@@ -64,7 +64,7 @@ interface VolunteerEvent {
   }[];
 }
 
-function EventRow({ event }: { event: VolunteerEvent }) {
+function EventRow({ event, isOffline }: { event: VolunteerEvent; isOffline: boolean }) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const [locating, setLocating] = useState(false);
@@ -82,7 +82,6 @@ function EventRow({ event }: { event: VolunteerEvent }) {
   const {
     checkin: checkIn,
     isPending: checkInPending,
-    isOffline,
   } = useOfflineCheckin({
     eventId: event.id,
     onSuccess: () => {
@@ -299,6 +298,7 @@ export default function VolunteerEventsPage() {
     queryFn: () => api.get('/users/me/events', { params: { page, limit: 20 } }).then((r) => r.data),
     staleTime: 30_000,
   });
+  const { isOnline } = useOfflineCheckinSync('');
 
   const events: VolunteerEvent[] = data?.data ?? [];
   const now = new Date();
@@ -338,7 +338,7 @@ export default function VolunteerEventsPage() {
         ) : (
           <div className="space-y-3">
             {upcoming.map((e: VolunteerEvent) => (
-              <EventRow key={e.id} event={e} />
+              <EventRow key={e.id} event={e} isOffline={!isOnline} />
             ))}
           </div>
         )}
@@ -349,7 +349,7 @@ export default function VolunteerEventsPage() {
           <h2 className="font-heading font-bold text-lg text-brand-text mb-4">Past Events</h2>
           <div className="space-y-3">
             {past.map((e: VolunteerEvent) => (
-              <EventRow key={e.id} event={e} />
+              <EventRow key={e.id} event={e} isOffline={!isOnline} />
             ))}
           </div>
         </section>

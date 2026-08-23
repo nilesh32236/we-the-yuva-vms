@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: Array<string>;
@@ -54,7 +54,7 @@ export function usePWAInstall() {
     };
   }, []);
 
-  const install = async () => {
+  const install = useCallback(async () => {
     if (!installPromptEvent) {
       return false;
     }
@@ -72,7 +72,7 @@ export function usePWAInstall() {
     }
 
     return false;
-  };
+  }, [installPromptEvent]);
 
   return {
     isInstallable: !!installPromptEvent && !isStandalone,

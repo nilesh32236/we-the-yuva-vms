@@ -25,13 +25,8 @@ function mapApiError(backendError?: string): string {
   return errorMap[backendError] ?? 'An error occurred';
 }
 
-interface UseOfflineCheckinOptions {
-  eventId: string;
-  onSuccess?: () => void;
-  onError?: (error: string) => void;
-}
-
-export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineCheckinOptions) {
+/** Shared sync hook — use ONCE at page level to manage online/offline sync. */
+export function useOfflineCheckinSync(eventId: string) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(
@@ -44,13 +39,6 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
   const syncingRef = useRef(false);
   const prevUserRef = useRef(user);
   const userIdRef = useRef(user?.id);
-  const onSuccessRef = useRef(onSuccess);
-  const onErrorRef = useRef(onError);
-
-  useEffect(() => {
-    onSuccessRef.current = onSuccess;
-    onErrorRef.current = onError;
-  }, [onSuccess, onError]);
 
   useEffect(() => {
     userIdRef.current = user?.id;
@@ -81,32 +69,23 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
         const backoff = [10000, 30000, 60000];
         const delay = backoff[Math.min(retryAttemptRef.current, backoff.length - 1)];
         retryAttemptRef.current++;
-        if (onErrorRef.current) {
-          onErrorRef.current('Offline check-in sync failed. It will be retried automatically.');
-        }
         retryTimeoutRef.current = setTimeout(sync, delay);
       } else if (result.failed === 0) {
         retryAttemptRef.current = 0;
-        await queryClient.invalidateQueries({ queryKey: ['attendance', eventId] });
-        if (onSuccessRef.current) onSuccessRef.current();
+        if (result.synced > 0) {
+          await queryClient.invalidateQueries({ queryKey: ['attendance', eventId] });
+        }
       } else {
         const backoff = [10000, 30000, 60000];
         const delay = backoff[Math.min(retryAttemptRef.current, backoff.length - 1)];
         retryAttemptRef.current++;
-        if (onErrorRef.current) {
-          const droppedMsg =
-            result.dropped > 0 ? ` ${result.dropped} check-in(s) could not be submitted.` : '';
-          onErrorRef.current(
-            `Synced ${result.synced} of ${result.synced + result.failed} check-in(s).${droppedMsg}`
-          );
-        }
         retryTimeoutRef.current = setTimeout(sync, delay);
       }
     } finally {
       syncingRef.current = false;
       setIsSyncing(false);
     }
-  }, []);
+  }, [eventId, queryClient]);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -136,11 +115,6 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     sync();
   }, [sync]);
 
-  const refreshQueue = useCallback(async () => {
-    const items = await getQueuedCheckins();
-    setQueuedCount(items.length);
-  }, []);
-
   useEffect(() => {
     (async () => {
       const items = await getQueuedCheckins();
@@ -151,10 +125,36 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     })();
   }, [sync]);
 
+  return { isOnline, isSyncing, queuedCount, retrySync };
+}
+
+interface UseOfflineCheckinOptions {
+  eventId: string;
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}
+
+/** Lightweight per-row checkin mutation — pair with useOfflineCheckinSync at page level. */
+export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineCheckinOptions) {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const userIdRef = useRef(user?.id);
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+  }, [onSuccess, onError]);
+
+  useEffect(() => {
+    userIdRef.current = user?.id;
+  }, [user?.id]);
+
   const checkinMutation = useMutation({
     mutationFn: async (body: { qrToken?: string; lat?: number; lng?: number }) => {
-
-      if (!isOnline) {
+      const online = typeof navigator !== 'undefined' ? navigator.onLine : true;
+      if (!online) {
         try {
           await queueCheckin({
             eventId,
@@ -164,7 +164,6 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
         } catch {
           throw new Error('Failed to queue check-in offline');
         }
-        await refreshQueue();
         return { queued: true };
       }
       return api.post(`/events/${eventId}/checkin`, body).then((r) => r.data);
@@ -189,10 +188,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   return {
     checkin: checkinMutation.mutate,
+    checkinAsync: checkinMutation.mutateAsync,
     isPending: checkinMutation.isPending,
-    isSyncing,
-    queuedCount,
-    isOffline: !isOnline,
-    retrySync,
   };
 }

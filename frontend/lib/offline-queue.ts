@@ -223,6 +223,9 @@ export async function syncQueuedCheckins(
       } catch (err) {
         failed++;
         const status = (err as { response?: { status?: number } }).response?.status;
+        if (status === 401 || status === 403) {
+          continue;
+        }
         // Definitive server rejection (e.g. 400 "QR code expired", 409 "Already
         // checked in"): keep counting retries and drop only after MAX_RETRIES so
         // a stale queued entry cannot retry forever.
@@ -238,13 +241,14 @@ export async function syncQueuedCheckins(
               { eventId: item.eventId }
             );
           } else {
-            try {
-              const db = await openDb();
-              const tx = db.transaction(STORE_NAME, 'readwrite');
-              tx.objectStore(STORE_NAME).put({ ...item, retryCount });
-            } catch {
-              // Best-effort retry tracking
-            }
+            await new Promise<void>((resolve) => {
+              openDb().then((db) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).put({ ...item, retryCount });
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => resolve();
+              }).catch(() => resolve());
+            });
           }
         } else {
           // Network/timeout/5xx (e.g. HF Spaces cold start): keep the item

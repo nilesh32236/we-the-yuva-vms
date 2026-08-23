@@ -37,7 +37,7 @@ function ScanInner() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scannerContainer = useRef<HTMLDivElement>(null);
 
-  const { checkin, isPending, isOffline } = useOfflineCheckin({
+  const { checkinAsync, isPending } = useOfflineCheckin({
     eventId: eventId ?? '',
     onSuccess: () => {
       haptic.success();
@@ -52,17 +52,21 @@ function ScanInner() {
   });
 
   const doCheckin = useCallback(
-    (qrToken: string) => {
+    async (qrToken: string) => {
       if (!eventId) {
         setErrorMsg('Missing event ID');
         return;
       }
-      checkin({ qrToken });
-      if (isOffline) {
-        setResult('queued');
+      try {
+        const result = await checkinAsync({ qrToken });
+        if ((result as { queued?: boolean })?.queued) {
+          setResult('queued');
+        }
+      } catch {
+        // onError callback handles the UI
       }
     },
-    [eventId, checkin, isOffline]
+    [eventId, checkinAsync]
   );
 
   // Auto-submit from URL params
