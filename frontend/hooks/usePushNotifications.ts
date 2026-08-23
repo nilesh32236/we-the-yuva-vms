@@ -5,6 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 
+export type PushSubscribeResult =
+  | { status: 'subscribed' }
+  | { status: 'denied'; reason: 'unsupported' | 'blocked' | 'not-granted' }
+  | { status: 'failed' };
+
 export function usePushNotifications() {
   const { user } = useAuth();
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default');
@@ -31,11 +36,14 @@ export function usePushNotifications() {
     setPermission(Notification.permission);
   }, [user]);
 
-  const subscribe = useCallback(async () => {
-    if (permission === 'unsupported') return;
+  const subscribe = useCallback(async (): Promise<PushSubscribeResult> => {
+    if (permission === 'unsupported') {
+      setPermission('unsupported');
+      return { status: 'denied', reason: 'unsupported' };
+    }
     if (permission === 'denied') {
       setError('Push notifications are blocked. Please enable them in your browser settings.');
-      return;
+      return { status: 'denied', reason: 'blocked' };
     }
 
     try {
@@ -43,7 +51,9 @@ export function usePushNotifications() {
       if (Notification.permission !== 'granted') {
         const notifPermission = await Notification.requestPermission();
         setPermission(notifPermission);
-        if (notifPermission !== 'granted') return;
+        if (notifPermission !== 'granted') {
+          return { status: 'denied', reason: 'not-granted' };
+        }
       }
 
       const publicKey = vapidQuery.data?.publicKey;
@@ -63,13 +73,11 @@ export function usePushNotifications() {
       });
 
       await api.post('/notifications/subscribe', subscription.toJSON());
+      return { status: 'subscribed' };
     } catch (err) {
       console.error('Failed to subscribe to push notifications', err);
       setError('Failed to set up push notifications. Please try again.');
-      // Rethrow so callers (e.g. the auto-subscribe effect, the manual "Enable"
-      // flow) can react — e.g. clear their once-per-user ref guard and retry
-      // later instead of silently swallowing the failure forever.
-      throw err;
+      return { status: 'failed' };
     }
   }, [permission, vapidQuery.data]);
 

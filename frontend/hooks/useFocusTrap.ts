@@ -15,13 +15,20 @@ export function useFocusTrap(active: boolean) {
     const previouslyFocused = document.activeElement as HTMLElement | null;
 
     let focusables = container.querySelectorAll<HTMLElement>(FOCUSABLE);
-    if (focusables.length > 0) {
-      focusables[0].focus();
-    }
 
     const refreshFocusables = () => {
       focusables = container.querySelectorAll<HTMLElement>(FOCUSABLE);
+      // Self-start the trap once focusable content renders (async/loading
+      // dialog bodies) and focus is not already inside the container.
+      if (focusables.length > 0 && !container.contains(document.activeElement)) {
+        focusables[0].focus();
+      }
     };
+
+    // Engage the trap immediately if the container already has focusables.
+    if (focusables.length > 0) {
+      focusables[0].focus();
+    }
 
     const observer = new MutationObserver(refreshFocusables);
     observer.observe(container, {
@@ -47,12 +54,24 @@ export function useFocusTrap(active: boolean) {
       }
     };
 
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target || container.contains(target)) return;
+      refreshFocusables();
+      if (focusables.length === 0) return;
+      focusables[0].focus();
+    };
+
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('focusin', handleFocusIn);
 
     return () => {
       observer.disconnect();
       document.removeEventListener('keydown', handleKeyDown);
-      previouslyFocused?.focus();
+      document.removeEventListener('focusin', handleFocusIn);
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus();
+      }
     };
   }, [active]);
 
