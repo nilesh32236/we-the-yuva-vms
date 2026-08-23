@@ -15,6 +15,22 @@ const time24 = z
     return h >= 0 && h <= 23 && m >= 0 && m <= 59;
   }, 'Invalid time (use a real 24h clock time)');
 
+// Accept `YYYY-MM-DD` (or `YYYY-MM-DDTHH:mm[:ss]`) and reject values JS
+// silently normalizes (e.g. 2026-02-30 → 2026-03-02). Compare the parsed
+// LOCAL calendar date to the input's date portion to stay timezone-agnostic.
+const parseableDate = (message: string) =>
+  z.string().refine((v) => {
+    if (!/^\d{4}-\d{2}-\d{2}/.test(v)) return false;
+    const d = new Date(v);
+    if (Number.isNaN(d.getTime())) return false;
+    const ymd = [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, '0'),
+      String(d.getDate()).padStart(2, '0'),
+    ].join('-');
+    return ymd === v.slice(0, 10);
+  }, message);
+
 const CallAvailabilitySlotSchema = z.object({
   day: z.number().min(0).max(6),
   startTime: time24,
@@ -89,19 +105,15 @@ export const RegisterSchema = z.object({
     .min(10, 'Phone number must be at least 10 characters')
     .max(15, 'Phone number too long')
     .regex(/^\+?[\d\s\-().]+$/, 'Invalid phone number format'),
-  dateOfBirth: z.string().refine(
-    (val) => {
-      const date = new Date(val);
-      if (Number.isNaN(date.getTime())) return false;
-      const today = new Date();
-      const age = today.getFullYear() - date.getFullYear();
-      const monthDiff = today.getMonth() - date.getMonth();
-      const actualAge =
-        monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate()) ? age - 1 : age;
-      return actualAge >= 14;
-    },
-    { message: 'You must be at least 14 years old' }
-  ),
+  dateOfBirth: parseableDate('Enter a valid date of birth').refine((val) => {
+    const date = new Date(val);
+    const today = new Date();
+    const age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    const actualAge =
+      monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate()) ? age - 1 : age;
+    return actualAge >= 14;
+  }, 'You must be at least 14 years old'),
   address: AddressSchema,
   reference: z.string().optional(),
   callAvailability: CallAvailabilitySchema.optional(),

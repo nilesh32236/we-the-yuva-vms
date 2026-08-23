@@ -1,7 +1,7 @@
+import { z } from 'zod';
+
 import { api } from './api';
 import { encrypt, decrypt } from './crypto-utils';
-
-import { CheckInSchema } from '@/lib/shared';
 
 interface QueuedCheckin {
   id?: number;
@@ -13,6 +13,17 @@ interface QueuedCheckin {
   createdAt: string;
   retryCount?: number;
 }
+
+const QueuedCheckinSchema = z.object({
+  eventId: z.string().min(1, 'Event ID is required'),
+  qrToken: z.string().optional(),
+  location: z
+    .object({
+      lat: z.coerce.number(),
+      lng: z.coerce.number(),
+    })
+    .optional(),
+});
 
 function encodeLocation(loc: { lat: number; lng: number }): string {
   return JSON.stringify(loc);
@@ -74,7 +85,7 @@ export async function queueCheckin(
   data: Omit<QueuedCheckin, 'id' | 'createdAt'>,
   userId?: string
 ): Promise<void> {
-  const parsed = CheckInSchema.safeParse(data);
+  const parsed = QueuedCheckinSchema.safeParse(data);
   if (!parsed.success) {
     throw new Error(
       `Invalid check-in data: ${parsed.error.errors.map((e) => e.message).join(', ')}`
