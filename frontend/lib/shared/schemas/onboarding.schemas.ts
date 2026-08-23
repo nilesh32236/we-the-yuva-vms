@@ -46,11 +46,27 @@ export const SelfEmployedInfoSchema = z.object({
   city: requiredString,
 });
 
-const TimeCommitmentSchema = z.object({
-  hoursPerWeek: z.coerce.number().min(0).max(100).optional(),
-  hoursPerMonth: z.coerce.number().min(0).max(500).optional(),
-  preferredDaysTimes: z.string().trim().max(200).optional(),
-});
+export const WEEKS_PER_MONTH = 4.33;
+export const round1 = (n: number) => Math.round(n * 10) / 10;
+
+const TimeCommitmentSchema = z
+  .object({
+    hoursPerWeek: z.coerce.number().finite().min(1, 'Min 1h').max(168, 'Max 168h').optional(),
+    hoursPerMonth: z.coerce.number().finite().min(4.3).max(727.4).optional(),
+    preferredDaysTimes: z.string().trim().max(500).optional(),
+  })
+  .superRefine((v, ctx) => {
+    if (v.hoursPerWeek == null && v.hoursPerMonth == null) {
+      ctx.addIssue({ code: 'custom', path: ['hoursPerWeek'], message: 'Provide hours per week or month' });
+    }
+    if (
+      v.hoursPerWeek != null &&
+      v.hoursPerMonth != null &&
+      Math.abs(v.hoursPerMonth - v.hoursPerWeek * WEEKS_PER_MONTH) > 0.06
+    ) {
+      ctx.addIssue({ code: 'custom', path: ['hoursPerMonth'], message: 'Hours per week/month mismatch' });
+    }
+  });
 
 const DigitalReadinessSchema = z.object({
   smartphone: z.boolean(),
