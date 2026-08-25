@@ -131,8 +131,8 @@ export function createApp(): Express {
 
   // Routes
   app.use('/api/v1/auth', authRouter);
-  app.use('/api/v1/users', usersRouter);
   app.use('/api/v1/users/me/onboarding/part2', onboardingPart2Router);
+  app.use('/api/v1/users', usersRouter);
   app.use('/api/v1/kindness-challenge', kindnessRouter);
   app.use('/api/v1/opportunities', opportunitiesRouter);
   app.use('/api/v1/opportunities/:opportunityId/events', opportunityEventsRouter);
