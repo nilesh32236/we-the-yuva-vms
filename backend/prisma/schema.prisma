@@ -163,6 +163,45 @@ enum ChallengeStatus {
   COMPLETED
 }
 
+enum VolunteerRoleTier {
+  GENERAL_VOLUNTEER
+  LEADER
+  COORDINATOR
+  MANAGEMENT
+  INTERN
+}
+
+enum TravelDistance {
+  WITHIN_5_KM
+  WITHIN_10_KM
+  ANYWHERE
+}
+
+enum ProficiencyLevel {
+  BASIC
+  INTERMEDIATE
+  FLUENT
+}
+
+enum SupportResource {
+  COUNSELING
+  MENTORSHIP
+  COACHING
+  NEED_BASED_CAPACITY_BUILDING
+}
+
+enum LifeSkill {
+  COMMUNICATION
+  PROBLEM_SOLVING
+  CRITICAL_THINKING
+  DIGITAL_LITERACY
+  SELF_CONFIDENCE
+  LEADERSHIP
+  TEAMWORK
+  PUBLIC_SPEAKING
+  OTHER
+}
+
 enum OrganizationStatus {
   PENDING
   ACTIVE
@@ -285,6 +324,7 @@ model User {
   referralSourceName String?
 
   kindnessChallenge KindnessChallenge?
+  part2             VolunteerOnboardingPart2?
 
   // Tier / Level System
   currentLevelId    String?
@@ -351,6 +391,71 @@ model VolunteerProfile {
   updatedAt          DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VolunteerOnboardingPart2 {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // §1 Reflection
+  kindnessReflection String? // 50-200 words
+  aspirations        String? // max 1000
+
+  // §2 Roles & skills mapping — 8 entries, each { role: String, skillsOffer: String, skillsDevelop: String }
+  roleMappings Json // RoleMapping[]
+
+  // §3 Life skills
+  lifeSkills      String[] // LifeSkill values
+  lifeSkillsOther String?
+
+  // §4 Languages
+  languages Json // { language: String, proficiency: ProficiencyLevel }[]
+
+  // §5 Commitment & Availability
+  volunteerRoleTier  VolunteerRoleTier?
+  preferredDays      String[] // WEEKDAYS | WEEKENDS
+  preferredTimeSlots String[] // MORNING | AFTERNOON | EVENING
+  specificDaysTimes  String?
+
+  // §6 Support & Growth
+  supportResources String[]
+
+  // §6b Location Prefs
+  preferredCityArea String?
+  maxTravelDistance TravelDistance?
+  remoteAvailable   Boolean?
+
+  // §7 Previous Experience
+  hasVolunteered           Boolean?
+  previousOrgName          String?
+  previousRole             String?
+  previousDurationNature   String?
+  previousTotalHours       Float?
+
+  // §8 Social Profiles
+  linkedinUrl  String?
+  instagramUrl String?
+  twitterUrl   String?
+  portfolioUrl String?
+
+  // §9 Emergency
+  emergencyContactName String?
+  emergencyRelationship String?
+  emergencyMobile      String?
+  medicalConditions    String?
+
+  // §10 Declarations
+  privacyPolicyConsent Boolean?
+  codeOfConductConsent Boolean?
+  mediaConsent         Boolean?
+  whatsappConsent      Boolean?
+
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([volunteerRoleTier])
 }
 
 model StaffProfile {
