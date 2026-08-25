@@ -25,12 +25,12 @@ export function Step2Roles({ register, errors }: StepProps) {
           <input type="hidden" {...register(`roleMappings.${idx}.role` as const)} value={role} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="space-y-1">
-              <label className="text-xs text-brand-muted">Skills you offer</label>
-              <input placeholder="e.g. facilitation, outreach" className={inputCls} {...register(`roleMappings.${idx}.skillsOffer` as const)} />
+              <label htmlFor={`role-${idx}-offer`} className="text-xs text-brand-muted">Skills you offer</label>
+              <input id={`role-${idx}-offer`} placeholder="e.g. facilitation, outreach" className={inputCls} {...register(`roleMappings.${idx}.skillsOffer` as const)} />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-brand-muted">Skills you want to develop</label>
-              <input placeholder="e.g. leadership, data" className={inputCls} {...register(`roleMappings.${idx}.skillsDevelop` as const)} />
+              <label htmlFor={`role-${idx}-develop`} className="text-xs text-brand-muted">Skills you want to develop</label>
+              <input id={`role-${idx}-develop`} placeholder="e.g. leadership, data" className={inputCls} {...register(`roleMappings.${idx}.skillsDevelop` as const)} />
             </div>
           </div>
         </fieldset>

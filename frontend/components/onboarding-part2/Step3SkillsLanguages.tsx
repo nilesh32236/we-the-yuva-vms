@@ -43,6 +43,7 @@ export function Step3SkillsLanguages({ register, watch, setValue, errors }: Step
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium text-brand-text">Languages (up to 10)</legend>
         {languages.map((_, idx) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: language order is stable for form indices
           <div key={idx} className="grid grid-cols-5 gap-2 items-center">
             <input placeholder="Language" className={`${inputCls} col-span-2`} {...register(`languages.${idx}.language` as const)} />
             <select className={`${inputCls} col-span-2`} {...register(`languages.${idx}.proficiency` as const)}>
