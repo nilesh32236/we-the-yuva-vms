@@ -169,14 +169,23 @@ export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COM
     },
     include: {
       user: {
-        select: { id: true, name: true, email: true, phone: true, whatsappNumber: true, referralSource: true, createdAt: true },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          whatsappNumber: true,
+          referralSource: true,
+          createdAt: true,
+          part2: { select: { volunteerRoleTier: true, lifeSkills: true, completedAt: true } },
+        },
       },
       story: { select: { id: true, title: true } },
       checkIns: { select: { day: true }, orderBy: { day: 'asc' } },
     },
     orderBy: { createdAt: 'desc' },
   }) as Promise<Array<ChallengeWithRelations & {
-    user: { id: string; name: string; email: string | null; phone: string | null; whatsappNumber: string | null; referralSource: string | null; createdAt: Date };
+    user: { id: string; name: string; email: string | null; phone: string | null; whatsappNumber: string | null; referralSource: string | null; createdAt: Date; part2: { volunteerRoleTier: string | null; lifeSkills: string[]; completedAt: Date | null } | null };
     story: { id: string; title: string } | null;
   }>>;
 }

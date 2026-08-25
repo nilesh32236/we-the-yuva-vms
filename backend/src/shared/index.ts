@@ -16,3 +16,4 @@ export * from './schemas/levels.schemas';
 export * from './schemas/mentorship.schemas';
 export * from './helpers';
 export * from './types/index';
+export * from './schemas/part2.schemas';

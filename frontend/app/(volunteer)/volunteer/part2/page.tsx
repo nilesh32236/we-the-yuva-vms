@@ -17,7 +17,10 @@ export default function Part2Page() {
         <>
           <Sparkles className="w-16 h-16 text-brand-accent mx-auto" />
           <h1 className="font-heading text-2xl font-bold text-brand-text">Part II unlocked</h1>
-          <p className="text-brand-muted">The next stage of your volunteering journey is coming soon. We'll notify you here.</p>
+          <p className="text-brand-muted">The next stage of your volunteering journey is ready — complete your Part II onboarding.</p>
+          <Link href="/volunteer/part2/onboarding">
+            <Button variant="cta">Continue to Part II</Button>
+          </Link>
         </>
       ) : (
         <>
