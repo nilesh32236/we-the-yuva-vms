@@ -42,7 +42,7 @@ export async function adminExportChallengesHandler(req: Request, res: Response, 
     if (/^[=+\-@]/.test(s)) s = `'${s}`;
     return `"${s.replaceAll('"', '""')}"`;
   };
-  const header = 'name,email,whatsapp,registered_at,referral_source,status,checkins,story_shared,part2_unlocked,start_date';
+  const header = 'name,email,whatsapp,registered_at,referral_source,status,checkins,story_shared,part2_unlocked,part2_completed,part2_role_tier,part2_life_skills,start_date';
   const body = rows.map((r) =>
     [
       r.user.name,
@@ -54,6 +54,9 @@ export async function adminExportChallengesHandler(req: Request, res: Response, 
       r.checkIns.map((c) => c.day).join(';'),
       r.storyId ? 'yes' : 'no',
       r.part2UnlockedAt ? 'yes' : 'no',
+      (r.user as unknown as { part2?: { completedAt?: Date | null } }).part2?.completedAt ? 'yes' : 'no',
+      (r.user as unknown as { part2?: { volunteerRoleTier?: string | null } }).part2?.volunteerRoleTier ?? '',
+      ((r.user as unknown as { part2?: { lifeSkills?: string[] } }).part2?.lifeSkills ?? []).join(';'),
       r.startDate.toISOString().slice(0, 10),
     ]
       .map(esc)
