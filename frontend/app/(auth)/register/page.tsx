@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type RegisterInput, RegisterSchema } from '@/lib/shared';
+import { GENDERS, type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
@@ -14,206 +14,13 @@ import { api } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
-type AvailabilityPref = 'anytime' | 'specific_days' | 'custom';
-
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-function CallAvailabilityInput({
-  value,
-  onChange,
-  error,
-}: {
-  value:
-    | {
-        preference: AvailabilityPref;
-        days?: number[];
-        startTime?: string;
-        endTime?: string;
-        slots?: Array<{ day: number; startTime: string; endTime: string }>;
-      }
-    | undefined;
-  onChange: (val: typeof value) => void;
-  error?: string;
-}) {
-  const pref = value?.preference ?? 'anytime';
-
-  const setPref = (p: AvailabilityPref) => {
-    onChange({ preference: p });
-  };
-
-  const toggleDay = (day: number) => {
-    const current = value?.days ?? [];
-    const next = current.includes(day)
-      ? current.filter((d) => d !== day)
-      : [...current, day].sort();
-    onChange({ ...value, preference: 'specific_days' as const, days: next });
-  };
-
-  const addSlot = () => {
-    const slots = value?.slots ?? [];
-    onChange({
-      ...value,
-      preference: 'custom' as const,
-      slots: [...slots, { day: 0, startTime: '09:00', endTime: '12:00' }],
-    });
-  };
-
-  const updateSlot = (index: number, field: string, val: string | number) => {
-    const slots = [...(value?.slots ?? [])];
-    slots[index] = { ...slots[index], [field]: val };
-    onChange({ ...value, preference: 'custom' as const, slots });
-  };
-
-  const removeSlot = (index: number) => {
-    const slots = (value?.slots ?? []).filter((_, i) => i !== index);
-    onChange({ ...value, preference: 'custom' as const, slots });
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-2">
-        {[
-          { value: 'anytime' as const, label: 'Anytime' },
-          { value: 'specific_days' as const, label: 'Specific days' },
-          { value: 'custom' as const, label: 'Custom schedule' },
-        ].map((opt) => (
-          <Button
-            key={opt.value}
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setPref(opt.value)}
-            className={`px-3 py-1.5 text-xs rounded-full cursor-pointer ${
-              pref === opt.value
-                ? 'bg-brand-primary text-white border-brand-primary'
-                : 'bg-background text-brand-muted border-brand-border hover:border-brand-primary'
-            }`}
-          >
-            {opt.label}
-          </Button>
-        ))}
-      </div>
-
-      {pref === 'specific_days' && (
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-1.5">
-            {DAY_LABELS.map((label, i) => (
-              <Button
-                key={label}
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => toggleDay(i)}
-                className={`w-10 h-10 text-xs rounded-full cursor-pointer ${
-                  (value?.days ?? []).includes(i)
-                    ? 'bg-brand-primary text-white border-brand-primary'
-                    : 'bg-background text-brand-muted border-brand-border hover:border-brand-primary'
-                }`}
-                aria-pressed={(value?.days ?? []).includes(i)}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <label htmlFor="specific-days-start" className="text-xs text-brand-muted">
-              From
-            </label>
-            <input
-              id="specific-days-start"
-              type="time"
-              value={value?.startTime ?? ''}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  preference: 'specific_days' as const,
-                  startTime: e.target.value,
-                })
-              }
-              className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-            />
-            <label htmlFor="specific-days-end" className="text-xs text-brand-muted">
-              to
-            </label>
-            <input
-              id="specific-days-end"
-              type="time"
-              value={value?.endTime ?? ''}
-              onChange={(e) =>
-                onChange({
-                  ...value,
-                  preference: 'specific_days' as const,
-                  endTime: e.target.value,
-                })
-              }
-              className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-            />
-          </div>
-        </div>
-      )}
-
-      {pref === 'custom' && (
-        <div className="space-y-2">
-          {(value?.slots ?? []).length === 0 && (
-            <p className="text-xs text-brand-muted">No time slots added yet.</p>
-          )}
-          {(value?.slots ?? []).map((slot, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: slots have no stable ID; index is the correct key here
-            <div key={`slot-${i}`} className="flex items-center gap-2 flex-wrap">
-              <select
-                value={slot.day}
-                onChange={(e) => updateSlot(i, 'day', Number(e.target.value))}
-                className="px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-              >
-                {DAY_LABELS.map((label) => (
-                  <option key={label} value={DAY_LABELS.indexOf(label)}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="time"
-                value={slot.startTime}
-                onChange={(e) => updateSlot(i, 'startTime', e.target.value)}
-                className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-              />
-              <span className="text-xs text-brand-muted">to</span>
-              <input
-                type="time"
-                value={slot.endTime}
-                onChange={(e) => updateSlot(i, 'endTime', e.target.value)}
-                className="w-28 px-2 py-1.5 rounded-lg border border-brand-border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeSlot(i)}
-                className="text-brand-error hover:text-brand-error/80 cursor-pointer"
-                aria-label="Remove time slot"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addSlot}
-            className="text-xs text-brand-primary hover:underline cursor-pointer"
-          >
-            + Add time slot
-          </button>
-        </div>
-      )}
-
-      {error && (
-        <p className="text-brand-error text-xs" role="alert">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
+const GENDER_LABELS: Record<(typeof GENDERS)[number], string> = {
+  FEMALE: 'Female',
+  MALE: 'Male',
+  OTHER: 'Other',
+  PREFER_NOT_TO_SAY: 'Prefer not to say',
+};
+const GENDER_OPTIONS = GENDERS.map((value) => ({ value, label: GENDER_LABELS[value] }));
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -221,7 +28,6 @@ export default function RegisterPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [ready, setReady] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [whyVoluntaryCount, setWhyVoluntaryCount] = useState(0);
 
   // Redirect to dashboard or onboarding if already authenticated
   useEffect(() => {
@@ -243,19 +49,11 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: { role: 'VOLUNTEER' },
   });
-
-  const watchWhyVoluntary = watch('whyVoluntary');
-
-  useEffect(() => {
-    setWhyVoluntaryCount(watchWhyVoluntary?.length ?? 0);
-  }, [watchWhyVoluntary]);
 
   const onSubmit = async (data: RegisterInput) => {
     setFormError(null);
@@ -400,10 +198,10 @@ export default function RegisterPage() {
             )}
           </div>
 
-          {/* Phone field */}
+          {/* WhatsApp Number field */}
           <div className="space-y-1.5">
-            <label htmlFor="phone" className="text-sm font-medium text-brand-text">
-              Phone number <span className="text-brand-error">*</span>
+            <label htmlFor="whatsappNumber" className="text-sm font-medium text-brand-text">
+              WhatsApp number <span className="text-brand-error">*</span>
             </label>
             <div className="relative">
               <Phone
@@ -411,23 +209,52 @@ export default function RegisterPage() {
                 aria-hidden="true"
               />
               <input
-                id="phone"
+                id="whatsappNumber"
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
                 placeholder="+91 98765 43210"
                 disabled={isSubmitting}
-                aria-invalid={!!errors.phone}
-                aria-describedby={errors.phone ? 'phone-error' : undefined}
+                aria-invalid={!!errors.whatsappNumber}
+                aria-describedby={errors.whatsappNumber ? 'whatsappNumber-error' : undefined}
                 className={`w-full pl-10 pr-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
                   focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                  ${errors.phone ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-                {...register('phone')}
+                  ${errors.whatsappNumber ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
+                {...register('whatsappNumber')}
               />
             </div>
-            {errors.phone && (
-              <p id="phone-error" className="text-brand-error text-xs" role="alert">
-                {errors.phone.message}
+            {errors.whatsappNumber && (
+              <p id="whatsappNumber-error" className="text-brand-error text-xs" role="alert">
+                {errors.whatsappNumber.message}
+              </p>
+            )}
+          </div>
+
+          {/* Gender field */}
+          <div className="space-y-1.5">
+            <label htmlFor="gender" className="text-sm font-medium text-brand-text">
+              Gender <span className="text-brand-error">*</span>
+            </label>
+            <select
+              id="gender"
+              disabled={isSubmitting}
+              aria-invalid={!!errors.gender}
+              aria-describedby={errors.gender ? 'gender-error' : undefined}
+              className={`w-full px-4 py-2.5 rounded-lg border transition-colors duration-200 bg-background
+                focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
+                ${errors.gender ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
+              {...register('gender')}
+            >
+              <option value="">Select…</option>
+              {GENDER_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            {errors.gender && (
+              <p id="gender-error" className="text-brand-error text-xs" role="alert">
+                {errors.gender.message}
               </p>
             )}
           </div>
@@ -460,137 +287,6 @@ export default function RegisterPage() {
                 {errors.dateOfBirth.message}
               </p>
             )}
-          </div>
-
-          {/* Address fields */}
-          <fieldset className="space-y-3 border border-brand-border rounded-lg p-4">
-            <legend className="text-sm font-medium text-brand-text px-1">
-              Address <span className="text-brand-error">*</span>
-            </legend>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label htmlFor="address.city" className="text-xs text-brand-muted">
-                  City <span className="text-brand-error">*</span>
-                </label>
-                <input
-                  id="address.city"
-                  type="text"
-                  placeholder="Mumbai"
-                  disabled={isSubmitting}
-                  aria-describedby={errors.address?.city ? 'city-error' : undefined}
-                  className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 bg-background
-                    focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                    ${errors.address?.city ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-                  {...register('address.city')}
-                />
-                {errors.address?.city && (
-                  <p id="city-error" className="text-brand-error text-xs" role="alert">
-                    {errors.address.city.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <label htmlFor="address.state" className="text-xs text-brand-muted">
-                  State <span className="text-brand-error">*</span>
-                </label>
-                <input
-                  id="address.state"
-                  type="text"
-                  placeholder="Maharashtra"
-                  disabled={isSubmitting}
-                  aria-describedby={errors.address?.state ? 'state-error' : undefined}
-                  className={`w-full px-3 py-2 rounded-lg border transition-colors duration-200 bg-background
-                    focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                    ${errors.address?.state ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-                  {...register('address.state')}
-                />
-                {errors.address?.state && (
-                  <p id="state-error" className="text-brand-error text-xs" role="alert">
-                    {errors.address.state.message}
-                  </p>
-                )}
-              </div>
-            </div>
-          </fieldset>
-
-          {/* Reference field */}
-          <div className="space-y-1.5">
-            <label htmlFor="reference" className="text-sm font-medium text-brand-text">
-              Referred by (optional)
-            </label>
-            <input
-              id="reference"
-              type="text"
-              placeholder="Phone number or referral code of the person who referred you"
-              disabled={isSubmitting}
-              aria-describedby={errors.reference ? 'reference-error' : undefined}
-              className={`w-full px-3 py-2.5 rounded-lg border transition-colors duration-200 bg-background
-                    focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                    ${errors.reference ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-              {...register('reference')}
-            />
-            {errors.reference && (
-              <p id="reference-error" className="text-brand-error text-xs" role="alert">
-                {errors.reference.message}
-              </p>
-            )}
-          </div>
-
-          {/* Call Availability field */}
-          <fieldset className="space-y-3 border border-brand-border rounded-lg p-4">
-            <legend className="text-sm font-medium text-brand-text px-1">
-              Call availability (optional)
-            </legend>
-            <p className="text-xs text-brand-muted">
-              When is a good time to reach you for a quick call?
-            </p>
-            <CallAvailabilityInput
-              value={watch('callAvailability')}
-              onChange={(val) => setValue('callAvailability', val, { shouldValidate: true })}
-              error={
-                errors.callAvailability?.days?.message ??
-                errors.callAvailability?.startTime?.message ??
-                errors.callAvailability?.endTime?.message ??
-                errors.callAvailability?.slots?.message ??
-                errors.callAvailability?.slots?.[0]?.startTime?.message ??
-                errors.callAvailability?.slots?.[0]?.endTime?.message
-              }
-            />
-          </fieldset>
-
-          {/* Why Voluntary field */}
-          <div className="space-y-1.5">
-            <label htmlFor="whyVoluntary" className="text-sm font-medium text-brand-text">
-              Why do you want to do voluntary work? (optional)
-            </label>
-            <textarea
-              id="whyVoluntary"
-              rows={3}
-              maxLength={500}
-              placeholder="Share what motivates you to volunteer..."
-              aria-describedby={errors.whyVoluntary ? 'why-voluntary-error' : 'why-voluntary-count'}
-              className={`w-full px-3 py-2.5 rounded-lg border transition-colors duration-200 bg-background resize-none
-                focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent
-                ${errors.whyVoluntary ? 'border-brand-error focus:ring-brand-error' : 'border-brand-border'}`}
-              {...register('whyVoluntary', {
-                onChange: (e) => setWhyVoluntaryCount(e.target.value.length),
-              })}
-            />
-            <div className="flex justify-between items-center">
-              {errors.whyVoluntary ? (
-                <p id="why-voluntary-error" className="text-brand-error text-xs" role="alert">
-                  {errors.whyVoluntary.message}
-                </p>
-              ) : (
-                <span />
-              )}
-              <p
-                id="why-voluntary-count"
-                className={`text-xs ${whyVoluntaryCount > 500 ? 'text-brand-error' : 'text-brand-muted'}`}
-              >
-                {whyVoluntaryCount}/500
-              </p>
-            </div>
           </div>
 
           <input type="hidden" {...register('role')} />

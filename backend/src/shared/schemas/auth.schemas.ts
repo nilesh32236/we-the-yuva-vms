@@ -1,60 +1,40 @@
 import { z } from 'zod';
 
-const AddressSchema = z.object({
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
-});
+const GENDERS = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const;
 
-const CallAvailabilitySlotSchema = z.object({
-  day: z.number().min(0).max(6),
-  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)'),
-  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)'),
-});
-
-const CallAvailabilitySchema = z.object({
-  preference: z.enum(['anytime', 'specific_days', 'custom']),
-  days: z.array(z.number().min(0).max(6)).optional(),
-  startTime: z
+// Accept YYYY-MM-DD and reject values JS silently normalizes (e.g. 2026-02-30 → 2026-03-02).
+// Compare using UTC getters because `new Date('YYYY-MM-DD')` parses as UTC midnight.
+const parseableDate = (message: string) =>
+  z
     .string()
-    .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
-    .optional(),
-  endTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, 'Invalid time format (use HH:MM)')
-    .optional(),
-  slots: z.array(CallAvailabilitySlotSchema).optional(),
-});
+    .trim()
+    .refine((v) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v.slice(0, 10))) return false;
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return false;
+      const ymd = [d.getUTCFullYear(), String(d.getUTCMonth() + 1).padStart(2, '0'), String(d.getUTCDate()).padStart(2, '0')].join('-');
+      return ymd === v.slice(0, 10);
+    }, message);
 
 export const RegisterSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
   email: z.string().email('Please enter a valid email address'),
   role: z.enum(['VOLUNTEER', 'ORGANIZATION_ADMIN']).optional(),
-  phone: z
+  whatsappNumber: z
     .string()
-    .min(10, 'Phone number must be at least 10 characters')
-    .max(15, 'Phone number too long')
-    .regex(/^\+?\d{1,3}[\s-]?\d{6,14}$/, 'Invalid phone number format'),
-  dateOfBirth: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in ISO format (YYYY-MM-DD)')
-    .refine(
-      (val) => {
-        const date = new Date(val);
-        if (Number.isNaN(date.getTime())) return false;
-        const today = new Date();
-        const age = today.getFullYear() - date.getFullYear();
-        const monthDiff = today.getMonth() - date.getMonth();
-        const actualAge =
-          monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate()) ? age - 1 : age;
-        return actualAge >= 14;
-      },
-      { message: 'You must be at least 14 years old' }
-    ),
-  address: AddressSchema,
-  reference: z.string().max(500, 'Reference must be 500 characters or less').optional(),
-  callAvailability: CallAvailabilitySchema.optional(),
-  /** @deprecated Field name is a typo of "whyVolunteer". Exposed to external API clients — cannot rename without migration. */
-  whyVoluntary: z.string().max(500, 'Must be 500 characters or less').optional(),
+    .trim()
+    .transform((v) => v.replace(/[\s\-().]/g, ''))
+    .pipe(z.string().regex(/^\+?[0-9]{10,15}$/, 'Enter a valid WhatsApp number')),
+  gender: z.enum(GENDERS, { message: 'Please select a gender' }),
+  dateOfBirth: parseableDate('Enter a valid date of birth').refine((val) => {
+    const date = new Date(val);
+    const today = new Date();
+    const age = today.getUTCFullYear() - date.getUTCFullYear();
+    const monthDiff = today.getUTCMonth() - date.getUTCMonth();
+    const actualAge =
+      monthDiff < 0 || (monthDiff === 0 && today.getUTCDate() < date.getUTCDate()) ? age - 1 : age;
+    return actualAge >= 14;
+  }, 'You must be at least 14 years old'),
 });
 
 export const SendOtpSchema = z.object({

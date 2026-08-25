@@ -12,9 +12,9 @@ describe('auth.schemas', () => {
     const validPayload = {
       name: 'Test User',
       email: 'test@example.com',
-      phone: '+919876543210',
+      whatsappNumber: '+919876543210',
+      gender: 'MALE' as const,
       dateOfBirth: '2000-01-15',
-      address: { city: 'Mumbai', state: 'Maharashtra' },
     };
 
     it('should accept valid registration with required fields', () => {
@@ -32,14 +32,25 @@ describe('auth.schemas', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should reject missing phone', () => {
-      const { phone, ...noPhone } = validPayload;
-      const result = RegisterSchema.safeParse(noPhone);
+    it('should reject missing whatsappNumber', () => {
+      const { whatsappNumber, ...noWhatsapp } = validPayload;
+      const result = RegisterSchema.safeParse(noWhatsapp);
       expect(result.success).toBe(false);
     });
 
-    it('should reject invalid phone format', () => {
-      const result = RegisterSchema.safeParse({ ...validPayload, phone: 'abc' });
+    it('should reject invalid whatsappNumber format', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, whatsappNumber: 'abc' });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject missing gender', () => {
+      const { gender, ...noGender } = validPayload;
+      const result = RegisterSchema.safeParse(noGender);
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject invalid gender', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, gender: 'INVALID' as never });
       expect(result.success).toBe(false);
     });
 
@@ -53,84 +64,22 @@ describe('auth.schemas', () => {
       expect(result.success).toBe(false);
     });
 
-    it('should reject missing address', () => {
-      const { address, ...noAddr } = validPayload;
-      const result = RegisterSchema.safeParse(noAddr);
-      expect(result.success).toBe(false);
-    });
-
-    it('should reject address without city', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        address: { state: 'Maharashtra' },
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should reject address without state', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        address: { city: 'Mumbai' },
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should accept valid reference', () => {
-      const result = RegisterSchema.safeParse({ ...validPayload, reference: '+919876543210' });
-      expect(result.success).toBe(true);
-    });
-
-    it('should accept callAvailability with anytime preference', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        callAvailability: { preference: 'anytime' },
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should accept callAvailability with specific_days', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        callAvailability: { preference: 'specific_days', days: [1, 3, 5] },
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should accept callAvailability with custom slots', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        callAvailability: {
-          preference: 'custom',
-          slots: [{ day: 1, startTime: '09:00', endTime: '12:00' }],
-        },
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should reject whyVoluntary over 500 characters', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        whyVoluntary: 'x'.repeat(501),
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it('should accept whyVoluntary within 500 characters', () => {
-      const result = RegisterSchema.safeParse({
-        ...validPayload,
-        whyVoluntary: 'I want to make a difference in my community.',
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it('should accept optional fields as undefined', () => {
+    it('should accept valid registration without optional role', () => {
       const result = RegisterSchema.safeParse(validPayload);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.reference).toBeUndefined();
-        expect(result.data.callAvailability).toBeUndefined();
-        expect(result.data.whyVoluntary).toBeUndefined();
+        expect(result.data.role).toBeUndefined();
       }
+    });
+
+    it('should accept VOLUNTEER role', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, role: 'VOLUNTEER' });
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject invalid role', () => {
+      const result = RegisterSchema.safeParse({ ...validPayload, role: 'INVALID' as never });
+      expect(result.success).toBe(false);
     });
   });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
 import { WEEKS_PER_MONTH, round1 } from '@/lib/shared/schemas/onboarding.schemas';
@@ -34,44 +34,6 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
   const hoursPerWeek = watch('timeCommitment.hoursPerWeek');
   const hoursPerMonth = watch('timeCommitment.hoursPerMonth');
   const [skillDraft, setSkillDraft] = useState('');
-  const lastEditedRef = useRef<'week' | 'month' | null>(null);
-
-  const handleWeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    if (raw === '') {
-      lastEditedRef.current = null;
-      setValue('timeCommitment.hoursPerWeek', undefined as never, { shouldDirty: true, shouldValidate: true });
-      setValue('timeCommitment.hoursPerMonth', undefined as never, { shouldDirty: true, shouldValidate: true });
-      return;
-    }
-    const v = Number(raw);
-    if (Number.isFinite(v)) {
-      lastEditedRef.current = 'week';
-      setValue('timeCommitment.hoursPerWeek', v as never, { shouldValidate: true, shouldDirty: true });
-      setValue('timeCommitment.hoursPerMonth', round1(v * WEEKS_PER_MONTH) as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  };
-  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    if (raw === '') {
-      lastEditedRef.current = null;
-      setValue('timeCommitment.hoursPerMonth', undefined as never, { shouldDirty: true, shouldValidate: true });
-      setValue('timeCommitment.hoursPerWeek', undefined as never, { shouldDirty: true, shouldValidate: true });
-      return;
-    }
-    const v = Number(raw);
-    if (Number.isFinite(v)) {
-      lastEditedRef.current = 'month';
-      setValue('timeCommitment.hoursPerMonth', v as never, { shouldValidate: true, shouldDirty: true });
-      setValue('timeCommitment.hoursPerWeek', round1(v / WEEKS_PER_MONTH) as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  };
 
   const addSkill = () => {
     const v = skillDraft.trim();
@@ -104,7 +66,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-1.5">
           <label htmlFor="hoursPerWeek" className="text-sm font-medium text-brand-text">
-            Hours per week *
+            Hours per week
           </label>
           <input
             id="hoursPerWeek"
@@ -112,7 +74,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             step="0.1"
             inputMode="decimal"
             className={inputCls}
-            {...register('timeCommitment.hoursPerWeek', { onChange: handleWeekChange })}
+            {...register('timeCommitment.hoursPerWeek')}
           />
           {hoursPerWeek != null && Number.isFinite(Number(hoursPerWeek)) && (
             <p className="text-xs text-brand-muted">≈ {round1(Number(hoursPerWeek) * WEEKS_PER_MONTH)} h/month</p>
@@ -121,7 +83,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
         </div>
         <div className="space-y-1.5">
           <label htmlFor="hoursPerMonth" className="text-sm font-medium text-brand-text">
-            Hours per month *
+            Hours per month
           </label>
           <input
             id="hoursPerMonth"
@@ -129,7 +91,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             step="0.1"
             inputMode="decimal"
             className={inputCls}
-            {...register('timeCommitment.hoursPerMonth', { onChange: handleMonthChange })}
+            {...register('timeCommitment.hoursPerMonth')}
           />
           {hoursPerMonth != null && Number.isFinite(Number(hoursPerMonth)) && (
             <p className="text-xs text-brand-muted">≈ {round1(Number(hoursPerMonth) / WEEKS_PER_MONTH)} h/week</p>

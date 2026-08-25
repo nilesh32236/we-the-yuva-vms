@@ -9,7 +9,6 @@ import { AppError } from '../../middleware/error.middleware';
 import {
   enqueueOtpEmail,
   generateAndStoreOtp,
-  lookupReferral,
   revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
@@ -51,12 +50,9 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       email,
       name,
       role,
-      phone,
+      whatsappNumber,
+      gender,
       dateOfBirth,
-      address,
-      reference,
-      callAvailability,
-      whyVoluntary,
     } = req.body;
     const sanitizedName = name?.trim().replace(/<[^>]*>/g, '');
 
@@ -134,14 +130,11 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       });
     }
 
-    let referredById: string | undefined;
-    if (reference) {
-      const referrer = await lookupReferral(reference);
-      if (referrer) {
-        referredById = referrer.id;
-      }
+    let dob: Date | undefined;
+    if (dateOfBirth) {
+      dob = new Date(dateOfBirth);
+      if (Number.isNaN(dob.getTime())) throw new AppError('Invalid date of birth', 400);
     }
-
     const user = await prisma.user
       .create({
         data: {
@@ -149,12 +142,9 @@ export async function register(req: Request, res: Response, next: NextFunction) 
           name: sanitizedName,
           roleId: roleRecord.id,
           status: 'PENDING',
-          phone,
-          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-          address,
-          ...(referredById && { referredById }),
-          callAvailability,
-          whyVoluntary,
+          whatsappNumber,
+          gender,
+          dateOfBirth: dob,
         },
       })
       .catch((err: unknown) => {

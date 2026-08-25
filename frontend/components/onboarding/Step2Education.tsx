@@ -70,6 +70,13 @@ export function Step2Education({ register, watch, errors }: StepProps) {
           <input aria-label="City *" placeholder="City *" className={`${inputCls} col-span-2`} {...register('selfEmployed.city')} />
         </div>
       )}
+
+      {status === 'RETIRED' && (
+        <div className="grid grid-cols-1 gap-3 rounded-xl border border-brand-border p-4">
+          <input aria-label="Past Profession *" placeholder="Past Profession *" className={inputCls} {...register('retired.pastProfession')} />
+          <FieldError message={errors.retired?.pastProfession?.message} />
+        </div>
+      )}
     </div>
   );
 }
