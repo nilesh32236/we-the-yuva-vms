@@ -25,12 +25,16 @@ export function Step3SkillsLanguages({ register, watch, setValue, errors }: Step
 
   const addLanguage = () => {
     if (languages.length >= 10) return;
-    setValue('languages', [...languages, { language: '', proficiency: 'BASIC' } as never], {
+    setValue('languages', [...languages, { language: '', proficiency: 'BASIC' }], {
       shouldValidate: true,
     });
   };
   const removeLanguage = (idx: number) => {
-    setValue('languages', languages.filter((_, i) => i !== idx) as never, { shouldValidate: true });
+    setValue(
+      'languages',
+      languages.filter((_, i) => i !== idx),
+      { shouldValidate: true }
+    );
   };
 
   return (
@@ -86,8 +90,9 @@ export function Step3SkillsLanguages({ register, watch, setValue, errors }: Step
             </select>
             <Button
               type="button"
-              variant="ghost"
-              className="text-brand-error px-2 min-h-11 cursor-pointer hover:bg-brand-error/10"
+              variant="destructive"
+              aria-label={`Remove language ${idx + 1}`}
+              className="px-2 min-h-11 hover:bg-brand-error/10 bg-transparent text-brand-error border-transparent shadow-none"
               onClick={() => removeLanguage(idx)}
             >
               Remove

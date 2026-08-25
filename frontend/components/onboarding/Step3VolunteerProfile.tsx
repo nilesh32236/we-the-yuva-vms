@@ -202,7 +202,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
           <Button
             type="button"
             variant="outline"
-            className="text-brand-primary border-brand-primary bg-brand-primary/10 hover:bg-brand-primary/20"
+            className="bg-brand-primary/10 hover:bg-brand-primary/20"
             onClick={addSkill}
           >
             Add
@@ -211,16 +211,16 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
         {skills.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {skills.map((s) => (
-              <span
+              <div
                 key={s}
-                className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full px-3 py-1 text-xs"
+                className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full pl-3 pr-1 py-1 text-xs"
               >
                 {s}
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
-                  className="px-1 py-0 h-auto min-h-0 text-brand-primary hover:bg-brand-primary/20"
+                  size="icon"
+                  className="h-6 w-6 min-h-6 min-w-6 p-0 text-brand-primary hover:bg-brand-primary/20 rounded-full"
                   aria-label={`Remove ${s}`}
                   onClick={() =>
                     setValue(
@@ -232,7 +232,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
                 >
                   ×
                 </Button>
-              </span>
+              </div>
             ))}
           </div>
         )}
@@ -261,7 +261,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
               type="button"
               variant={tools.includes(t) ? 'primary' : 'outline'}
               size="sm"
-              className="rounded-full px-3 py-1.5 text-xs border cursor-pointer h-auto"
+              className="rounded-full px-3 py-1.5 text-xs border min-h-0 h-auto"
               onClick={() => toggleTool(t)}
             >
               {t}
