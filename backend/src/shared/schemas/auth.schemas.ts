@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const GENDERS = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const;
+const GENDERS = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const;
 
 // Accept YYYY-MM-DD and reject values JS silently normalizes (e.g. 2026-02-30 → 2026-03-02).
 // Compare using UTC getters because `new Date('YYYY-MM-DD')` parses as UTC midnight.
