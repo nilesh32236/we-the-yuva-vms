@@ -44,7 +44,7 @@ const STEPS = [
 ] as const;
 
 const STEP_FIELDS: string[][] = [
-  ['gender', 'whatsappNumber', 'address.city', 'address.district', 'address.state', 'address.pincode'],
+  ['address.city', 'address.district', 'address.state', 'address.pincode'],
   [
     'education',
     'currentStatus',
@@ -59,6 +59,7 @@ const STEP_FIELDS: string[][] = [
     'selfEmployed.profession',
     'selfEmployed.organizationName',
     'selfEmployed.city',
+    'retired.pastProfession',
   ],
   ['volunteerType', 'timeCommitment.hoursPerWeek', 'timeCommitment.hoursPerMonth', 'timeCommitment.preferredDaysTimes', 'opportunityInterests', 'whyVoluntary', 'skills', 'digitalReadiness.smartphone', 'digitalReadiness.whatsapp', 'digitalReadiness.laptop', 'digitalReadiness.onlineVolunteering'],
   ['referralSource', 'referralSourceName'],
@@ -76,8 +77,6 @@ const tomorrowIso = () => {
 };
 
 const defaultValues: OnboardingData = {
-  gender: '' as never,
-  whatsappNumber: '',
   address: { city: '', district: '', state: '', pincode: '' },
   avatarUrl: '',
   education: '',
@@ -115,6 +114,10 @@ export default function SetupProfilePage() {
     resolver: zodResolver(OnboardingSchema),
     defaultValues,
   });
+
+  const watchedDeclarations = watch('declarations');
+  const isDeclarationComplete = watchedDeclarations?.infoCorrect === true && watchedDeclarations?.commitmentsAccepted === true;
+  const isKindnessNextDisabled = step === 4 && !kindness.optedIn;
 
   // Load draft from localStorage
   useEffect(() => {
@@ -206,8 +209,8 @@ export default function SetupProfilePage() {
   const handleNext = async () => {
     if (step === 4) {
       if (!kindness.optedIn) {
-        setKindnessError(null);
-        return goToStep(step + 1);
+        setKindnessError('Please check "I am ready to take the 7-Day Kindness Challenge" to continue');
+        return;
       }
       if (kindness.acts.length === 0 || !kindness.startDate) {
         setKindnessError('Select at least one act of kindness and a start date');
@@ -234,7 +237,12 @@ export default function SetupProfilePage() {
   const handleSubmitForm = async () => {
     for (let i = 0; i < STEPS.length; i++) {
       if (i === 4) {
-        if (kindness.optedIn && (kindness.acts.length === 0 || !kindness.startDate)) {
+        if (!kindness.optedIn) {
+          setKindnessError('Please check "I am ready to take the 7-Day Kindness Challenge" to continue');
+          goToStep(i);
+          return;
+        }
+        if (kindness.acts.length === 0 || !kindness.startDate) {
           setKindnessError('Select at least one act of kindness and a start date');
           goToStep(i);
           return;
@@ -405,7 +413,12 @@ export default function SetupProfilePage() {
             </Button>
           )}
           {step < STEPS.length - 1 ? (
-            <Button variant="cta" className={step === 0 ? 'w-full' : 'flex-1'} onClick={handleNext}>
+            <Button
+              variant="cta"
+              className={step === 0 ? 'w-full' : 'flex-1'}
+              onClick={handleNext}
+              disabled={isKindnessNextDisabled}
+            >
               Next <ArrowRight className="w-4 h-4" />
             </Button>
           ) : (
@@ -414,7 +427,7 @@ export default function SetupProfilePage() {
               className="flex-1"
               onClick={handleSubmitForm}
               loading={isSubmitting}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isDeclarationComplete}
             >
               Complete Registration <Check className="w-4 h-4" />
             </Button>

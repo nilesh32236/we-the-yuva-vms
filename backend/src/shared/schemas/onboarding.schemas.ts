@@ -46,27 +46,18 @@ export const SelfEmployedInfoSchema = z.object({
   city: requiredString,
 });
 
+export const RetiredInfoSchema = z.object({
+  pastProfession: requiredString.max(120),
+});
+
 export const WEEKS_PER_MONTH = 4.33;
 export const round1 = (n: number) => Math.round(n * 10) / 10;
 
-const TimeCommitmentSchema = z
-  .object({
-    hoursPerWeek: z.coerce.number().finite().min(1, 'Min 1h').max(168, 'Max 168h').optional(),
-    hoursPerMonth: z.coerce.number().finite().min(4.3).max(727.4).optional(),
-    preferredDaysTimes: z.string().trim().max(500).optional(),
-  })
-  .superRefine((v, ctx) => {
-    if (v.hoursPerWeek == null && v.hoursPerMonth == null) {
-      ctx.addIssue({ code: 'custom', path: ['hoursPerWeek'], message: 'Provide hours per week or month' });
-    }
-    if (
-      v.hoursPerWeek != null &&
-      v.hoursPerMonth != null &&
-      Math.abs(v.hoursPerMonth - v.hoursPerWeek * WEEKS_PER_MONTH) > 0.06
-    ) {
-      ctx.addIssue({ code: 'custom', path: ['hoursPerMonth'], message: 'Hours per week/month mismatch' });
-    }
-  });
+const TimeCommitmentSchema = z.object({
+  hoursPerWeek: z.coerce.number().finite().min(0, 'Min 0h').max(168, 'Max 168h').optional(),
+  hoursPerMonth: z.coerce.number().finite().min(0, 'Min 0h').max(744, 'Max 744h').optional(),
+  preferredDaysTimes: z.string().trim().max(500).optional(),
+});
 
 const DigitalReadinessSchema = z.object({
   smartphone: z.boolean(),
@@ -90,11 +81,13 @@ export const DeclarationsSchema = z.object({
 
 export const OnboardingSchema = z
   .object({
-    gender: z.enum(GENDERS),
+    gender: z.enum(GENDERS).optional(),
     whatsappNumber: z
       .string()
       .trim()
-      .regex(/^\+?[0-9]{10,15}$/, 'Enter a valid WhatsApp number'),
+      .regex(/^\+?[0-9]{10,15}$/, 'Enter a valid WhatsApp number')
+      .optional()
+      .or(z.literal('')),
     address: AddressSchema,
     avatarUrl: z.union([z.string().url(), z.literal('')]).optional(),
     education: requiredString.max(80),
@@ -103,6 +96,7 @@ export const OnboardingSchema = z
     student: StudentInfoSchema.optional(),
     professional: ProfessionalInfoSchema.optional(),
     selfEmployed: SelfEmployedInfoSchema.optional(),
+    retired: RetiredInfoSchema.optional(),
     volunteerType: z.enum(VOLUNTEER_TYPES),
     timeCommitment: TimeCommitmentSchema,
     opportunityInterests: z.array(z.enum(OPPORTUNITY_INTERESTS)).min(1, 'Select at least one'),
@@ -131,6 +125,9 @@ export const OnboardingSchema = z
         message: 'Profession details are required',
       });
     }
+    if (data.currentStatus === 'RETIRED' && !data.retired) {
+      ctx.addIssue({ code: 'custom', path: ['retired'], message: 'Past profession is required' });
+    }
     if (
       ['FRIEND', 'COLLEGE', 'PARTNER_ORG', 'CURRENT_VOLUNTEER'].includes(data.referralSource) &&
       !data.referralSourceName
@@ -152,6 +149,7 @@ export const VolunteerDetailsSchema = z.object({
   student: StudentInfoSchema.optional(),
   professional: ProfessionalInfoSchema.optional(),
   selfEmployed: SelfEmployedInfoSchema.optional(),
+  retired: RetiredInfoSchema.optional(),
   timeCommitment: TimeCommitmentSchema.optional(),
   opportunityInterests: z.array(z.enum(OPPORTUNITY_INTERESTS)).optional(),
   digitalReadiness: DigitalReadinessSchema.optional(),

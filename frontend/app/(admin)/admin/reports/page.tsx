@@ -11,8 +11,11 @@ import { api } from '@/lib/api';
 export default function AdminReportsPage() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['stats', 'admin'],
-    queryFn: () => api.get('/admin/stats').then((r) => r.data),
-    staleTime: 60_000,
+    queryFn: () => api.get('/admin/stats', { headers: { 'Cache-Control': 'no-cache' } }).then((r) => r.data),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
   });
 
   return (

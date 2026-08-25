@@ -75,7 +75,9 @@ const verifyOtpIpLimiter = rateLimit({
  *             properties:
  *               name: { type: string }
  *               email: { type: string }
- *               phone: { type: string }
+ *               whatsappNumber: { type: string }
+ *               gender: { type: string, enum: [MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY] }
+ *               dateOfBirth: { type: string, format: date }
  *     responses:
  *       201:
  *         description: User registered, OTP sent

@@ -22,8 +22,11 @@ import { api } from '@/lib/api';
 export default function ObserverReportsPage() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['stats', 'observer'],
-    queryFn: () => api.get('/stats/observer').then((r) => r.data),
-    staleTime: 60_000,
+    queryFn: () => api.get('/stats/observer', { headers: { 'Cache-Control': 'no-cache' } }).then((r) => r.data),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
   });
 
   return (

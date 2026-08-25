@@ -75,9 +75,9 @@ describe('auth.controller', () => {
     const baseBody = {
       email: 'new@test.com',
       name: 'New User',
-      phone: '+919876543210',
+      whatsappNumber: '+919876543210',
+      gender: 'MALE',
       dateOfBirth: '2000-01-15',
-      address: { city: 'Mumbai', state: 'Maharashtra' },
     };
 
     it('should create a new user with all required fields', async () => {
@@ -97,9 +97,9 @@ describe('auth.controller', () => {
         data: expect.objectContaining({
           email: 'new@test.com',
           name: 'New User',
-          phone: '+919876543210',
+          whatsappNumber: '+919876543210',
+          gender: 'MALE',
           dateOfBirth: expect.any(Date),
-          address: { city: 'Mumbai', state: 'Maharashtra' },
           roleId: 'role-vol',
           status: 'PENDING',
         }),
@@ -108,16 +108,15 @@ describe('auth.controller', () => {
       expect(logAudit).toHaveBeenCalled();
     });
 
-    it('should create user with optional fields when provided', async () => {
+    it('should create user with custom role when provided', async () => {
       req.body = {
         ...baseBody,
-        whyVoluntary: 'I want to help my community.',
-        callAvailability: { preference: 'anytime' },
+        role: 'ORGANIZATION_ADMIN',
       };
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
       vi.mocked(prisma.role.findUnique).mockResolvedValue({
-        id: 'role-vol',
-        name: 'VOLUNTEER',
+        id: 'role-org',
+        name: 'ORGANIZATION_ADMIN',
         permissions: [],
       } as never);
       vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
@@ -126,52 +125,9 @@ describe('auth.controller', () => {
 
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          whyVoluntary: 'I want to help my community.',
-          callAvailability: { preference: 'anytime' },
+          roleId: 'role-org',
         }),
       });
-    });
-
-    it('should link referredById when valid reference is provided', async () => {
-      req.body = { ...baseBody, reference: '+919876543210' };
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
-      vi.mocked(prisma.role.findUnique).mockResolvedValue({
-        id: 'role-vol',
-        name: 'VOLUNTEER',
-        permissions: [],
-      } as never);
-      vi.mocked(authService.lookupReferral).mockResolvedValue({
-        id: 'referrer-id',
-        name: 'Referrer',
-      });
-      vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
-
-      await register(req as Request, res as Response, next);
-
-      expect(prisma.user.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          referredById: 'referrer-id',
-        }),
-      });
-    });
-
-    it('should NOT fail when reference is invalid (optional field)', async () => {
-      req.body = { ...baseBody, reference: 'nonexistent' };
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
-      vi.mocked(prisma.role.findUnique).mockResolvedValue({
-        id: 'role-vol',
-        name: 'VOLUNTEER',
-        permissions: [],
-      } as never);
-      vi.mocked(authService.lookupReferral).mockResolvedValue(null);
-      vi.mocked(prisma.user.create).mockResolvedValue({ id: 'new-id' } as never);
-
-      await register(req as Request, res as Response, next);
-
-      expect(prisma.user.create).toHaveBeenCalledWith({
-        data: expect.not.objectContaining({ referredById: expect.anything() }),
-      });
-      expect(res.status).toHaveBeenCalledWith(201);
     });
 
     it('should return 409 when email already exists', async () => {

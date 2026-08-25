@@ -4,36 +4,12 @@ import { FileUpload } from '@/components/shared/FileUpload';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
 
-const GENDER_OPTIONS = [
-  { value: 'FEMALE', label: 'Female' },
-  { value: 'MALE', label: 'Male' },
-  { value: 'OTHER', label: 'Other' },
-  { value: 'PREFER_NOT_TO_SAY', label: 'Prefer not to say' },
-];
-
 const inputCls =
   'w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border';
 
 export function Step1PersonalInfo({ register, setValue, errors }: StepProps) {
   return (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <label htmlFor="gender" className="text-sm font-medium text-brand-text">Gender *</label>
-        <select id="gender" className={inputCls} {...register('gender')}>
-          <option value="">Select…</option>
-          {GENDER_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-        <FieldError message={errors.gender?.message} />
-      </div>
-
-      <div className="space-y-1.5">
-        <label htmlFor="whatsappNumber" className="text-sm font-medium text-brand-text">WhatsApp Number *</label>
-        <input id="whatsappNumber" type="tel" placeholder="+91 98765 43210" className={inputCls} {...register('whatsappNumber')} />
-        <FieldError message={errors.whatsappNumber?.message} />
-      </div>
-
       <div className="space-y-1.5">
         <label htmlFor="file-upload-input" className="text-sm font-medium text-brand-text">Profile Photo</label>
         <FileUpload
