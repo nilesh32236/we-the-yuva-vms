@@ -119,6 +119,19 @@ export default function SetupProfilePage() {
   const isDeclarationComplete = watchedDeclarations?.infoCorrect === true && watchedDeclarations?.commitmentsAccepted === true;
   const isKindnessNextDisabled = step === 4 && !kindness.optedIn;
 
+  const validateKindness = (): boolean => {
+    if (!kindness.optedIn) {
+      setKindnessError('Please check "I am ready to take the 7-Day Kindness Challenge" to continue');
+      return false;
+    }
+    if (kindness.acts.length === 0 || !kindness.startDate) {
+      setKindnessError('Select at least one act of kindness and a start date');
+      return false;
+    }
+    setKindnessError(null);
+    return true;
+  };
+
   // Load draft from localStorage
   useEffect(() => {
     try {
@@ -208,15 +221,7 @@ export default function SetupProfilePage() {
 
   const handleNext = async () => {
     if (step === 4) {
-      if (!kindness.optedIn) {
-        setKindnessError('Please check "I am ready to take the 7-Day Kindness Challenge" to continue');
-        return;
-      }
-      if (kindness.acts.length === 0 || !kindness.startDate) {
-        setKindnessError('Select at least one act of kindness and a start date');
-        return;
-      }
-      setKindnessError(null);
+      if (!validateKindness()) return;
       return goToStep(step + 1);
     }
     if (await validateStep(step)) {
@@ -237,13 +242,7 @@ export default function SetupProfilePage() {
   const handleSubmitForm = async () => {
     for (let i = 0; i < STEPS.length; i++) {
       if (i === 4) {
-        if (!kindness.optedIn) {
-          setKindnessError('Please check "I am ready to take the 7-Day Kindness Challenge" to continue');
-          goToStep(i);
-          return;
-        }
-        if (kindness.acts.length === 0 || !kindness.startDate) {
-          setKindnessError('Select at least one act of kindness and a start date');
+        if (!validateKindness()) {
           goToStep(i);
           return;
         }

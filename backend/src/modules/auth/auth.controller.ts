@@ -130,6 +130,11 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       });
     }
 
+    let dob: Date | undefined;
+    if (dateOfBirth) {
+      dob = new Date(dateOfBirth);
+      if (Number.isNaN(dob.getTime())) throw new AppError('Invalid date of birth', 400);
+    }
     const user = await prisma.user
       .create({
         data: {
@@ -139,7 +144,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
           status: 'PENDING',
           whatsappNumber,
           gender,
-          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+          dateOfBirth: dob,
         },
       })
       .catch((err: unknown) => {

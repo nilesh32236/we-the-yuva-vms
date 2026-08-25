@@ -7,8 +7,14 @@ import {
 } from './stats.service';
 
 function noStore(res: Response) {
-  (res as unknown as { setHeader?: (k: string, v: string) => void }).setHeader?.('Cache-Control', 'no-store, no-cache, must-revalidate');
-  (res as unknown as { setHeader?: (k: string, v: string) => void }).setHeader?.('Pragma', 'no-cache');
+  const anyRes = res as unknown as { set?: (k: string, v: string) => void; setHeader?: (k: string, v: string) => void };
+  const setter = anyRes.set ?? anyRes.setHeader;
+  if (setter) {
+    setter.call(res as unknown as Record<string, unknown>, 'Cache-Control', 'no-store, no-cache, must-revalidate');
+    setter.call(res as unknown as Record<string, unknown>, 'Pragma', 'no-cache');
+    setter.call(res as unknown as Record<string, unknown>, 'Expires', '0');
+    setter.call(res as unknown as Record<string, unknown>, 'Surrogate-Control', 'no-store');
+  }
 }
 
 export async function volunteerStatsHandler(

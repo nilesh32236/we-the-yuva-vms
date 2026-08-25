@@ -403,8 +403,8 @@ export async function submitOnboarding(userId: string, data: OnboardingData) {
     await tx.user.update({
       where: { id: userId },
       data: {
-        ...(data.gender ? { gender: data.gender } : {}),
-        ...(data.whatsappNumber ? { whatsappNumber: data.whatsappNumber } : {}),
+        ...(data.gender !== undefined && data.gender !== '' ? { gender: data.gender } : {}),
+        ...(data.whatsappNumber !== undefined && data.whatsappNumber !== '' ? { whatsappNumber: data.whatsappNumber } : {}),
         address: data.address,
         whyVoluntary: data.whyVoluntary,
         volunteerType: data.volunteerType,

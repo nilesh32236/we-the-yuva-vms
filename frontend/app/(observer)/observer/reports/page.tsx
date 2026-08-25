@@ -20,11 +20,16 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { api } from '@/lib/api';
 
 export default function ObserverReportsPage() {
-  const { data: stats, isLoading } = useQuery({
+  const {
+    data: stats,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['stats', 'observer'],
-    queryFn: () => api.get('/stats/observer', { headers: { 'Cache-Control': 'no-cache' } }).then((r) => r.data),
+    queryFn: () => api.get('/stats/observer', { headers: { 'Cache-Control': 'no-store' } }).then((r) => r.data),
     staleTime: 0,
-    gcTime: 0,
+    gcTime: 30_000,
     refetchOnWindowFocus: true,
     refetchOnMount: 'always',
   });
@@ -34,7 +39,14 @@ export default function ObserverReportsPage() {
       <h1 className="font-heading font-bold text-xl text-brand-text">Reports</h1>
 
       {/* Summary stats */}
-      {isLoading ? (
+      {isError ? (
+        <div className="bg-brand-error/10 border border-brand-error/30 rounded-lg p-4 text-center">
+          <p className="text-sm text-brand-error">Failed to load reports. Please try again.</p>
+          <button type="button" onClick={() => refetch()} className="mt-2 text-sm text-brand-primary underline">
+            Retry
+          </button>
+        </div>
+      ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <SkeletonCard key={i} />

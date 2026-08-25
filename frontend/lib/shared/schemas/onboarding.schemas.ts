@@ -50,12 +50,14 @@ export const RetiredInfoSchema = z.object({
   pastProfession: requiredString.max(120),
 });
 
+// Used only for UI hints (≈ h/month ↔ h/week) — no longer validates coupling
 export const WEEKS_PER_MONTH = 4.33;
 export const round1 = (n: number) => Math.round(n * 10) / 10;
 
+const emptyToUndef = (v: unknown) => (v === '' ? undefined : v);
 const TimeCommitmentSchema = z.object({
-  hoursPerWeek: z.coerce.number().finite().min(0, 'Min 0h').max(168, 'Max 168h').optional(),
-  hoursPerMonth: z.coerce.number().finite().min(0, 'Min 0h').max(744, 'Max 744h').optional(),
+  hoursPerWeek: z.preprocess(emptyToUndef, z.coerce.number().finite().min(0, 'Min 0h').max(168, 'Max 168h').optional()),
+  hoursPerMonth: z.preprocess(emptyToUndef, z.coerce.number().finite().min(0, 'Min 0h').max(744, 'Max 744h').optional()),
   preferredDaysTimes: z.string().trim().max(500).optional(),
 });
 
@@ -81,7 +83,7 @@ export const DeclarationsSchema = z.object({
 
 export const OnboardingSchema = z
   .object({
-    gender: z.enum(GENDERS).optional(),
+    gender: z.enum(GENDERS).optional().or(z.literal('')),
     whatsappNumber: z
       .string()
       .trim()

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type RegisterInput, RegisterSchema } from '@/lib/shared';
+import { GENDERS, type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
@@ -14,12 +14,13 @@ import { api } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
-const GENDER_OPTIONS = [
-  { value: 'FEMALE', label: 'Female' },
-  { value: 'MALE', label: 'Male' },
-  { value: 'OTHER', label: 'Other' },
-  { value: 'PREFER_NOT_TO_SAY', label: 'Prefer not to say' },
-];
+const GENDER_LABELS: Record<(typeof GENDERS)[number], string> = {
+  FEMALE: 'Female',
+  MALE: 'Male',
+  OTHER: 'Other',
+  PREFER_NOT_TO_SAY: 'Prefer not to say',
+};
+const GENDER_OPTIONS = GENDERS.map((value) => ({ value, label: GENDER_LABELS[value] }));
 
 export default function RegisterPage() {
   const router = useRouter();

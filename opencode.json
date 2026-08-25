@@ -28,18 +28,6 @@
 			"prompt": "{file:./.opencode/prompts/auto-pilot.md}",
 			"temperature": 0.2,
 			"color": "warning"
-		},
-		"general": {
-			"model": "opencode/deepseek-v4-flash-free"
-		},
-		"explore": {
-			"model": "opencode/deepseek-v4-flash-free"
-		},
-		"scout": {
-			"model": "opencode/deepseek-v4-flash-free"
-		},
-		"verifier": {
-			"mode": "subagent"
 		}
 	},
 	"plugin": [

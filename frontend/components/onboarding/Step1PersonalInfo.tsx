@@ -11,8 +11,8 @@ export function Step1PersonalInfo({ register, setValue, errors }: StepProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <label htmlFor="file-upload-input" className="text-sm font-medium text-brand-text">Profile Photo</label>
         <FileUpload
+          label="Profile Photo"
           accept="image/*"
           onUpload={(url) => setValue('avatarUrl', url, { shouldValidate: true })}
         />

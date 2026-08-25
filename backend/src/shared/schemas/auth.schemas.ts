@@ -1,20 +1,20 @@
 import { z } from 'zod';
 
-const GENDERS = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const;
+export const GENDERS = ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const;
 
 // Accept YYYY-MM-DD and reject values JS silently normalizes (e.g. 2026-02-30 → 2026-03-02).
+// Compare using UTC getters because `new Date('YYYY-MM-DD')` parses as UTC midnight.
 const parseableDate = (message: string) =>
-  z.string().refine((v) => {
-    if (!/^\d{4}-\d{2}-\d{2}/.test(v)) return false;
-    const d = new Date(v);
-    if (Number.isNaN(d.getTime())) return false;
-    const ymd = [
-      d.getFullYear(),
-      String(d.getMonth() + 1).padStart(2, '0'),
-      String(d.getDate()).padStart(2, '0'),
-    ].join('-');
-    return ymd === v.slice(0, 10);
-  }, message);
+  z
+    .string()
+    .trim()
+    .refine((v) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v.slice(0, 10))) return false;
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return false;
+      const ymd = [d.getUTCFullYear(), String(d.getUTCMonth() + 1).padStart(2, '0'), String(d.getUTCDate()).padStart(2, '0')].join('-');
+      return ymd === v.slice(0, 10);
+    }, message);
 
 export const RegisterSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
@@ -23,15 +23,16 @@ export const RegisterSchema = z.object({
   whatsappNumber: z
     .string()
     .trim()
-    .regex(/^\+?[0-9]{10,15}$/, 'Enter a valid WhatsApp number'),
+    .transform((v) => v.replace(/[\s\-().]/g, ''))
+    .pipe(z.string().regex(/^\+?[0-9]{10,15}$/, 'Enter a valid WhatsApp number')),
   gender: z.enum(GENDERS, { message: 'Please select a gender' }),
   dateOfBirth: parseableDate('Enter a valid date of birth').refine((val) => {
     const date = new Date(val);
     const today = new Date();
-    const age = today.getFullYear() - date.getFullYear();
-    const monthDiff = today.getMonth() - date.getMonth();
+    const age = today.getUTCFullYear() - date.getUTCFullYear();
+    const monthDiff = today.getUTCMonth() - date.getUTCMonth();
     const actualAge =
-      monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate()) ? age - 1 : age;
+      monthDiff < 0 || (monthDiff === 0 && today.getUTCDate() < date.getUTCDate()) ? age - 1 : age;
     return actualAge >= 14;
   }, 'You must be at least 14 years old'),
 });
