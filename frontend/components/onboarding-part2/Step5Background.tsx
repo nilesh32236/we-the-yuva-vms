@@ -61,7 +61,7 @@ export function Step5Background({ register, watch, errors }: StepProps) {
           </div>
           <div className="space-y-1.5">
             <label htmlFor="previousTotalHours" className="text-sm font-medium text-brand-text">Total hours</label>
-            <input id="previousTotalHours" type="number" step="0.1" inputMode="decimal" className={inputCls} {...register('previousTotalHours')} />
+            <input id="previousTotalHours" type="number" step="0.1" inputMode="decimal" className={inputCls} {...register('previousTotalHours', { setValueAs: (v: unknown) => (v === '' ? undefined : Number(v as string)) } as never)} />
           </div>
         </div>
       )}
