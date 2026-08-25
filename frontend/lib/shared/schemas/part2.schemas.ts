@@ -90,12 +90,29 @@ export const Part2Schema = z
     whatsappConsent: z.boolean(),
   })
   .superRefine((d, ctx) => {
-    if (d.hasVolunteered && (!d.previousOrgName || !d.previousRole)) {
+    const roles = d.roleMappings.map((r) => r.role);
+    if (new Set(roles).size !== roles.length) {
       ctx.addIssue({
         code: 'custom',
-        path: ['previousOrgName'],
-        message: 'Required when you have volunteered before',
+        path: ['roleMappings'],
+        message: 'Each role must be unique',
       });
+    }
+    if (d.hasVolunteered) {
+      if (!d.previousOrgName?.trim()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['previousOrgName'],
+          message: 'Required when you have volunteered before',
+        });
+      }
+      if (!d.previousRole?.trim()) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['previousRole'],
+          message: 'Required when you have volunteered before',
+        });
+      }
     }
     if (d.lifeSkills.includes('OTHER') && !d.lifeSkillsOther?.trim()) {
       ctx.addIssue({
