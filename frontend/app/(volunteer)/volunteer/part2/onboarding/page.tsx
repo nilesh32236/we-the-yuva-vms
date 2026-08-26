@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, FileText, Heart, Languages, Briefcase, MapPin, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Part2Schema } from '@/lib/shared/schemas/part2.schemas';
 import type { Part2Data } from '@/lib/shared/schemas/part2.schemas';
@@ -88,6 +88,7 @@ export default function Part2OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [gatingChecked, setGatingChecked] = useState(false);
+  const [hasServerData, setHasServerData] = useState(false);
 
   const { register, watch, setValue, trigger, reset, formState: { errors, isDirty } } = useForm<Part2Data>({
     resolver: zodResolver(Part2Schema),
@@ -106,13 +107,15 @@ export default function Part2OnboardingPage() {
     api.get('/users/me/onboarding/part2').then((res) => {
       if (res.data?.data) {
         reset(res.data.data);
+        setHasServerData(true);
       }
       setGatingChecked(true);
     }).catch(() => setGatingChecked(true));
   }, [challengeLoading, challengeData, router, reset]);
 
-  // Draft localStorage
+  // Draft localStorage — load AFTER gating reset, don't overwrite serverData
   useEffect(() => {
+    if (!gatingChecked || hasServerData) return;
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
       if (saved) {
@@ -120,7 +123,7 @@ export default function Part2OnboardingPage() {
         if (parsed.success) reset(parsed.data);
       }
     } catch { /* ignore */ }
-  }, [reset]);
+  }, [reset, gatingChecked, hasServerData]);
 
   useEffect(() => {
     const sub = watch((data) => {
@@ -129,16 +132,16 @@ export default function Part2OnboardingPage() {
     return () => sub.unsubscribe();
   }, [watch]);
 
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ''; };
-    if (isDirty) window.addEventListener('beforeunload', handler);
-    else window.removeEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
-  }, [isDirty]);
+  const beforeUnloadHandler = useCallback((e: BeforeUnloadEvent) => {
+    e.preventDefault();
+    e.returnValue = '';
+  }, []);
 
   useEffect(() => {
-    try { sessionStorage.setItem('part2-step', String(step)); } catch { /* ignore */ }
-  }, [step]);
+    if (isDirty) window.addEventListener('beforeunload', beforeUnloadHandler);
+    else window.removeEventListener('beforeunload', beforeUnloadHandler);
+    return () => window.removeEventListener('beforeunload', beforeUnloadHandler);
+  }, [isDirty, beforeUnloadHandler]);
 
   useEffect(() => {
     try {
@@ -150,12 +153,16 @@ export default function Part2OnboardingPage() {
     } catch { /* ignore */ }
   }, []);
 
+  useEffect(() => {
+    try { sessionStorage.setItem('part2-step', String(step)); } catch { /* ignore */ }
+  }, [step]);
+
   const goToStep = (s: number) => { setFormError(null); setStep(s); };
   const validateStep = async (idx: number) => {
     const fields = STEP_FIELDS[idx];
     if (fields.length === 0) return true;
-    const results = await Promise.all(fields.map((f) => trigger(f as never)));
-    const valid = results.every(Boolean);
+    // Use trigger with field array so superRefine cross-field (lifeSkillsOther/hasVolunteered) runs
+    const valid = await trigger(fields as never);
     if (!valid) toast({ title: 'Please fix the highlighted fields', variant: 'destructive' });
     return valid;
   };
@@ -163,9 +170,14 @@ export default function Part2OnboardingPage() {
   const handleBack = () => goToStep(step - 1);
 
   const handleSubmit = async () => {
-    for (let i = 0; i < STEPS.length; i++) {
-      const ok = await validateStep(i);
-      if (!ok) { goToStep(i); return; }
+    // Final validation: trigger whole form so superRefine (uniqueness, hasVolunteered etc) shows
+    const allValid = await trigger();
+    if (!allValid) {
+      for (let i = 0; i < STEPS.length; i++) {
+        const ok = await trigger(STEP_FIELDS[i] as never);
+        if (!ok) { goToStep(i); return; }
+      }
+      return;
     }
     setFormError(null);
     setIsSubmitting(true);
