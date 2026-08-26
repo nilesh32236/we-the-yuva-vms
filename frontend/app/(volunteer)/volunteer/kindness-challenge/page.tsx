@@ -228,8 +228,8 @@ export default function KindnessChallengePage() {
               <p className="text-xs text-brand-muted text-right">{postContent.length}/1000</p>
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-brand-text">Photo (optional)</label>
-              <FileUpload value={postMediaUrl} onChange={setPostMediaUrl} accept="image/*" />
+              <p className="text-sm font-medium text-brand-text">Photo (optional)</p>
+              <FileUpload onUpload={setPostMediaUrl} previewUrl={postMediaUrl} accept="image/*" />
             </div>
             <label className="flex items-center gap-2 rounded-lg border border-brand-border px-3 py-2.5 cursor-pointer">
               <input type="checkbox" checked={postIsCompletion} onChange={(e) => setPostIsCompletion(e.target.checked)} className="accent-brand-primary" />
