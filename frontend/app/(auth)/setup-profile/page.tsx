@@ -115,17 +115,23 @@ export default function SetupProfilePage() {
     defaultValues,
   });
 
-  const watchedDeclarations = watch('declarations');
-  const isDeclarationComplete = watchedDeclarations?.infoCorrect === true && watchedDeclarations?.commitmentsAccepted === true;
-  const isKindnessNextDisabled = step === 4 && !kindness.optedIn;
+  const infoCorrect = watch('declarations.infoCorrect');
+  const commitmentsAccepted = watch('declarations.commitmentsAccepted');
+  const isDeclarationComplete = infoCorrect === true && commitmentsAccepted === true;
+  const isKindnessNextDisabled =
+    step === 4 && (!kindness.optedIn || kindness.acts.length < 7 || !kindness.startDate);
 
   const validateKindness = (): boolean => {
     if (!kindness.optedIn) {
       setKindnessError('Please check "I am ready to take the 7-Day Kindness Challenge" to continue');
       return false;
     }
-    if (kindness.acts.length === 0 || !kindness.startDate) {
-      setKindnessError('Select at least one act of kindness and a start date');
+    if (kindness.acts.length < 7) {
+      setKindnessError(`Please select at least 7 acts of kindness (you have selected ${kindness.acts.length})`);
+      return false;
+    }
+    if (!kindness.startDate) {
+      setKindnessError('Please select a start date');
       return false;
     }
     setKindnessError(null);
@@ -210,8 +216,20 @@ export default function SetupProfilePage() {
     setStep(newStep);
   };
 
+  const getStepFields = (stepIndex: number): string[] => {
+    if (stepIndex !== 1) return STEP_FIELDS[stepIndex];
+    const base = ['education', 'currentStatus'];
+    const status = watch('currentStatus');
+    if (status === 'STUDENT') base.push('student.institution', 'student.course', 'student.yearSemester', 'student.city');
+    else if (status === 'WORKING_PROFESSIONAL') base.push('professional.company', 'professional.designation', 'professional.industry', 'professional.city');
+    else if (status === 'SELF_EMPLOYED' || status === 'OTHER') base.push('selfEmployed.profession', 'selfEmployed.city');
+    else if (status === 'RETIRED') base.push('retired.pastProfession');
+    return base;
+  };
+
   const validateStep = async (stepIndex: number): Promise<boolean> => {
-    const fields = STEP_FIELDS[stepIndex];
+    if (stepIndex === 4) return validateKindness();
+    const fields = getStepFields(stepIndex);
     if (fields.length === 0) return true;
     const results = await Promise.all(fields.map((f) => trigger(f as never)));
     const valid = results.every(Boolean);

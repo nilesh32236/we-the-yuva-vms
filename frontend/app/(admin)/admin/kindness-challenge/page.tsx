@@ -97,7 +97,7 @@ export default function AdminKindnessPage() {
                   <td className="px-4 py-3">{r.part2UnlockedAt ? 'unlocked' : 'locked'}</td>
                   <td className="px-4 py-3">{r.user.part2?.completedAt ? 'yes' : '—'}</td>
                   <td className="px-4 py-3">{r.user.part2?.volunteerRoleTier?.replaceAll('_', ' ') ?? '—'}</td>
-                  <td className="px-4 py-3 tabular-nums">{r.dailyPosts ?? 0}{r.lastPostDay ? ` (d${r.lastPostDay})` : ''}</td>
+                  <td className="px-4 py-3 tabular-nums">{r.dailyPosts ?? 0}{r.lastPostDay != null ? ` (d${r.lastPostDay})` : ''}</td>
                 </tr>
               ))}
               {data?.length === 0 && (

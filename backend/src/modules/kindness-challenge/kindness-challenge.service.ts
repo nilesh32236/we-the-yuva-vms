@@ -1,4 +1,4 @@
-import { type ChallengeStatus, type KindnessChallenge } from '@prisma/client';
+import type { ChallengeStatus, KindnessChallenge } from '@prisma/client';
 import { AppError } from '@/middleware/error.middleware';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -142,22 +142,28 @@ export async function linkExistingStory(userId: string, storyId: string, now: Da
   }
 }
 
-/** Cohort selection for the daily reminder job (Task 8). */
-export async function createKindnessPost(userId: string, data: { title: string; content: string; mediaUrl?: string; kindnessChallengeId?: string; isCompletion?: boolean }, now: Date = new Date()) {
-  const { istDayNumber } = await import('@/modules/kindness-challenge/date.utils');
+/** Validate the context for posting a daily kindness update (no writes — stories service owns creation). */
+export async function validateKindnessPostContext(
+  userId: string,
+  data: { kindnessChallengeId?: string },
+  now: Date = new Date()
+) {
   if (!data.kindnessChallengeId) throw new AppError('kindnessChallengeId is required', 422);
-  const challenge = await prisma.kindnessChallenge.findUnique({ where: { id: data.kindnessChallengeId } });
-  if (!challenge || challenge.userId !== userId) throw new AppError('Challenge not found', 404);
+  const challenge = await prisma.kindnessChallenge.findFirst({
+    where: { id: data.kindnessChallengeId, userId },
+  });
+  if (!challenge) throw new AppError('Challenge not found', 404);
   if (challenge.status !== 'ACTIVE') throw new AppError('Challenge is already completed', 409);
   const day = istDayNumber(challenge.startDate, now);
-  if (day < 1 || day > 7) throw new AppError('Not within challenge window', 422);
-  if (day > 7) throw new AppError('Not within challenge window', 422);
-  // isCompletion handled via stories service transaction, but also allow direct
+  if (day < 1 || day > CHALLENGE_DAYS) throw new AppError('Not within challenge window', 422);
   return { challenge, day };
 }
 
 export async function listKindnessPosts(userId: string) {
-  const challenge = await prisma.kindnessChallenge.findUnique({ where: { userId } });
+  const challenge = await prisma.kindnessChallenge.findFirst({
+    where: { userId },
+    orderBy: { startDate: 'desc' },
+  });
   if (!challenge) return [];
   return prisma.story.findMany({
     where: { kindnessChallengeId: challenge.id },
@@ -183,7 +189,23 @@ export async function getReminderTargets(now: Date = new Date()) {
   return targets;
 }
 
-export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COMPLETED'; source?: string }) {
+type AdminChallengeRow = ChallengeWithRelations & {
+  user: {
+    id: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    whatsappNumber: string | null;
+    referralSource: string | null;
+    createdAt: Date;
+    part2: { volunteerRoleTier: string | null; lifeSkills: string[]; completedAt: Date | null } | null;
+  };
+  story: { id: string; title: string } | null;
+  dailyPosts: number;
+  lastPostDay: number | null;
+};
+
+export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COMPLETED'; source?: string }): Promise<AdminChallengeRow[]> {
   const challenges = await prisma.kindnessChallenge.findMany({
     where: {
       ...(filters.status ? { status: filters.status } : {}),
@@ -219,21 +241,16 @@ export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COM
     : [];
   const byChallenge = new Map<string, { count: number; lastDay: number | null }>();
   for (const s of stories) {
-    const id = s.kindnessChallengeId as string;
-    const cur = byChallenge.get(id) ?? { count: 0, lastDay: null };
+    if (!s.kindnessChallengeId) continue;
+    const cur = byChallenge.get(s.kindnessChallengeId) ?? { count: 0, lastDay: null };
     cur.count += 1;
-    if (s.kindnessDay != null) cur.lastDay = s.kindnessDay as number;
-    byChallenge.set(id, cur);
+    if (s.kindnessDay != null) cur.lastDay = s.kindnessDay;
+    byChallenge.set(s.kindnessChallengeId, cur);
   }
 
   return challenges.map((c) => ({
     ...c,
     dailyPosts: byChallenge.get(c.id)?.count ?? 0,
     lastPostDay: byChallenge.get(c.id)?.lastDay ?? null,
-  })) as unknown as Promise<Array<ChallengeWithRelations & {
-    user: { id: string; name: string; email: string | null; phone: string | null; whatsappNumber: string | null; referralSource: string | null; createdAt: Date; part2: { volunteerRoleTier: string | null; lifeSkills: string[]; completedAt: Date | null } | null };
-    story: { id: string; title: string } | null;
-    dailyPosts: number;
-    lastPostDay: number | null;
-  }>>;
+  }));
 }

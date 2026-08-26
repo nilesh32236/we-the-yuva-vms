@@ -40,10 +40,11 @@ export function useMyChallenge() {
   });
 }
 
-export function useKindnessPosts() {
+export function useKindnessPosts(enabled = true) {
   return useQuery<KindnessPost[]>({
     queryKey: ['kindness-challenge', 'me', 'posts'],
     queryFn: async () => (await api.get('/kindness-challenge/me/posts')).data,
     retry: false,
+    enabled,
   });
 }

@@ -7,14 +7,16 @@ import { FieldError } from './StepProps';
 const inputCls =
   'w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border';
 
-export function Step1PersonalInfo({ register, setValue, errors }: StepProps) {
+export function Step1PersonalInfo({ register, setValue, watch, errors }: StepProps) {
+  const avatarUrl = watch('avatarUrl');
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
         <FileUpload
           label="Profile Photo"
           accept="image/*"
-          onUpload={(url) => setValue('avatarUrl', url, { shouldValidate: true })}
+          previewUrl={avatarUrl ?? null}
+          onUpload={(url) => setValue('avatarUrl', url, { shouldValidate: true, shouldDirty: true })}
         />
         <FieldError message={errors.avatarUrl?.message} />
       </div>

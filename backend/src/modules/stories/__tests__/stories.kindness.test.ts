@@ -37,9 +37,8 @@ describe('createStory kindness daily', () => {
 
   it('rejects when day out of window (future)', async () => {
     const { istDayNumber } = await import('@/modules/kindness-challenge/date.utils');
-    vi.mocked(istDayNumber as unknown as { mockReturnValue: (v: number) => void }).mockReturnValue(8);
+    vi.mocked(istDayNumber).mockReturnValueOnce(8);
     vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ id: 'c1', userId: 'u1', status: 'ACTIVE', startDate: new Date() } as never);
     await expect(createStory('u1', { title: 'T', content: 'C'.repeat(20), kindnessChallengeId: 'c1' } as never)).rejects.toMatchObject({ status: 422 });
-    vi.mocked(istDayNumber as unknown as { mockReturnValue: (v: number) => void }).mockReturnValue(3);
   });
 });
