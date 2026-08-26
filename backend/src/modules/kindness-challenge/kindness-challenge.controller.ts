@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import {
   getMyChallenge,
   listChallengesForAdmin,
+  listKindnessPosts,
   checkIn,
   linkExistingStory,
   startChallenge,
@@ -29,6 +30,10 @@ export async function linkStoryHandler(req: Request, res: Response, _next: NextF
 export async function adminListChallengesHandler(req: Request, res: Response, _next: NextFunction) {
   const { status, source } = req.query as { status?: 'ACTIVE' | 'COMPLETED'; source?: string };
   res.json(await listChallengesForAdmin({ status, source }));
+}
+
+export async function listKindnessPostsHandler(req: Request, res: Response, _next: NextFunction) {
+  res.json(await listKindnessPosts(req.user!.id));
 }
 
 export async function adminExportChallengesHandler(req: Request, res: Response, _next: NextFunction) {
