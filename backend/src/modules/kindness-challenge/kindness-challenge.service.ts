@@ -235,7 +235,7 @@ export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COM
   const stories = ids.length
     ? await prisma.story.findMany({
         where: { kindnessChallengeId: { in: ids } },
-        select: { kindnessChallengeId: true, kindnessDay: true },
+        select: { kindnessChallengeId: true, kindnessDay: true, isCompletion: true },
         orderBy: { kindnessDay: 'asc' },
       })
     : [];
@@ -243,7 +243,7 @@ export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COM
   for (const s of stories) {
     if (!s.kindnessChallengeId) continue;
     const cur = byChallenge.get(s.kindnessChallengeId) ?? { count: 0, lastDay: null };
-    cur.count += 1;
+    if (!s.isCompletion) cur.count += 1;
     if (s.kindnessDay != null) cur.lastDay = s.kindnessDay;
     byChallenge.set(s.kindnessChallengeId, cur);
   }
