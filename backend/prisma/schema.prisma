@@ -394,6 +394,7 @@ model VolunteerProfile {
 }
 
 model VolunteerOnboardingPart2 {
+  // NOTE: lifeSkills/supportResources/preferredDays/preferredTimeSlots are TEXT[] not enum[] — Zod Part2Schema enforces enum values at app layer; DB stays TEXT[] for dev-stage flexibility per spec §1 (matches VolunteerProfile pattern). Add CHECK constraint if strict DB enforcement desired later.
   id     String @id @default(cuid())
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
