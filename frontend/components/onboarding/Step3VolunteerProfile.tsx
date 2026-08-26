@@ -151,14 +151,14 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             }}
             className={inputCls}
           />
-          <Button variant="ghost" size="sm" onClick={addSkill} className="bg-brand-primary/10 hover:bg-brand-primary/20">Add</Button>
+          <Button variant="ghost" size="sm" onClick={addSkill} className="bg-brand-primary/10 hover:bg-brand-primary/20 hover:text-brand-primary">Add</Button>
         </div>
         {skills.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {skills.map((s) => (
               <span key={s} className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full px-3 py-1 text-xs">
                 {s}
-                <Button variant="icon" size="icon" className="h-6 w-6 min-h-0 min-w-0 p-0 hover:bg-transparent hover:text-brand-primary" aria-label={`Remove ${s}`} onClick={() => setValue('skills', skills.filter((x) => x !== s), { shouldValidate: true })}>×</Button>
+                <Button variant="icon" size="icon" className="h-6 w-6 min-h-0 min-w-0 p-1 -m-1 hover:bg-transparent hover:text-brand-primary relative" aria-label={`Remove ${s}`} onClick={() => setValue('skills', skills.filter((x) => x !== s), { shouldValidate: true })}>×</Button>
               </span>
             ))}
           </div>

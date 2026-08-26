@@ -55,7 +55,7 @@ export function Step3SkillsLanguages({ register, watch, setValue, errors }: Step
             <Button variant="ghost" size="sm" onClick={() => removeLanguage(idx)} className="text-brand-error hover:bg-brand-error/10 hover:text-brand-error">Remove</Button>
           </div>
         ))}
-        {languages.length < 10 && <Button variant="ghost" size="sm" onClick={addLanguage} className="bg-brand-primary/10 hover:bg-brand-primary/20">Add language</Button>}
+        {languages.length < 10 && <Button variant="ghost" size="sm" onClick={addLanguage} className="bg-brand-primary/10 hover:bg-brand-primary/20 hover:text-brand-primary">Add language</Button>}
         <FieldError message={errors.languages?.message as string} />
       </fieldset>
     </div>
