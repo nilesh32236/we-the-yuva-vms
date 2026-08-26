@@ -163,9 +163,9 @@ export default function KindnessChallengePage() {
         <Button variant="outline" fullWidth onClick={() => router.push(`/volunteer/stories/new?challenge=${challenge.id}`)}>
           Or write it in-app
         </Button>
-        <button type="button" onClick={() => linkRecent.mutate()} disabled={linkRecent.isPending} className="text-xs text-brand-muted underline cursor-pointer">
+        <Button variant="ghost" size="sm" onClick={() => linkRecent.mutate()} loading={linkRecent.isPending} className="text-brand-muted mt-2">
           I already posted my story — link it
-        </button>
+        </Button>
       </div>
     );
   }
