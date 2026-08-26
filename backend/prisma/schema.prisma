@@ -839,12 +839,19 @@ model Story {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kindnessChallenge KindnessChallenge?
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kindnessChallenge   KindnessChallenge?  @relation("KindnessDailyPosts", fields: [kindnessChallengeId], references: [id], onDelete: Cascade)
+  completionChallenge KindnessChallenge?  @relation("KindnessChallengeCompletion")
+
+  kindnessChallengeId String?
+  // Server-derived IST day (1..7) of the challenge when posted; validated in stories.service.
+  kindnessDay         Int?
+  isCompletion        Boolean             @default(false)
 
   @@index([published])
   @@index([createdAt])
   @@index([userId])
+  @@index([kindnessChallengeId, kindnessDay])
 }
 
 model BlogPost {
@@ -1063,7 +1070,8 @@ model KindnessChallenge {
   completedAt     DateTime?
   part2UnlockedAt DateTime?
   storyId         String?           @unique
-  story           Story?            @relation(fields: [storyId], references: [id], onDelete: SetNull)
+  story           Story?            @relation("KindnessChallengeCompletion", fields: [storyId], references: [id], onDelete: SetNull)
+  dailyPosts      Story[]           @relation("KindnessDailyPosts")
   checkIns        KindnessCheckIn[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt

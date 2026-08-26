@@ -4,12 +4,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CalendarDays, CheckCircle2, Circle, Share2, Sprout } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { FileUpload } from '../../../../components/shared/FileUpload';
 import { SkeletonCard } from '../../../../components/shared/SkeletonCard';
 import { Button } from '../../../../components/ui/Button';
 import { useToast } from '../../../../hooks/use-toast';
 import { api } from '../../../../lib/api';
-import { useMyChallenge } from '../../../../lib/kindness';
+import { useMyChallenge, useKindnessPosts } from '../../../../lib/kindness';
 
 const ACTS = [
   'Help someone without being asked',
@@ -30,9 +31,16 @@ const inputCls =
 
 export default function KindnessChallengePage() {
   const { data, isLoading } = useMyChallenge();
+  const enrolled = Boolean(data && 'challenge' in data);
+  const { data: posts } = useKindnessPosts(enrolled);
   const qc = useQueryClient();
   const router = useRouter();
   const { toast } = useToast();
+  const [showPostDialog, setShowPostDialog] = useState(false);
+  const [postTitle, setPostTitle] = useState('');
+  const [postContent, setPostContent] = useState('');
+  const [postMediaUrl, setPostMediaUrl] = useState('');
+  const [postIsCompletion, setPostIsCompletion] = useState(false);
 
   // Start form
   const [acts, setActs] = useState<string[]>([]);
@@ -42,6 +50,23 @@ export default function KindnessChallengePage() {
   }, [startDate]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['kindness-challenge'] });
+
+  const closePostDialog = useCallback(() => {
+    setShowPostDialog(false);
+    setPostTitle('');
+    setPostContent('');
+    setPostMediaUrl('');
+    setPostIsCompletion(false);
+  }, []);
+
+  useEffect(() => {
+    if (!showPostDialog) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closePostDialog();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showPostDialog, closePostDialog]);
 
   const start = useMutation({
     mutationFn: async () => {
@@ -76,6 +101,28 @@ export default function KindnessChallengePage() {
       invalidate();
     },
     onError: (e) => toast({ title: 'Error', description: (e as Error).message, variant: 'destructive' }),
+  });
+
+  const postWork = useMutation({
+    mutationFn: async (vars: { isCompletion: boolean }) => {
+      if (!data || !('challenge' in data)) throw new Error('No challenge');
+      const ch = (data as { challenge: { id: string } }).challenge;
+      const r = await api.post('/stories', {
+        title: postTitle.trim(),
+        content: postContent.trim(),
+        mediaUrl: postMediaUrl || undefined,
+        kindnessChallengeId: ch.id,
+        isCompletion: vars.isCompletion,
+      });
+      return r.data;
+    },
+    onSuccess: (_res, vars) => {
+      toast({ title: vars.isCompletion ? 'Challenge completed — Part II unlocked!' : 'Kindness work posted!' });
+      closePostDialog();
+      qc.invalidateQueries({ queryKey: ['kindness-challenge', 'me'] });
+      qc.invalidateQueries({ queryKey: ['kindness-challenge', 'me', 'posts'] });
+    },
+    onError: (e) => toast({ title: 'Error', description: (e as { response?: { data?: { error?: string } } })?.response?.data?.error ?? (e as Error).message, variant: 'destructive' }),
   });
 
   if (isLoading) return <SkeletonCard />;
@@ -150,6 +197,81 @@ export default function KindnessChallengePage() {
             ? `Check in — Day ${view.currentDay}`
             : 'Check-in opens tomorrow'}
       </Button>
+
+      <div className="rounded-2xl border border-brand-border p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-brand-text">My Kindness Work</p>
+          <Button variant="outline" size="sm" onClick={() => setShowPostDialog(true)}>Post Update</Button>
+        </div>
+        {posts && posts.length > 0 ? (
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {posts.map((post) => (
+              <div key={post.id} className="rounded-lg border border-brand-border p-3 text-left">
+                <div className="flex items-center gap-2 text-xs text-brand-muted">
+                  <span className="rounded-full bg-brand-primary/10 text-brand-primary px-2 py-0.5">Day {post.kindnessDay ?? '?'}</span>
+                  {post.isCompletion && <span className="rounded-full bg-brand-accent/20 text-brand-accent px-2 py-0.5">Completion</span>}
+                  <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                </div>
+                <p className="font-medium text-sm text-brand-text mt-1">{post.title}</p>
+                <p className="text-xs text-brand-muted line-clamp-2">{post.content}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-brand-muted">No posts yet — share what you did today.</p>
+        )}
+        <div className="flex gap-1">
+          {Array.from({ length: 7 }, (_, i) => i + 1).map((d) => {
+            const hasPost = posts?.some((p) => p.kindnessDay === d);
+            return <div key={d} className={`flex-1 h-2 rounded-full ${hasPost ? 'bg-brand-primary' : 'bg-brand-border'}`} title={`Day ${d}${hasPost ? ' ✓' : ''}`} />;
+          })}
+        </div>
+      </div>
+
+      {showPostDialog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closePostDialog();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' && e.target === e.currentTarget) closePostDialog();
+          }}
+        >
+          <div className="bg-brand-surface rounded-2xl shadow-xl border border-brand-border w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 space-y-4">
+            <h2 className="font-heading font-semibold text-lg text-brand-text">Post Kindness Work</h2>
+            <p className="text-xs text-brand-muted">Day {view.currentDay} · This will appear in your timeline. Check "Mark as completion" to unlock Part II.</p>
+            <div className="space-y-1.5">
+              <label htmlFor="postTitle" className="text-sm font-medium text-brand-text">Title *</label>
+              <input id="postTitle" value={postTitle} onChange={(e) => setPostTitle(e.target.value)} placeholder="e.g. Helped a neighbor today" maxLength={80} className={inputCls} />
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="postContent" className="text-sm font-medium text-brand-text">What did you do? * (20–1000)</label>
+              <textarea id="postContent" value={postContent} onChange={(e) => setPostContent(e.target.value)} rows={4} maxLength={1000} placeholder="Describe the kindness work you did..." className={inputCls} />
+              <p className="text-xs text-brand-muted text-right">{postContent.length}/1000</p>
+            </div>
+            <FileUpload onUpload={setPostMediaUrl} previewUrl={postMediaUrl || null} accept="image/*" label="Photo (optional)" />
+            <label className={`flex items-center gap-2 rounded-lg border border-brand-border px-3 py-2.5 ${view.currentDay >= 7 ? 'cursor-pointer' : 'opacity-60'}`}>
+              <input
+                type="checkbox"
+                checked={postIsCompletion}
+                disabled={view.currentDay < 7}
+                onChange={(e) => setPostIsCompletion(e.target.checked)}
+                className="accent-brand-primary"
+              />
+              <span className="text-sm">
+                Mark as completion (unlock Part II){view.currentDay < 7 ? ' — available from Day 7' : ''}
+              </span>
+            </label>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={closePostDialog}>Cancel</Button>
+              <Button variant="cta" className="flex-1" loading={postWork.isPending} disabled={!postTitle.trim() || postContent.trim().length < 20 || postWork.isPending} onClick={() => postWork.mutate({ isCompletion: postIsCompletion })}>Post</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="rounded-2xl border border-brand-border p-4">
         <p className="text-sm font-medium text-brand-text mb-2">My chosen acts</p>

@@ -22,10 +22,29 @@ export interface MyChallenge {
   view: ChallengeView;
 }
 
+export interface KindnessPost {
+  id: string;
+  title: string;
+  content: string;
+  mediaUrl?: string | null;
+  kindnessDay: number | null;
+  isCompletion: boolean;
+  createdAt: string;
+}
+
 export function useMyChallenge() {
   return useQuery<MyChallenge | null>({
     queryKey: ['kindness-challenge', 'me'],
     queryFn: async () => (await api.get('/kindness-challenge/me')).data,
     retry: false,
+  });
+}
+
+export function useKindnessPosts(enabled = true) {
+  return useQuery<KindnessPost[]>({
+    queryKey: ['kindness-challenge', 'me', 'posts'],
+    queryFn: async () => (await api.get('/kindness-challenge/me/posts')).data,
+    retry: false,
+    enabled,
   });
 }

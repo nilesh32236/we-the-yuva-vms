@@ -10,6 +10,7 @@ import {
   checkInHandler,
   getMyChallengeHandler,
   linkStoryHandler,
+  listKindnessPostsHandler,
   startChallengeHandler,
 } from './kindness-challenge.controller';
 
@@ -36,6 +37,8 @@ kindnessRouter.post('/', requirePermission(Permissions.CHALLENGE_PARTICIPATE), v
  *     security: [{ bearerAuth: [] }]
  */
 kindnessRouter.get('/me', requirePermission(Permissions.CHALLENGE_PARTICIPATE), getMyChallengeHandler);
+
+kindnessRouter.get('/me/posts', requirePermission(Permissions.CHALLENGE_PARTICIPATE), listKindnessPostsHandler);
 
 kindnessRouter.post('/check-in', requirePermission(Permissions.CHALLENGE_PARTICIPATE), checkInHandler);
 

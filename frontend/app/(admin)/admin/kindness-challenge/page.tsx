@@ -14,6 +14,8 @@ interface Row {
   storyId: string | null;
   part2UnlockedAt: string | null;
   checkIns: { day: number }[];
+  dailyPosts?: number;
+  lastPostDay?: number | null;
   user: {
     name: string;
     email: string | null;
@@ -74,7 +76,7 @@ export default function AdminKindnessPage() {
           <table className="w-full text-sm">
             <thead className="bg-brand-surface text-left text-brand-muted">
               <tr>
-                {['Registrant', 'WhatsApp', 'Registered', 'Source', 'Status', 'Check-ins', 'Story', 'Part II Unlock', 'Part II Done', 'Role Tier'].map((h) => (
+                {['Registrant', 'WhatsApp', 'Registered', 'Source', 'Status', 'Check-ins', 'Story', 'Part II Unlock', 'Part II Done', 'Role Tier', 'Daily Posts'].map((h) => (
                   <th key={h} className="px-4 py-3 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
@@ -95,10 +97,11 @@ export default function AdminKindnessPage() {
                   <td className="px-4 py-3">{r.part2UnlockedAt ? 'unlocked' : 'locked'}</td>
                   <td className="px-4 py-3">{r.user.part2?.completedAt ? 'yes' : '—'}</td>
                   <td className="px-4 py-3">{r.user.part2?.volunteerRoleTier?.replaceAll('_', ' ') ?? '—'}</td>
+                  <td className="px-4 py-3 tabular-nums">{r.dailyPosts ?? 0}{r.lastPostDay != null ? ` (d${r.lastPostDay})` : ''}</td>
                 </tr>
               ))}
               {data?.length === 0 && (
-                <tr><td colSpan={10} className="px-4 py-8 text-center text-brand-muted">No challenges found.</td></tr>
+                <tr><td colSpan={11} className="px-4 py-8 text-center text-brand-muted">No challenges found.</td></tr>
               )}
             </tbody>
           </table>
