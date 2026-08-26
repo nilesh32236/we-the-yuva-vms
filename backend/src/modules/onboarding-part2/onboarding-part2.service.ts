@@ -1,4 +1,5 @@
 import { AppError } from '@/middleware/error.middleware';
+import { logAudit } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 import type { Part2Data } from '@/shared/schemas/part2.schemas';
 
@@ -40,5 +41,12 @@ export async function upsertPart2(userId: string, userRole: string, input: Part2
       completedAt: now,
     },
   });
+  logAudit({
+    userId,
+    action: 'USER_UPDATE',
+    targetId: userId,
+    targetType: 'VolunteerOnboardingPart2',
+    metadata: { volunteerRoleTier: String(input.volunteerRoleTier) },
+  }).catch(() => {});
   return data;
 }
