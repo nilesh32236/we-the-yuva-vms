@@ -54,9 +54,66 @@ function stripHtml(value: string): string {
 
 export async function createStory(
   userId: string,
-  data: { title: string; content: string; mediaUrl?: string; challengeId?: string },
+  data: { title: string; content: string; mediaUrl?: string; challengeId?: string; kindnessChallengeId?: string; kindnessDay?: number; isCompletion?: boolean },
   now: Date = new Date()
 ) {
+  // Handle kindness daily post (new flow) — server-derive day, validate 1..7 && <=currentDay
+  if (data.kindnessChallengeId) {
+    const { istDayNumber } = await import('@/modules/kindness-challenge/date.utils');
+    const challenge = await prisma.kindnessChallenge.findUnique({ where: { id: data.kindnessChallengeId } });
+    if (!challenge || challenge.userId !== userId) throw new AppError('Challenge not found', 404);
+    if (challenge.status !== 'ACTIVE') throw new AppError('Challenge is already completed', 409);
+    const day = istDayNumber(challenge.startDate, now);
+    if (day < 1 || day > 7) throw new AppError('Not within challenge window', 422);
+    const isCompletion = !!data.isCompletion;
+    // Create story with kindness fields
+    const prismaAny = prisma as unknown as { $transaction: (fn: (tx: typeof prisma) => Promise<unknown>) => Promise<unknown> };
+    let story: { id: string };
+    if (typeof prismaAny.$transaction === 'function' && isCompletion) {
+      story = (await prismaAny.$transaction(async (tx) => {
+        const s = await tx.story.create({
+          data: {
+            title: stripHtml(data.title),
+            content: stripHtml(data.content),
+            mediaUrl: data.mediaUrl,
+            userId,
+            kindnessChallengeId: data.kindnessChallengeId,
+            kindnessDay: day,
+            isCompletion: true,
+          },
+        });
+        const completion = await tx.kindnessChallenge.updateMany({
+          where: { id: challenge.id, userId, status: 'ACTIVE', storyId: null },
+          data: { storyId: s.id, status: 'COMPLETED', completedAt: now, part2UnlockedAt: now },
+        });
+        if (completion.count !== 1) throw new AppError('Challenge is already completed', 409);
+        return s;
+      })) as { id: string };
+    } else {
+      const s = await prisma.story.create({
+        data: {
+          title: stripHtml(data.title),
+          content: stripHtml(data.content),
+          mediaUrl: data.mediaUrl,
+          userId,
+          kindnessChallengeId: data.kindnessChallengeId,
+          kindnessDay: day,
+          isCompletion: !!isCompletion,
+        },
+      });
+      if (isCompletion) {
+        const completion = await (prisma.kindnessChallenge as unknown as { updateMany: (args: unknown) => Promise<{ count: number }> }).updateMany({
+          where: { id: challenge.id, userId, status: 'ACTIVE', storyId: null },
+          data: { storyId: s.id, status: 'COMPLETED', completedAt: now, part2UnlockedAt: now },
+        });
+        if (completion.count !== 1) throw new AppError('Challenge is already completed', 409);
+      }
+      story = s as { id: string };
+    }
+    await logAudit({ userId, action: 'STORY_CREATE', targetId: story.id, targetType: 'Story' });
+    return story as Awaited<ReturnType<typeof prisma.story.create>>;
+  }
+
   // Pre-validate challenge eligibility BEFORE creating story to avoid orphan
   if (data.challengeId) {
     const { istDayNumber } = await import('@/modules/kindness-challenge/date.utils');

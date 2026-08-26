@@ -143,6 +143,28 @@ export async function linkExistingStory(userId: string, storyId: string, now: Da
 }
 
 /** Cohort selection for the daily reminder job (Task 8). */
+export async function createKindnessPost(userId: string, data: { title: string; content: string; mediaUrl?: string; kindnessChallengeId?: string; isCompletion?: boolean }, now: Date = new Date()) {
+  const { istDayNumber } = await import('@/modules/kindness-challenge/date.utils');
+  if (!data.kindnessChallengeId) throw new AppError('kindnessChallengeId is required', 422);
+  const challenge = await prisma.kindnessChallenge.findUnique({ where: { id: data.kindnessChallengeId } });
+  if (!challenge || challenge.userId !== userId) throw new AppError('Challenge not found', 404);
+  if (challenge.status !== 'ACTIVE') throw new AppError('Challenge is already completed', 409);
+  const day = istDayNumber(challenge.startDate, now);
+  if (day < 1 || day > 7) throw new AppError('Not within challenge window', 422);
+  if (day > 7) throw new AppError('Not within challenge window', 422);
+  // isCompletion handled via stories service transaction, but also allow direct
+  return { challenge, day };
+}
+
+export async function listKindnessPosts(userId: string) {
+  const challenge = await prisma.kindnessChallenge.findUnique({ where: { userId } });
+  if (!challenge) return [];
+  return prisma.story.findMany({
+    where: { kindnessChallengeId: challenge.id },
+    orderBy: { kindnessDay: 'asc' },
+  });
+}
+
 export async function getReminderTargets(now: Date = new Date()) {
   const challenges = await prisma.kindnessChallenge.findMany({
     where: { status: 'ACTIVE' },
