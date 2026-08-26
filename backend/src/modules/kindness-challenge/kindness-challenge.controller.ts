@@ -47,7 +47,7 @@ export async function adminExportChallengesHandler(req: Request, res: Response, 
     if (/^[=+\-@]/.test(s)) s = `'${s}`;
     return `"${s.replaceAll('"', '""')}"`;
   };
-  const header = 'name,email,whatsapp,registered_at,referral_source,status,checkins,story_shared,part2_unlocked,part2_completed,part2_role_tier,part2_life_skills,start_date';
+  const header = 'name,email,whatsapp,registered_at,referral_source,status,checkins,story_shared,part2_unlocked,part2_completed,part2_role_tier,part2_life_skills,daily_posts,last_post_day,start_date';
   const body = rows.map((r) =>
     [
       r.user.name,
@@ -62,6 +62,8 @@ export async function adminExportChallengesHandler(req: Request, res: Response, 
       (r.user as unknown as { part2?: { completedAt?: Date | null } }).part2?.completedAt ? 'yes' : 'no',
       (r.user as unknown as { part2?: { volunteerRoleTier?: string | null } }).part2?.volunteerRoleTier ?? '',
       ((r.user as unknown as { part2?: { lifeSkills?: string[] } }).part2?.lifeSkills ?? []).join(';'),
+      String((r as unknown as { dailyPosts?: number }).dailyPosts ?? 0),
+      String((r as unknown as { lastPostDay?: number | null }).lastPostDay ?? ''),
       r.startDate.toISOString().slice(0, 10),
     ]
       .map(esc)

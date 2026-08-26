@@ -184,7 +184,7 @@ export async function getReminderTargets(now: Date = new Date()) {
 }
 
 export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COMPLETED'; source?: string }) {
-  return prisma.kindnessChallenge.findMany({
+  const challenges = await prisma.kindnessChallenge.findMany({
     where: {
       ...(filters.status ? { status: filters.status } : {}),
       ...(filters.source ? { user: { referralSource: filters.source as never } } : {}),
@@ -206,8 +206,34 @@ export async function listChallengesForAdmin(filters: { status?: 'ACTIVE' | 'COM
       checkIns: { select: { day: true }, orderBy: { day: 'asc' } },
     },
     orderBy: { createdAt: 'desc' },
-  }) as Promise<Array<ChallengeWithRelations & {
+  });
+
+  // Daily posts per challenge (Story.kindnessChallengeId) — _count + last_post_day
+  const ids = challenges.map((c) => c.id);
+  const stories = ids.length
+    ? await prisma.story.findMany({
+        where: { kindnessChallengeId: { in: ids } },
+        select: { kindnessChallengeId: true, kindnessDay: true },
+        orderBy: { kindnessDay: 'asc' },
+      })
+    : [];
+  const byChallenge = new Map<string, { count: number; lastDay: number | null }>();
+  for (const s of stories) {
+    const id = s.kindnessChallengeId as string;
+    const cur = byChallenge.get(id) ?? { count: 0, lastDay: null };
+    cur.count += 1;
+    if (s.kindnessDay != null) cur.lastDay = s.kindnessDay as number;
+    byChallenge.set(id, cur);
+  }
+
+  return challenges.map((c) => ({
+    ...c,
+    dailyPosts: byChallenge.get(c.id)?.count ?? 0,
+    lastPostDay: byChallenge.get(c.id)?.lastDay ?? null,
+  })) as unknown as Promise<Array<ChallengeWithRelations & {
     user: { id: string; name: string; email: string | null; phone: string | null; whatsappNumber: string | null; referralSource: string | null; createdAt: Date; part2: { volunteerRoleTier: string | null; lifeSkills: string[]; completedAt: Date | null } | null };
     story: { id: string; title: string } | null;
+    dailyPosts: number;
+    lastPostDay: number | null;
   }>>;
 }
