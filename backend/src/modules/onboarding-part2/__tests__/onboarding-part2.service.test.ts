@@ -44,17 +44,26 @@ function validInput() {
 describe('getPart2', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('rejects when role not VOLUNTEER (403)', async () => {
+  it('rejects when role not VOLUNTEER (ADMIN)', async () => {
     await expect(getPart2('u1', 'ADMIN')).rejects.toMatchObject({ status: 403 });
   });
-
-  it('returns unlocked false when part2UnlockedAt missing', async () => {
-    vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: null } as never);
+  it('rejects when role COORDINATOR', async () => {
+    await expect(getPart2('u1', 'COORDINATOR')).rejects.toMatchObject({ status: 403 });
+  });
+  it('rejects when role ORGANIZATION_ADMIN', async () => {
+    await expect(getPart2('u1', 'ORGANIZATION_ADMIN')).rejects.toMatchObject({ status: 403 });
+  });
+  it('returns unlocked false when challenge is null', async () => {
+    vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue(null);
     const r = await getPart2('u1', 'VOLUNTEER');
     expect(r.unlocked).toBe(false);
     expect(r.data).toBe(null);
   });
-
+  it('returns unlocked false when part2UnlockedAt null', async () => {
+    vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: null } as never);
+    const r = await getPart2('u1', 'VOLUNTEER');
+    expect(r.unlocked).toBe(false);
+  });
   it('returns unlocked true + data when unlocked and row exists', async () => {
     vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: new Date() } as never);
     vi.mocked(prisma.volunteerOnboardingPart2.findUnique).mockResolvedValue({ id: 'p1' } as never);
@@ -62,7 +71,6 @@ describe('getPart2', () => {
     expect(r.unlocked).toBe(true);
     expect(r.data).toEqual({ id: 'p1' });
   });
-
   it('returns unlocked true + null when unlocked but no row yet', async () => {
     vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: new Date() } as never);
     vi.mocked(prisma.volunteerOnboardingPart2.findUnique).mockResolvedValue(null);
@@ -75,15 +83,20 @@ describe('getPart2', () => {
 describe('upsertPart2', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('rejects when role not VOLUNTEER', async () => {
+  it('rejects when role not VOLUNTEER (COORDINATOR)', async () => {
     await expect(upsertPart2('u1', 'COORDINATOR', validInput())).rejects.toBeInstanceOf(AppError);
   });
-
-  it('rejects when locked (403)', async () => {
+  it('rejects when role ADMIN', async () => {
+    await expect(upsertPart2('u1', 'ADMIN', validInput())).rejects.toMatchObject({ status: 403 });
+  });
+  it('rejects when locked (part2UnlockedAt null)', async () => {
     vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: null } as never);
     await expect(upsertPart2('u1', 'VOLUNTEER', validInput())).rejects.toMatchObject({ status: 403 });
   });
-
+  it('rejects when challenge null (locked)', async () => {
+    vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue(null);
+    await expect(upsertPart2('u1', 'VOLUNTEER', validInput())).rejects.toMatchObject({ status: 403 });
+  });
   it('upserts and sets completedAt', async () => {
     vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: new Date() } as never);
     vi.mocked(prisma.volunteerOnboardingPart2.upsert).mockResolvedValue({ id: 'p1', completedAt: new Date() } as never);
@@ -92,5 +105,21 @@ describe('upsertPart2', () => {
     const args = vi.mocked(prisma.volunteerOnboardingPart2.upsert).mock.calls[0][0] as { create: { completedAt: Date }; update: { completedAt: Date } };
     expect(args.create.completedAt).toBeInstanceOf(Date);
     expect(args.update.completedAt).toBeInstanceOf(Date);
+  });
+  it('upserts with correct where userId', async () => {
+    vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: new Date() } as never);
+    vi.mocked(prisma.volunteerOnboardingPart2.upsert).mockResolvedValue({ id: 'p1' } as never);
+    await upsertPart2('user123', 'VOLUNTEER', validInput());
+    const args = vi.mocked(prisma.volunteerOnboardingPart2.upsert).mock.calls[0][0] as { where: { userId: string } };
+    expect(args.where.userId).toBe('user123');
+  });
+  it('creates with input data spread', async () => {
+    vi.mocked(prisma.kindnessChallenge.findUnique).mockResolvedValue({ part2UnlockedAt: new Date() } as never);
+    vi.mocked(prisma.volunteerOnboardingPart2.upsert).mockResolvedValue({ id: 'p1' } as never);
+    const input = validInput();
+    await upsertPart2('u1', 'VOLUNTEER', input);
+    const args = vi.mocked(prisma.volunteerOnboardingPart2.upsert).mock.calls[0][0] as { create: Record<string, unknown> };
+    expect(args.create.kindnessReflection).toBe(input.kindnessReflection);
+    expect(args.create.lifeSkills).toEqual(input.lifeSkills);
   });
 });
