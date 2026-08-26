@@ -842,9 +842,14 @@ model Story {
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   kindnessChallenge KindnessChallenge?
 
+  kindnessChallengeId String?
+  kindnessDay         Int?
+  isCompletion        Boolean             @default(false)
+
   @@index([published])
   @@index([createdAt])
   @@index([userId])
+  @@index([kindnessChallengeId, kindnessDay])
 }
 
 model BlogPost {
