@@ -8,6 +8,7 @@ Volunteer Management System (VMS) for **WeTheYuva** — connecting volunteers wi
 ## Key Conventions
 
 - **Path alias**: `@/*` maps to project root
+- **Hooks**: `hooks/` uses camelCase (`useAuth.ts`, `useOfflineCheckin.ts`); `use-toast.ts` is kebab-case as upstream shadcn convention — this is intentional
 - **Biome**: spaces (2) indent, single quotes, trailing commas (es5), semicolons always
 - **Lint**: `pnpm lint` → `biome lint app components lib hooks`
 - **Typecheck**: `pnpm typecheck` → `tsc --noEmit`
