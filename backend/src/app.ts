@@ -44,6 +44,7 @@ import { chatRouter } from './modules/chat/chat.routes';
 import { kindnessRouter } from './modules/kindness-challenge/kindness-challenge.routes';
 import { youthProfilesRouter } from './modules/youth-profiles/youth-profiles.routes';
 import { onboardingPart2Router } from './modules/onboarding-part2/onboarding-part2.routes';
+import { PUBLIC_UPLOADS_DIR } from './modules/upload/upload.service';
 
 export function createApp(): Express {
   const app = express();
@@ -169,6 +170,7 @@ export function createApp(): Express {
 
   // Serve uploaded files — if S3 is configured, proxy to S3 when file not found locally
   // This allows frontend to always use /uploads/<filename> (or full backend URL) without needing direct S3 URL with Signature
+  // Only PUBLIC_UPLOADS_DIR is exposed; private files are served via authenticated /api/v1/upload/private/:filename
   app.get('/uploads/:filename', async (req, res, next) => {
     try {
       const filename = req.params.filename;
@@ -177,7 +179,7 @@ export function createApp(): Express {
         res.status(400).json({ error: 'Invalid filename' });
         return;
       }
-      const localPath = path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads', filename);
+      const localPath = path.resolve(PUBLIC_UPLOADS_DIR, filename);
       // Check local file first (covers non-S3 mode and files that haven't been uploaded to S3 yet)
       try {
         await fs.promises.access(localPath, fs.constants.R_OK);
@@ -236,9 +238,15 @@ export function createApp(): Express {
   });
 
   // Fallback static for any remaining /uploads requests (e.g., directory listing, if any)
+  // Hardened: only PUBLIC_UPLOADS_DIR, with nosniff and script-restricting CSP
   app.use(
     '/uploads',
-    express.static(path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads'), { maxAge: '1d', etag: true })
+    (_req, res, next) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'");
+      next();
+    },
+    express.static(PUBLIC_UPLOADS_DIR, { maxAge: '1d', etag: true })
   );
 
   // Swagger/OpenAPI docs

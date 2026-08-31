@@ -15,12 +15,41 @@ import {
 
 export const authRouter: IRouter = Router();
 
+function normalizeIp(ip: string | undefined): string {
+  if (!ip) return 'unknown';
+  // IPv4-mapped IPv6 (e.g. ::ffff:192.0.2.1) -> treat as IPv4
+  if (ip.includes(':') && ip.includes('.')) {
+    const v4 = ip.match(/(\d+\.\d+\.\d+\.\d+)$/)?.[1];
+    if (v4) return v4;
+  }
+  if (ip.includes(':')) {
+    // Normalize IPv6 to /56 subnet to prevent rotation within delegated prefix
+    // Express-rate-limit 8.x ipKeyGenerator masks to /56; we replicate locally for 7.x
+    let expanded = ip;
+    if (ip.includes('::')) {
+      const [head, tail] = ip.split('::');
+      const headParts = head ? head.split(':').filter(Boolean) : [];
+      const tailParts = tail ? tail.split(':').filter(Boolean) : [];
+      const missing = 8 - headParts.length - tailParts.length;
+      const zeros = Array(Math.max(0, missing)).fill('0');
+      const full = [...headParts, ...zeros, ...tailParts];
+      expanded = full.join(':');
+    }
+    const parts = expanded.split(':');
+    // /56 = first 3 full hextets + high byte of 4th hextet
+    // Simplified to first 4 hextets (/64) which still collapses common allocations;
+    // using 3 hextets would be broader (/48). Use 4 to balance.
+    return parts.slice(0, 4).join(':');
+  }
+  return ip;
+}
+
 function emailKey(req: Request): string {
   const email =
     typeof (req.body as { email?: unknown } | undefined)?.email === 'string'
       ? (req.body as { email: string }).email.toLowerCase()
       : 'unknown';
-  return `${req.ip}:${email}`;
+  return `${normalizeIp(req.ip)}:${email}`;
 }
 
 const sendOtpLimiter = rateLimit({
@@ -35,7 +64,7 @@ const sendOtpLimiter = rateLimit({
 const sendOtpIpLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
-  keyGenerator: (req) => `send-otp-ip:${req.ip}`,
+  keyGenerator: (req) => `send-otp-ip:${normalizeIp(req.ip)}`,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many OTP requests from this device. Please try again later.' },
@@ -53,7 +82,7 @@ const verifyOtpLimiter = rateLimit({
 const verifyOtpIpLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   max: 25,
-  keyGenerator: (req) => `verify-otp-ip:${req.ip}`,
+  keyGenerator: (req) => `verify-otp-ip:${normalizeIp(req.ip)}`,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many verification attempts from this device. Please try again later.' },

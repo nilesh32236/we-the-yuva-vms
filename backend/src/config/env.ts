@@ -53,13 +53,13 @@ if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PRIVATE_KEY) {
   console.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
 }
 
-if (parsed.success && parsed.data.ALLOW_DEV_OTP) {
-  if (parsed.data.NODE_ENV === 'production') {
-    console.error(
-      '❌ ALLOW_DEV_OTP cannot be enabled in production — dev OTP would be exposed to clients. Exiting.'
-    );
-    process.exit(1);
-  }
+if (parsed.data.NODE_ENV === 'production' && parsed.data.ALLOW_DEV_OTP) {
+  console.error(
+    '❌ ALLOW_DEV_OTP cannot be enabled in production — dev OTP would be exposed to clients. Exiting.'
+  );
+  process.exit(1);
+}
+if (parsed.data.ALLOW_DEV_OTP) {
   console.warn(
     '⚠️  ALLOW_DEV_OTP is enabled — dev OTP is exposed in API responses and the ' +
       'universal OTP 000000 is accepted. Only for test/staging, NEVER production.'

@@ -704,7 +704,7 @@ export async function checkIn(
 
   if (qrToken) {
     if (event.qrToken !== qrToken) throw new AppError('Invalid QR code', 400);
-    if (event.qrExpiresAt && new Date() > event.qrExpiresAt) {
+    if (!event.qrExpiresAt || new Date() > event.qrExpiresAt) {
       throw new AppError('QR code has expired', 400);
     }
   }

@@ -8,25 +8,50 @@ import { AppError } from '../../middleware/error.middleware';
 import { logger } from '../../lib/logger';
 
 // HF Spaces has read-only filesystem except /tmp; use env var or /tmp/uploads
-const UPLOADS_DIR = path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads');
+export const PUBLIC_UPLOADS_DIR = path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads');
+export const PRIVATE_UPLOADS_DIR = path.resolve(
+  process.env.PRIVATE_UPLOADS_DIR || '/tmp/private-uploads'
+);
+export const TMP_UPLOADS_DIR = path.resolve(process.env.TMP_UPLOADS_DIR || '/tmp/tmp-uploads');
+
+function isSubPath(parent: string, child: string): boolean {
+  const rel = path.relative(parent, child);
+  return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+}
+
+function validateUploadDirs(): void {
+  if (isSubPath(PUBLIC_UPLOADS_DIR, PRIVATE_UPLOADS_DIR)) {
+    throw new Error(
+      `PRIVATE_UPLOADS_DIR (${PRIVATE_UPLOADS_DIR}) must not be equal to or inside PUBLIC_UPLOADS_DIR (${PUBLIC_UPLOADS_DIR})`
+    );
+  }
+}
+validateUploadDirs();
 
 let uploadsDirReady = false;
 
 async function ensureUploadsDir() {
   if (uploadsDirReady) return;
   try {
-    await fs.promises.mkdir(UPLOADS_DIR, { recursive: true });
+    await fs.promises.mkdir(PUBLIC_UPLOADS_DIR, { recursive: true });
+    await fs.promises.mkdir(PRIVATE_UPLOADS_DIR, { recursive: true });
+    await fs.promises.mkdir(TMP_UPLOADS_DIR, { recursive: true });
     uploadsDirReady = true;
   } catch (err) {
     logger.error('Failed to create uploads directory', { error: (err as Error).message });
-    throw new AppError(`Uploads directory not writable at ${UPLOADS_DIR}`, 500);
+    throw new AppError(`Uploads directory not writable`, 500);
   }
+}
+
+async function ensurePrivateUploadsDir() {
+  await ensureUploadsDir();
 }
 
 const storage = multer.diskStorage({
   destination: async (_req, _file, cb) => {
     await ensureUploadsDir();
-    cb(null, UPLOADS_DIR);
+    // Always write to non-public temp dir first; processUpload moves to final location
+    cb(null, TMP_UPLOADS_DIR);
   },
   filename: (_req, file, cb) => {
     const uniqueSuffix = `${Date.now()}-${crypto.randomUUID()}`;
@@ -40,7 +65,6 @@ const ALLOWED_MIMES = new Set([
   'image/png',
   'image/gif',
   'image/webp',
-  'image/svg+xml',
   'video/mp4',
   'video/webm',
   'application/pdf',
@@ -79,11 +103,6 @@ function sniffContentType(buffer: Buffer): string | null {
   ) {
     return 'image/webp';
   }
-  // SVG: XML document containing <svg (peek within the first 1KB)
-  const head = buffer.toString('utf8', 0, Math.min(buffer.length, 1024));
-  if (/<svg[\s>]/.test(head) || (/^<\?xml/.test(head) && /<svg[\s>]/.test(head))) {
-    return 'image/svg+xml';
-  }
   // PDF
   if (buffer.toString('ascii', 0, 4) === '%PDF') return 'application/pdf';
   // MP4/MOV: box header with 'ftyp' at offset 4
@@ -115,14 +134,14 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ) => {
-  const extAllowed = /\.(jpg|jpeg|png|gif|webp|svg|mp4|webm|pdf)$/i.test(
+  const extAllowed = /\.(jpg|jpeg|png|gif|webp|mp4|webm|pdf)$/i.test(
     path.extname(file.originalname)
   );
   const mimeAllowed = ALLOWED_MIMES.has(file.mimetype);
   if (extAllowed && mimeAllowed) return cb(null, true);
   cb(
     new AppError(
-      'Only images (jpg, png, gif, webp, svg), videos (mp4, webm), and PDFs are allowed',
+      'Only images (jpg, png, gif, webp), videos (mp4, webm), and PDFs are allowed',
       400
     )
   );
@@ -136,6 +155,10 @@ export const upload = multer({
 
 export function getUploadUrl(filename: string): string {
   return `/uploads/${filename}`;
+}
+
+export function getPrivateUploadUrl(filename: string): string {
+  return `/api/v1/upload/private/${filename}`;
 }
 
 const isS3Configured = !!(
@@ -156,7 +179,10 @@ const s3Client = isS3Configured
     })
   : null;
 
-export async function processUpload(file: Express.Multer.File): Promise<string> {
+export async function processUpload(
+  file: Express.Multer.File,
+  isPrivate = false
+): Promise<string> {
   try {
     assertContentMatches(file.path, file.mimetype);
   } catch (err) {
@@ -169,14 +195,18 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
     throw err;
   }
 
+  const filename = file.filename ?? path.basename(file.path);
+  const finalUrl = isPrivate ? getPrivateUploadUrl(filename) : getUploadUrl(filename);
+
   if (s3Client && process.env.S3_BUCKET_NAME) {
     const fileStream = fs.createReadStream(file.path);
     try {
+      const key = isPrivate ? `private/${filename}` : filename;
       const upload = new Upload({
         client: s3Client,
         params: {
           Bucket: process.env.S3_BUCKET_NAME,
-          Key: file.filename,
+          Key: key,
           Body: fileStream,
           ContentType: file.mimetype,
         },
@@ -190,11 +220,7 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
         logger.warn(`Failed to delete local temp file ${file.path}:`, { error: (err as Error).message });
       }
 
-      // Always return backend-proxied /uploads URL (frontend uses plain <img>).
-      // The /uploads handler in app.ts will fetch from S3 if file not found locally,
-      // so we don't expose direct S3 URLs that require Signature (private bucket).
-      // This also keeps avatarUrl validation simple (/uploads/...).
-      return getUploadUrl(file.filename);
+      return finalUrl;
     } catch (err) {
       await fs.promises.unlink(file.path).catch((cleanupErr) =>
         logger.warn('File cleanup failed after S3 error', {
@@ -206,8 +232,19 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
     }
   }
 
-  // Fallback to local url
-  return getUploadUrl(file.filename);
+  // Local fallback: move from temp to final directory
+  await ensureUploadsDir();
+  const destDir = isPrivate ? PRIVATE_UPLOADS_DIR : PUBLIC_UPLOADS_DIR;
+  const destPath = path.join(destDir, filename);
+  try {
+    await fs.promises.rename(file.path, destPath);
+  } catch {
+    // Cross-device rename fallback
+    await fs.promises.copyFile(file.path, destPath);
+    await fs.promises.unlink(file.path).catch(() => {});
+  }
+
+  return finalUrl;
 }
 
 export function getS3Client(): S3Client | null {
