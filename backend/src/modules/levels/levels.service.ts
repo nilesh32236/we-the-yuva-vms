@@ -1,4 +1,5 @@
-import type { Level, Prisma } from '@prisma/client';
+import type { Level } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import type { CreateLevelRequestInput } from '@/shared';
 import { logger } from '../../lib/logger';
 import { prisma } from '../../lib/prisma';
@@ -144,6 +145,15 @@ export async function createLevelRequest(
     }
   }
 
+  if (user.currentLevelId === levelId) {
+    throw new AppError('You already hold this level', 400);
+  }
+
+  const alreadyEarned = await prisma.userLevel.findFirst({
+    where: { userId, levelId, status: { in: ['APPROVED', 'AUTO_APPROVED'] } },
+  });
+  if (alreadyEarned) throw new AppError('You have already earned this level', 400);
+
   const existing = await prisma.userLevel.findFirst({
     where: { userId, levelId, status: 'PENDING' },
   });
@@ -151,30 +161,40 @@ export async function createLevelRequest(
 
   const isAutoApproved = await checkAutoPromotion(userId, level);
 
-  const result = await prisma.$transaction(async (tx) => {
-    const created = await tx.userLevel.create({
-      data: {
-        userId,
-        levelId,
-        status: isAutoApproved ? 'AUTO_APPROVED' : 'PENDING',
-        proofUrls: data.proofUrls ?? [],
-        videoUrl: data.videoUrl,
-        proofData: data.proofData as Prisma.InputJsonValue,
-        notes: data.notes,
-        peerEndorsements: data.peerEndorsements as Prisma.InputJsonValue,
-        approvedAt: isAutoApproved ? new Date() : null,
-      },
-      include: { level: true },
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const created = await tx.userLevel.create({
+        data: {
+          userId,
+          levelId,
+          status: isAutoApproved ? 'AUTO_APPROVED' : 'PENDING',
+          proofUrls: data.proofUrls ?? [],
+          videoUrl: data.videoUrl,
+          proofData: data.proofData as Prisma.InputJsonValue,
+          notes: data.notes,
+          peerEndorsements: data.peerEndorsements as Prisma.InputJsonValue,
+          approvedAt: isAutoApproved ? new Date() : null,
+        },
+        include: { level: true },
+      });
+
+      if (isAutoApproved) {
+        await awardLevelPoints(tx, userId, level.id, level.id);
+      }
+
+      return created;
     });
 
-    if (isAutoApproved) {
-      await awardLevelPoints(tx, userId, level.id, level.id);
+    return result;
+  } catch (err) {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      (err as { code?: string }).code === 'P2002'
+    ) {
+      throw new AppError('You already have a pending request for this level', 400);
     }
-
-    return created;
-  });
-
-  return result;
+    throw err;
+  }
 }
 
 async function awardLevelPoints(
@@ -274,16 +294,41 @@ export async function reviewLevelRequest(
   }
 
   const result = await prisma.$transaction(async (tx) => {
-    const updated = await tx.userLevel.update({
-      where: { id: requestId },
+    // Atomically claim the request only if still PENDING — prevents double approval
+    const claim = await tx.userLevel.updateMany({
+      where: { id: requestId, status: 'PENDING' },
       data: updateData,
-      include: { level: true, user: { select: { id: true, name: true, email: true } } },
     });
+    if (claim.count !== 1) throw new AppError('Request already reviewed', 400);
 
     if (data.status === 'APPROVED') {
+      // Prevent awarding same level twice via concurrent separate requests
+      const alreadyEarned = await tx.userLevel.findFirst({
+        where: {
+          userId: request.userId,
+          levelId: request.levelId,
+          status: { in: ['APPROVED', 'AUTO_APPROVED'] },
+          id: { not: requestId },
+        },
+      });
+      if (alreadyEarned) throw new AppError('Level already earned', 400);
+
+      const user = await tx.user.findUnique({
+        where: { id: request.userId },
+        select: { currentLevelId: true },
+      });
+      if (user?.currentLevelId === request.levelId) {
+        throw new AppError('User already holds this level', 400);
+      }
+
       await awardLevelPoints(tx, request.userId, request.levelId, requestId);
     }
 
+    const updated = await tx.userLevel.findUnique({
+      where: { id: requestId },
+      include: { level: true, user: { select: { id: true, name: true, email: true } } },
+    });
+    if (!updated) throw new AppError('Request not found after update', 404);
     return updated;
   });
 

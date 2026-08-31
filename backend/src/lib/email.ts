@@ -37,6 +37,16 @@ if (provider === 'resend') {
 export const emailEnabled =
   (provider === 'resend' && !!resend) || (provider === 'smtp' && !!smtpTransporter);
 
+function maskEmail(email: string): string {
+  const at = email.indexOf('@');
+  if (at <= 1) return '[redacted]';
+  return `${email[0]}***${email.slice(at)}`;
+}
+
+function redactEmails(text: string): string {
+  return text.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[redacted]');
+}
+
 export async function sendEmail(
   to: string,
   subject: string,
@@ -73,6 +83,11 @@ export async function sendEmail(
   } catch (err) {
     // Never throw: email delivery is best-effort. On HF Spaces SMTP is often
     // unconfigured, so failure is expected and must not break the request flow.
-    logger.warn('Failed to send email', { to, subject, error: (err as Error).message });
+    const rawMessage = (err as Error).message ?? 'unknown';
+    logger.warn('Failed to send email', {
+      to: maskEmail(to),
+      subject,
+      error: redactEmails(rawMessage),
+    });
   }
 }
