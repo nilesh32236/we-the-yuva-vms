@@ -146,7 +146,7 @@ export default function SetupProfilePage() {
       setValue('retired', undefined as unknown as OnboardingData['retired'], { shouldValidate: false });
       clearErrors('retired.pastProfession');
     }
-  }, [currentStatus, setValue, clearErrors, control]);
+  }, [currentStatus, setValue, clearErrors]);
 
   const validateKindness = (): boolean => {
     if (!kindness.optedIn) {

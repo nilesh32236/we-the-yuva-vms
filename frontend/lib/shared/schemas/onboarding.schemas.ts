@@ -94,7 +94,11 @@ export const OnboardingSchema = z
     avatarUrl: z
       .union([
         z.string().trim().max(2048).url(),
-        z.string().trim().max(2048).regex(/^\/uploads\/[A-Za-z0-9._\/-]+$/, 'Invalid avatar path'),
+        z.string()
+          .trim()
+          .max(2048)
+          // biome-ignore lint/complexity/noUselessEscapeInRegex: allow escaped slash in regex literal
+          .regex(/^\/uploads\/[A-Za-z0-9._/-]+$/, 'Invalid avatar path'),
         z.literal(''),
       ])
       .optional(),
