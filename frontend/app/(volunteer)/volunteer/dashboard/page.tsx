@@ -142,7 +142,7 @@ export default function VolunteerDashboardPage() {
           <Link
             href="/volunteer/opportunities"
             onClick={() => haptic.light()}
-            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-brand-bg hover:bg-brand-secondary transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
+            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-brand-bg hover:bg-brand-secondary transition-colors cursor-pointer group active:scale-95 active-bounce touch-select-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
           >
             <p className="text-sm font-semibold">Browse Opportunities</p>
             <ArrowRight
@@ -153,7 +153,7 @@ export default function VolunteerDashboardPage() {
           <Link
             href="/volunteer/events"
             onClick={() => haptic.light()}
-            className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active:scale-98 active-bounce touch-select-none"
+            className="flex items-center justify-between p-4 rounded-xl border border-brand-border hover:bg-brand-bg transition-colors cursor-pointer group active:scale-95 active-bounce touch-select-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
           >
             <p className="text-sm font-medium text-brand-text">My Events</p>
             <ArrowRight

@@ -174,7 +174,7 @@ export default function YouthReflectionPage() {
                   aria-pressed={isSelected}
                   aria-invalid={!!errors.skillsDeveloped}
                   onClick={() => toggleSkill(s)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none
                     ${
                       isSelected
                         ? 'bg-brand-bg border-2 border-brand-primary text-brand-primary shadow-sm'
@@ -216,7 +216,7 @@ export default function YouthReflectionPage() {
                   aria-pressed={isSelected}
                   aria-invalid={!!errors.growthAreas}
                   onClick={() => toggleGrowth(g)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none
                     ${
                       isSelected
                         ? 'bg-brand-primary/10 border-2 border-brand-primary text-brand-primary shadow-sm'
@@ -259,7 +259,7 @@ export default function YouthReflectionPage() {
                 aria-label={`${star} star${star > 1 ? 's' : ''}`}
                 aria-invalid={!!errors.confidenceLevel}
                 onClick={() => setValue('confidenceLevel', star)}
-                className={`cursor-pointer p-2.5${errors.confidenceLevel ? ' rounded-lg ring-2 ring-brand-error' : ''}`}
+                className={`cursor-pointer p-2.5 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2 ${errors.confidenceLevel ? 'ring-2 ring-brand-error focus-visible:ring-brand-error' : ''}`}
               >
                 <Star
                   className={`w-8 h-8 transition-all ${
