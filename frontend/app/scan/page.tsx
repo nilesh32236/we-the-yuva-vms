@@ -81,14 +81,15 @@ function ScanInner() {
 
     let cancelled = false;
     let scanner: Html5Qrcode | null = null;
+    let isStarted = false;
 
     const initScanner = async () => {
-      const { Html5Qrcode: Html5QrcodeClass } = await import('html5-qrcode');
-      if (cancelled || !scannerContainer.current) return;
-      scanner = new Html5QrcodeClass('qr-scanner-container');
-      scannerRef.current = scanner;
-
       try {
+        const { Html5Qrcode: Html5QrcodeClass } = await import('html5-qrcode');
+        if (cancelled || !scannerContainer.current) return;
+        scanner = new Html5QrcodeClass('qr-scanner-container');
+        scannerRef.current = scanner;
+
         await scanner.start(
           { facingMode: 'environment' },
           {
@@ -123,7 +124,15 @@ function ScanInner() {
             // QR scan failed frame - ignore, keep scanning
           }
         );
-        if (!cancelled) setScannerReady(true);
+        isStarted = true;
+        if (cancelled) {
+          try {
+            await scanner.stop();
+          } catch {}
+          scannerRef.current = null;
+          return;
+        }
+        setScannerReady(true);
       } catch {
         if (!cancelled) {
           setErrorMsg('Camera access denied or unavailable. Switch to manual entry.');
@@ -136,9 +145,11 @@ function ScanInner() {
 
     return () => {
       cancelled = true;
-      scanner?.stop().catch(() => {});
-      scannerRef.current = null;
       setScannerReady(false);
+      if (isStarted && scanner) {
+        scanner.stop().catch(() => {});
+      }
+      scannerRef.current = null;
     };
   }, [mode, result, doCheckin, eventId]);
 
