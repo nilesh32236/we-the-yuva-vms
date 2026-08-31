@@ -1,4 +1,5 @@
 import 'express-async-errors';
+import fs from 'node:fs';
 import path from 'node:path';
 import { setupExpressErrorHandler } from '@sentry/node';
 import compression from 'compression';
@@ -166,7 +167,75 @@ export function createApp(): Express {
 
   app.use('/api/v1/upload', uploadRouter);
 
-  // Serve uploaded files
+  // Serve uploaded files — if S3 is configured, proxy to S3 when file not found locally
+  // This allows frontend to always use /uploads/<filename> (or full backend URL) without needing direct S3 URL with Signature
+  app.get('/uploads/:filename', async (req, res, next) => {
+    try {
+      const filename = req.params.filename;
+      // Basic sanitization: prevent path traversal, allow only safe chars
+      if (!filename || filename.includes('/') || filename.includes('\\') || filename.includes('..')) {
+        res.status(400).json({ error: 'Invalid filename' });
+        return;
+      }
+      const localPath = path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads', filename);
+      // Check local file first (covers non-S3 mode and files that haven't been uploaded to S3 yet)
+      try {
+        await fs.promises.access(localPath, fs.constants.R_OK);
+        // File exists locally — let static handler serve it (we send manually to avoid double handling)
+        res.sendFile(localPath, { maxAge: '1d', etag: true } as any);
+        return;
+      } catch {
+        // Not found locally — try S3 if configured
+      }
+
+      // Try S3 if configured
+      const { getS3Client, isS3Enabled } = await import('./modules/upload/upload.service');
+      if (isS3Enabled() && getS3Client()) {
+        const s3 = getS3Client()!;
+        const { GetObjectCommand } = await import('@aws-sdk/client-s3');
+        const bucket = process.env.S3_BUCKET_NAME!;
+        try {
+          const command = new GetObjectCommand({ Bucket: bucket, Key: filename });
+          const data = await s3.send(command);
+          if (!data.Body) {
+            res.status(404).json({ error: 'File not found' });
+            return;
+          }
+          // Set appropriate headers
+          if (data.ContentType) res.setHeader('Content-Type', data.ContentType);
+          if (data.ContentLength) res.setHeader('Content-Length', String(data.ContentLength));
+          if (data.ETag) res.setHeader('ETag', data.ETag);
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+          // Stream S3 body to response (Body can be Readable or Uint8Array)
+          const body = data.Body as any;
+          if (typeof body.pipe === 'function') {
+            body.pipe(res);
+          } else if (body instanceof Uint8Array) {
+            res.send(Buffer.from(body));
+          } else if (typeof body.transformToByteArray === 'function') {
+            const bytes = await body.transformToByteArray();
+            res.send(Buffer.from(bytes));
+          } else {
+            // Fallback: try to read as stream
+            res.send(body);
+          }
+          return;
+        } catch (s3Err) {
+          logger.warn('S3 GetObject failed, falling back to 404', {
+            filename,
+            error: (s3Err as Error).message,
+          });
+          // Fall through to 404
+        }
+      }
+
+      res.status(404).json({ error: 'File not found' });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Fallback static for any remaining /uploads requests (e.g., directory listing, if any)
   app.use(
     '/uploads',
     express.static(path.resolve(process.env.UPLOADS_DIR || '/tmp/uploads'), { maxAge: '1d', etag: true })
