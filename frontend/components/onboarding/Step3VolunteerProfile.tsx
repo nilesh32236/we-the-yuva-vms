@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { round1, WEEKS_PER_MONTH } from '@/lib/shared/schemas/onboarding.schemas';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
-import { WEEKS_PER_MONTH, round1 } from '@/lib/shared/schemas/onboarding.schemas';
-import { Button } from '@/components/ui/Button';
 
 const TYPES = [
   { value: 'STUDENT_VOLUNTEER', label: 'Student Volunteer' },
@@ -35,6 +35,63 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
   const hoursPerWeek = watch('timeCommitment.hoursPerWeek');
   const hoursPerMonth = watch('timeCommitment.hoursPerMonth');
   const [skillDraft, setSkillDraft] = useState('');
+  const lastEditedRef = useRef<'week' | 'month' | null>(null);
+
+  const handleWeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      lastEditedRef.current = null;
+      setValue('timeCommitment.hoursPerWeek', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      setValue('timeCommitment.hoursPerMonth', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
+    }
+    const v = Number(raw);
+    if (Number.isFinite(v)) {
+      lastEditedRef.current = 'week';
+      setValue('timeCommitment.hoursPerWeek', v as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue('timeCommitment.hoursPerMonth', round1(v * WEEKS_PER_MONTH) as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
+
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      lastEditedRef.current = null;
+      setValue('timeCommitment.hoursPerMonth', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      setValue('timeCommitment.hoursPerWeek', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
+    }
+    const v = Number(raw);
+    if (Number.isFinite(v)) {
+      lastEditedRef.current = 'month';
+      setValue('timeCommitment.hoursPerMonth', v as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue('timeCommitment.hoursPerWeek', round1(v / WEEKS_PER_MONTH) as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
 
   const addSkill = () => {
     const v = skillDraft.trim();
@@ -55,8 +112,16 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
         <legend className="text-sm font-medium text-brand-text">Volunteer Type *</legend>
         <div className="grid grid-cols-2 gap-2">
           {TYPES.map((t) => (
-            <label key={t.value} className="flex items-center gap-2 rounded-lg border border-brand-border px-3 py-2.5 min-h-11 cursor-pointer">
-              <input type="radio" value={t.value} className="accent-brand-primary" {...register('volunteerType')} />
+            <label
+              key={t.value}
+              className="flex items-center gap-2 rounded-lg border border-brand-border px-3 py-2.5 min-h-11 cursor-pointer"
+            >
+              <input
+                type="radio"
+                value={t.value}
+                className="accent-brand-primary"
+                {...register('volunteerType')}
+              />
               <span className="text-sm">{t.label}</span>
             </label>
           ))}
@@ -67,7 +132,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-1.5">
           <label htmlFor="hoursPerWeek" className="text-sm font-medium text-brand-text">
-            Hours per week
+            Hours per week *
           </label>
           <input
             id="hoursPerWeek"
@@ -75,16 +140,23 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             step="0.1"
             inputMode="decimal"
             className={inputCls}
-            {...register('timeCommitment.hoursPerWeek')}
+            {...register('timeCommitment.hoursPerWeek', { onChange: handleWeekChange })}
           />
           {hoursPerWeek != null && Number.isFinite(Number(hoursPerWeek)) && (
-            <p className="text-xs text-brand-muted">≈ {round1(Number(hoursPerWeek) * WEEKS_PER_MONTH)} h/month</p>
+            <p className="text-xs text-brand-muted">
+              ≈ {round1(Number(hoursPerWeek) * WEEKS_PER_MONTH)} h/month
+            </p>
           )}
-          <FieldError message={(errors.timeCommitment as { hoursPerWeek?: { message?: string } })?.hoursPerWeek?.message} />
+          <FieldError
+            message={
+              (errors.timeCommitment as { hoursPerWeek?: { message?: string } })?.hoursPerWeek
+                ?.message
+            }
+          />
         </div>
         <div className="space-y-1.5">
           <label htmlFor="hoursPerMonth" className="text-sm font-medium text-brand-text">
-            Hours per month
+            Hours per month *
           </label>
           <input
             id="hoursPerMonth"
@@ -92,12 +164,19 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             step="0.1"
             inputMode="decimal"
             className={inputCls}
-            {...register('timeCommitment.hoursPerMonth')}
+            {...register('timeCommitment.hoursPerMonth', { onChange: handleMonthChange })}
           />
           {hoursPerMonth != null && Number.isFinite(Number(hoursPerMonth)) && (
-            <p className="text-xs text-brand-muted">≈ {round1(Number(hoursPerMonth) / WEEKS_PER_MONTH)} h/week</p>
+            <p className="text-xs text-brand-muted">
+              ≈ {round1(Number(hoursPerMonth) / WEEKS_PER_MONTH)} h/week
+            </p>
           )}
-          <FieldError message={(errors.timeCommitment as { hoursPerMonth?: { message?: string } })?.hoursPerMonth?.message} />
+          <FieldError
+            message={
+              (errors.timeCommitment as { hoursPerMonth?: { message?: string } })?.hoursPerMonth
+                ?.message
+            }
+          />
         </div>
         <div className="hidden md:block" aria-hidden="true" />
         <div className="space-y-1.5 col-span-1 md:col-span-3">
@@ -111,7 +190,12 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             className={inputCls}
             {...register('timeCommitment.preferredDaysTimes')}
           />
-          <FieldError message={(errors.timeCommitment as { preferredDaysTimes?: { message?: string } })?.preferredDaysTimes?.message} />
+          <FieldError
+            message={
+              (errors.timeCommitment as { preferredDaysTimes?: { message?: string } })
+                ?.preferredDaysTimes?.message
+            }
+          />
         </div>
       </div>
       {(errors.timeCommitment as { message?: string })?.message && (
@@ -119,11 +203,21 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
       )}
 
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-brand-text">Opportunities that interest you *</legend>
+        <legend className="text-sm font-medium text-brand-text">
+          Opportunities that interest you *
+        </legend>
         <div className="space-y-2">
           {INTERESTS.map((i) => (
-            <label key={i.value} className="flex items-center gap-2 rounded-lg border border-brand-border px-3 py-2.5 min-h-11 cursor-pointer">
-              <input type="checkbox" value={i.value} className="accent-brand-primary" {...register('opportunityInterests')} />
+            <label
+              key={i.value}
+              className="flex items-center gap-2 rounded-lg border border-brand-border px-3 py-2.5 min-h-11 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                value={i.value}
+                className="accent-brand-primary"
+                {...register('opportunityInterests')}
+              />
               <span className="text-sm">{i.label}</span>
             </label>
           ))}
@@ -135,31 +229,68 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
         <label htmlFor="whyVoluntary" className="text-sm font-medium text-brand-text">
           What is your motivation for volunteering? *
         </label>
-        <textarea id="whyVoluntary" rows={3} maxLength={500} className={inputCls} {...register('whyVoluntary')} />
+        <textarea
+          id="whyVoluntary"
+          rows={3}
+          maxLength={500}
+          className={inputCls}
+          {...register('whyVoluntary')}
+        />
         <FieldError message={errors.whyVoluntary?.message} />
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="skills" className="text-sm font-medium text-brand-text">Skills you'd like to offer *</label>
+        <label htmlFor="skills" className="text-sm font-medium text-brand-text">
+          Skills you'd like to offer *
+        </label>
         <div className="flex gap-2">
           <input
             id="skills"
             value={skillDraft}
             onChange={(e) => setSkillDraft(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') { e.preventDefault(); addSkill(); }
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addSkill();
+              }
             }}
             className={inputCls}
           />
-          <Button variant="ghost" size="sm" onClick={addSkill} className="bg-brand-primary/10 hover:bg-brand-primary/20 hover:text-brand-primary">Add</Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="bg-brand-primary/10 hover:bg-brand-primary/20 hover:text-brand-primary"
+            onClick={addSkill}
+          >
+            Add
+          </Button>
         </div>
         {skills.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {skills.map((s) => (
-              <span key={s} className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full px-3 py-1 text-xs">
+              <div
+                key={s}
+                className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full px-3 py-1 text-xs"
+              >
                 {s}
-                <Button variant="icon" size="icon" className="h-6 w-6 min-h-0 min-w-0 p-1 -m-1 hover:bg-transparent hover:text-brand-primary" aria-label={`Remove ${s}`} onClick={() => setValue('skills', skills.filter((x) => x !== s), { shouldValidate: true })}>×</Button>
-              </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 min-h-0 min-w-0 p-1 -m-1 hover:bg-transparent hover:text-brand-primary"
+                  aria-label={`Remove ${s}`}
+                  onClick={() =>
+                    setValue(
+                      'skills',
+                      skills.filter((x) => x !== s),
+                      { shouldValidate: true }
+                    )
+                  }
+                >
+                  ×
+                </Button>
+              </div>
             ))}
           </div>
         )}
@@ -169,21 +300,31 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium text-brand-text">Digital Readiness</legend>
         {YESNO.map((q) => (
-          <label key={q.value} className="flex items-center justify-between gap-3 rounded-lg border border-brand-border px-3 py-2.5">
+          <label
+            key={q.value}
+            className="flex items-center justify-between gap-3 rounded-lg border border-brand-border px-3 py-2.5"
+          >
             <span className="text-sm">{q.label}</span>
-            <input type="checkbox" className="accent-brand-primary w-5 h-5" {...register(`digitalReadiness.${q.value}`)} />
+            <input
+              type="checkbox"
+              className="accent-brand-primary w-5 h-5"
+              {...register(`digitalReadiness.${q.value}`)}
+            />
           </label>
         ))}
         <div className="flex flex-wrap gap-2 pt-1">
           {TOOLS.map((t) => (
-            <button
+            <Button
               key={t}
               type="button"
+              variant={tools.includes(t) ? 'primary' : 'outline'}
+              size="sm"
+              aria-pressed={tools.includes(t)}
+              className="rounded-full px-3 py-1.5 text-xs border cursor-pointer min-h-0 h-auto"
               onClick={() => toggleTool(t)}
-              className={`rounded-full px-3 py-1.5 text-xs border cursor-pointer ${tools.includes(t) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-muted'}`}
             >
               {t}
-            </button>
+            </Button>
           ))}
         </div>
       </fieldset>
