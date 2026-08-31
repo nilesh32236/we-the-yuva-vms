@@ -451,9 +451,9 @@ export default function SetupProfilePage() {
           <div className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error" role="alert">
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{kindnessError}</p>
-            <button type="button" onClick={() => setKindnessError(null)} className="text-brand-error hover:text-brand-error/80 cursor-pointer shrink-0 p-2 min-w-11 min-h-11" aria-label="Dismiss error">
+            <Button variant="icon" size="icon" onClick={() => setKindnessError(null)} aria-label="Dismiss error" className="text-brand-error hover:bg-brand-error/10 hover:text-brand-error shrink-0">
               <X className="w-4 h-4" aria-hidden="true" />
-            </button>
+            </Button>
           </div>
         )}
 

@@ -1,6 +1,7 @@
 'use client';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
+import { Button } from '@/components/ui/Button';
 
 const LIFE_SKILLS = ['COMMUNICATION','PROBLEM_SOLVING','CRITICAL_THINKING','DIGITAL_LITERACY','SELF_CONFIDENCE','LEADERSHIP','TEAMWORK','PUBLIC_SPEAKING','OTHER'] as const;
 
@@ -51,10 +52,10 @@ export function Step3SkillsLanguages({ register, watch, setValue, errors }: Step
               <option value="INTERMEDIATE">INTERMEDIATE</option>
               <option value="FLUENT">FLUENT</option>
             </select>
-            <button type="button" onClick={() => removeLanguage(idx)} className="text-brand-error text-sm min-h-11 cursor-pointer">Remove</button>
+            <Button variant="ghost" size="sm" onClick={() => removeLanguage(idx)} className="text-brand-error hover:bg-brand-error/10 hover:text-brand-error">Remove</Button>
           </div>
         ))}
-        {languages.length < 10 && <button type="button" onClick={addLanguage} className="px-3 py-2 rounded-lg bg-brand-primary/10 text-brand-primary text-sm cursor-pointer">Add language</button>}
+        {languages.length < 10 && <Button variant="ghost" size="sm" onClick={addLanguage} className="bg-brand-primary/10 hover:bg-brand-primary/20 hover:text-brand-primary">Add language</Button>}
         <FieldError message={errors.languages?.message as string} />
       </fieldset>
     </div>

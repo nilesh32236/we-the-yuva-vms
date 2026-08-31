@@ -17,6 +17,7 @@ const HoursBarChart = dynamic(
 );
 
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 
 export default function ObserverReportsPage() {
@@ -42,9 +43,9 @@ export default function ObserverReportsPage() {
       {isError ? (
         <div className="bg-brand-error/10 border border-brand-error/30 rounded-lg p-4 text-center">
           <p className="text-sm text-brand-error">Failed to load reports. Please try again.</p>
-          <button type="button" onClick={() => refetch()} className="mt-2 text-sm text-brand-primary underline">
+          <Button variant="ghost" size="sm" onClick={() => refetch()} className="mt-2 underline">
             Retry
-          </button>
+          </Button>
         </div>
       ) : isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

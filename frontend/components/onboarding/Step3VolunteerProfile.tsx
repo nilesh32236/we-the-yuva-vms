@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
 import { WEEKS_PER_MONTH, round1 } from '@/lib/shared/schemas/onboarding.schemas';
+import { Button } from '@/components/ui/Button';
 
 const TYPES = [
   { value: 'STUDENT_VOLUNTEER', label: 'Student Volunteer' },
@@ -150,14 +151,14 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             }}
             className={inputCls}
           />
-          <button type="button" onClick={addSkill} className="px-4 rounded-lg bg-brand-primary/10 text-brand-primary text-sm min-h-11 cursor-pointer">Add</button>
+          <Button variant="ghost" size="sm" onClick={addSkill} className="bg-brand-primary/10 hover:bg-brand-primary/20 hover:text-brand-primary">Add</Button>
         </div>
         {skills.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {skills.map((s) => (
               <span key={s} className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full px-3 py-1 text-xs">
                 {s}
-                <button type="button" aria-label={`Remove ${s}`} onClick={() => setValue('skills', skills.filter((x) => x !== s), { shouldValidate: true })} className="cursor-pointer">×</button>
+                <Button variant="icon" size="icon" className="h-6 w-6 min-h-0 min-w-0 p-1 -m-1 hover:bg-transparent hover:text-brand-primary" aria-label={`Remove ${s}`} onClick={() => setValue('skills', skills.filter((x) => x !== s), { shouldValidate: true })}>×</Button>
               </span>
             ))}
           </div>
