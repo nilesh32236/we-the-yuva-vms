@@ -210,6 +210,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
 
   return {
     checkin: checkinMutation.mutate,
+    checkinAsync: checkinMutation.mutateAsync,
     isPending: checkinMutation.isPending,
     isSyncing,
     queuedCount,
@@ -217,4 +218,10 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
     retrySync,
     syncFailed,
   };
+}
+
+// Backward compatibility: original page-level sync hook (eventId string)
+export function useOfflineCheckinSync(eventId: string) {
+  const { isOffline, isSyncing, queuedCount, retrySync, syncFailed } = useOfflineCheckin({ eventId });
+  return { isOnline: !isOffline, isSyncing, queuedCount, retrySync, syncFailed };
 }
