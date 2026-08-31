@@ -10,10 +10,13 @@ import { UserTable } from '@/components/admin/UserTable';
 import { Pagination } from '@/components/shared/Pagination';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
+import { Unauthorized } from '@/components/shared/Unauthorized';
 import { useToast } from '@/hooks/use-toast';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { api } from '@/lib/api';
 import { queryKeys } from '@/lib/shared/query-keys';
+import { useAuth } from '@/lib/auth-context';
+import { hasPermission, Permissions } from '@/lib/shared/permissions';
 
 const ROLES = ['ALL', 'VOLUNTEER', 'COORDINATOR', 'ADMIN', 'OBSERVER'];
 const STATUSES = ['ALL', 'ACTIVE', 'PENDING', 'INACTIVE', 'SUSPENDED'];
@@ -208,6 +211,8 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 }
 
 export default function AdminUsersPage() {
+  const { user } = useAuth();
+  const canManageUsers = hasPermission(user, Permissions.USER_MANAGE);
   const [search, setSearch] = useState('');
   const [role, setRole] = useState('ALL');
   const [status, setStatus] = useState('ALL');
@@ -228,8 +233,11 @@ export default function AdminUsersPage() {
           },
         })
         .then((r) => r.data),
+    enabled: canManageUsers,
     staleTime: 30_000,
   });
+
+  if (!canManageUsers) return <Unauthorized />;
 
   return (
     <div className="space-y-5 max-w-6xl">
