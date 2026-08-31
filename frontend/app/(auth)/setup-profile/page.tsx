@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { OnboardingSchema, StaffProfileSchema } from '@/lib/shared';
 import type { OnboardingData, StaffProfileInput } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
@@ -109,6 +109,8 @@ export default function SetupProfilePage() {
     setValue,
     trigger,
     reset,
+    clearErrors,
+    control,
     formState: { errors, isDirty },
   } = useForm<OnboardingData>({
     resolver: zodResolver(OnboardingSchema),
@@ -118,8 +120,33 @@ export default function SetupProfilePage() {
   const infoCorrect = watch('declarations.infoCorrect');
   const commitmentsAccepted = watch('declarations.commitmentsAccepted');
   const isDeclarationComplete = infoCorrect === true && commitmentsAccepted === true;
-  const isKindnessNextDisabled =
-    step === 4 && (!kindness.optedIn || kindness.acts.length < 7 || !kindness.startDate);
+  const isKindnessNextDisabled = step === 4 && !kindness.optedIn;
+
+  // Clear stale branch data when Current Status changes — otherwise zod's
+  // StudentInfoSchema / SelfEmployedSchema etc. keep invalid empty strings
+  // from a previous branch and cause "Please fix highlighted fields" even
+  // when the visible fields are valid (reported as "gives error if selects
+  // all the options: student, self-employed, retired").
+  const currentStatus = useWatch({ control, name: 'currentStatus' });
+  useEffect(() => {
+    if (!currentStatus) return;
+    if (currentStatus !== 'STUDENT') {
+      setValue('student', undefined as unknown as OnboardingData['student'], { shouldValidate: false });
+      clearErrors(['student.institution', 'student.course', 'student.yearSemester', 'student.city']);
+    }
+    if (currentStatus !== 'WORKING_PROFESSIONAL') {
+      setValue('professional', undefined as unknown as OnboardingData['professional'], { shouldValidate: false });
+      clearErrors(['professional.company', 'professional.designation', 'professional.industry', 'professional.city']);
+    }
+    if (currentStatus !== 'SELF_EMPLOYED' && currentStatus !== 'OTHER') {
+      setValue('selfEmployed', undefined as unknown as OnboardingData['selfEmployed'], { shouldValidate: false });
+      clearErrors(['selfEmployed.profession', 'selfEmployed.organizationName', 'selfEmployed.city']);
+    }
+    if (currentStatus !== 'RETIRED') {
+      setValue('retired', undefined as unknown as OnboardingData['retired'], { shouldValidate: false });
+      clearErrors('retired.pastProfession');
+    }
+  }, [currentStatus, setValue, clearErrors, control]);
 
   const validateKindness = (): boolean => {
     if (!kindness.optedIn) {
@@ -213,6 +240,10 @@ export default function SetupProfilePage() {
 
   const goToStep = (newStep: number) => {
     setFormError(null);
+    setKindnessError(null);
+    // Clear stale RHF errors when changing steps — prevents "Please fix
+    // highlighted fields" with no visible highlight after Back → Next
+    clearErrors();
     setStep(newStep);
   };
 
@@ -233,7 +264,30 @@ export default function SetupProfilePage() {
     if (fields.length === 0) return true;
     const results = await Promise.all(fields.map((f) => trigger(f as never)));
     const valid = results.every(Boolean);
-    if (!valid) toast({ title: 'Please fix the highlighted fields', variant: 'destructive' });
+    if (!valid) {
+      const fieldLabels: Record<string, string> = {
+        'address.city': 'City',
+        'address.district': 'District',
+        'address.state': 'State',
+        'address.pincode': 'PIN Code',
+        education: 'Highest Qualification',
+        currentStatus: 'Current Status',
+        'student.institution': 'College / University',
+        'student.course': 'Course',
+        'student.yearSemester': 'Year / Semester',
+        'student.city': 'City',
+        'professional.company': 'Company Name',
+        'professional.designation': 'Designation',
+        'professional.industry': 'Industry',
+        'professional.city': 'City',
+        'selfEmployed.profession': 'Profession',
+        'selfEmployed.city': 'City',
+        'retired.pastProfession': 'Past Profession',
+      };
+      const firstError = fields.find((_, i) => !results[i]);
+      const msg = firstError ? `Please fix: ${fieldLabels[firstError] ?? firstError}` : 'Please fix the highlighted fields';
+      toast({ title: msg, variant: 'destructive' });
+    }
     return valid;
   };
 
@@ -261,14 +315,14 @@ export default function SetupProfilePage() {
     for (let i = 0; i < STEPS.length; i++) {
       if (i === 4) {
         if (!validateKindness()) {
-          goToStep(i);
+          setStep(i);
           return;
         }
         continue;
       }
       const valid = await validateStep(i);
       if (!valid) {
-        goToStep(i);
+        setStep(i);
         return;
       }
     }

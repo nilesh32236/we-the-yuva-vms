@@ -84,6 +84,22 @@ let refreshPromise: Promise<any> | null = null;
 
 // Request interceptor — attach Bearer token, preemptively refresh if expired
 api.interceptors.request.use(async (config) => {
+  // Fix for file uploads: when body is FormData, delete the default
+  // 'Content-Type: application/json' so the browser can set
+  // 'multipart/form-data; boundary=...' automatically. Without this,
+  // multer on the backend sees 'application/json' and leaves req.file
+  // undefined, triggering the 'No file provided' 400 (see upload.controller.ts:12).
+  // This handles all upload call sites (FileUpload, ProofUploadForm,
+  // register-organization) without requiring each to remember the header hack.
+  if (config.data instanceof FormData && config.headers) {
+    const h = config.headers as unknown as { delete?: (k: string) => void } & Record<string, unknown>;
+    if (typeof h.delete === 'function') h.delete('Content-Type');
+    else {
+      delete h['Content-Type'];
+      delete h['content-type'];
+    }
+  }
+
   const token = getAccessToken();
   if (token) {
     try {

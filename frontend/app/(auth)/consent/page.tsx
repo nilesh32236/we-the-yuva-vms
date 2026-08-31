@@ -52,6 +52,7 @@ export default function ConsentPage() {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ConsentInput>({
     resolver: zodResolver(ConsentSchema),
@@ -60,6 +61,9 @@ export default function ConsentPage() {
       mediaConsentAccepted: false,
     },
   });
+
+  const privacyAccepted = watch('privacyPolicyAccepted');
+  const isContinueDisabled = isSubmitting || !privacyAccepted;
 
   useEffect(() => {
     if (!isAuthLoading && !user) {
@@ -216,7 +220,7 @@ export default function ConsentPage() {
           type="submit"
           variant="cta"
           fullWidth
-          disabled={isSubmitting}
+          disabled={isContinueDisabled}
           loading={isSubmitting}
         >
           Continue

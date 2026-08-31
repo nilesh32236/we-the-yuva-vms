@@ -9,7 +9,7 @@ export interface StepProps {
   errors: FieldErrors<OnboardingData>;
 }
 
-export function FieldError({ message }: { message?: string }) {
+export function FieldError({ message, id }: { message?: string; id?: string }) {
   if (!message) return null;
-  return React.createElement('p', { className: 'text-brand-error text-xs', role: 'alert' }, message);
+  return React.createElement('p', { id, className: 'text-brand-error text-xs', role: 'alert' }, message);
 }

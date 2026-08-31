@@ -2,7 +2,6 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { Loader2, Upload, X } from 'lucide-react';
-import Image from 'next/image';
 import { type DragEvent, useEffect, useRef, useState } from 'react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
@@ -25,10 +24,17 @@ export function FileUpload({
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(previewUrl ?? null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const localUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     setPreview(previewUrl ?? null);
   }, [previewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (localUrlRef.current) URL.revokeObjectURL(localUrlRef.current);
+    };
+  }, []);
 
   async function handleFile(file: File) {
     if (uploading) return;
@@ -41,17 +47,26 @@ export function FileUpload({
       return;
     }
     setError(null);
+    // Immediate local preview for UX (shows before upload completes)
+    const localUrl = URL.createObjectURL(file);
+    localUrlRef.current = localUrl;
+    setPreview(localUrl);
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
       const { data } = await api.post('/upload', formData, {
         timeout: 60_000,
-        headers: { 'Content-Type': undefined as unknown as string },
       });
+      URL.revokeObjectURL(localUrl);
+      localUrlRef.current = null;
       setPreview(data.url);
       onUpload(data.url);
     } catch (err: unknown) {
+      URL.revokeObjectURL(localUrl);
+      localUrlRef.current = null;
+      // Keep local preview? No, clear to allow retry and show error
+      setPreview(previewUrl ?? null);
       Sentry.captureException(err);
       const msg =
         (err as { normalizedMessage?: string })?.normalizedMessage ??
@@ -90,19 +105,26 @@ export function FileUpload({
 
       {preview ? (
         <div className="relative inline-block">
-          <Image
+          {/* Use plain <img> to support blob:, relative /uploads/ and HF bucket URLs without Next Image optimization restrictions */}
+          <img
             src={preview}
             alt="Preview"
             width={128}
             height={128}
-            className="h-32 w-32 rounded-xl object-cover border border-brand-border"
+            className={`h-32 w-32 rounded-xl object-cover border border-brand-border ${uploading ? 'opacity-60' : ''}`}
           />
+          {uploading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-brand-text/20 rounded-xl">
+              <Loader2 className="w-6 h-6 motion-safe:animate-spin text-white" />
+            </div>
+          )}
           <Button
             size="icon"
             variant="destructive"
             onClick={remove}
             aria-label="Remove file"
-            className="absolute -top-2 -right-2 min-w-[44px] min-h-[44px] rounded-full bg-brand-error text-white flex items-center justify-center hover:bg-brand-error/80 transition-colors active-bounce"
+            disabled={uploading}
+            className="absolute -top-2 -right-2 min-w-[44px] min-h-[44px] rounded-full bg-brand-error text-white flex items-center justify-center hover:bg-brand-error/80 transition-colors active-bounce disabled:opacity-50"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -124,7 +146,7 @@ export function FileUpload({
           className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors active-bounce focus-visible:ring-2 focus-visible:ring-brand-primary ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
         >
           {uploading ? (
-            <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
+            <Loader2 className="w-6 h-6 motion-safe:animate-spin text-brand-primary" />
           ) : (
             <Upload className="w-6 h-6 text-brand-muted" />
           )}
@@ -143,6 +165,8 @@ export function FileUpload({
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
+          // Reset value to allow re-selecting same file after remove
+          e.target.value = '';
           if (f) handleFile(f);
         }}
       />
