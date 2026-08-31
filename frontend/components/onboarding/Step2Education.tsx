@@ -22,7 +22,12 @@ export function Step2Education({ register, watch, errors }: StepProps) {
     <div className="space-y-4">
       <div className="space-y-1.5">
         <label htmlFor="education" className="text-sm font-medium text-brand-text">Highest Qualification *</label>
-        <input id="education" placeholder="e.g. B.Tech, 12th, Diploma" className={inputCls} {...register('education')} />
+        <input
+          id="education"
+          placeholder="e.g. B.Tech, 12th, Diploma"
+          className={`${inputCls} ${errors.education ? 'border-brand-error' : 'border-brand-border'}`}
+          {...register('education')}
+        />
         <FieldError message={errors.education?.message} />
       </div>
 

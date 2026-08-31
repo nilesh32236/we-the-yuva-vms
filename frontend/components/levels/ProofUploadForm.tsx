@@ -31,7 +31,10 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('/upload', formData, { timeout: 60_000 });
+      const { data } = await api.post('/upload', formData, {
+        timeout: 60_000,
+        headers: { 'Content-Type': undefined as unknown as string },
+      });
       setFiles((prev) => {
         const newFiles = [...prev, { url: data.url, name: file.name }];
         onFilesChange(newFiles.map((f) => f.url));

@@ -81,7 +81,7 @@ export default function RegisterOrganizationPage() {
         const formData = new FormData();
         formData.append('file', file);
         const res = await api.post('/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { 'Content-Type': undefined as unknown as string },
         });
         setDocs((prev) =>
           prev.map((d) =>

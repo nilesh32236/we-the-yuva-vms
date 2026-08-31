@@ -91,7 +91,7 @@ export const OnboardingSchema = z
       .optional()
       .or(z.literal('')),
     address: AddressSchema,
-    avatarUrl: z.union([z.string().url(), z.literal('')]).optional(),
+    avatarUrl: z.union([z.string().url(), z.string().startsWith('/'), z.literal('')]).optional(),
     education: requiredString.max(80),
     fieldOfStudy: z.string().trim().max(120).optional().or(z.literal('')),
     currentStatus: z.enum(CURRENT_STATUSES),

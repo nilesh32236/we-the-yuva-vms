@@ -109,6 +109,7 @@ export default function SetupProfilePage() {
     setValue,
     trigger,
     reset,
+    clearErrors,
     formState: { errors, isDirty },
   } = useForm<OnboardingData>({
     resolver: zodResolver(OnboardingSchema),
@@ -118,8 +119,33 @@ export default function SetupProfilePage() {
   const infoCorrect = watch('declarations.infoCorrect');
   const commitmentsAccepted = watch('declarations.commitmentsAccepted');
   const isDeclarationComplete = infoCorrect === true && commitmentsAccepted === true;
-  const isKindnessNextDisabled =
-    step === 4 && (!kindness.optedIn || kindness.acts.length < 7 || !kindness.startDate);
+  const isKindnessNextDisabled = step === 4 && !kindness.optedIn;
+
+  // Clear stale branch data when Current Status changes — otherwise zod's
+  // StudentInfoSchema / SelfEmployedSchema etc. keep invalid empty strings
+  // from a previous branch and cause "Please fix highlighted fields" even
+  // when the visible fields are valid (reported as "gives error if selects
+  // all the options: student, self-employed, retired").
+  const currentStatus = watch('currentStatus');
+  useEffect(() => {
+    if (!currentStatus) return;
+    if (currentStatus !== 'STUDENT') {
+      setValue('student', undefined as unknown as never, { shouldValidate: false });
+      clearErrors('student');
+    }
+    if (currentStatus !== 'WORKING_PROFESSIONAL') {
+      setValue('professional', undefined as unknown as never, { shouldValidate: false });
+      clearErrors('professional');
+    }
+    if (currentStatus !== 'SELF_EMPLOYED' && currentStatus !== 'OTHER') {
+      setValue('selfEmployed', undefined as unknown as never, { shouldValidate: false });
+      clearErrors('selfEmployed');
+    }
+    if (currentStatus !== 'RETIRED') {
+      setValue('retired', undefined as unknown as never, { shouldValidate: false });
+      clearErrors('retired');
+    }
+  }, [currentStatus, setValue, clearErrors]);
 
   const validateKindness = (): boolean => {
     if (!kindness.optedIn) {
@@ -213,6 +239,10 @@ export default function SetupProfilePage() {
 
   const goToStep = (newStep: number) => {
     setFormError(null);
+    setKindnessError(null);
+    // Clear stale RHF errors when changing steps — prevents "Please fix
+    // highlighted fields" with no visible highlight after Back → Next
+    clearErrors();
     setStep(newStep);
   };
 
@@ -233,7 +263,12 @@ export default function SetupProfilePage() {
     if (fields.length === 0) return true;
     const results = await Promise.all(fields.map((f) => trigger(f as never)));
     const valid = results.every(Boolean);
-    if (!valid) toast({ title: 'Please fix the highlighted fields', variant: 'destructive' });
+    if (!valid) {
+      // Collect first error to help debug "no highlighted field" reports
+      const firstError = fields.find((_, i) => !results[i]);
+      const msg = firstError ? `Please fix: ${firstError}` : 'Please fix the highlighted fields';
+      toast({ title: msg, variant: 'destructive' });
+    }
     return valid;
   };
 

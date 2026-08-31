@@ -24,22 +24,40 @@ export function Step1PersonalInfo({ register, setValue, watch, errors }: StepPro
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
           <label htmlFor="city" className="text-sm font-medium text-brand-text">City *</label>
-          <input id="city" className={inputCls} {...register('address.city')} />
+          <input
+            id="city"
+            className={`${inputCls} ${errors.address?.city ? 'border-brand-error' : 'border-brand-border'}`}
+            {...register('address.city')}
+          />
           <FieldError message={errors.address?.city?.message} />
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
           <label htmlFor="district" className="text-sm font-medium text-brand-text">District *</label>
-          <input id="district" className={inputCls} {...register('address.district')} />
+          <input
+            id="district"
+            className={`${inputCls} ${errors.address?.district ? 'border-brand-error' : 'border-brand-border'}`}
+            {...register('address.district')}
+          />
           <FieldError message={errors.address?.district?.message} />
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
           <label htmlFor="state" className="text-sm font-medium text-brand-text">State *</label>
-          <input id="state" className={inputCls} {...register('address.state')} />
+          <input
+            id="state"
+            className={`${inputCls} ${errors.address?.state ? 'border-brand-error' : 'border-brand-border'}`}
+            {...register('address.state')}
+          />
           <FieldError message={errors.address?.state?.message} />
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
           <label htmlFor="pincode" className="text-sm font-medium text-brand-text">PIN Code *</label>
-          <input id="pincode" inputMode="numeric" maxLength={6} className={inputCls} {...register('address.pincode')} />
+          <input
+            id="pincode"
+            inputMode="numeric"
+            maxLength={6}
+            className={`${inputCls} ${errors.address?.pincode ? 'border-brand-error' : 'border-brand-border'}`}
+            {...register('address.pincode')}
+          />
           <FieldError message={errors.address?.pincode?.message} />
         </div>
       </div>

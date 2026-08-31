@@ -84,6 +84,30 @@ let refreshPromise: Promise<any> | null = null;
 
 // Request interceptor — attach Bearer token, preemptively refresh if expired
 api.interceptors.request.use(async (config) => {
+  // Fix for file uploads: when body is FormData, delete the default
+  // 'Content-Type: application/json' so the browser can set
+  // 'multipart/form-data; boundary=...' automatically. Without this,
+  // multer on the backend sees 'application/json' and leaves req.file
+  // undefined, triggering the 'No file provided' 400 (see upload.controller.ts:12).
+  // This handles all upload call sites (FileUpload, ProofUploadForm,
+  // register-organization) without requiring each to remember the header hack.
+  if (config.data instanceof FormData) {
+    if (config.headers) {
+      // AxiosHeaders instance has .delete(), plain object needs delete operator
+      const headers = config.headers as unknown as Record<string, unknown> & {
+        delete?: (key: string) => void;
+      };
+      if (typeof headers.delete === 'function') {
+        headers.delete('Content-Type');
+        headers.delete('content-type');
+      }
+      delete headers['Content-Type'];
+      delete headers['content-type'];
+      // Also clear normalized AxiosHeaders key
+      delete (headers as unknown as Record<string, unknown>)['Content-Type'];
+    }
+  }
+
   const token = getAccessToken();
   if (token) {
     try {
