@@ -91,20 +91,12 @@ api.interceptors.request.use(async (config) => {
   // undefined, triggering the 'No file provided' 400 (see upload.controller.ts:12).
   // This handles all upload call sites (FileUpload, ProofUploadForm,
   // register-organization) without requiring each to remember the header hack.
-  if (config.data instanceof FormData) {
-    if (config.headers) {
-      // AxiosHeaders instance has .delete(), plain object needs delete operator
-      const headers = config.headers as unknown as Record<string, unknown> & {
-        delete?: (key: string) => void;
-      };
-      if (typeof headers.delete === 'function') {
-        headers.delete('Content-Type');
-        headers.delete('content-type');
-      }
-      delete headers['Content-Type'];
-      delete headers['content-type'];
-      // Also clear normalized AxiosHeaders key
-      delete (headers as unknown as Record<string, unknown>)['Content-Type'];
+  if (config.data instanceof FormData && config.headers) {
+    const h = config.headers as unknown as { delete?: (k: string) => void } & Record<string, unknown>;
+    if (typeof h.delete === 'function') h.delete('Content-Type');
+    else {
+      delete h['Content-Type'];
+      delete h['content-type'];
     }
   }
 

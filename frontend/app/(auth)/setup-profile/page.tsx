@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { OnboardingSchema, StaffProfileSchema } from '@/lib/shared';
 import type { OnboardingData, StaffProfileInput } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
@@ -110,6 +110,7 @@ export default function SetupProfilePage() {
     trigger,
     reset,
     clearErrors,
+    control,
     formState: { errors, isDirty },
   } = useForm<OnboardingData>({
     resolver: zodResolver(OnboardingSchema),
@@ -126,26 +127,26 @@ export default function SetupProfilePage() {
   // from a previous branch and cause "Please fix highlighted fields" even
   // when the visible fields are valid (reported as "gives error if selects
   // all the options: student, self-employed, retired").
-  const currentStatus = watch('currentStatus');
+  const currentStatus = useWatch({ control, name: 'currentStatus' });
   useEffect(() => {
     if (!currentStatus) return;
     if (currentStatus !== 'STUDENT') {
-      setValue('student', undefined as unknown as never, { shouldValidate: false });
-      clearErrors('student');
+      setValue('student', undefined as unknown as OnboardingData['student'], { shouldValidate: false });
+      clearErrors(['student.institution', 'student.course', 'student.yearSemester', 'student.city']);
     }
     if (currentStatus !== 'WORKING_PROFESSIONAL') {
-      setValue('professional', undefined as unknown as never, { shouldValidate: false });
-      clearErrors('professional');
+      setValue('professional', undefined as unknown as OnboardingData['professional'], { shouldValidate: false });
+      clearErrors(['professional.company', 'professional.designation', 'professional.industry', 'professional.city']);
     }
     if (currentStatus !== 'SELF_EMPLOYED' && currentStatus !== 'OTHER') {
-      setValue('selfEmployed', undefined as unknown as never, { shouldValidate: false });
-      clearErrors('selfEmployed');
+      setValue('selfEmployed', undefined as unknown as OnboardingData['selfEmployed'], { shouldValidate: false });
+      clearErrors(['selfEmployed.profession', 'selfEmployed.organizationName', 'selfEmployed.city']);
     }
     if (currentStatus !== 'RETIRED') {
-      setValue('retired', undefined as unknown as never, { shouldValidate: false });
-      clearErrors('retired');
+      setValue('retired', undefined as unknown as OnboardingData['retired'], { shouldValidate: false });
+      clearErrors('retired.pastProfession');
     }
-  }, [currentStatus, setValue, clearErrors]);
+  }, [currentStatus, setValue, clearErrors, control]);
 
   const validateKindness = (): boolean => {
     if (!kindness.optedIn) {
@@ -264,9 +265,27 @@ export default function SetupProfilePage() {
     const results = await Promise.all(fields.map((f) => trigger(f as never)));
     const valid = results.every(Boolean);
     if (!valid) {
-      // Collect first error to help debug "no highlighted field" reports
+      const fieldLabels: Record<string, string> = {
+        'address.city': 'City',
+        'address.district': 'District',
+        'address.state': 'State',
+        'address.pincode': 'PIN Code',
+        education: 'Highest Qualification',
+        currentStatus: 'Current Status',
+        'student.institution': 'College / University',
+        'student.course': 'Course',
+        'student.yearSemester': 'Year / Semester',
+        'student.city': 'City',
+        'professional.company': 'Company Name',
+        'professional.designation': 'Designation',
+        'professional.industry': 'Industry',
+        'professional.city': 'City',
+        'selfEmployed.profession': 'Profession',
+        'selfEmployed.city': 'City',
+        'retired.pastProfession': 'Past Profession',
+      };
       const firstError = fields.find((_, i) => !results[i]);
-      const msg = firstError ? `Please fix: ${firstError}` : 'Please fix the highlighted fields';
+      const msg = firstError ? `Please fix: ${fieldLabels[firstError] ?? firstError}` : 'Please fix the highlighted fields';
       toast({ title: msg, variant: 'destructive' });
     }
     return valid;
@@ -296,14 +315,14 @@ export default function SetupProfilePage() {
     for (let i = 0; i < STEPS.length; i++) {
       if (i === 4) {
         if (!validateKindness()) {
-          goToStep(i);
+          setStep(i);
           return;
         }
         continue;
       }
       const valid = await validateStep(i);
       if (!valid) {
-        goToStep(i);
+        setStep(i);
         return;
       }
     }

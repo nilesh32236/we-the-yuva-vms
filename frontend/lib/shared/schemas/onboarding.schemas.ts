@@ -91,7 +91,13 @@ export const OnboardingSchema = z
       .optional()
       .or(z.literal('')),
     address: AddressSchema,
-    avatarUrl: z.union([z.string().url(), z.string().startsWith('/'), z.literal('')]).optional(),
+    avatarUrl: z
+      .union([
+        z.string().trim().max(2048).url(),
+        z.string().trim().max(2048).regex(/^\/uploads\/[A-Za-z0-9._\/-]+$/, 'Invalid avatar path'),
+        z.literal(''),
+      ])
+      .optional(),
     education: requiredString.max(80),
     fieldOfStudy: z.string().trim().max(120).optional().or(z.literal('')),
     currentStatus: z.enum(CURRENT_STATUSES),

@@ -63,8 +63,7 @@ export default function ConsentPage() {
   });
 
   const privacyAccepted = watch('privacyPolicyAccepted');
-  const mediaAccepted = watch('mediaConsentAccepted');
-  const isContinueDisabled = isSubmitting || !privacyAccepted || !mediaAccepted;
+  const isContinueDisabled = isSubmitting || !privacyAccepted;
 
   useEffect(() => {
     if (!isAuthLoading && !user) {

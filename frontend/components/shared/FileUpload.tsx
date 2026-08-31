@@ -24,10 +24,17 @@ export function FileUpload({
   const [dragOver, setDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(previewUrl ?? null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const localUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     setPreview(previewUrl ?? null);
   }, [previewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (localUrlRef.current) URL.revokeObjectURL(localUrlRef.current);
+    };
+  }, []);
 
   async function handleFile(file: File) {
     if (uploading) return;
@@ -42,6 +49,7 @@ export function FileUpload({
     setError(null);
     // Immediate local preview for UX (shows before upload completes)
     const localUrl = URL.createObjectURL(file);
+    localUrlRef.current = localUrl;
     setPreview(localUrl);
     setUploading(true);
     try {
@@ -49,13 +57,14 @@ export function FileUpload({
       formData.append('file', file);
       const { data } = await api.post('/upload', formData, {
         timeout: 60_000,
-        headers: { 'Content-Type': undefined as unknown as string },
       });
       URL.revokeObjectURL(localUrl);
+      localUrlRef.current = null;
       setPreview(data.url);
       onUpload(data.url);
     } catch (err: unknown) {
       URL.revokeObjectURL(localUrl);
+      localUrlRef.current = null;
       // Keep local preview? No, clear to allow retry and show error
       setPreview(previewUrl ?? null);
       Sentry.captureException(err);
@@ -105,8 +114,8 @@ export function FileUpload({
             className={`h-32 w-32 rounded-xl object-cover border border-brand-border ${uploading ? 'opacity-60' : ''}`}
           />
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl">
-              <Loader2 className="w-6 h-6 animate-spin text-white" />
+            <div className="absolute inset-0 flex items-center justify-center bg-brand-text/20 rounded-xl">
+              <Loader2 className="w-6 h-6 motion-safe:animate-spin text-white" />
             </div>
           )}
           <Button
@@ -137,7 +146,7 @@ export function FileUpload({
           className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed transition-colors active-bounce focus-visible:ring-2 focus-visible:ring-brand-primary ${dragOver ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border hover:border-brand-primary/50 hover:bg-brand-bg'}`}
         >
           {uploading ? (
-            <Loader2 className="w-6 h-6 animate-spin text-brand-primary" />
+            <Loader2 className="w-6 h-6 motion-safe:animate-spin text-brand-primary" />
           ) : (
             <Upload className="w-6 h-6 text-brand-muted" />
           )}

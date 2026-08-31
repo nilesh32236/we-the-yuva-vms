@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import type { StepProps } from './StepProps';
 import { FieldError } from './StepProps';
 
@@ -13,8 +14,8 @@ const STATUSES = [
   { value: 'OTHER', label: 'Other' },
 ];
 
-const inputCls =
-  'w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary border-brand-border';
+const inputBase =
+  'w-full px-4 py-2.5 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-brand-primary';
 
 export function Step2Education({ register, watch, errors }: StepProps) {
   const status = watch('currentStatus');
@@ -25,7 +26,9 @@ export function Step2Education({ register, watch, errors }: StepProps) {
         <input
           id="education"
           placeholder="e.g. B.Tech, 12th, Diploma"
-          className={`${inputCls} ${errors.education ? 'border-brand-error' : 'border-brand-border'}`}
+          aria-invalid={!!errors.education}
+          aria-describedby={errors.education ? 'education-error' : undefined}
+          className={cn(inputBase, errors.education ? 'border-brand-error' : 'border-brand-border')}
           {...register('education')}
         />
         <FieldError message={errors.education?.message} />
@@ -33,7 +36,7 @@ export function Step2Education({ register, watch, errors }: StepProps) {
 
       <div className="space-y-1.5">
         <label htmlFor="fieldOfStudy" className="text-sm font-medium text-brand-text">Field of Study</label>
-        <input id="fieldOfStudy" placeholder="e.g. Computer Science" className={inputCls} {...register('fieldOfStudy')} />
+        <input id="fieldOfStudy" placeholder="e.g. Computer Science" className={cn(inputBase, 'border-brand-border')} {...register('fieldOfStudy')} />
       </div>
 
       <fieldset className="space-y-2">
@@ -51,18 +54,18 @@ export function Step2Education({ register, watch, errors }: StepProps) {
 
       {status === 'STUDENT' && (
         <div className="grid grid-cols-2 gap-3 rounded-xl border border-brand-border p-4">
-          <input aria-label="College/University Name *" placeholder="College / University *" className={`${inputCls} col-span-2`} {...register('student.institution')} />
+          <input aria-label="College/University Name *" placeholder="College / University *" className={cn(inputBase, 'border-brand-border', 'col-span-2')} {...register('student.institution')} />
           <FieldError message={errors.student?.institution?.message} />
           <div className="space-y-1">
-            <input aria-label="Course *" placeholder="Course *" className={inputCls} {...register('student.course')} />
+            <input aria-label="Course *" placeholder="Course *" className={cn(inputBase, 'border-brand-border')} {...register('student.course')} />
             <FieldError message={errors.student?.course?.message} />
           </div>
           <div className="space-y-1">
-            <input aria-label="Year/Semester *" placeholder="Year / Semester *" className={inputCls} {...register('student.yearSemester')} />
+            <input aria-label="Year/Semester *" placeholder="Year / Semester *" className={cn(inputBase, 'border-brand-border')} {...register('student.yearSemester')} />
             <FieldError message={errors.student?.yearSemester?.message} />
           </div>
           <div className="space-y-1 col-span-2">
-            <input aria-label="City *" placeholder="City *" className={inputCls} {...register('student.city')} />
+            <input aria-label="City *" placeholder="City *" className={cn(inputBase, 'border-brand-border')} {...register('student.city')} />
             <FieldError message={errors.student?.city?.message} />
           </div>
         </div>
@@ -71,19 +74,19 @@ export function Step2Education({ register, watch, errors }: StepProps) {
       {status === 'WORKING_PROFESSIONAL' && (
         <div className="grid grid-cols-2 gap-3 rounded-xl border border-brand-border p-4">
           <div className="space-y-1">
-            <input aria-label="Company Name *" placeholder="Company Name *" className={inputCls} {...register('professional.company')} />
+            <input aria-label="Company Name *" placeholder="Company Name *" className={cn(inputBase, 'border-brand-border')} {...register('professional.company')} />
             <FieldError message={errors.professional?.company?.message} />
           </div>
           <div className="space-y-1">
-            <input aria-label="Designation *" placeholder="Designation *" className={inputCls} {...register('professional.designation')} />
+            <input aria-label="Designation *" placeholder="Designation *" className={cn(inputBase, 'border-brand-border')} {...register('professional.designation')} />
             <FieldError message={errors.professional?.designation?.message} />
           </div>
           <div className="space-y-1">
-            <input aria-label="Industry *" placeholder="Industry *" className={inputCls} {...register('professional.industry')} />
+            <input aria-label="Industry *" placeholder="Industry *" className={cn(inputBase, 'border-brand-border')} {...register('professional.industry')} />
             <FieldError message={errors.professional?.industry?.message} />
           </div>
           <div className="space-y-1">
-            <input aria-label="City *" placeholder="City *" className={inputCls} {...register('professional.city')} />
+            <input aria-label="City *" placeholder="City *" className={cn(inputBase, 'border-brand-border')} {...register('professional.city')} />
             <FieldError message={errors.professional?.city?.message} />
           </div>
         </div>
@@ -92,12 +95,12 @@ export function Step2Education({ register, watch, errors }: StepProps) {
       {(status === 'SELF_EMPLOYED' || status === 'OTHER') && (
         <div className="grid grid-cols-2 gap-3 rounded-xl border border-brand-border p-4">
           <div className="space-y-1">
-            <input aria-label="Profession *" placeholder="Profession *" className={inputCls} {...register('selfEmployed.profession')} />
+            <input aria-label="Profession *" placeholder="Profession *" className={cn(inputBase, 'border-brand-border')} {...register('selfEmployed.profession')} />
             <FieldError message={errors.selfEmployed?.profession?.message} />
           </div>
-          <input aria-label="Organization Name" placeholder="Organization (optional)" className={inputCls} {...register('selfEmployed.organizationName')} />
+          <input aria-label="Organization Name" placeholder="Organization (optional)" className={cn(inputBase, 'border-brand-border')} {...register('selfEmployed.organizationName')} />
           <div className="space-y-1 col-span-2">
-            <input aria-label="City *" placeholder="City *" className={inputCls} {...register('selfEmployed.city')} />
+            <input aria-label="City *" placeholder="City *" className={cn(inputBase, 'border-brand-border')} {...register('selfEmployed.city')} />
             <FieldError message={errors.selfEmployed?.city?.message} />
           </div>
         </div>
@@ -105,7 +108,7 @@ export function Step2Education({ register, watch, errors }: StepProps) {
 
       {status === 'RETIRED' && (
         <div className="grid grid-cols-1 gap-3 rounded-xl border border-brand-border p-4">
-          <input aria-label="Past Profession *" placeholder="Past Profession *" className={inputCls} {...register('retired.pastProfession')} />
+          <input aria-label="Past Profession *" placeholder="Past Profession *" className={cn(inputBase, 'border-brand-border')} {...register('retired.pastProfession')} />
           <FieldError message={errors.retired?.pastProfession?.message} />
         </div>
       )}
