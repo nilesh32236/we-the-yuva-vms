@@ -65,7 +65,7 @@ function getAccessToken(): string | null {
 let lastRefreshAccessToken: string | null = null;
 let rotationWarningFired = false;
 
-function checkTokenRotation(token: string) {
+function _checkTokenRotation(token: string) {
   if (token === lastRefreshAccessToken) {
     if (!rotationWarningFired) {
       rotationWarningFired = true;

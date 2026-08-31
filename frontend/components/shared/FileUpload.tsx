@@ -105,8 +105,7 @@ export function FileUpload({
 
       {preview ? (
         <div className="relative inline-block">
-          {/* biome-ignore lint/performance/noImgElement: blob: and /uploads/ require plain <img> */}
-          {/* Use plain <img> to support blob:, relative /uploads/ and HF bucket URLs without Next Image optimization restrictions */}
+          {/* biome-ignore lint/performance/noImgElement: blob: and /uploads/ require plain <img> - supports blob: and HF bucket URLs */}
           <img
             src={preview}
             alt="Preview"
