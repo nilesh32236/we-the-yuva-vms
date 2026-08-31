@@ -3,7 +3,8 @@
 import * as React from 'react';
 
 const TOAST_LIMIT = 3;
-const TOAST_REMOVE_DELAY = 5000;
+const TOAST_DURATION = 5000;
+const TOAST_EXIT_DELAY = 300;
 
 type ToastProps = {
   id: string;
@@ -11,6 +12,7 @@ type ToastProps = {
   description?: string;
   variant?: 'default' | 'destructive';
   role?: string;
+  duration?: number;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   action?: React.ReactNode;
@@ -63,29 +65,33 @@ function subscribeToToasts(onStoreChange: () => void) {
   };
 }
 
+function scheduleRemove(toastId: string) {
+  setTimeout(() => dispatch({ type: 'REMOVE_TOAST', toastId }), TOAST_EXIT_DELAY);
+}
+
 export function toast(props: Omit<ToastProps, 'id'>) {
   const id = genId();
-  const dismissToast = () => dispatch({ type: 'DISMISS_TOAST', toastId: id });
 
   dispatch({
     type: 'ADD_TOAST',
     toast: {
       ...props,
       id,
+      duration: props.duration ?? TOAST_DURATION,
       open: true,
       onOpenChange: (open) => {
-        if (!open) dismissToast();
+        if (!open) dismiss(id);
       },
     },
   });
 
-  setTimeout(() => dispatch({ type: 'REMOVE_TOAST', toastId: id }), TOAST_REMOVE_DELAY);
-
-  return { id, dismiss: dismissToast };
+  return { id, dismiss: () => dismiss(id) };
 }
 
 export function dismiss(toastId?: string) {
+  const ids = toastId ? [toastId] : memoryState.toasts.map((t) => t.id);
   dispatch({ type: 'DISMISS_TOAST', toastId });
+  for (const id of ids) scheduleRemove(id);
 }
 
 export function useToast() {
