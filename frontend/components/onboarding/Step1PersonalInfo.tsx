@@ -32,7 +32,7 @@ export function Step1PersonalInfo({ register, setValue, watch, errors }: StepPro
             className={cn(inputBase, errors.address?.city ? 'border-brand-error' : 'border-brand-border')}
             {...register('address.city')}
           />
-          <FieldError message={errors.address?.city?.message} />
+          <FieldError id="city-error" message={errors.address?.city?.message} />
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
           <label htmlFor="district" className="text-sm font-medium text-brand-text">District *</label>
@@ -43,7 +43,7 @@ export function Step1PersonalInfo({ register, setValue, watch, errors }: StepPro
             className={cn(inputBase, errors.address?.district ? 'border-brand-error' : 'border-brand-border')}
             {...register('address.district')}
           />
-          <FieldError message={errors.address?.district?.message} />
+          <FieldError id="district-error" message={errors.address?.district?.message} />
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
           <label htmlFor="state" className="text-sm font-medium text-brand-text">State *</label>
@@ -54,7 +54,7 @@ export function Step1PersonalInfo({ register, setValue, watch, errors }: StepPro
             className={cn(inputBase, errors.address?.state ? 'border-brand-error' : 'border-brand-border')}
             {...register('address.state')}
           />
-          <FieldError message={errors.address?.state?.message} />
+          <FieldError id="state-error" message={errors.address?.state?.message} />
         </div>
         <div className="space-y-1.5 col-span-2 sm:col-span-1">
           <label htmlFor="pincode" className="text-sm font-medium text-brand-text">PIN Code *</label>
@@ -67,7 +67,7 @@ export function Step1PersonalInfo({ register, setValue, watch, errors }: StepPro
             className={cn(inputBase, errors.address?.pincode ? 'border-brand-error' : 'border-brand-border')}
             {...register('address.pincode')}
           />
-          <FieldError message={errors.address?.pincode?.message} />
+          <FieldError id="pincode-error" message={errors.address?.pincode?.message} />
         </div>
       </div>
     </div>
