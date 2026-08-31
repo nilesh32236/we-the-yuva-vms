@@ -17,7 +17,7 @@ export function usePushNotifications() {
 
   const vapidQuery = useQuery({
     queryKey: ['vapid-public-key'],
-    queryFn: () => api.get('/vapid-public-key').then((r) => r.data),
+    queryFn: () => api.get<{ publicKey?: string }>('/vapid-public-key').then((r) => r.data),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
     enabled: !!user,
