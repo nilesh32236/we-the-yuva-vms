@@ -49,9 +49,9 @@ export function validate(schema: ZodSchema) {
       }
 
       // Reassign only the fields that were validated
-      if (shape && 'body' in shape) req.body = (data as { body: unknown }).body;
-      if (shape && 'query' in shape) req.query = (data as { query: unknown }).query;
-      if (shape && 'params' in shape) req.params = (data as { params: unknown }).params;
+      if (shape && 'body' in shape) req.body = (data as { body: unknown }).body as never;
+      if (shape && 'query' in shape) req.query = (data as { query: unknown }).query as never;
+      if (shape && 'params' in shape) req.params = (data as { params: unknown }).params as never;
     } else {
       // Fallback: treat the entire schema as a body schema
       const result = schema.safeParse(req.body);
