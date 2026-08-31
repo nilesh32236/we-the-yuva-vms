@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import type { RecurrenceFrequency } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import type { EventInput } from '@/shared';
+import type { EventInput, UpdateEventInput } from '@/shared';
 import { hasSystemRole } from '../../shared/helpers';
 import { invalidateCache } from '../leaderboard/leaderboard.service';
 import { onEventCheckIn, onEventCheckOut } from '../badges/badge-engine.service';
@@ -257,7 +257,7 @@ export async function updateEvent(
   callerId: string,
   callerRole: string,
   callerOrgId: string | null | undefined,
-  data: EventInput
+  data: UpdateEventInput
 ) {
   const event = await prisma.event.findUnique({
     where: { id },
@@ -283,7 +283,7 @@ export async function updateEvent(
     where: { id },
     data: {
       ...data,
-      eventDate: new Date(data.eventDate),
+      ...(data.eventDate ? { eventDate: new Date(data.eventDate) } : {}),
     },
   });
 
@@ -393,6 +393,12 @@ export async function markAttendance(
   });
   const existingByVolunteer = new Map(existingRecords.map((r) => [r.volunteerId, r]));
 
+  // Compute scheduled start for coordinator-marked attendance (avoid corrupting checkedInAt with now)
+  const scheduledStart = (() => {
+    const d = new Date(event.eventDate);
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), startH, startM, 0, 0));
+  })();
+
   // Build upsert operations
   const upsertOps = [];
   const hourAdjustments: { userId: string; increment: number }[] = [];
@@ -403,7 +409,7 @@ export async function markAttendance(
 
     const existing = existingByVolunteer.get(volunteerId);
 
-    // When marking attended, also set checkedInAt to prevent double-counting via self check-in
+    // When marking attended, also set checkedInAt to scheduled start to prevent double-counting via self check-in without corrupting timestamp
     upsertOps.push(
       prisma.attendance.upsert({
         where: { eventId_volunteerId: { eventId, volunteerId } },
@@ -412,12 +418,12 @@ export async function markAttendance(
           volunteerId,
           applicationId,
           attended,
-          ...(attended && !existing?.checkedInAt ? { checkedInAt: new Date() } : {}),
+          ...(attended && !existing?.checkedInAt ? { checkedInAt: scheduledStart } : {}),
         },
         update: {
           attended,
           updatedAt: new Date(),
-          ...(attended && !existing?.checkedInAt ? { checkedInAt: new Date() } : {}),
+          ...(attended && !existing?.checkedInAt ? { checkedInAt: scheduledStart } : {}),
         },
       })
     );
@@ -441,6 +447,10 @@ export async function markAttendance(
         : durationHours;
       hourAdjustments.push({ userId: volunteerId, increment: -Math.max(0, hoursToRevoke) });
     }
+  }
+
+  if (upsertOps.length === 0) {
+    throw new AppError('No valid attendance records to mark - volunteers must have accepted applications', 400);
   }
 
   // Execute all upserts and hour adjustments in a transaction and return count
@@ -761,6 +771,12 @@ export async function checkOut(
   if (attendance.checkedOutAt) throw new AppError('Already checked out', 400);
 
   const now = new Date();
+  // Enforce same 12h window as checkIn to prevent farming hours days later
+  const eventDate = new Date(attendance.event.eventDate);
+  const checkOutWindow = 12 * 60 * 60 * 1000;
+  if (now.getTime() > eventDate.getTime() + checkOutWindow) {
+    throw new AppError('Check-out window has passed', 400);
+  }
   const rawHours = (now.getTime() - attendance.checkedInAt.getTime()) / 3_600_000;
 
   const event = attendance.event;

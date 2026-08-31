@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import type { Prisma } from '@prisma/client';
-import type { OpportunityInput } from '@/shared';
+import type { OpportunityInput, UpdateOpportunityInput } from '@/shared';
 import { z } from 'zod';
 import { hasSystemRole } from '../../shared/helpers';
 import { onApplicationAccepted } from '../badges/badge-engine.service';
@@ -264,7 +264,7 @@ export async function updateOpportunity(
   callerId: string,
   callerRole: string,
   callerOrgId: string | null | undefined,
-  data: OpportunityInput
+  data: UpdateOpportunityInput
 ) {
   const opportunity = await prisma.opportunity.findUnique({ where: { id } });
 
@@ -285,8 +285,8 @@ export async function updateOpportunity(
     where: { id },
     data: {
       ...data,
-      startDate: new Date(data.startDate),
-      endDate: new Date(data.endDate),
+      ...(data.startDate ? { startDate: new Date(data.startDate) } : {}),
+      ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
     },
   });
 

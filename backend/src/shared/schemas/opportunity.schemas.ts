@@ -66,20 +66,22 @@ export const UpdateOpportunitySchema = z
     { message: 'End date must be after start date', path: ['endDate'] }
   );
 
+const eventBaseFields = {
+  title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
+  description: z.string().max(1000, 'Description too long').optional(),
+  // TODO: add future-date validation only for CREATE in production
+  // Currently relaxed for editing existing records
+  eventDate: z.string().datetime(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
+  venue: z.string().max(200, 'Venue name too long').optional(),
+  capacity: z.number().int().positive('Capacity must be a positive integer'),
+  isVirtual: z.boolean(),
+  meetingLink: z.string().url('Must be a valid URL').optional(),
+};
+
 export const EventSchema = z
-  .object({
-    title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),
-    description: z.string().max(1000, 'Description too long').optional(),
-    // TODO: add future-date validation only for CREATE in production
-    // Currently relaxed for editing existing records
-    eventDate: z.string().datetime(),
-    startTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    endTime: z.string().regex(/^\d{2}:\d{2}$/, 'Must be HH:MM format'),
-    venue: z.string().max(200, 'Venue name too long').optional(),
-    capacity: z.number().int().positive('Capacity must be a positive integer'),
-    isVirtual: z.boolean(),
-    meetingLink: z.string().url('Must be a valid URL').optional(),
-  })
+  .object(eventBaseFields)
   .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
     message: 'Meeting link is required for virtual events',
     path: ['meetingLink'],
@@ -88,6 +90,29 @@ export const EventSchema = z
     message: 'End time must be after start time',
     path: ['endTime'],
   });
+
+export const UpdateEventSchema = z
+  .object(
+    Object.fromEntries(
+      Object.entries(eventBaseFields).map(([key, schema]) => [key, (schema as z.ZodTypeAny).optional()])
+    ) as Record<string, z.ZodTypeAny>
+  )
+  .refine((data) => !data.isVirtual || data.meetingLink !== undefined, {
+    message: 'Meeting link is required for virtual events',
+    path: ['meetingLink'],
+  })
+  .refine(
+    (data) => {
+      if (data.startTime && data.endTime) {
+        return data.endTime > data.startTime;
+      }
+      return true;
+    },
+    {
+      message: 'End time must be after start time',
+      path: ['endTime'],
+    }
+  );
 
 export const ApplySchema = z.object({}).strict();
 
@@ -106,16 +131,26 @@ export const AttendanceSchema = z.object({
     .min(1, 'At least one attendance record is required'),
 });
 
-export const CheckInSchema = z.object({
-  lat: z.coerce.number().optional(),
-  lng: z.coerce.number().optional(),
-  qrToken: z.string().optional(),
-});
+export const CheckInSchema = z
+  .object({
+    lat: z.coerce.number().min(-90, 'Latitude must be between -90 and 90').max(90, 'Latitude must be between -90 and 90').optional(),
+    lng: z.coerce.number().min(-180, 'Longitude must be between -180 and 180').max(180, 'Longitude must be between -180 and 180').optional(),
+    qrToken: z.string().optional(),
+  })
+  .refine((data) => (data.lat === undefined) === (data.lng === undefined), {
+    message: 'Latitude and longitude must be provided together',
+    path: ['lat'],
+  });
 
-export const CheckOutSchema = z.object({
-  lat: z.coerce.number().optional(),
-  lng: z.coerce.number().optional(),
-});
+export const CheckOutSchema = z
+  .object({
+    lat: z.coerce.number().min(-90, 'Latitude must be between -90 and 90').max(90, 'Latitude must be between -90 and 90').optional(),
+    lng: z.coerce.number().min(-180, 'Longitude must be between -180 and 180').max(180, 'Longitude must be between -180 and 180').optional(),
+  })
+  .refine((data) => (data.lat === undefined) === (data.lng === undefined), {
+    message: 'Latitude and longitude must be provided together',
+    path: ['lat'],
+  });
 
 const EventSeriesBaseSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200, 'Title too long'),

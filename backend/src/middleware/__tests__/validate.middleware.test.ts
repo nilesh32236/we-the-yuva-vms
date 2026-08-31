@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { validate } from '../validate.middleware';
 
 describe('validate middleware', () => {
-  it('should strip unexpected fields from req.body', () => {
+  it('should reject unexpected fields from req.body with 422', () => {
     const schema = z.object({
       name: z.string(),
       email: z.string().email(),
@@ -16,8 +16,8 @@ describe('validate middleware', () => {
       body: {
         name: 'John Doe',
         email: 'john@example.com',
-        roleId: 'malicious-role-id', // Should be stripped
-        isAdmin: true, // Should be stripped
+        roleId: 'malicious-role-id',
+        isAdmin: true,
       },
     } as Request;
 
@@ -30,16 +30,46 @@ describe('validate middleware', () => {
 
     middleware(req, res, next);
 
-    expect(next).toHaveBeenCalled();
-    expect(req.body).toEqual({
-      name: 'John Doe',
-      email: 'john@example.com',
-    });
-    expect(req.body).not.toHaveProperty('roleId');
-    expect(req.body).not.toHaveProperty('isAdmin');
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('should validate and reassign req.body, req.query, and req.params when using a composite schema', () => {
+    const schema = z.object({
+      body: z.object({
+        title: z.string(),
+      }),
+      query: z.object({
+        page: z.string().transform(Number),
+      }),
+      params: z.object({
+        id: z.string(),
+      }),
+    });
+
+    const middleware = validate(schema);
+
+    const req = {
+      body: { title: 'New Task' },
+      query: { page: '1' },
+      params: { id: '123' },
+    } as unknown as Request;
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
+    } as unknown as Response;
+    const next = vi.fn() as unknown as NextFunction;
+
+    middleware(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+    expect(req.body).toEqual({ title: 'New Task' });
+    expect(req.query).toEqual({ page: 1 });
+    expect(req.params).toEqual({ id: '123' });
+  });
+
+  it('should reject extra fields in composite schema with 422', () => {
     const schema = z.object({
       body: z.object({
         title: z.string(),
@@ -60,20 +90,16 @@ describe('validate middleware', () => {
       params: { id: '123', secret: 'code' },
     } as unknown as Request;
 
-    const res = {} as Response;
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
+    } as unknown as Response;
     const next = vi.fn() as unknown as NextFunction;
 
     middleware(req, res, next);
 
-    expect(next).toHaveBeenCalled();
-    expect(req.body).toEqual({ title: 'New Task' });
-    expect(req.query).toEqual({ page: 1 });
-    expect(req.params).toEqual({ id: '123' });
-
-    // Check that extra fields are stripped
-    expect(req.body).not.toHaveProperty('extra');
-    expect(req.query).not.toHaveProperty('other');
-    expect(req.params).not.toHaveProperty('secret');
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('should return 422 if validation fails', () => {

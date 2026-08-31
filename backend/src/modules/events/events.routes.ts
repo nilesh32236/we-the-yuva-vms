@@ -7,6 +7,7 @@ import {
   EventSchema,
   EventSeriesSchema,
   EventSeriesUpdateSchema,
+  UpdateEventSchema,
 } from '@/shared';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { requirePermission } from '../../middleware/rbac.middleware';
@@ -281,7 +282,7 @@ eventsRouter.put(
   '/:id',
   requireAuth,
   requirePermission(Permissions.EVENT_EDIT),
-  validate(EventSchema),
+  validate(UpdateEventSchema),
   updateEventHandler
 );
 

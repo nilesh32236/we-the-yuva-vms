@@ -24,6 +24,8 @@ import type {
   CheckOutSchema,
   EventSchema,
   OpportunitySchema,
+  UpdateEventSchema,
+  UpdateOpportunitySchema,
 } from '../schemas/opportunity.schemas';
 import type { VolunteerProfileSchema } from '../schemas/profile.schemas';
 import type { UpdateMeSchema } from '../schemas/onboarding.schemas';
@@ -49,7 +51,9 @@ export type ConsentInput = z.infer<typeof ConsentSchema>;
 export type VolunteerProfileInput = z.infer<typeof VolunteerProfileSchema>;
 export type UpdateMeInput = z.infer<typeof UpdateMeSchema>;
 export type OpportunityInput = z.infer<typeof OpportunitySchema>;
+export type UpdateOpportunityInput = z.infer<typeof UpdateOpportunitySchema>;
 export type EventInput = z.infer<typeof EventSchema>;
+export type UpdateEventInput = z.infer<typeof UpdateEventSchema>;
 export type ApplicationStatusInput = z.infer<typeof ApplicationStatusSchema>;
 export type AttendanceInput = z.infer<typeof AttendanceSchema>;
 export type AdminCreateUserInput = z.infer<typeof AdminCreateUserSchema>;
