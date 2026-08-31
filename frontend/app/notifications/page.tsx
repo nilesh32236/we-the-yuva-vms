@@ -74,6 +74,8 @@ export default function NotificationsPage() {
   const { data: unreadData } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: () => api.get<{ count: number }>('/notifications/unread-count').then((r) => r.data),
+    staleTime: 30_000,
+    refetchInterval: 30_000,
   });
 
   const markReadMut = useMutation({

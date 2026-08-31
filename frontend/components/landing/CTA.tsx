@@ -1,19 +1,10 @@
-'use client';
-
 import Link from 'next/link';
-import { useInView } from '@/hooks/useInView';
+import { Reveal } from '@/components/shared/Reveal';
 
 export function CTA() {
-  const { ref, inView } = useInView(0.2);
-
   return (
     <section className="bg-brand-primary py-20 sm:py-28 dark:bg-brand-primary">
-      <div
-        ref={ref}
-        className={`mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8 motion-safe:transition-opacity motion-safe:duration-700 ${
-          inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}
-      >
+      <Reveal className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8" threshold={0.2}>
         <h2 className="text-3xl font-bold text-white sm:text-4xl">Start volunteering this week</h2>
         <p className="mx-auto mt-4 max-w-lg text-white/80">
           Create a free account, find an opportunity near you, and show up. That&apos;s it.
@@ -32,7 +23,7 @@ export function CTA() {
             Register organisation
           </Link>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

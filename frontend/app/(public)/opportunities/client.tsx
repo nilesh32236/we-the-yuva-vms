@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { MapPin, Calendar, Search, Wifi } from 'lucide-react';
 import Link from 'next/link';
 import { Pagination } from '@/components/shared/Pagination';
@@ -47,11 +47,15 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
   const [category, setCategory] = useState('ALL');
   const [page, setPage] = useState(1);
 
-  const filtered = opportunities.filter((opp) => {
-    const matchesSearch = opp.title.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = category === 'ALL' || opp.category === category;
-    return matchesSearch && matchesCategory;
-  });
+  const filtered = useMemo(
+    () =>
+      opportunities.filter((opp) => {
+        const matchesSearch = opp.title.toLowerCase().includes(search.toLowerCase());
+        const matchesCategory = category === 'ALL' || opp.category === category;
+        return matchesSearch && matchesCategory;
+      }),
+    [opportunities, search, category]
+  );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

@@ -159,8 +159,8 @@ export default function AdminStoryDetailPage() {
               alt={story.title}
               width={800}
               height={450}
+              sizes="(max-width: 768px) 100vw, 800px"
               className="w-full object-cover"
-              unoptimized
             />
           </div>
         )}
