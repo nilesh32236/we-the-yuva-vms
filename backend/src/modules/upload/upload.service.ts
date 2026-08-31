@@ -190,14 +190,11 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
         logger.warn(`Failed to delete local temp file ${file.path}:`, { error: (err as Error).message });
       }
 
-      // Construct direct URL (S3 standard structure or custom S3 endpoint mapping)
-      const endpoint = process.env.S3_ENDPOINT || 'https://s3.hf.co';
-      const namespace = process.env.S3_NAMESPACE;
-      const provider = process.env.S3_PROVIDER;
-      if (provider === 'hf' && namespace) {
-        return `https://huggingface.co/api/buckets/${namespace}/${process.env.S3_BUCKET_NAME}/${file.filename}`;
-      }
-      return `${endpoint}/${process.env.S3_BUCKET_NAME}/${file.filename}`;
+      // Always return backend-proxied /uploads URL (frontend uses plain <img>).
+      // The /uploads handler in app.ts will fetch from S3 if file not found locally,
+      // so we don't expose direct S3 URLs that require Signature (private bucket).
+      // This also keeps avatarUrl validation simple (/uploads/...).
+      return getUploadUrl(file.filename);
     } catch (err) {
       await fs.promises.unlink(file.path).catch((cleanupErr) =>
         logger.warn('File cleanup failed after S3 error', {
@@ -210,5 +207,13 @@ export async function processUpload(file: Express.Multer.File): Promise<string> 
   }
 
   // Fallback to local url
-  return `/uploads/${file.filename}`;
+  return getUploadUrl(file.filename);
+}
+
+export function getS3Client(): S3Client | null {
+  return s3Client;
+}
+
+export function isS3Enabled(): boolean {
+  return isS3Configured;
 }
