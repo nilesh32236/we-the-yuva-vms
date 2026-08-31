@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { round1, WEEKS_PER_MONTH } from '@/lib/shared/schemas/onboarding.schemas';
 import type { StepProps } from './StepProps';
@@ -35,6 +35,63 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
   const hoursPerWeek = watch('timeCommitment.hoursPerWeek');
   const hoursPerMonth = watch('timeCommitment.hoursPerMonth');
   const [skillDraft, setSkillDraft] = useState('');
+  const lastEditedRef = useRef<'week' | 'month' | null>(null);
+
+  const handleWeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      lastEditedRef.current = null;
+      setValue('timeCommitment.hoursPerWeek', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      setValue('timeCommitment.hoursPerMonth', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
+    }
+    const v = Number(raw);
+    if (Number.isFinite(v)) {
+      lastEditedRef.current = 'week';
+      setValue('timeCommitment.hoursPerWeek', v as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue('timeCommitment.hoursPerMonth', round1(v * WEEKS_PER_MONTH) as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
+
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === '') {
+      lastEditedRef.current = null;
+      setValue('timeCommitment.hoursPerMonth', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      setValue('timeCommitment.hoursPerWeek', undefined as never, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
+    }
+    const v = Number(raw);
+    if (Number.isFinite(v)) {
+      lastEditedRef.current = 'month';
+      setValue('timeCommitment.hoursPerMonth', v as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setValue('timeCommitment.hoursPerWeek', round1(v / WEEKS_PER_MONTH) as never, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
 
   const addSkill = () => {
     const v = skillDraft.trim();
@@ -75,7 +132,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="space-y-1.5">
           <label htmlFor="hoursPerWeek" className="text-sm font-medium text-brand-text">
-            Hours per week
+            Hours per week *
           </label>
           <input
             id="hoursPerWeek"
@@ -83,7 +140,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             step="0.1"
             inputMode="decimal"
             className={inputCls}
-            {...register('timeCommitment.hoursPerWeek')}
+            {...register('timeCommitment.hoursPerWeek', { onChange: handleWeekChange })}
           />
           {hoursPerWeek != null && Number.isFinite(Number(hoursPerWeek)) && (
             <p className="text-xs text-brand-muted">
@@ -99,7 +156,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
         </div>
         <div className="space-y-1.5">
           <label htmlFor="hoursPerMonth" className="text-sm font-medium text-brand-text">
-            Hours per month
+            Hours per month *
           </label>
           <input
             id="hoursPerMonth"
@@ -107,7 +164,7 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             step="0.1"
             inputMode="decimal"
             className={inputCls}
-            {...register('timeCommitment.hoursPerMonth')}
+            {...register('timeCommitment.hoursPerMonth', { onChange: handleMonthChange })}
           />
           {hoursPerMonth != null && Number.isFinite(Number(hoursPerMonth)) && (
             <p className="text-xs text-brand-muted">
@@ -201,8 +258,9 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
           />
           <Button
             type="button"
-            variant="outline"
-            className="bg-brand-primary/10 hover:bg-brand-primary/20"
+            variant="ghost"
+            size="sm"
+            className="bg-brand-primary/10 hover:bg-brand-primary/20 hover:text-brand-primary"
             onClick={addSkill}
           >
             Add
@@ -213,14 +271,14 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
             {skills.map((s) => (
               <div
                 key={s}
-                className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full pl-3 pr-1 py-1 text-xs"
+                className="inline-flex items-center gap-1 bg-brand-primary/10 text-brand-primary rounded-full px-3 py-1 text-xs"
               >
                 {s}
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 min-h-6 min-w-6 p-0 text-brand-primary hover:bg-brand-primary/20 rounded-full"
+                  className="h-6 w-6 min-h-0 min-w-0 p-1 -m-1 hover:bg-transparent hover:text-brand-primary"
                   aria-label={`Remove ${s}`}
                   onClick={() =>
                     setValue(
@@ -261,7 +319,8 @@ export function Step3VolunteerProfile({ register, setValue, watch, errors }: Ste
               type="button"
               variant={tools.includes(t) ? 'primary' : 'outline'}
               size="sm"
-              className="rounded-full px-3 py-1.5 text-xs border min-h-0 h-auto"
+              aria-pressed={tools.includes(t)}
+              className="rounded-full px-3 py-1.5 text-xs border cursor-pointer min-h-0 h-auto"
               onClick={() => toggleTool(t)}
             >
               {t}
