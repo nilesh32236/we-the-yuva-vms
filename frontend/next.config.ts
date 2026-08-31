@@ -49,6 +49,10 @@ const nextConfig: NextConfig = {
         protocol: 'https' as const,
         hostname: 'huggingface.co',
       },
+      {
+        protocol: 'https' as const,
+        hostname: 's3.hf.co',
+      },
     ],
   },
   async rewrites() {
@@ -74,7 +78,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com plus.unsplash.com https://huggingface.co; connect-src 'self' ${apiOrigin}; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: images.unsplash.com plus.unsplash.com https://huggingface.co ${apiOrigin} https://s3.hf.co; connect-src 'self' ${apiOrigin} https://s3.hf.co https://huggingface.co; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`,
           },
         ],
       },
