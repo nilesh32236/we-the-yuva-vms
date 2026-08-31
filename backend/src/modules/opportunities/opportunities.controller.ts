@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { AppError } from '../../middleware/error.middleware';
 import { getRecommendedOpportunities } from './matching.service';
 import {
   applyToOpportunity,
@@ -59,6 +60,14 @@ export async function listOpportunitiesHandler(
     // PLATFORM_MANAGER keep the full view).
     const isOrgBound =
       req.user!.role === 'ORGANIZATION_ADMIN' || req.user!.role === 'COORDINATOR';
+    const requestedOrgId = req.query.organizationId as string | undefined;
+
+    // Fail-closed: org-bound users must have an organization context.
+    // Without this guard, a missing organizationId would fall through to
+    // `undefined` and list opportunities from all organizations (fail-open).
+    if (isOrgBound && !requestedOrgId && !req.user!.organizationId) {
+      throw new AppError('Organization context required', 403);
+    }
 
     const filters = {
       category: req.query.category as string | undefined,
@@ -75,9 +84,7 @@ export async function listOpportunitiesHandler(
       isRemote: req.query.isRemote !== undefined ? req.query.isRemote === 'true' : undefined,
       locationId: req.query.locationId as string | undefined,
       search: req.query.search as string | undefined,
-      organizationId:
-        (req.query.organizationId as string | undefined) ??
-        (isOrgBound ? req.user!.organizationId ?? undefined : undefined),
+      organizationId: requestedOrgId ?? (isOrgBound ? req.user!.organizationId! : undefined),
     };
 
     const result = await listOpportunities(filters, { page, limit }, req.user!.id);

@@ -211,8 +211,6 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 }
 
 export default function AdminUsersPage() {
-=======
-  const qc = useQueryClient();
   const { user } = useAuth();
   const canManageUsers = hasPermission(user, Permissions.USER_MANAGE);
   const [search, setSearch] = useState('');
@@ -235,6 +233,7 @@ export default function AdminUsersPage() {
           },
         })
         .then((r) => r.data),
+    enabled: canManageUsers,
     staleTime: 30_000,
   });
 

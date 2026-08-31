@@ -23,8 +23,9 @@ export default function OrgAdminEventsPage() {
   const canManageEvents = hasPermission(user, Permissions.EVENT_MANAGE);
   const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['org-admin-events', page],
+    queryKey: ['org-admin-events', user?.organizationId, page],
     queryFn: () => api.get('/events', { params: { limit: 50, page } }).then((r) => r.data),
+    enabled: !!user?.organizationId,
     staleTime: 30_000,
   });
 

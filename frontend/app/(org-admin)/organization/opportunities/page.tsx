@@ -22,13 +22,14 @@ export default function OrgAdminOpportunitiesPage() {
   const canEdit = hasPermission(user, Permissions.OPPORTUNITY_EDIT);
   const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['org-admin-opportunities', page],
+    queryKey: ['org-admin-opportunities', user?.organizationId, page],
     queryFn: () =>
       api
         .get('/opportunities', {
           params: { limit: 50, page, organizationId: user?.organizationId ?? undefined },
         })
         .then((r) => r.data),
+    enabled: !!user?.organizationId,
     staleTime: 30_000,
   });
 
