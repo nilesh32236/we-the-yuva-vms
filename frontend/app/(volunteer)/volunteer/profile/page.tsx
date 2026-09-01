@@ -1,5 +1,6 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -19,18 +20,16 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { DAYS, TIME_SLOTS } from '@/lib/shared';
-import { type MyLevelResponse, MyLevelResponseSchema } from '@/lib/shared';
-import { Button } from '@/components/ui/Button';
-import { useToast } from '@/hooks/use-toast';
 import { LevelBadge } from '@/components/levels/LevelBadge';
 import { StreakBadge } from '@/components/levels/StreakBadge';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { DAYS, type MyLevelResponse, MyLevelResponseSchema, TIME_SLOTS } from '@/lib/shared';
 
 // Deliberately diverges from shared VolunteerProfileSchema:
 // skills/interests use comma-separated strings for the form input (split to arrays on submit)
@@ -487,13 +486,14 @@ export default function VolunteerProfilePage() {
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
             {!editing && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={startEdit}
-                className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:bg-brand-bg px-3 py-2.5 min-h-[44px] rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-sm font-medium px-3 py-2.5 rounded-lg"
               >
                 <Edit2 className="w-3.5 h-3.5" /> Edit
-              </button>
+              </Button>
             )}
           </div>
           <h1 className="font-heading font-bold text-xl text-brand-text">{user?.name}</h1>
@@ -570,11 +570,9 @@ export default function VolunteerProfilePage() {
                   ][(levelData.currentLevel?.tier ?? 0) - 1] ?? 'from-green-400 to-emerald-600'
                 }
                 badgeShape={
-                  ['circle', 'hexagon', 'shield', 'star'][(levelData.currentLevel?.tier ?? 0) - 1] as
-                    | 'circle'
-                    | 'hexagon'
-                    | 'shield'
-                    | 'star'
+                  ['circle', 'hexagon', 'shield', 'star'][
+                    (levelData.currentLevel?.tier ?? 0) - 1
+                  ] as 'circle' | 'hexagon' | 'shield' | 'star'
                 }
                 size="md"
               />
