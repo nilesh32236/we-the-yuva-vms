@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, CheckCircle, Circle, FileText, Video } from 'luc
 import Link from 'next/link';
 import { use, useState } from 'react';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
@@ -168,29 +169,26 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               {!currentLesson.completed && (
-                <button
+                <Button
                   type="button"
+                  variant="primary"
+                  fullWidth
+                  loading={complete.isPending}
                   onClick={() => {
                     haptic.medium();
                     complete.mutate(currentLesson.id);
                   }}
-                  disabled={complete.isPending}
-                  className="w-full bg-brand-primary text-white py-3 rounded-xl font-semibold text-sm hover:bg-brand-secondary transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                  className="py-3 rounded-xl font-semibold text-sm"
                 >
-                  {complete.isPending ? (
-                    'Saving…'
-                  ) : (
-                    <span className="inline-flex items-center gap-2">
-                      Mark as Complete
-                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                    </span>
-                  )}
-                </button>
+                  Mark as Complete <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Button>
               )}
 
               {currentLesson.completed && completedCount < course.lessons.length && (
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  fullWidth
                   onClick={() => {
                     const idx = course.lessons.findIndex(
                       (l: { id: string }) => l.id === currentLesson.id
@@ -198,13 +196,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     if (idx < course.lessons.length - 1)
                       setActiveLesson(course.lessons[idx + 1].id);
                   }}
-                  className="w-full border border-brand-border text-brand-text py-3 rounded-xl font-semibold text-sm hover:bg-brand-bg transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                  className="py-3 rounded-xl font-semibold text-sm border-brand-border text-brand-text"
                 >
-                  <span className="inline-flex items-center gap-2">
-                    Next Lesson
-                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                  </span>
-                </button>
+                  Next Lesson <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Button>
               )}
 
               {completedCount === course.lessons.length && (

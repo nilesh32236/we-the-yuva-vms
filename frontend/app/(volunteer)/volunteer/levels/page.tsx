@@ -1,7 +1,7 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
 import {
   ArrowUp,
   Award,
@@ -15,24 +15,20 @@ import {
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { LevelBadge } from '@/components/levels/LevelBadge';
 import { RequirementChecklist } from '@/components/levels/RequirementChecklist';
 import { StreakBadge } from '@/components/levels/StreakBadge';
 import { TierPathVisualizer } from '@/components/levels/TierPathVisualizer';
-import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
-import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import {
-  type MyLevelResponse,
-  MyLevelResponseSchema,
-  normalizeMyLevel,
-} from '@/lib/shared';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { type MyLevelResponse, MyLevelResponseSchema, normalizeMyLevel } from '@/lib/shared';
 
 const requestNotesSchema = z.object({
   notes: z
@@ -323,8 +319,8 @@ export default function VolunteerLevelsPage() {
           </div>
           <div className="flex items-center justify-between text-xs text-brand-muted">
             <span>
-              <span className="font-semibold text-brand-text">{level.points}</span> /{' '}
-              {pointsToNext} points
+              <span className="font-semibold text-brand-text">{level.points}</span> / {pointsToNext}{' '}
+              points
             </span>
             {level.streak > 0 && <StreakBadge streak={level.streak} />}
           </div>
@@ -530,19 +526,20 @@ export default function VolunteerLevelsPage() {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {req.status === 'PENDING' && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={() => {
                         if (window.confirm('Cancel this level-up request?')) {
                           setCancellingId(req.id);
                           cancelMutation.mutate(req.id);
                         }
                       }}
-                      disabled={cancellingId === req.id}
-                      className="text-xs font-medium text-brand-error hover:underline disabled:opacity-50"
+                      loading={cancellingId === req.id}
+                      className="text-xs h-auto min-h-0 py-0 px-0 text-brand-error hover:text-brand-error hover:bg-transparent hover:underline"
                     >
-                      {cancellingId === req.id ? 'Cancelling...' : 'Cancel'}
-                    </button>
+                      Cancel
+                    </Button>
                   )}
                   <span
                     className={`text-xs font-semibold px-2.5 py-1 rounded-full ${

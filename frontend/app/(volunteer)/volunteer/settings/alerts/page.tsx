@@ -2,18 +2,18 @@
 // See /issues/PHASE2_SCOPE.md
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, BellRing, Plus, Tag, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 
 const alertSchema = z.object({
   categories: z.array(z.string().min(1)).max(20),
@@ -147,17 +147,17 @@ export default function AlertSubscriptionsPage() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-brand-text">Create Alert Subscription</h3>
-                <button
+                <Button
                   type="button"
+                  variant="icon"
                   aria-label="Close form"
                   onClick={() => {
                     setShowForm(false);
                     reset();
                   }}
-                  className="min-w-11 min-h-11 rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-surface cursor-pointer transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               </div>
 
               <div className="space-y-2">
@@ -204,20 +204,21 @@ export default function AlertSubscriptionsPage() {
                       className="inline-flex items-center gap-1 bg-brand-surface border border-brand-border text-xs px-2.5 py-1 rounded-full text-brand-text"
                     >
                       {s}
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() =>
                           setValue(
                             'skills',
                             skills.filter((x) => x !== s)
                           )
                         }
-                        className="cursor-pointer text-brand-muted hover:text-brand-text"
+                        className="p-0.5 h-auto min-h-0 text-brand-muted hover:text-brand-text hover:bg-transparent"
                         aria-label={`Remove ${s}`}
                         disabled={createMut.isPending}
                       >
                         <X className="w-3 h-3" />
-                      </button>
+                      </Button>
                     </span>
                   ))}
                 </div>
