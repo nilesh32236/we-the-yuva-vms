@@ -24,7 +24,7 @@ export function ChipSelect<T extends string>({
             type="button"
             onClick={() => toggle(opt)}
             aria-pressed={selected.includes(opt)}
-            className={`px-4 py-2.5 min-h-11 rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary ${
+            className={`px-4 py-2.5 min-h-11 rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
               selected.includes(opt)
                 ? 'bg-brand-primary text-white border-brand-primary'
                 : 'border-brand-border text-brand-text hover:border-brand-primary'

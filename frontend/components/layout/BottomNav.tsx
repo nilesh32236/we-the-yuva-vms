@@ -4,8 +4,8 @@ import { Ellipsis, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { haptic } from '@/lib/haptic';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { haptic } from '@/lib/haptic';
 import { ICONS, type NavItem } from './Sidebar';
 
 interface BottomNavProps {
