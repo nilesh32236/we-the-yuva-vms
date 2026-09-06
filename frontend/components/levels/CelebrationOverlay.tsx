@@ -3,6 +3,7 @@
 import { Award, PartyPopper, Sparkles, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { Button } from '@/components/ui/Button';
 
 interface CelebrationOverlayProps {
   levelName: string;
@@ -55,14 +56,15 @@ export function CelebrationOverlay({ levelName, tier, points, onClose }: Celebra
       }}
     >
       <div className="bg-brand-surface rounded-3xl border border-brand-border shadow-2xl p-8 md:p-12 max-w-sm mx-4 text-center relative overflow-hidden">
-        <button
-          type="button"
+        <Button
+          variant="icon"
+          size="icon"
           onClick={onClose}
-          className="absolute top-4 right-4 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-brand-muted hover:bg-brand-bg motion-safe:transition-colors cursor-pointer z-20 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+          className="absolute top-4 right-4 z-20"
           aria-label="Close celebration"
         >
           <X className="w-5 h-5" />
-        </button>
+        </Button>
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-600/20 blur-xl" />
         <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-gradient-to-br from-emerald-400/20 to-teal-600/20 blur-xl" />
 
