@@ -1,13 +1,13 @@
 'use client';
 
-import { memo, useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
-import { haptic } from '@/lib/haptic';
-import { useAuth } from '@/lib/auth-context';
-import { hasAccess, Permissions } from '@/lib/shared/permissions';
-import { Button } from '@/components/ui/Button';
+import { memo, useEffect, useState } from 'react';
 import { Unauthorized } from '@/components/shared/Unauthorized';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/lib/auth-context';
+import { haptic } from '@/lib/haptic';
+import { hasAccess, Permissions } from '@/lib/shared/permissions';
 
 interface Volunteer {
   volunteerId: string;
