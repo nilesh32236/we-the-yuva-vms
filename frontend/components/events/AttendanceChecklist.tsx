@@ -198,7 +198,7 @@ const VolunteerRow = memo(function VolunteerRow({
                   key={star}
                   type="button"
                   onClick={() => onRatingChange(star)}
-                  className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5"
+                  className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                   aria-label={`${star} star(s)`}
                 >
                   <Star
@@ -359,7 +359,7 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
             haptic.light();
             setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, true])));
           }}
-          className="text-xs text-brand-primary hover:underline cursor-pointer px-3 py-2.5 min-h-[44px]"
+          className="text-xs text-brand-primary hover:underline cursor-pointer px-3 py-2.5 min-h-[44px] rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
         >
           Mark all
         </button>
