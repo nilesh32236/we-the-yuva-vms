@@ -74,7 +74,7 @@ export function LevelProgressCard() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer"
+            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:rounded-md p-1 -m-1"
           >
             Retry
           </button>
@@ -92,7 +92,7 @@ export function LevelProgressCard() {
           <button
             type="button"
             onClick={() => refetch()}
-            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer"
+            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:rounded-md p-1 -m-1"
           >
             Retry
           </button>

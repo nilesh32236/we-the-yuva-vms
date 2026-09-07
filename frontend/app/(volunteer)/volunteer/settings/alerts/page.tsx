@@ -172,7 +172,7 @@ export default function AlertSubscriptionsPage() {
                       onClick={() => toggleCat(cat)}
                       disabled={createMut.isPending}
                       aria-pressed={selectedCats.includes(cat)}
-                      className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer
+                      className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none
                         ${
                           selectedCats.includes(cat)
                             ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
@@ -212,7 +212,7 @@ export default function AlertSubscriptionsPage() {
                             skills.filter((x) => x !== s)
                           )
                         }
-                        className="cursor-pointer text-brand-muted hover:text-brand-text"
+                        className="cursor-pointer text-brand-muted hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                         aria-label={`Remove ${s}`}
                         disabled={createMut.isPending}
                       >

@@ -126,7 +126,7 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
               <button
                 type="button"
                 onClick={() => removeFile(f.url)}
-                className="text-xs text-brand-error hover:underline cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="text-xs text-brand-error hover:underline cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:rounded-md"
               >
                 Remove
               </button>

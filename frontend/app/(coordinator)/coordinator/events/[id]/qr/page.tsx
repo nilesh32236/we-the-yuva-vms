@@ -5,6 +5,7 @@ import { ArrowLeft, QrCode, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { QRCodeCanvas } from 'qrcode.react';
 import { use } from 'react';
+import { Button } from '@/components/ui/Button';
 import { haptic } from '@/lib/haptic';
 import { api } from '@/lib/api';
 
@@ -72,16 +73,17 @@ export default function EventQrPage({ params }: { params: Promise<{ id: string }
               )}
             </div>
 
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => {
                 haptic.medium();
                 refetch();
               }}
-              className="inline-flex items-center gap-1.5 text-sm text-brand-primary hover:underline cursor-pointer active-bounce"
+              className="mx-auto"
             >
               <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" /> Regenerate QR
-            </button>
+            </Button>
 
             <div className="bg-brand-bg rounded-xl p-4 text-left space-y-2">
               <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide">

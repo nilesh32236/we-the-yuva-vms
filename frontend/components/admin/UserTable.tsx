@@ -1,14 +1,14 @@
 'use client';
 
+import * as Sentry from '@sentry/nextjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { queryKeys } from '@/lib/shared/query-keys';
 import { hasAccess, Permissions, ROLE_HIERARCHY } from '@/lib/shared/permissions';
-import * as Sentry from '@sentry/nextjs';
+import { queryKeys } from '@/lib/shared/query-keys';
 
 const ROLE_COLORS: Record<string, string> = {
   VOLUNTEER: 'bg-brand-primary/10 text-brand-primary',
@@ -282,7 +282,10 @@ export function UserTable({ users = [] }: UserTableProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          updateMutation.mutate({ id: selectedUser.id, data: { status: 'SUSPENDED' } })
+                          updateMutation.mutate({
+                            id: selectedUser.id,
+                            data: { status: 'SUSPENDED' },
+                          })
                         }
                         className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
                         aria-label={`Suspend ${selectedUser.name}`}
