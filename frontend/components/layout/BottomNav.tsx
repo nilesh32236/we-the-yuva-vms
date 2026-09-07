@@ -4,9 +4,10 @@ import { Ellipsis, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { haptic } from '@/lib/haptic';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { haptic } from '@/lib/haptic';
 import { ICONS, type NavItem } from './Sidebar';
+import { Button } from '@/components/ui/Button';
 
 interface BottomNavProps {
   navItems: NavItem[];
@@ -101,14 +102,14 @@ export function BottomNav({ navItems }: BottomNavProps) {
               <span className="text-xs font-semibold text-brand-muted uppercase tracking-wider">
                 More menu
               </span>
-              <button
-                type="button"
+              <Button
+                variant="icon"
+                size="icon"
                 onClick={() => setMenuOpen(false)}
-                className="min-w-[44px] min-h-[44px] rounded-lg flex items-center justify-center text-brand-muted hover:bg-brand-bg hover:text-brand-text transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                 aria-label="Close menu"
               >
                 <X className="w-4 h-4" aria-hidden="true" />
-              </button>
+              </Button>
             </div>
             <div className="px-3 pb-4 space-y-0.5 max-h-[60vh] overflow-y-auto">
               {overflowItems.map((item) => {
