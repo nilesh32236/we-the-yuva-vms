@@ -53,17 +53,23 @@ if (parsed.data.NODE_ENV !== 'test' && !parsed.data.VAPID_PRIVATE_KEY) {
   console.warn('⚠️  VAPID_PRIVATE_KEY is empty — web push notifications will fail at runtime');
 }
 
-if (parsed.data.NODE_ENV === 'production' && parsed.data.ALLOW_DEV_OTP) {
-  console.error(
-    '❌ ALLOW_DEV_OTP cannot be enabled in production — dev OTP would be exposed to clients. Exiting.'
-  );
-  process.exit(1);
-}
 if (parsed.data.ALLOW_DEV_OTP) {
-  console.warn(
-    '⚠️  ALLOW_DEV_OTP is enabled — dev OTP is exposed in API responses and the ' +
-      'universal OTP 000000 is accepted. Only for test/staging, NEVER production.'
-  );
+  if (parsed.data.NODE_ENV === 'production') {
+    console.error(
+      '⚠️  CRITICAL: ALLOW_DEV_OTP is enabled in production — dev OTP is exposed in API responses ' +
+        'and universal OTP 000000 is accepted for any email. Only use for demo/staging Hugging Face ' +
+        'Spaces with seeded users, NEVER for real production with real users!'
+    );
+    console.error(
+      '⚠️  Anyone can authenticate as any seeded user with OTP 000000 while this is enabled. ' +
+        'Disable ALLOW_DEV_OTP immediately for real production deployments.'
+    );
+  } else {
+    console.warn(
+      '⚠️  ALLOW_DEV_OTP is enabled — dev OTP is exposed in API responses and the ' +
+        'universal OTP 000000 is accepted. Only for test/staging, NEVER production.'
+    );
+  }
 }
 
 export const env = parsed.data;
