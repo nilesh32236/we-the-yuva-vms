@@ -530,19 +530,20 @@ export default function VolunteerLevelsPage() {
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {req.status === 'PENDING' && (
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={() => {
                         if (window.confirm('Cancel this level-up request?')) {
                           setCancellingId(req.id);
                           cancelMutation.mutate(req.id);
                         }
                       }}
-                      disabled={cancellingId === req.id}
-                      className="text-xs font-medium text-brand-error hover:underline disabled:opacity-50"
+                      loading={cancellingId === req.id}
+                      className="text-xs h-auto min-h-0 py-0 px-0 text-brand-error hover:text-brand-error hover:bg-transparent hover:underline"
                     >
-                      {cancellingId === req.id ? 'Cancelling...' : 'Cancel'}
-                    </button>
+                      Cancel
+                    </Button>
                   )}
                   <span
                     className={`text-xs font-semibold px-2.5 py-1 rounded-full ${

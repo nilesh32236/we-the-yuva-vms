@@ -66,11 +66,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       )}
       {...props}
     >
-      {loading ? (
-        <span className={`w-4 h-4 border-2 rounded-full motion-safe:animate-spin ${spinnerColors[variant]}`} />
-      ) : (
-        children
+      {loading && (
+        <span
+          aria-hidden="true"
+          className={`w-4 h-4 border-2 rounded-full motion-safe:animate-spin ${spinnerColors[variant]}`}
+        />
       )}
+      {children}
     </button>
   )
 );

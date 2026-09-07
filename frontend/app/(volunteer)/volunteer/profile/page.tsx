@@ -487,13 +487,14 @@ export default function VolunteerProfilePage() {
               <span className="text-white font-heading font-bold text-2xl">{initials}</span>
             </div>
             {!editing && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={startEdit}
-                className="flex items-center gap-1.5 text-sm font-medium text-brand-primary hover:bg-brand-bg px-3 py-2.5 min-h-[44px] rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-brand-bg"
               >
                 <Edit2 className="w-3.5 h-3.5" /> Edit
-              </button>
+              </Button>
             )}
           </div>
           <h1 className="font-heading font-bold text-xl text-brand-text">{user?.name}</h1>
