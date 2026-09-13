@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/nextjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreVertical } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -191,15 +192,17 @@ export function UserTable({ users = [] }: UserTableProps) {
                     })}
                   </td>
                   <td className="px-4 py-3 relative">
-                    <button
+                    <Button
+                      variant="icon"
+                      size="icon"
                       type="button"
                       onClick={(e) => handleMenuClick(u.id, e)}
-                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-95 transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
+                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-95 transition-colors cursor-pointer"
                       disabled={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
                     >
                       <MoreVertical className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
