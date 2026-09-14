@@ -1,18 +1,18 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Check, Loader2, Sparkles } from 'lucide-react';
-import type { ApiError, AssessmentInput } from '@/lib/shared';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ASPIRATIONS } from '@/lib/shared';
-import { ROLE_ROUTES } from '@/lib/shared/permissions';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
+import type { ApiError, AssessmentInput } from '@/lib/shared';
+import { ASPIRATIONS } from '@/lib/shared';
+import { ROLE_ROUTES } from '@/lib/shared/permissions';
 
 const ALL_SKILLS = [
   'Teaching',
@@ -77,24 +77,22 @@ function PillSelector({
           const isSelected = selected.includes(opt);
           const atLimit = selected.length >= max && !isSelected;
           return (
-            <button
+            <Button
+              variant={isSelected ? 'outline' : 'ghost'}
               key={opt}
-              type="button"
               disabled={atLimit}
               aria-pressed={isSelected}
               onClick={() => onToggle(opt)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm h-auto min-h-0 border-2
                 ${
                   isSelected
-                    ? 'bg-brand-bg border-2 border-brand-primary text-brand-primary shadow-sm'
-                    : atLimit
-                      ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
-                      : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
+                    ? 'border-brand-primary text-brand-primary bg-brand-bg shadow-sm'
+                    : 'border-transparent bg-muted text-muted-foreground hover:bg-accent'
                 }`}
             >
-              {isSelected && <Check className="w-3.5 h-3.5" />}
+              {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
               {opt}
-            </button>
+            </Button>
           );
         })}
       </div>

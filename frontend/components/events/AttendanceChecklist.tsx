@@ -1,13 +1,13 @@
 'use client';
 
-import { memo, useEffect, useState } from 'react';
 import { BadgeCheck, CheckCircle, Clock, LogIn, LogOut, Star } from 'lucide-react';
-import { haptic } from '@/lib/haptic';
-import { useAuth } from '@/lib/auth-context';
-import { hasAccess, Permissions } from '@/lib/shared/permissions';
-import { Button } from '@/components/ui/Button';
+import { memo, useEffect, useState } from 'react';
 import { Unauthorized } from '@/components/shared/Unauthorized';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/lib/auth-context';
+import { haptic } from '@/lib/haptic';
+import { hasAccess, Permissions } from '@/lib/shared/permissions';
 
 interface Volunteer {
   volunteerId: string;
@@ -353,16 +353,16 @@ export function AttendanceChecklist({ volunteers, onSave, onApprove }: Attendanc
         <p className="text-sm font-semibold text-brand-text">
           {attended} / {volunteers.length} attended
         </p>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={() => {
             haptic.light();
             setState(Object.fromEntries(volunteers.map((v) => [v.volunteerId, true])));
           }}
-          className="text-xs text-brand-primary hover:underline cursor-pointer px-3 py-2.5 min-h-[44px] rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+          className="text-xs hover:underline h-auto min-h-0 px-3 py-2.5"
         >
           Mark all
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-2">
