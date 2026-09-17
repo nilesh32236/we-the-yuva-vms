@@ -90,7 +90,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     type="button"
                     key={lesson.id}
                     onClick={() => setActiveLesson(lesson.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-primary
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary
                     ${currentLesson?.id === lesson.id ? 'bg-brand-primary text-white' : 'hover:bg-brand-bg'}`}
                   >
                     {lesson.completed ? (
