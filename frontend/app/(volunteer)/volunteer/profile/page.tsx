@@ -402,9 +402,10 @@ export default function VolunteerProfilePage() {
             render={({ field }) => (
               <div className="flex flex-wrap gap-2">
                 {DAYS.map((day) => (
-                  <button
+                  <Button
                     key={day}
                     type="button"
+                    variant={field.value.includes(day) ? 'primary' : 'outline'}
                     aria-pressed={field.value.includes(day)}
                     onClick={() => {
                       const updated = field.value.includes(day)
@@ -413,11 +414,10 @@ export default function VolunteerProfilePage() {
                       field.onChange(updated);
                     }}
                     disabled={mutation.isPending}
-                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none
-                      ${field.value.includes(day) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
+                    className={`rounded-full border transition-colors ${field.value.includes(day) ? 'border-brand-primary' : 'border-brand-border hover:border-brand-primary'}`}
                   >
                     {day}
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -437,9 +437,10 @@ export default function VolunteerProfilePage() {
             render={({ field }) => (
               <div className="flex flex-wrap gap-2">
                 {TIME_SLOTS.map((slot) => (
-                  <button
+                  <Button
                     key={slot}
                     type="button"
+                    variant={field.value.includes(slot) ? 'primary' : 'outline'}
                     aria-pressed={field.value.includes(slot)}
                     onClick={() => {
                       const updated = field.value.includes(slot)
@@ -448,11 +449,10 @@ export default function VolunteerProfilePage() {
                       field.onChange(updated);
                     }}
                     disabled={mutation.isPending}
-                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none
-                      ${field.value.includes(slot) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
+                    className={`rounded-full border transition-colors ${field.value.includes(slot) ? 'border-brand-primary' : 'border-brand-border hover:border-brand-primary'}`}
                   >
                     {slot}
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
