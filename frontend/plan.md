@@ -1,9 +1,0 @@
-1.  **OBSERVE**: Analyzed multiple files across the frontend application and found opportunities to improve the user experience and accessibility by replacing raw `<button>` elements with the existing custom `<Button>` component from `components/ui/Button.tsx`. Specifically, raw `<button>`s are used for actions like "Activate", "Suspend", "Change role", and more. Replacing them with `<Button>` ensures consistent interactive states, accessibility features (like `disabled` and `aria-busy`), and standardized styling across the app.
-
-2.  **PLAN**:
-    *   Refactor `components/admin/UserTable.tsx`'s dropdown menu items ("Activate", "Suspend", "Make coordinator", etc.) to use `<Button variant="ghost">` or similar instead of raw `<button>` elements to maintain consistent interactive states, ensuring they span full width using custom class if needed, or keeping the raw `<button>` but fixing its classes if `<Button>` doesn't support the exact full-width dropdown styling well. Since the dropdowns use custom `px-4 py-2.5 text-left` classes, maybe `<Button variant="ghost" fullWidth className="justify-start">` would work perfectly.
-    *   Refactor `components/levels/LevelProgressCard.tsx`'s "Retry" button to use `<Button variant="ghost" size="sm">` or standard tailwind utilities.
-    *   Refactor `components/levels/ProofUploadForm.tsx`'s "Remove" button to use `<Button variant="ghost" size="sm" className="text-brand-error">` to inherit the proper min-size touch targets and focus states.
-    *   Ensure any raw buttons remaining (e.g. `ToggleSwitch` or custom notification rows) have the correct `focus-visible` classes so they are keyboard accessible.
-    *   I will run `pnpm typecheck`, `pnpm biome check`, and `pnpm build` to verify changes.
-    *   Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.

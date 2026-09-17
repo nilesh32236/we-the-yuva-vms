@@ -272,7 +272,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                         onClick={() =>
                           updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
                         }
-                        className="justify-start px-4 py-2.5 text-sm text-brand-primary"
+                        className="justify-start px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg"
                         aria-label={`Activate ${selectedUser.name}`}
                         role="menuitem"
                       >
@@ -290,7 +290,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                             data: { status: 'SUSPENDED' },
                           })
                         }
-                        className="justify-start px-4 py-2.5 text-sm text-brand-error hover:text-brand-error"
+                        className="justify-start px-4 py-2.5 text-sm text-brand-error hover:text-brand-error hover:bg-brand-bg"
                         aria-label={`Suspend ${selectedUser.name}`}
                         role="menuitem"
                       >
@@ -310,7 +310,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                               onClick={() =>
                                 updateMutation.mutate({ id: selectedUser.id, data: { role } })
                               }
-                              className="justify-start px-4 py-2.5 text-sm text-brand-text"
+                              className="justify-start px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg"
                               aria-label={`Change role to ${role}`}
                               role="menuitem"
                             >
