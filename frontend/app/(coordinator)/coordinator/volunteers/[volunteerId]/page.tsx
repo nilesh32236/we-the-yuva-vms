@@ -109,6 +109,11 @@ export default function VolunteerDetailPage({
             <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-2">
               Availability
             </p>
+            {(profile.profile.availability.preferredDaysTimes ?? '').trim().length > 0 && (
+              <p className="text-sm text-brand-text mb-2">
+                {profile.profile.availability.preferredDaysTimes}
+              </p>
+            )}
             <div className="flex flex-wrap gap-2">
               {profile.profile.availability.days?.map((d: string) => (
                 <span
