@@ -445,19 +445,18 @@ export default function MentorshipPage() {
       >
         {TABS.map((tab) => (
           <Button
+            variant={activeTab === tab.key ? 'primary' : 'ghost'}
             key={tab.key}
-            type="button"
-            variant="ghost"
             role="tab"
             aria-selected={activeTab === tab.key}
             onClick={() => {
               haptic.light();
               setActiveTab(tab.key);
             }}
-            className={`flex-1 text-sm font-medium py-2 rounded-lg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-ring ${
+            className={`flex-1 text-sm py-2 h-auto min-h-0 ${
               activeTab === tab.key
-                ? 'bg-brand-primary text-white shadow-sm hover:text-white hover:bg-brand-secondary'
-                : 'text-brand-muted hover:text-brand-text'
+                ? 'shadow-sm'
+                : 'text-brand-muted hover:text-brand-text hover:bg-transparent'
             }`}
           >
             {tab.label}

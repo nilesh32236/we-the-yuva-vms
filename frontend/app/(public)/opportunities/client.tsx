@@ -100,37 +100,35 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           aria-label="Filter by category"
         >
           <Button
-            type="button"
-            variant="ghost"
+            variant={category === 'ALL' ? 'primary' : 'outline'}
             role="tab"
             aria-selected={category === 'ALL'}
             onClick={() => {
               setCategory('ALL');
               setPage(1);
             }}
-            className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
-              category === 'ALL'
-                ? 'bg-brand-primary text-white hover:bg-brand-secondary hover:text-white'
-                : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg hover:text-brand-text'
+            className={`shrink-0 rounded-full px-4 py-2.5 h-auto min-h-0 text-sm ${
+              category !== 'ALL'
+                ? 'bg-brand-surface text-brand-text border-brand-border hover:bg-brand-bg hover:text-brand-text'
+                : ''
             }`}
           >
             All
           </Button>
           {ALL_CATEGORIES.map((cat) => (
             <Button
+              variant={category === cat ? 'primary' : 'outline'}
               key={cat}
-              type="button"
-              variant="ghost"
               role="tab"
               aria-selected={category === cat}
               onClick={() => {
                 setCategory(cat);
                 setPage(1);
               }}
-              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
-                category === cat
-                  ? 'bg-brand-primary text-white hover:bg-brand-secondary hover:text-white'
-                  : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg hover:text-brand-text'
+              className={`shrink-0 rounded-full px-4 py-2.5 h-auto min-h-0 text-sm ${
+                category !== cat
+                  ? 'bg-brand-surface text-brand-text border-brand-border hover:bg-brand-bg hover:text-brand-text'
+                  : ''
               }`}
             >
               {CATEGORY_LABELS[cat]}

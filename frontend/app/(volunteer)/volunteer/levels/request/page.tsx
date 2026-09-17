@@ -173,7 +173,7 @@ export default function LevelRequestPage() {
                     setValue('proofUrls', []);
                     setValue('notes', '');
                   }}
-                  className="w-full flex items-center gap-4 p-5 text-left hover:bg-brand-bg/50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                  className="w-full flex items-center gap-4 p-5 text-left hover:bg-brand-bg/50 transition-colors cursor-pointer"
                 >
                   <LevelBadge
                     tier={tierInfo.tier}

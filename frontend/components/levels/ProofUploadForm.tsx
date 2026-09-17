@@ -1,9 +1,8 @@
 'use client';
 
-import { captureException } from '@sentry/nextjs';
 import { Loader2, Upload } from 'lucide-react';
 import { type DragEvent, useRef, useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import { captureException } from '@sentry/nextjs';
 import { api } from '@/lib/api';
 
 interface ProofUploadFormProps {
@@ -114,11 +113,7 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
         }}
       />
 
-      {uploadError && (
-        <p className="text-sm text-brand-error" role="alert">
-          {uploadError}
-        </p>
-      )}
+      {uploadError && <p className="text-sm text-brand-error" role="alert">{uploadError}</p>}
 
       {files.length > 0 && (
         <ul className="space-y-2">
@@ -128,14 +123,13 @@ export function ProofUploadForm({ onFilesChange }: ProofUploadFormProps) {
               className="flex items-center justify-between gap-2 p-2 rounded-lg bg-brand-bg border border-brand-border"
             >
               <span className="text-sm text-brand-text truncate">{f.name}</span>
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => removeFile(f.url)}
-                className="text-xs text-brand-error hover:text-brand-error hover:underline"
+                className="text-xs text-brand-error hover:underline cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:rounded-md"
               >
                 Remove
-              </Button>
+              </button>
             </li>
           ))}
         </ul>

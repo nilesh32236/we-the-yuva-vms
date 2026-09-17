@@ -194,9 +194,8 @@ export function UserTable({ users = [] }: UserTableProps) {
                   <td className="px-4 py-3 relative">
                     <Button
                       variant="icon"
-                      size="icon"
                       onClick={(e) => handleMenuClick(u.id, e)}
-                      disabled={pendingId === u.id}
+                      loading={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
                     >
                       <MoreVertical className="w-4 h-4" />
@@ -268,33 +267,31 @@ export function UserTable({ users = [] }: UserTableProps) {
                     {isUserManager && canManageTarget && selectedUser.status !== 'ACTIVE' && (
                       <Button
                         variant="ghost"
-                        fullWidth
                         onClick={() =>
                           updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
                         }
-                        className="justify-start px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg"
+                        className="w-full justify-start px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg font-normal h-auto min-h-[44px]"
                         aria-label={`Activate ${selectedUser.name}`}
                         role="menuitem"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary shrink-0" />
                         Activate
                       </Button>
                     )}
                     {isUserManager && canManageTarget && selectedUser.status !== 'SUSPENDED' && (
                       <Button
                         variant="ghost"
-                        fullWidth
                         onClick={() =>
                           updateMutation.mutate({
                             id: selectedUser.id,
                             data: { status: 'SUSPENDED' },
                           })
                         }
-                        className="justify-start px-4 py-2.5 text-sm text-brand-error hover:text-brand-error hover:bg-brand-bg"
+                        className="w-full justify-start px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg font-normal h-auto min-h-[44px] hover:text-brand-error"
                         aria-label={`Suspend ${selectedUser.name}`}
                         role="menuitem"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-error" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-error shrink-0" />
                         Suspend
                       </Button>
                     )}
@@ -305,16 +302,15 @@ export function UserTable({ users = [] }: UserTableProps) {
                           selectedUser.roleRef.name !== role && (
                             <Button
                               variant="ghost"
-                              fullWidth
                               key={role}
                               onClick={() =>
                                 updateMutation.mutate({ id: selectedUser.id, data: { role } })
                               }
-                              className="justify-start px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg"
+                              className="w-full justify-start px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg font-normal h-auto min-h-[44px]"
                               aria-label={`Change role to ${role}`}
                               role="menuitem"
                             >
-                              <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand-primary shrink-0" />
                               Make {role.charAt(0) + role.slice(1).toLowerCase()}
                             </Button>
                           )
