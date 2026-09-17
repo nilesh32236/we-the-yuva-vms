@@ -5,10 +5,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { z } from 'zod';
-import { EventCard } from '@/components/events/EventCard';
 import { Pagination } from '@/components/shared/Pagination';
+import { EventCard } from '@/components/events/EventCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
-import { Button } from '@/components/ui/Button';
 import { api } from '@/lib/api';
 
 const ObserverEventSchema = z.object({
@@ -52,18 +51,17 @@ export default function ObserverEventsPage() {
 
       <div className="flex gap-1 bg-brand-bg rounded-xl p-1 w-fit" role="tablist">
         {(['upcoming', 'past'] as const).map((t) => (
-          <Button
+          <button
             type="button"
-            variant="ghost"
             key={t}
             role="tab"
             aria-selected={tab === t}
             onClick={() => handleTabChange(t)}
             className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors cursor-pointer active-bounce
-              ${tab === t ? 'bg-brand-surface text-brand-text shadow-sm hover:text-brand-text hover:bg-brand-surface' : 'text-brand-muted hover:text-brand-text'}`}
+              ${tab === t ? 'bg-brand-surface text-brand-text shadow-sm' : 'text-brand-muted hover:text-brand-text'}`}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
-          </Button>
+          </button>
         ))}
       </div>
 

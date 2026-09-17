@@ -83,7 +83,7 @@ function PillSelector({
               disabled={atLimit}
               aria-pressed={isSelected}
               onClick={() => onToggle(opt)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all
                 ${
                   isSelected
                     ? 'bg-brand-bg border-2 border-brand-primary text-brand-primary shadow-sm'

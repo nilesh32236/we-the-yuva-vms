@@ -283,9 +283,10 @@ export function TopNav() {
                     <p className="font-medium text-brand-error">Failed to load notifications</p>
                     <Button
                       variant="ghost"
+                      size="sm"
                       type="button"
                       onClick={() => notifRefetch()}
-                      className="mt-1 h-auto p-0 min-h-0 min-w-0 hover:underline"
+                      className="mt-1 hover:underline"
                     >
                       Retry
                     </Button>

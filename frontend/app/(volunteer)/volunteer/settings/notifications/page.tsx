@@ -64,7 +64,7 @@ function ToggleSwitch({
       onClick={onChange}
       disabled={disabled}
       aria-disabled={disabled}
-      className={`w-11 h-7 rounded-full transition-colors duration-200 relative flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${
+      className={`w-11 h-7 rounded-full transition-colors duration-200 relative flex-shrink-0 ${
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
       } ${checked ? 'bg-brand-primary' : 'bg-brand-border'}`}
     >

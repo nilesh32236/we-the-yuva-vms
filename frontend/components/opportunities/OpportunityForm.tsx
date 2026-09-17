@@ -292,7 +292,7 @@ export function OpportunityForm({
             >
               {s}
               <Button
-                variant="ghost"
+                variant="icon"
                 type="button"
                 onClick={() =>
                   setValue(
@@ -300,8 +300,8 @@ export function OpportunityForm({
                     skills.filter((x) => x !== s)
                   )
                 }
-                className="cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none h-auto p-0 min-h-0 min-w-0 text-brand-muted hover:text-brand-text"
-                aria-label="Remove skill"
+                className="p-1 min-h-[24px] min-w-[24px] rounded-full text-brand-muted hover:text-brand-text"
+                aria-label={`Remove skill ${s}`}
               >
                 <X className="w-3 h-3" />
               </Button>
@@ -401,9 +401,10 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
           </span>
           <Button
             variant="ghost"
+            size="sm"
             type="button"
             onClick={() => refetch()}
-            className="text-sm font-medium underline cursor-pointer h-auto p-0 min-h-0 min-w-0"
+            className="text-sm font-medium underline cursor-pointer"
           >
             Retry
           </Button>

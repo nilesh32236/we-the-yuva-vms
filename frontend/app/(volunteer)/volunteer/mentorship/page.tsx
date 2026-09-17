@@ -1,16 +1,16 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, Handshake, MessageSquare, UserPlus, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/Button';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { useAuth } from '@/hooks/useAuth';
 import { CreateMentorshipSchema } from '@/lib/shared';
 
 interface MentorshipRelation {
@@ -444,10 +444,9 @@ export default function MentorshipPage() {
         className="flex gap-1 bg-brand-surface rounded-xl p-1 border border-brand-border"
       >
         {TABS.map((tab) => (
-          <Button
+          <button
             key={tab.key}
             type="button"
-            variant="ghost"
             role="tab"
             aria-selected={activeTab === tab.key}
             onClick={() => {
@@ -456,12 +455,12 @@ export default function MentorshipPage() {
             }}
             className={`flex-1 text-sm font-medium py-2 rounded-lg transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-ring ${
               activeTab === tab.key
-                ? 'bg-brand-primary text-white shadow-sm hover:text-white hover:bg-brand-secondary'
+                ? 'bg-brand-primary text-white shadow-sm'
                 : 'text-brand-muted hover:text-brand-text'
             }`}
           >
             {tab.label}
-          </Button>
+          </button>
         ))}
       </div>
 

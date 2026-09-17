@@ -119,7 +119,7 @@ export default function EventFeedbackPage() {
                   onClick={() => setValue('rating', n)}
                   onMouseEnter={() => setHover(n)}
                   onMouseLeave={() => setHover(0)}
-                  className="p-1.5 cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg"
+                  className="p-1.5 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary rounded-lg"
                 >
                   <Star
                     className={`w-8 h-8 ${n <= (hover || rating) ? 'text-amber-400 fill-amber-400' : 'text-brand-border'}`}
@@ -197,7 +197,7 @@ export default function EventFeedbackPage() {
                   onClick={() => setValue('confidenceLevel', n === confidence ? 0 : n)}
                   disabled={submitting}
                   aria-invalid={!!errors.confidenceLevel}
-                  className={`w-11 h-11 rounded-xl text-sm font-semibold border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white
+                  className={`w-11 h-11 rounded-xl text-sm font-semibold border transition-colors cursor-pointer
                     ${n <= confidence ? 'bg-brand-primary text-white border-brand-primary' : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary'}`}
                 >
                   {n}

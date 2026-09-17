@@ -1,10 +1,9 @@
 'use client';
 
-import { Calendar, MapPin, Search, Wifi } from 'lucide-react';
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { MapPin, Calendar, Search, Wifi } from 'lucide-react';
+import Link from 'next/link';
 import { Pagination } from '@/components/shared/Pagination';
-import { Button } from '@/components/ui/Button';
 
 const CATEGORY_LABELS: Record<string, string> = {
   ENVIRONMENT: 'Environment',
@@ -99,9 +98,8 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
           role="tablist"
           aria-label="Filter by category"
         >
-          <Button
+          <button
             type="button"
-            variant="ghost"
             role="tab"
             aria-selected={category === 'ALL'}
             onClick={() => {
@@ -110,17 +108,16 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
             }}
             className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
               category === 'ALL'
-                ? 'bg-brand-primary text-white hover:bg-brand-secondary hover:text-white'
-                : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg hover:text-brand-text'
+                ? 'bg-brand-primary text-white'
+                : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg'
             }`}
           >
             All
-          </Button>
+          </button>
           {ALL_CATEGORIES.map((cat) => (
-            <Button
+            <button
               key={cat}
               type="button"
-              variant="ghost"
               role="tab"
               aria-selected={category === cat}
               onClick={() => {
@@ -129,12 +126,12 @@ export function OpportunitiesClient({ opportunities }: { opportunities: Opportun
               }}
               className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
                 category === cat
-                  ? 'bg-brand-primary text-white hover:bg-brand-secondary hover:text-white'
-                  : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg hover:text-brand-text'
+                  ? 'bg-brand-primary text-white'
+                  : 'bg-brand-surface text-brand-text border border-brand-border hover:bg-brand-bg'
               }`}
             >
               {CATEGORY_LABELS[cat]}
-            </Button>
+            </button>
           ))}
         </div>
 

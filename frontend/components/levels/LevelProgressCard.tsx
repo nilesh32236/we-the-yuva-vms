@@ -1,11 +1,10 @@
 'use client';
 
-import * as Sentry from '@sentry/nextjs';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Clock, Star, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
+import * as Sentry from '@sentry/nextjs';
 import { api } from '@/lib/api';
 import { type MyLevelResponse, MyLevelResponseSchema, normalizeMyLevel } from '@/lib/shared';
 import { queryKeys } from '@/lib/shared/query-keys';
@@ -72,14 +71,13 @@ export function LevelProgressCard() {
             {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
               'Failed to load level data'}
           </p>
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
+            type="button"
             onClick={() => refetch()}
-            className="h-auto p-1 -m-1 text-sm font-medium"
+            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:rounded-md p-1 -m-1"
           >
             Retry
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -91,14 +89,13 @@ export function LevelProgressCard() {
       <div className="bg-brand-surface rounded-2xl border border-brand-error/20 p-5">
         <div className="flex items-center justify-between">
           <p className="text-sm text-brand-error">Failed to load level data</p>
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
+            type="button"
             onClick={() => refetch()}
-            className="h-auto p-1 -m-1 text-sm font-medium"
+            className="text-sm font-medium text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:rounded-md p-1 -m-1"
           >
             Retry
-          </Button>
+          </button>
         </div>
       </div>
     );
