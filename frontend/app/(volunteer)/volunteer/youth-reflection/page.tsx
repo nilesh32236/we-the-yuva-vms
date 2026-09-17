@@ -1,17 +1,17 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowRight, Check, Sparkles, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { GROWTH_AREAS } from '@/lib/shared';
-import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import { GROWTH_AREAS } from '@/lib/shared';
 
 const SKILL_SUGGESTIONS = [
   'Teaching',
@@ -167,25 +167,23 @@ export default function YouthReflectionPage() {
               const isSelected = skillsDeveloped.includes(s);
               const atLimit = skillsDeveloped.length >= 10 && !isSelected;
               return (
-                <button
+                <Button
                   key={s}
                   type="button"
+                  variant={isSelected ? 'outline' : 'ghost'}
                   disabled={atLimit}
                   aria-pressed={isSelected}
                   aria-invalid={!!errors.skillsDeveloped}
                   onClick={() => toggleSkill(s)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none
-                    ${
-                      isSelected
-                        ? 'bg-brand-bg border-2 border-brand-primary text-brand-primary shadow-sm'
-                        : atLimit
-                          ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
-                          : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
-                    }${errors.skillsDeveloped ? ' border-brand-error' : ''}`}
+                  className={`rounded-full h-auto min-h-0 border-2 transition-all ${
+                    isSelected
+                      ? 'border-brand-primary text-brand-primary bg-brand-bg shadow-sm'
+                      : 'border-transparent bg-muted text-muted-foreground hover:bg-accent'
+                  }${errors.skillsDeveloped ? ' border-brand-error' : ''}`}
                 >
-                  {isSelected && <Check className="w-3.5 h-3.5" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
                   {s}
-                </button>
+                </Button>
               );
             })}
           </fieldset>
@@ -209,25 +207,23 @@ export default function YouthReflectionPage() {
               const isSelected = growthAreas.includes(g);
               const atLimit = growthAreas.length >= 5 && !isSelected;
               return (
-                <button
+                <Button
                   key={g}
                   type="button"
+                  variant={isSelected ? 'outline' : 'ghost'}
                   disabled={atLimit}
                   aria-pressed={isSelected}
                   aria-invalid={!!errors.growthAreas}
                   onClick={() => toggleGrowth(g)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:outline-none
-                    ${
-                      isSelected
-                        ? 'bg-brand-primary/10 border-2 border-brand-primary text-brand-primary shadow-sm'
-                        : atLimit
-                          ? 'bg-muted text-muted-foreground cursor-not-allowed border-2 border-transparent'
-                          : 'bg-muted text-muted-foreground hover:bg-accent border-2 border-transparent'
-                    }${errors.growthAreas ? ' border-brand-error' : ''}`}
+                  className={`rounded-full h-auto min-h-0 border-2 transition-all ${
+                    isSelected
+                      ? 'border-brand-primary text-brand-primary bg-brand-primary/10 shadow-sm'
+                      : 'border-transparent bg-muted text-muted-foreground hover:bg-accent'
+                  }${errors.growthAreas ? ' border-brand-error' : ''}`}
                 >
-                  {isSelected && <Check className="w-3.5 h-3.5" />}
+                  {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
                   {g}
-                </button>
+                </Button>
               );
             })}
           </fieldset>

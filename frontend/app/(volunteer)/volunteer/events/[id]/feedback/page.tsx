@@ -1,17 +1,17 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FeedbackSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { FeedbackSchema } from '@/lib/shared';
 
 export default function EventFeedbackPage() {
   const { id } = useParams<{ id: string }>();
@@ -191,17 +191,22 @@ export default function EventFeedbackPage() {
             </label>
             <div className="flex items-center gap-3">
               {[1, 2, 3, 4, 5].map((n) => (
-                <button
+                <Button
                   key={n}
                   type="button"
+                  size="icon"
+                  variant={n <= confidence ? 'primary' : 'outline'}
                   onClick={() => setValue('confidenceLevel', n === confidence ? 0 : n)}
                   disabled={submitting}
                   aria-invalid={!!errors.confidenceLevel}
-                  className={`w-11 h-11 rounded-xl text-sm font-semibold border transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white
-                    ${n <= confidence ? 'bg-brand-primary text-white border-brand-primary' : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary'}`}
+                  className={`rounded-xl text-sm font-semibold border-2 transition-colors ${
+                    n <= confidence
+                      ? 'border-brand-primary'
+                      : 'border-brand-border hover:border-brand-primary'
+                  }`}
                 >
                   {n}
-                </button>
+                </Button>
               ))}
             </div>
             {errors.confidenceLevel && (
