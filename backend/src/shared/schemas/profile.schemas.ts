@@ -20,6 +20,9 @@ export const VolunteerProfileSchema = z.object({
   availability: z.object({
     days: z.array(z.enum(DAYS)).min(1, 'Please select at least one day'),
     timeSlots: z.array(z.enum(TIME_SLOTS)).min(1, 'Please select at least one time slot'),
+    // Free-text timing captured on the front registration/onboarding form
+    // (timeCommitment.preferredDaysTimes). Optional so profile edits can keep it.
+    preferredDaysTimes: z.string().trim().max(500).optional(),
   }),
   bio: z.string().max(500, 'Bio must be 500 characters or less').optional(),
   education: z.string().max(200).optional(),

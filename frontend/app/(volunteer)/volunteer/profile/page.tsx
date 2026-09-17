@@ -43,6 +43,9 @@ const profileSchema = z
     education: z.string().optional(),
     days: z.array(z.string()).min(1, 'Please select at least one day'),
     timeSlots: z.array(z.string()).min(1, 'Please select at least one time slot'),
+    // Free-text timing from the front registration/onboarding form — kept here so
+    // profile edits never wipe it.
+    preferredDaysTimes: z.string().max(500).optional(),
   })
   .refine(
     (data) => {
@@ -70,6 +73,7 @@ export default function VolunteerProfilePage() {
       education: '',
       days: [] as string[],
       timeSlots: [] as string[],
+      preferredDaysTimes: '',
     },
   });
   const {
@@ -88,6 +92,7 @@ export default function VolunteerProfilePage() {
   const education = watch('education');
   const selectedDays = watch('days');
   const selectedSlots = watch('timeSlots');
+  const preferredDaysTimes = watch('preferredDaysTimes');
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['me'],
@@ -145,6 +150,7 @@ export default function VolunteerProfilePage() {
       education: user?.profile?.education ?? '',
       days: user?.profile?.availability?.days ?? [],
       timeSlots: user?.profile?.availability?.timeSlots ?? [],
+      preferredDaysTimes: user?.profile?.availability?.preferredDaysTimes ?? '',
     });
     setDirty(false);
     cancelRef.current = false;
@@ -166,10 +172,11 @@ export default function VolunteerProfilePage() {
         education !== (user?.profile?.education ?? '') ||
         JSON.stringify(selectedDays) !== JSON.stringify(user?.profile?.availability?.days ?? []) ||
         JSON.stringify(selectedSlots) !==
-          JSON.stringify(user?.profile?.availability?.timeSlots ?? [])
+          JSON.stringify(user?.profile?.availability?.timeSlots ?? []) ||
+        (preferredDaysTimes ?? '') !== (user?.profile?.availability?.preferredDaysTimes ?? '')
       );
     },
-    [bio, volunteerType, skills, interests, education, selectedDays, selectedSlots, user]
+    [bio, volunteerType, skills, interests, education, selectedDays, selectedSlots, preferredDaysTimes, user]
   );
 
   const save = handleSubmit((data) => {
@@ -186,7 +193,13 @@ export default function VolunteerProfilePage() {
         .map((s: string) => s.trim())
         .filter(Boolean),
       education: data.education || undefined,
-      availability: { days: data.days, timeSlots: data.timeSlots },
+      availability: {
+        days: data.days,
+        timeSlots: data.timeSlots,
+        ...(data.preferredDaysTimes?.trim()
+          ? { preferredDaysTimes: data.preferredDaysTimes.trim() }
+          : {}),
+      },
     });
   });
 
@@ -450,6 +463,28 @@ export default function VolunteerProfilePage() {
             </p>
           )}
         </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="preferredDaysTimes"
+            className="text-xs text-brand-muted font-medium"
+          >
+            Preferred days &amp; times
+          </label>
+          <input
+            id="preferredDaysTimes"
+            {...register('preferredDaysTimes')}
+            disabled={mutation.isPending}
+            placeholder="e.g. Mon/Wed evenings, weekends"
+            maxLength={500}
+            className={inputCls('preferredDaysTimes')}
+          />
+          {errors.preferredDaysTimes && (
+            <p role="alert" className="text-xs text-brand-error">
+              {errors.preferredDaysTimes.message}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Save/Cancel at bottom */}
@@ -694,8 +729,16 @@ export default function VolunteerProfilePage() {
           {/* Availability (view mode) */}
           <div className="bg-brand-surface rounded-2xl border border-brand-border p-5 space-y-3">
             <h2 className="font-heading font-semibold text-sm text-brand-text">Availability</h2>
-            {user?.profile?.availability ? (
+            {user?.profile?.availability &&
+            ((user.profile.availability.days ?? []).length > 0 ||
+              (user.profile.availability.timeSlots ?? []).length > 0 ||
+              (user.profile.availability.preferredDaysTimes ?? '').trim().length > 0) ? (
               <div className="space-y-2">
+                {(user.profile.availability.preferredDaysTimes ?? '').trim().length > 0 && (
+                  <p className="text-sm text-brand-text">
+                    {user.profile.availability.preferredDaysTimes}
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-1.5">
                   {(user.profile.availability.days ?? []).map((d: string) => (
                     <span

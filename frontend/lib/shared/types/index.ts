@@ -107,7 +107,7 @@ export interface AuthUser {
   profile?: {
     skills: string[];
     interests: string[];
-    availability: { days: string[]; timeSlots: string[] };
+    availability: { days: string[]; timeSlots: string[]; preferredDaysTimes?: string };
     bio?: string | null;
     avatarUrl?: string | null;
     totalHours: number;
