@@ -2,18 +2,18 @@
 // See /issues/PHASE2_SCOPE.md
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, BellRing, Plus, Tag, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 
 const alertSchema = z.object({
   categories: z.array(z.string().min(1)).max(20),
@@ -166,21 +166,20 @@ export default function AlertSubscriptionsPage() {
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => (
-                    <button
-                      type="button"
+                    <Button
+                      variant={selectedCats.includes(cat) ? 'primary' : 'outline'}
                       key={cat}
                       onClick={() => toggleCat(cat)}
                       disabled={createMut.isPending}
                       aria-pressed={selectedCats.includes(cat)}
-                      className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-all duration-150 cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none
-                        ${
-                          selectedCats.includes(cat)
-                            ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
-                            : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary hover:text-brand-text'
-                        }`}
+                      className={`text-xs px-3 py-1.5 rounded-full h-auto min-h-0 ${
+                        selectedCats.includes(cat)
+                          ? 'shadow-sm'
+                          : 'bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary hover:text-brand-text'
+                      }`}
                     >
                       {cat.charAt(0) + cat.slice(1).toLowerCase()}
-                    </button>
+                    </Button>
                   ))}
                 </div>
                 {selectedCats.length === 0 && (
