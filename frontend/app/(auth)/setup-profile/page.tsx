@@ -6,31 +6,34 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  User,
+  FileCheck,
   GraduationCap,
   Heart,
   Megaphone,
   Sprout,
-  FileCheck,
+  User,
   X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { OnboardingSchema, StaffProfileSchema } from '@/lib/shared';
 import type { OnboardingData, StaffProfileInput } from '@/lib/shared';
+import { OnboardingSchema, StaffProfileSchema } from '@/lib/shared';
+import { Step1PersonalInfo } from '../../../components/onboarding/Step1PersonalInfo';
+import { Step2Education } from '../../../components/onboarding/Step2Education';
+import { Step3VolunteerProfile } from '../../../components/onboarding/Step3VolunteerProfile';
+import { Step4Referral } from '../../../components/onboarding/Step4Referral';
+import {
+  type KindnessOptIn,
+  Step5KindnessOptIn,
+} from '../../../components/onboarding/Step5KindnessOptIn';
+import { Step6Declaration } from '../../../components/onboarding/Step6Declaration';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api } from '../../../lib/api';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
-import { Step1PersonalInfo } from '../../../components/onboarding/Step1PersonalInfo';
-import { Step2Education } from '../../../components/onboarding/Step2Education';
-import { Step3VolunteerProfile } from '../../../components/onboarding/Step3VolunteerProfile';
-import { Step4Referral } from '../../../components/onboarding/Step4Referral';
-import { Step5KindnessOptIn, type KindnessOptIn } from '../../../components/onboarding/Step5KindnessOptIn';
-import { Step6Declaration } from '../../../components/onboarding/Step6Declaration';
 
 const DRAFT_KEY = 'setup-profile-draft';
 
@@ -61,7 +64,19 @@ const STEP_FIELDS: string[][] = [
     'selfEmployed.city',
     'retired.pastProfession',
   ],
-  ['volunteerType', 'timeCommitment.hoursPerWeek', 'timeCommitment.hoursPerMonth', 'timeCommitment.preferredDaysTimes', 'opportunityInterests', 'whyVoluntary', 'skills', 'digitalReadiness.smartphone', 'digitalReadiness.whatsapp', 'digitalReadiness.laptop', 'digitalReadiness.onlineVolunteering'],
+  [
+    'volunteerType',
+    'timeCommitment.hoursPerWeek',
+    'timeCommitment.hoursPerMonth',
+    'timeCommitment.preferredDaysTimes',
+    'opportunityInterests',
+    'whyVoluntary',
+    'skills',
+    'digitalReadiness.smartphone',
+    'digitalReadiness.whatsapp',
+    'digitalReadiness.laptop',
+    'digitalReadiness.onlineVolunteering',
+  ],
   ['referralSource', 'referralSourceName'],
   [], // custom component, validated inline
   ['declarations.infoCorrect', 'declarations.commitmentsAccepted'],
@@ -87,7 +102,13 @@ const defaultValues: OnboardingData = {
   opportunityInterests: [],
   whyVoluntary: '',
   skills: [],
-  digitalReadiness: { smartphone: false, whatsapp: false, laptop: false, onlineVolunteering: false, tools: [] },
+  digitalReadiness: {
+    smartphone: false,
+    whatsapp: false,
+    laptop: false,
+    onlineVolunteering: false,
+    tools: [],
+  },
   referralSource: '' as never,
   referralSourceName: '',
   declarations: { infoCorrect: false as never, commitmentsAccepted: false as never },
@@ -100,7 +121,11 @@ export default function SetupProfilePage() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [kindness, setKindness] = useState<KindnessOptIn>({ optedIn: false, acts: [], startDate: tomorrowIso() });
+  const [kindness, setKindness] = useState<KindnessOptIn>({
+    optedIn: false,
+    acts: [],
+    startDate: tomorrowIso(),
+  });
   const [kindnessError, setKindnessError] = useState<string | null>(null);
 
   const {
@@ -131,30 +156,56 @@ export default function SetupProfilePage() {
   useEffect(() => {
     if (!currentStatus) return;
     if (currentStatus !== 'STUDENT') {
-      setValue('student', undefined as unknown as OnboardingData['student'], { shouldValidate: false });
-      clearErrors(['student.institution', 'student.course', 'student.yearSemester', 'student.city']);
+      setValue('student', undefined as unknown as OnboardingData['student'], {
+        shouldValidate: false,
+      });
+      clearErrors([
+        'student.institution',
+        'student.course',
+        'student.yearSemester',
+        'student.city',
+      ]);
     }
     if (currentStatus !== 'WORKING_PROFESSIONAL') {
-      setValue('professional', undefined as unknown as OnboardingData['professional'], { shouldValidate: false });
-      clearErrors(['professional.company', 'professional.designation', 'professional.industry', 'professional.city']);
+      setValue('professional', undefined as unknown as OnboardingData['professional'], {
+        shouldValidate: false,
+      });
+      clearErrors([
+        'professional.company',
+        'professional.designation',
+        'professional.industry',
+        'professional.city',
+      ]);
     }
     if (currentStatus !== 'SELF_EMPLOYED' && currentStatus !== 'OTHER') {
-      setValue('selfEmployed', undefined as unknown as OnboardingData['selfEmployed'], { shouldValidate: false });
-      clearErrors(['selfEmployed.profession', 'selfEmployed.organizationName', 'selfEmployed.city']);
+      setValue('selfEmployed', undefined as unknown as OnboardingData['selfEmployed'], {
+        shouldValidate: false,
+      });
+      clearErrors([
+        'selfEmployed.profession',
+        'selfEmployed.organizationName',
+        'selfEmployed.city',
+      ]);
     }
     if (currentStatus !== 'RETIRED') {
-      setValue('retired', undefined as unknown as OnboardingData['retired'], { shouldValidate: false });
+      setValue('retired', undefined as unknown as OnboardingData['retired'], {
+        shouldValidate: false,
+      });
       clearErrors('retired.pastProfession');
     }
   }, [currentStatus, setValue, clearErrors]);
 
   const validateKindness = (): boolean => {
     if (!kindness.optedIn) {
-      setKindnessError('Please check "I am ready to take the 7-Day Kindness Challenge" to continue');
+      setKindnessError(
+        'Please check "I am ready to take the 7-Day Kindness Challenge" to continue'
+      );
       return false;
     }
     if (kindness.acts.length < 7) {
-      setKindnessError(`Please select at least 7 acts of kindness (you have selected ${kindness.acts.length})`);
+      setKindnessError(
+        `Please select at least 7 acts of kindness (you have selected ${kindness.acts.length})`
+      );
       return false;
     }
     if (!kindness.startDate) {
@@ -251,9 +302,17 @@ export default function SetupProfilePage() {
     if (stepIndex !== 1) return STEP_FIELDS[stepIndex];
     const base = ['education', 'currentStatus'];
     const status = watch('currentStatus');
-    if (status === 'STUDENT') base.push('student.institution', 'student.course', 'student.yearSemester', 'student.city');
-    else if (status === 'WORKING_PROFESSIONAL') base.push('professional.company', 'professional.designation', 'professional.industry', 'professional.city');
-    else if (status === 'SELF_EMPLOYED' || status === 'OTHER') base.push('selfEmployed.profession', 'selfEmployed.city');
+    if (status === 'STUDENT')
+      base.push('student.institution', 'student.course', 'student.yearSemester', 'student.city');
+    else if (status === 'WORKING_PROFESSIONAL')
+      base.push(
+        'professional.company',
+        'professional.designation',
+        'professional.industry',
+        'professional.city'
+      );
+    else if (status === 'SELF_EMPLOYED' || status === 'OTHER')
+      base.push('selfEmployed.profession', 'selfEmployed.city');
     else if (status === 'RETIRED') base.push('retired.pastProfession');
     return base;
   };
@@ -285,7 +344,9 @@ export default function SetupProfilePage() {
         'retired.pastProfession': 'Past Profession',
       };
       const firstError = fields.find((_, i) => !results[i]);
-      const msg = firstError ? `Please fix: ${fieldLabels[firstError] ?? firstError}` : 'Please fix the highlighted fields';
+      const msg = firstError
+        ? `Please fix: ${fieldLabels[firstError] ?? firstError}`
+        : 'Please fix the highlighted fields';
       toast({ title: msg, variant: 'destructive' });
     }
     return valid;
@@ -341,7 +402,11 @@ export default function SetupProfilePage() {
           });
         } catch {
           // Non-fatal: challenge can be started from the dashboard card later
-          toast({ title: 'Heads up', description: 'Profile saved, but the challenge could not be started. You can start it from your dashboard.' });
+          toast({
+            title: 'Heads up',
+            description:
+              'Profile saved, but the challenge could not be started. You can start it from your dashboard.',
+          });
         }
       }
       localStorage.removeItem(DRAFT_KEY);
@@ -416,9 +481,10 @@ export default function SetupProfilePage() {
       {/* Step indicators */}
       <div className="flex gap-1 overflow-x-auto pb-2" role="tablist">
         {STEPS.map((s, i) => (
-          <button
+          <Button
             key={s.label}
             type="button"
+            variant="ghost"
             role="tab"
             onClick={() => {
               if (i < step) goToStep(i);
@@ -427,15 +493,15 @@ export default function SetupProfilePage() {
             aria-selected={i === step}
             className={`flex items-center gap-1 px-3 py-2.5 min-h-11 rounded-full text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               i === step
-                ? 'bg-brand-primary text-white'
+                ? 'bg-brand-primary text-white hover:bg-brand-secondary hover:text-white'
                 : i < step
-                  ? 'bg-brand-primary/10 text-brand-primary'
-                  : 'bg-brand-border/30 text-brand-muted cursor-not-allowed'
+                  ? 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20'
+                  : 'bg-brand-border/30 text-brand-muted cursor-not-allowed hover:bg-brand-border/30 hover:text-brand-muted'
             }`}
           >
             <s.icon className="w-3 h-3" />
             {s.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -443,15 +509,22 @@ export default function SetupProfilePage() {
         className="bg-brand-surface rounded-2xl shadow-sm border border-brand-border p-6 space-y-5"
         aria-busy={isSubmitting}
       >
-        <section aria-live="polite">
-          {stepComponents[step]}
-        </section>
+        <section aria-live="polite">{stepComponents[step]}</section>
 
         {kindnessError && (
-          <div className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error" role="alert">
+          <div
+            className="flex items-start gap-2 bg-brand-error/10 border border-brand-error/30 rounded-lg p-3 text-sm text-brand-error"
+            role="alert"
+          >
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <p className="flex-1">{kindnessError}</p>
-            <Button variant="icon" size="icon" onClick={() => setKindnessError(null)} aria-label="Dismiss error" className="text-brand-error hover:bg-brand-error/10 hover:text-brand-error shrink-0">
+            <Button
+              variant="icon"
+              size="icon"
+              onClick={() => setKindnessError(null)}
+              aria-label="Dismiss error"
+              className="text-brand-error hover:bg-brand-error/10 hover:text-brand-error shrink-0"
+            >
               <X className="w-4 h-4" aria-hidden="true" />
             </Button>
           </div>

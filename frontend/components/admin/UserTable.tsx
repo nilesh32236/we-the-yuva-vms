@@ -195,9 +195,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                     <Button
                       variant="icon"
                       size="icon"
-                      type="button"
                       onClick={(e) => handleMenuClick(u.id, e)}
-                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-95 transition-colors cursor-pointer"
                       disabled={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
                     >
@@ -268,54 +266,57 @@ export function UserTable({ users = [] }: UserTableProps) {
                 return (
                   <>
                     {isUserManager && canManageTarget && selectedUser.status !== 'ACTIVE' && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        fullWidth
                         onClick={() =>
                           updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
                         }
-                        className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                        className="justify-start px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg"
                         aria-label={`Activate ${selectedUser.name}`}
                         role="menuitem"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                         Activate
-                      </button>
+                      </Button>
                     )}
                     {isUserManager && canManageTarget && selectedUser.status !== 'SUSPENDED' && (
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        fullWidth
                         onClick={() =>
                           updateMutation.mutate({
                             id: selectedUser.id,
                             data: { status: 'SUSPENDED' },
                           })
                         }
-                        className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                        className="justify-start px-4 py-2.5 text-sm text-brand-error hover:text-brand-error hover:bg-brand-bg"
                         aria-label={`Suspend ${selectedUser.name}`}
                         role="menuitem"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-brand-error" />
                         Suspend
-                      </button>
+                      </Button>
                     )}
                     {isUserManager &&
                       canManageTarget &&
                       (['VOLUNTEER', 'COORDINATOR', 'OBSERVER'] as const).map(
                         (role) =>
                           selectedUser.roleRef.name !== role && (
-                            <button
-                              type="button"
+                            <Button
+                              variant="ghost"
+                              fullWidth
                               key={role}
                               onClick={() =>
                                 updateMutation.mutate({ id: selectedUser.id, data: { role } })
                               }
-                              className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                              className="justify-start px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg"
                               aria-label={`Change role to ${role}`}
                               role="menuitem"
                             >
                               <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
                               Make {role.charAt(0) + role.slice(1).toLowerCase()}
-                            </button>
+                            </Button>
                           )
                       )}
                     {!isUserManager && (
