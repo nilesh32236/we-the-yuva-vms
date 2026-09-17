@@ -194,7 +194,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                     <button
                       type="button"
                       onClick={(e) => handleMenuClick(u.id, e)}
-                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-95 transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
+                      className="p-3 rounded-lg hover:bg-brand-bg text-brand-muted hover:text-brand-text active:scale-95 transition-colors cursor-pointer min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset"
                       disabled={pendingId === u.id}
                       aria-label={`Actions for ${u.name}`}
                     >
@@ -270,7 +270,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                         onClick={() =>
                           updateMutation.mutate({ id: selectedUser.id, data: { status: 'ACTIVE' } })
                         }
-                        className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                        className="w-full text-left px-4 py-2.5 text-sm text-brand-primary hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px] focus-visible:outline-none focus-visible:bg-brand-bg"
                         aria-label={`Activate ${selectedUser.name}`}
                         role="menuitem"
                       >
@@ -287,7 +287,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                             data: { status: 'SUSPENDED' },
                           })
                         }
-                        className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                        className="w-full text-left px-4 py-2.5 text-sm text-brand-error hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px] focus-visible:outline-none focus-visible:bg-brand-bg"
                         aria-label={`Suspend ${selectedUser.name}`}
                         role="menuitem"
                       >
@@ -306,7 +306,7 @@ export function UserTable({ users = [] }: UserTableProps) {
                               onClick={() =>
                                 updateMutation.mutate({ id: selectedUser.id, data: { role } })
                               }
-                              className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]"
+                              className="w-full text-left px-4 py-2.5 text-sm text-brand-text hover:bg-brand-bg cursor-pointer transition-colors flex items-center gap-2 min-h-[44px] focus-visible:outline-none focus-visible:bg-brand-bg"
                               aria-label={`Change role to ${role}`}
                               role="menuitem"
                             >
