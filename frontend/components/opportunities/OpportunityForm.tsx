@@ -1,19 +1,19 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as Sentry from '@sentry/nextjs';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { api } from '@/lib/api';
-import { Button } from '../ui/Button';
 import { useAuth } from '@/lib/auth-context';
+import { type OpportunityInput, OpportunitySchema } from '@/lib/shared';
 import { hasPermission } from '@/lib/shared/permissions';
 import { queryKeys } from '@/lib/shared/query-keys';
 import { Unauthorized } from '../shared/Unauthorized';
-import * as Sentry from '@sentry/nextjs';
+import { Button } from '../ui/Button';
 
 const CreateLocationSchema = z.object({
   name: z.string().min(1, 'Location name is required'),
@@ -291,7 +291,8 @@ export function OpportunityForm({
               className="inline-flex items-center gap-1 bg-brand-bg border border-brand-border text-brand-text text-xs px-2.5 py-1 rounded-full"
             >
               {s}
-              <button
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() =>
                   setValue(
@@ -299,11 +300,11 @@ export function OpportunityForm({
                     skills.filter((x) => x !== s)
                   )
                 }
-                className="cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                className="cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none h-auto p-0 min-h-0 min-w-0 text-brand-muted hover:text-brand-text"
                 aria-label="Remove skill"
               >
                 <X className="w-3 h-3" />
-              </button>
+              </Button>
             </span>
           ))}
         </div>
@@ -398,13 +399,14 @@ function LocationSelect({ value, onChange }: { value: string; onChange: (v: stri
             {(error as { normalizedMessage?: string } | null)?.normalizedMessage ??
               'Failed to load locations'}
           </span>
-          <button
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => refetch()}
-            className="text-sm font-medium underline cursor-pointer"
+            className="text-sm font-medium underline cursor-pointer h-auto p-0 min-h-0 min-w-0"
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );
