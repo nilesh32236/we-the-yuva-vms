@@ -5,12 +5,12 @@ import { AlertTriangle, Bell, CheckCheck, Info, LogOut, Megaphone, Star } from '
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '@/lib/auth-context';
-import { api } from '@/lib/api';
-import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
+import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { captureApiError } from '@/lib/sentry';
 import { queryKeys } from '@/lib/shared/query-keys';
 
@@ -281,13 +281,14 @@ export function TopNav() {
                 {notifIsError ? (
                   <div className="px-4 py-8 text-center text-sm text-brand-muted">
                     <p className="font-medium text-brand-error">Failed to load notifications</p>
-                    <button
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => notifRefetch()}
-                      className="mt-1 text-brand-primary hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-md"
+                      className="mt-1 h-auto p-0 min-h-0 min-w-0 hover:underline"
                     >
                       Retry
-                    </button>
+                    </Button>
                   </div>
                 ) : items.length === 0 ? (
                   <div className="px-4 py-8 text-center text-sm text-brand-muted">
