@@ -1,5 +1,5 @@
-import { ThemeToggle } from '../../components/theme/ThemeToggle';
 import Link from 'next/link';
+import { ThemeToggle } from '../../components/theme/ThemeToggle';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +13,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </a>
       {/* Top bar */}
       <header className="px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="inline-flex items-center gap-2">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded-lg p-1 -m-1"
+        >
           <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center">
             <span className="text-white font-heading font-bold text-sm">W</span>
           </div>

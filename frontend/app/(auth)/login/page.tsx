@@ -8,11 +8,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { type SendOtpInput, SendOtpSchema } from '@/lib/shared';
-import { Button } from '../../../components/ui/Button';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
+import { Button } from '../../../components/ui/Button';
 import { useToast } from '../../../hooks/use-toast';
-import { api } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
+import { api } from '../../../lib/api';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 export default function LoginPage() {
@@ -154,7 +154,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{' '}
           <Link
             href="/register"
-            className="text-brand-primary font-medium hover:underline cursor-pointer py-2 inline-block"
+            className="text-brand-primary font-medium hover:underline cursor-pointer py-2 inline-block focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded"
           >
             Register
           </Link>

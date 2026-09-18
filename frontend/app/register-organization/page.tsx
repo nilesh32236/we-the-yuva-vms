@@ -6,11 +6,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
-import { api } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/lib/api';
+import { type RegisterOrganizationInput, RegisterOrganizationSchema } from '@/lib/shared';
 
 interface DocItem {
   file: File;
@@ -161,7 +161,7 @@ export default function RegisterOrganizationPage() {
       <div className="mx-auto max-w-2xl px-4 sm:px-6">
         <Link
           href="/organization/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors mb-6"
+          className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors mb-6 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg rounded-md"
         >
           <ChevronLeft className="w-4 h-4" />
           Back to Dashboard
