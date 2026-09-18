@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Briefcase, Building2, Calendar, ArrowRight, Users } from 'lucide-react';
+import { ArrowRight, Briefcase, Building2, Calendar, Users } from 'lucide-react';
 import Link from 'next/link';
 import { StatsCard } from '@/components/charts/StatsCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
@@ -49,7 +49,7 @@ export default function OrganizationDashboardPage() {
           </p>
           <Link
             href="/register-organization"
-            className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-secondary active-bounce transition-all"
+            className="inline-flex items-center gap-2 bg-brand-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-brand-secondary active-bounce transition-all focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
           >
             Get Started
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -119,7 +119,7 @@ export default function OrganizationDashboardPage() {
         <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link
             href="/organization/coordinators"
-            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group"
+            className="flex items-center justify-between p-4 rounded-xl bg-brand-primary text-white hover:bg-brand-secondary transition-colors cursor-pointer group focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
           >
             <p className="text-sm font-semibold">Manage Coordinators</p>
             <ArrowRight

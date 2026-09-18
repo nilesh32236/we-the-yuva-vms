@@ -5,15 +5,15 @@ import { AlertTriangle, ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { OtpInput } from '../../../components/auth/OtpInput';
 import { ResendButton } from '../../../components/auth/ResendButton';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api, setAccessToken } from '../../../lib/api';
-import { VerifyOtpSchema } from '../../../lib/shared';
 import type { VerifyOtpInput } from '../../../lib/shared';
+import { VerifyOtpSchema } from '../../../lib/shared';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 function VerifyOtpContent() {
@@ -174,7 +174,7 @@ function VerifyOtpContent() {
     <div className="space-y-6">
       <Link
         href="/login"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded"
       >
         <ArrowLeft className="w-4 h-4" />
         Back

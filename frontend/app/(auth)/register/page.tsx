@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { GENDERS, type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
+import { GENDERS, type RegisterInput, RegisterSchema } from '@/lib/shared';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
-import { api } from '../../../lib/api';
 import { useAuth } from '../../../hooks/useAuth';
+import { api } from '../../../lib/api';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 const GENDER_LABELS: Record<(typeof GENDERS)[number], string> = {
@@ -64,7 +64,8 @@ export default function RegisterPage() {
         description: 'Check your email for the verification code.',
       });
       const otpRes = await api.post('/auth/send-otp', { email: data.email });
-      if (otpRes.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true') sessionStorage.setItem('devOtp', otpRes.data.devOtp);
+      if (otpRes.data?.devOtp && process.env.NEXT_PUBLIC_DEV_OTP === 'true')
+        sessionStorage.setItem('devOtp', otpRes.data.devOtp);
       sessionStorage.setItem('verifyEmail', data.email);
       router.push('/verify-otp');
     } catch (error) {
@@ -98,7 +99,7 @@ export default function RegisterPage() {
       {/* Back link */}
       <Link
         href="/login"
-        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer py-2 min-h-[44px]"
+        className="inline-flex items-center gap-1.5 text-sm text-brand-muted hover:text-brand-text transition-colors cursor-pointer py-2 min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded"
       >
         <ArrowLeft className="w-4 h-4" aria-hidden="true" />
         Back to login
@@ -301,7 +302,7 @@ export default function RegisterPage() {
           Already have an account?{' '}
           <Link
             href="/login"
-            className="text-brand-primary font-medium hover:underline cursor-pointer"
+            className="text-brand-primary font-medium hover:underline cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none rounded"
           >
             Log in
           </Link>
