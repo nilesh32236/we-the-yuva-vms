@@ -305,7 +305,7 @@ export function TopNav() {
                           if (pendingReadId !== n.id) markReadMut.mutate(n.id);
                           if (n.link) router.push(n.link);
                         }}
-                        className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer ${!n.read ? 'bg-brand-primary/5' : ''}`}
+                        className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-brand-bg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-lg ${!n.read ? 'bg-brand-primary/5' : ''}`}
                       >
                         <div
                           className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${!n.read ? 'bg-brand-primary' : 'bg-brand-bg'}`}

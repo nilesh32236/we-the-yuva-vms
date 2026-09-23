@@ -162,7 +162,7 @@ export default function NotificationsPage() {
                 >
                   <button
                     type="button"
-                    className="flex-1 self-stretch flex items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg p-1 -m-1 cursor-pointer"
+                    className="flex-1 self-stretch flex items-start gap-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-lg p-1 -m-1 cursor-pointer"
                     onClick={() => {
                       haptic.light();
                       if (!n.read) markReadMut.mutate(n.id);
