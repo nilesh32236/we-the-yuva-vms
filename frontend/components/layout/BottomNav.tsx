@@ -68,7 +68,7 @@ export function BottomNav({ navItems }: BottomNavProps) {
                 haptic.light();
                 setMenuOpen(true);
               }}
-              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce text-brand-muted hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+              className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer min-w-[60px] active:scale-95 active-bounce text-brand-muted hover:text-brand-text focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2"
               aria-label="More menu items"
               aria-expanded={menuOpen}
             >

@@ -198,7 +198,7 @@ const VolunteerRow = memo(function VolunteerRow({
                   key={star}
                   type="button"
                   onClick={() => onRatingChange(star)}
-                  className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                  className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none focus-visible:ring-offset-2"
                   aria-label={`${star} star(s)`}
                 >
                   <Star
