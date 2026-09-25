@@ -1,5 +1,6 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -19,18 +20,16 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { DAYS, TIME_SLOTS } from '@/lib/shared';
-import { type MyLevelResponse, MyLevelResponseSchema } from '@/lib/shared';
-import { Button } from '@/components/ui/Button';
-import { useToast } from '@/hooks/use-toast';
 import { LevelBadge } from '@/components/levels/LevelBadge';
 import { StreakBadge } from '@/components/levels/StreakBadge';
+import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { DAYS, type MyLevelResponse, MyLevelResponseSchema, TIME_SLOTS } from '@/lib/shared';
 
 // Deliberately diverges from shared VolunteerProfileSchema:
 // skills/interests use comma-separated strings for the form input (split to arrays on submit)
@@ -176,7 +175,17 @@ export default function VolunteerProfilePage() {
         (preferredDaysTimes ?? '') !== (user?.profile?.availability?.preferredDaysTimes ?? '')
       );
     },
-    [bio, volunteerType, skills, interests, education, selectedDays, selectedSlots, preferredDaysTimes, user]
+    [
+      bio,
+      volunteerType,
+      skills,
+      interests,
+      education,
+      selectedDays,
+      selectedSlots,
+      preferredDaysTimes,
+      user,
+    ]
   );
 
   const save = handleSubmit((data) => {
@@ -413,7 +422,7 @@ export default function VolunteerProfilePage() {
                       field.onChange(updated);
                     }}
                     disabled={mutation.isPending}
-                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none
+                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none
                       ${field.value.includes(day) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
                   >
                     {day}
@@ -448,7 +457,7 @@ export default function VolunteerProfilePage() {
                       field.onChange(updated);
                     }}
                     disabled={mutation.isPending}
-                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none
+                    className={`px-3 py-2.5 min-h-[44px] rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none
                       ${field.value.includes(slot) ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-border text-brand-text hover:border-brand-primary'}`}
                   >
                     {slot}
@@ -465,10 +474,7 @@ export default function VolunteerProfilePage() {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="preferredDaysTimes"
-            className="text-xs text-brand-muted font-medium"
-          >
+          <label htmlFor="preferredDaysTimes" className="text-xs text-brand-muted font-medium">
             Preferred days &amp; times
           </label>
           <input
@@ -606,11 +612,9 @@ export default function VolunteerProfilePage() {
                   ][(levelData.currentLevel?.tier ?? 0) - 1] ?? 'from-green-400 to-emerald-600'
                 }
                 badgeShape={
-                  ['circle', 'hexagon', 'shield', 'star'][(levelData.currentLevel?.tier ?? 0) - 1] as
-                    | 'circle'
-                    | 'hexagon'
-                    | 'shield'
-                    | 'star'
+                  ['circle', 'hexagon', 'shield', 'star'][
+                    (levelData.currentLevel?.tier ?? 0) - 1
+                  ] as 'circle' | 'hexagon' | 'shield' | 'star'
                 }
                 size="md"
               />
