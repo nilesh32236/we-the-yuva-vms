@@ -1,20 +1,20 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Check, ChevronDown, ChevronUp, Send } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { LevelBadge } from '@/components/levels/LevelBadge';
 import { ProofUploadForm } from '@/components/levels/ProofUploadForm';
-import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import { type MyLevelResponse, MyLevelResponseSchema, LevelListSchema } from '@/lib/shared';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { LevelListSchema, type MyLevelResponse, MyLevelResponseSchema } from '@/lib/shared';
 
 const requestSchema = z.object({
   selectedLevel: z.string().min(1, 'Please select a level'),
@@ -173,7 +173,7 @@ export default function LevelRequestPage() {
                     setValue('proofUrls', []);
                     setValue('notes', '');
                   }}
-                  className="w-full flex items-center gap-4 p-5 text-left hover:bg-brand-bg/50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+                  className="w-full flex items-center gap-4 p-5 text-left hover:bg-brand-bg/50 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <LevelBadge
                     tier={tierInfo.tier}
