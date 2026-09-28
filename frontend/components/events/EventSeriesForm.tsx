@@ -1,11 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useMemo } from 'react';
-import { Button } from '../ui/Button';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { captureApiError } from '@/lib/sentry';
+import { Button } from '../ui/Button';
 
 const DAYS = [
   { value: 0, label: 'Sun' },
@@ -196,7 +196,7 @@ export function EventSeriesForm({
         maxOccurrences,
         endDate,
       }),
-    [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate],
+    [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate]
   );
 
   const toggleDay = (day: number) => {
@@ -279,19 +279,19 @@ export function EventSeriesForm({
         <p className="text-sm font-medium text-brand-text">Frequency</p>
         <div className="flex gap-2">
           {FREQUENCIES.map((f) => (
-            <button
+            <Button
               key={f.value}
-              type="button"
+              variant={frequency === f.value ? 'primary' : 'outline'}
               onClick={() => setValue('frequency', f.value, { shouldValidate: true })}
               disabled={isSubmitting}
-              className={`px-4 py-3 rounded-xl text-sm font-medium motion-safe:transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
+              className={
                 frequency === f.value
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
-              }`}
+                  ? 'rounded-xl'
+                  : 'bg-brand-bg rounded-xl hover:text-brand-text'
+              }
             >
               {f.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -302,19 +302,19 @@ export function EventSeriesForm({
           <p className="text-sm font-medium text-brand-text">Repeat on</p>
           <div className="flex gap-1.5 flex-wrap">
             {DAYS.map((day) => (
-              <button
+              <Button
                 key={day.value}
-                type="button"
+                variant={daysOfWeek?.includes(day.value) ? 'primary' : 'outline'}
                 onClick={() => toggleDay(day.value)}
                 disabled={isSubmitting}
-                className={`w-11 h-11 rounded-xl text-xs font-medium motion-safe:transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
+                className={
                   daysOfWeek?.includes(day.value)
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-brand-bg text-brand-muted hover:text-brand-text border border-brand-border'
-                }`}
+                    ? 'w-11 h-11 rounded-xl min-w-0 p-0 text-xs'
+                    : 'w-11 h-11 rounded-xl min-w-0 p-0 bg-brand-bg text-xs hover:text-brand-text'
+                }
               >
                 {day.label}
-              </button>
+              </Button>
             ))}
           </div>
           {errors.daysOfWeek && (
@@ -436,7 +436,9 @@ export function EventSeriesForm({
             />
             <span className="text-sm text-brand-text">Never</span>
           </label>
-          <label className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}>
+          <label
+            className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
+          >
             <input
               type="radio"
               value="after"
@@ -457,7 +459,9 @@ export function EventSeriesForm({
             )}
             <span className="text-sm text-brand-muted">events</span>
           </label>
-          <label className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}>
+          <label
+            className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
+          >
             <input
               type="radio"
               value="on_date"

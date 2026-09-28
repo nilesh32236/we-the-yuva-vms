@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/Button';
+
 interface ChipSelectProps<T extends string> {
   options: readonly T[];
   selected: readonly string[];
@@ -19,19 +21,15 @@ export function ChipSelect<T extends string>({
     <div className="space-y-2" aria-invalid={!!error || undefined}>
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => (
-          <button
+          <Button
             key={opt}
-            type="button"
+            variant={selected.includes(opt) ? 'primary' : 'outline'}
             onClick={() => toggle(opt)}
             aria-pressed={selected.includes(opt)}
-            className={`px-4 py-2.5 min-h-11 rounded-full text-sm font-medium border transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none ${
-              selected.includes(opt)
-                ? 'bg-brand-primary text-white border-brand-primary'
-                : 'border-brand-border text-brand-text hover:border-brand-primary'
-            }`}
+            className="rounded-full min-h-11 hover:border-brand-primary transition-colors"
           >
             {labelMap?.[opt] ?? opt.replace(/_/g, ' ')}
-          </button>
+          </Button>
         ))}
       </div>
       {error && (

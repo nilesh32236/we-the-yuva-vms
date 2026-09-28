@@ -194,11 +194,12 @@ const VolunteerRow = memo(function VolunteerRow({
             </label>
             <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button
+                <Button
                   key={star}
-                  type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => onRatingChange(star)}
-                  className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
+                  className="h-auto p-0 min-h-[44px] min-w-[44px]"
                   aria-label={`${star} star(s)`}
                 >
                   <Star
@@ -208,7 +209,7 @@ const VolunteerRow = memo(function VolunteerRow({
                         : 'text-brand-border'
                     }`}
                   />
-                </button>
+                </Button>
               ))}
             </div>
           </div>
