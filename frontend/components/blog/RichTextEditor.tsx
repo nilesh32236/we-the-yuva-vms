@@ -1,9 +1,10 @@
 'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react';
+import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { Bold, Italic, Heading1, Heading2, List, ListOrdered, Quote, Code } from 'lucide-react';
+import { Bold, Code, Heading1, Heading2, Italic, List, ListOrdered, Quote } from 'lucide-react';
 import { memo, useCallback } from 'react';
+import { Button } from '@/components/ui/Button';
 import styles from './RichTextEditor.module.css';
 
 interface RichTextEditorProps {
@@ -23,19 +24,20 @@ const ToolbarButton = memo(function ToolbarButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={onClick}
       aria-label={label}
       title={label}
-      className={`p-2.5 rounded-lg transition-colors duration-150 min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary ${
+      className={
         active
-          ? 'bg-brand-primary/10 text-brand-primary'
-          : 'text-brand-muted hover:text-brand-text hover:bg-brand-bg'
-      }`}
+          ? 'bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 hover:text-brand-primary'
+          : ''
+      }
     >
       {children}
-    </button>
+    </Button>
   );
 });
 
