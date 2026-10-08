@@ -1,7 +1,7 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
 import {
   ArrowUp,
   Award,
@@ -15,24 +15,20 @@ import {
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { LevelBadge } from '@/components/levels/LevelBadge';
 import { RequirementChecklist } from '@/components/levels/RequirementChecklist';
 import { StreakBadge } from '@/components/levels/StreakBadge';
 import { TierPathVisualizer } from '@/components/levels/TierPathVisualizer';
-import { Button } from '@/components/ui/Button';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
-import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
-import {
-  type MyLevelResponse,
-  MyLevelResponseSchema,
-  normalizeMyLevel,
-} from '@/lib/shared';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { type MyLevelResponse, MyLevelResponseSchema, normalizeMyLevel } from '@/lib/shared';
 
 const requestNotesSchema = z.object({
   notes: z
@@ -323,8 +319,8 @@ export default function VolunteerLevelsPage() {
           </div>
           <div className="flex items-center justify-between text-xs text-brand-muted">
             <span>
-              <span className="font-semibold text-brand-text">{level.points}</span> /{' '}
-              {pointsToNext} points
+              <span className="font-semibold text-brand-text">{level.points}</span> / {pointsToNext}{' '}
+              points
             </span>
             {level.streak > 0 && <StreakBadge streak={level.streak} />}
           </div>
@@ -395,6 +391,8 @@ export default function VolunteerLevelsPage() {
             <button
               type="button"
               aria-label="Close"
+              tabIndex={-1}
+              aria-hidden="true"
               className="absolute inset-0 bg-black/50 cursor-pointer"
               onClick={() => setShowRequestDialog(false)}
             />
