@@ -192,11 +192,13 @@ const VolunteerRow = memo(function VolunteerRow({
             >
               Rating
             </label>
-            <div className="flex gap-0.5">
+            <div className="flex gap-0.5" role="radiogroup" aria-label="Rating">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
+                  role="radio"
+                  aria-checked={(ratingValue ?? 0) === star}
                   onClick={() => onRatingChange(star)}
                   className="cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center p-0.5 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none"
                   aria-label={`${star} star(s)`}

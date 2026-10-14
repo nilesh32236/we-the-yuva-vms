@@ -277,11 +277,13 @@ export function EventSeriesForm({
       {/* Frequency */}
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-brand-text">Frequency</p>
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="radiogroup" aria-label="Frequency">
           {FREQUENCIES.map((f) => (
             <button
               key={f.value}
               type="button"
+              role="radio"
+              aria-checked={frequency === f.value}
               onClick={() => setValue('frequency', f.value, { shouldValidate: true })}
               disabled={isSubmitting}
               className={`px-4 py-3 rounded-xl text-sm font-medium motion-safe:transition-colors cursor-pointer min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
@@ -300,11 +302,12 @@ export function EventSeriesForm({
       {frequency === 'WEEKLY' && (
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-brand-text">Repeat on</p>
-          <div className="flex gap-1.5 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap" role="group" aria-label="Days of week">
             {DAYS.map((day) => (
               <button
                 key={day.value}
                 type="button"
+                aria-pressed={daysOfWeek?.includes(day.value)}
                 onClick={() => toggleDay(day.value)}
                 disabled={isSubmitting}
                 className={`w-11 h-11 rounded-xl text-xs font-medium motion-safe:transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:outline-none disabled:opacity-60 ${
