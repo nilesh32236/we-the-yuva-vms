@@ -89,6 +89,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                   <button
                     type="button"
                     key={lesson.id}
+                    aria-current={currentLesson?.id === lesson.id ? 'true' : undefined}
                     onClick={() => setActiveLesson(lesson.id)}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary
                     ${currentLesson?.id === lesson.id ? 'bg-brand-primary text-white' : 'hover:bg-brand-bg'}`}

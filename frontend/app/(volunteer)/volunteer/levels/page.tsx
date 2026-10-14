@@ -395,7 +395,9 @@ export default function VolunteerLevelsPage() {
             <button
               type="button"
               aria-label="Close"
-              className="absolute inset-0 bg-black/50 cursor-pointer"
+              tabIndex={-1}
+              aria-hidden="true"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
               onClick={() => setShowRequestDialog(false)}
             />
             <div

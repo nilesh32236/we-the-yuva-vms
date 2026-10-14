@@ -1,14 +1,14 @@
 'use client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import {
-  queueCheckin,
-  getQueuedCheckins,
-  syncQueuedCheckins,
   clearQueue,
+  getQueuedCheckins,
+  queueCheckin,
+  syncQueuedCheckins,
 } from '@/lib/offline-queue';
-import { useAuth } from '@/hooks/useAuth';
 
 const MAX_SYNC_ATTEMPTS = 5;
 
@@ -124,7 +124,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       syncingRef.current = false;
       setIsSyncing(false);
     }
-  }, []);
+  }, [eventId, queryClient.invalidateQueries]);
 
   useEffect(() => {
     const handleOnline = () => {
