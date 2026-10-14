@@ -71,6 +71,7 @@ jobs:
         with:
           mode: review
           model: 'opencode/deepseek-v4-flash-free'
+          require_opencode_checksum: false
           github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           git_user_name: nilesh32236
           git_user_email: nilesh32236@gmail.com
@@ -134,6 +135,7 @@ jobs:
         with:
           mode: fix
           model: 'opencode/deepseek-v4-flash-free'
+          require_opencode_checksum: false
           max_fix_iterations: 3
           run_checks_after_fix: 'cd frontend && pnpm typecheck && pnpm lint && cd ../backend && pnpm typecheck && pnpm lint'
           github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
@@ -173,6 +175,7 @@ jobs:
         with:
           mode: audit
           model: 'opencode/deepseek-v4-flash-free'
+          require_opencode_checksum: false
           audit_prompt_name: ${{ inputs.audit_category }}
           audit_target_dirs: 'frontend/app,frontend/components,frontend/lib,frontend/hooks,backend/src'
           audit_create_issues: true
@@ -216,6 +219,7 @@ jobs:
         with:
           mode: fix
           model: 'opencode/deepseek-v4-flash-free'
+          require_opencode_checksum: false
           max_fix_iterations: 3
           run_checks_after_fix: 'cd frontend && pnpm typecheck && pnpm lint && cd ../backend && pnpm typecheck && pnpm lint'
           github_token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
