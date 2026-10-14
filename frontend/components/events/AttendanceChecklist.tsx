@@ -194,6 +194,7 @@ const VolunteerRow = memo(function VolunteerRow({
             </label>
             <div className="flex gap-0.5" role="radiogroup" aria-label="Rating">
               {[1, 2, 3, 4, 5].map((star) => (
+                // biome-ignore lint/a11y/useSemanticElements: custom star rating using radiogroup pattern
                 <button
                   key={star}
                   type="button"

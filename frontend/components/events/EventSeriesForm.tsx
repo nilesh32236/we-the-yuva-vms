@@ -1,11 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useMemo } from 'react';
-import { Button } from '../ui/Button';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import { captureApiError } from '@/lib/sentry';
+import { Button } from '../ui/Button';
 
 const DAYS = [
   { value: 0, label: 'Sun' },
@@ -196,7 +196,7 @@ export function EventSeriesForm({
         maxOccurrences,
         endDate,
       }),
-    [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate],
+    [frequency, daysOfWeek, interval, firstEventDate, endType, maxOccurrences, endDate]
   );
 
   const toggleDay = (day: number) => {
@@ -279,6 +279,7 @@ export function EventSeriesForm({
         <p className="text-sm font-medium text-brand-text">Frequency</p>
         <div className="flex gap-2" role="radiogroup" aria-label="Frequency">
           {FREQUENCIES.map((f) => (
+            // biome-ignore lint/a11y/useSemanticElements: custom radio button
             <button
               key={f.value}
               type="button"
@@ -302,6 +303,7 @@ export function EventSeriesForm({
       {frequency === 'WEEKLY' && (
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-brand-text">Repeat on</p>
+          {/* biome-ignore lint/a11y/useSemanticElements: custom group for days */}
           <div className="flex gap-1.5 flex-wrap" role="group" aria-label="Days of week">
             {DAYS.map((day) => (
               <button
@@ -439,7 +441,9 @@ export function EventSeriesForm({
             />
             <span className="text-sm text-brand-text">Never</span>
           </label>
-          <label className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}>
+          <label
+            className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
+          >
             <input
               type="radio"
               value="after"
@@ -460,7 +464,9 @@ export function EventSeriesForm({
             )}
             <span className="text-sm text-brand-muted">events</span>
           </label>
-          <label className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}>
+          <label
+            className={`flex items-center gap-2 cursor-pointer ${isSubmitting ? 'opacity-60 pointer-events-none' : ''}`}
+          >
             <input
               type="radio"
               value="on_date"
