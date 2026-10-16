@@ -1,17 +1,17 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FeedbackSchema } from '@/lib/shared';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { haptic } from '@/lib/haptic';
+import { FeedbackSchema } from '@/lib/shared';
 
 export default function EventFeedbackPage() {
   const { id } = useParams<{ id: string }>();
@@ -186,14 +186,25 @@ export default function EventFeedbackPage() {
 
           {/* Confidence level */}
           <div className="space-y-2">
-            <label htmlFor="confidenceLevel" className="text-sm font-medium text-brand-text">
+            <label
+              id="confidence-label"
+              htmlFor="confidenceLevel"
+              className="text-sm font-medium text-brand-text"
+            >
               Confidence level after this event (optional)
             </label>
-            <div className="flex items-center gap-3">
+            <div
+              className="flex items-center gap-3"
+              role="radiogroup"
+              aria-labelledby="confidence-label"
+            >
               {[1, 2, 3, 4, 5].map((n) => (
+                // biome-ignore lint/a11y/useSemanticElements: custom radio pattern
                 <button
                   key={n}
                   type="button"
+                  role="radio"
+                  aria-checked={n === confidence}
                   onClick={() => setValue('confidenceLevel', n === confidence ? 0 : n)}
                   disabled={submitting}
                   aria-invalid={!!errors.confidenceLevel}
