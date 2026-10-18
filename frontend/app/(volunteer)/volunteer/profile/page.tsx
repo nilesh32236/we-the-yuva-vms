@@ -409,6 +409,7 @@ export default function VolunteerProfilePage() {
             control={control}
             name="days"
             render={({ field }) => (
+              // biome-ignore lint/a11y/useSemanticElements: custom multiselect toggle group
               <div className="flex flex-wrap gap-2" role="group" aria-label="Select available days">
                 {DAYS.map((day) => (
                   <button
@@ -444,6 +445,7 @@ export default function VolunteerProfilePage() {
             control={control}
             name="timeSlots"
             render={({ field }) => (
+              // biome-ignore lint/a11y/useSemanticElements: custom multiselect toggle group
               <div
                 className="flex flex-wrap gap-2"
                 role="group"
