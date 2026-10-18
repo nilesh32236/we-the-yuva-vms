@@ -5,11 +5,11 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import type { EventInput, EventSeriesInput } from '@/lib/shared';
+import { Permissions } from '@/lib/shared/permissions';
 import { EventForm } from '../../../../../../components/events/EventForm';
-import { haptic } from '../../../../../../lib/haptic';
 import { useToast } from '../../../../../../hooks/use-toast';
 import { api } from '../../../../../../lib/api';
-import { Permissions } from '@/lib/shared/permissions';
+import { haptic } from '../../../../../../lib/haptic';
 
 export default function EditEventPage() {
   const { id } = useParams<{ id: string }>();
