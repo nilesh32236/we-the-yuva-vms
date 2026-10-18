@@ -124,7 +124,7 @@ export function useOfflineCheckin({ eventId, onSuccess, onError }: UseOfflineChe
       syncingRef.current = false;
       setIsSyncing(false);
     }
-  }, []);
+  }, [eventId, queryClient]);
 
   useEffect(() => {
     const handleOnline = () => {

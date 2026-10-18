@@ -5,15 +5,15 @@ import { AlertTriangle, ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { OtpInput } from '../../../components/auth/OtpInput';
 import { ResendButton } from '../../../components/auth/ResendButton';
 import { SkeletonCard } from '../../../components/shared/SkeletonCard';
 import { useToast } from '../../../hooks/use-toast';
 import { useAuth } from '../../../hooks/useAuth';
 import { api, setAccessToken } from '../../../lib/api';
-import { VerifyOtpSchema } from '../../../lib/shared';
 import type { VerifyOtpInput } from '../../../lib/shared';
+import { VerifyOtpSchema } from '../../../lib/shared';
 import { ROLE_ROUTES } from '../../../lib/shared/permissions';
 
 function VerifyOtpContent() {
