@@ -230,16 +230,19 @@ export default function KindnessChallengePage() {
 
       {showPostDialog && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closePostDialog();
-          }}
           onKeyDown={(e) => {
-            if (e.key === 'Escape' && e.target === e.currentTarget) closePostDialog();
+            if (e.key === 'Escape') closePostDialog();
           }}
         >
+          <div
+            aria-hidden="true"
+            tabIndex={-1}
+            className="fixed inset-0 bg-black/40 cursor-pointer z-[-1]"
+            onClick={closePostDialog}
+          />
           <div className="bg-brand-surface rounded-2xl shadow-xl border border-brand-border w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <h2 className="font-heading font-semibold text-lg text-brand-text">Post Kindness Work</h2>
             <p className="text-xs text-brand-muted">Day {view.currentDay} · This will appear in your timeline. Check "Mark as completion" to unlock Part II.</p>

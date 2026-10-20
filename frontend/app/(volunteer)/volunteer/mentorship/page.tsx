@@ -217,7 +217,7 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="request-mentor-title"
@@ -225,6 +225,12 @@ function RequestMentorForm({ open, onClose }: { open: boolean; onClose: () => vo
         if (e.key === 'Escape') onClose();
       }}
     >
+      <div
+        aria-hidden="true"
+        tabIndex={-1}
+        className="fixed inset-0 bg-black/40 cursor-pointer z-[-1]"
+        onClick={onClose}
+      />
       <div className="bg-brand-surface rounded-2xl border border-brand-border p-6 w-full max-w-md space-y-4">
         <h2
           id="request-mentor-title"
