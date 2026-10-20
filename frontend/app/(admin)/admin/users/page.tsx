@@ -81,7 +81,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
   return (
     <div
       ref={dialogRef}
-      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-user-title"
@@ -89,6 +89,12 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
         if (e.key === 'Escape') onClose();
       }}
     >
+      <div
+        aria-hidden="true"
+        tabIndex={-1}
+        className="fixed inset-0 bg-black/40 cursor-pointer z-[-1]"
+        onClick={onClose}
+      />
       <div className="bg-brand-surface rounded-2xl shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border">
           <h2 id="create-user-title" className="font-heading font-bold text-lg text-brand-text">

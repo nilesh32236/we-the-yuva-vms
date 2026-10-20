@@ -232,11 +232,17 @@ export default function OrganizationCoordinatorsPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-dialog-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-50 flex items-center justify-center"
           onKeyDown={(e) => {
             if (e.key === 'Escape') setConfirmingRemove(null);
           }}
         >
+          <div
+            aria-hidden="true"
+            tabIndex={-1}
+            className="fixed inset-0 bg-black/50 cursor-pointer z-[-1]"
+            onClick={() => setConfirmingRemove(null)}
+          />
           <div
             ref={removeDialogRef}
             className="bg-brand-surface rounded-2xl border border-brand-border p-6 shadow-xl max-w-sm w-full mx-4"

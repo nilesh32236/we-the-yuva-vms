@@ -392,10 +392,10 @@ export default function VolunteerLevelsPage() {
       {showRequestDialog && (
         <FocusTrap>
           <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <button
-              type="button"
-              aria-label="Close"
-              className="absolute inset-0 bg-black/50 cursor-pointer"
+            <div
+              aria-hidden="true"
+              tabIndex={-1}
+              className="fixed inset-0 bg-black/50 cursor-pointer z-[-1]"
               onClick={() => setShowRequestDialog(false)}
             />
             <div

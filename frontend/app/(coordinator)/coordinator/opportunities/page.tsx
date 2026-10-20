@@ -188,7 +188,7 @@ export default function CoordinatorOpportunitiesPage() {
 
       {confirmAction && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-50 flex items-center justify-center"
           role="dialog"
           aria-modal="true"
           aria-labelledby="close-dialog-title"
@@ -196,6 +196,12 @@ export default function CoordinatorOpportunitiesPage() {
             if (e.key === 'Escape') setConfirmAction(null);
           }}
         >
+          <div
+            aria-hidden="true"
+            tabIndex={-1}
+            className="fixed inset-0 bg-black/50 cursor-pointer z-[-1]"
+            onClick={() => setConfirmAction(null)}
+          />
           <div
             ref={closeDialogRef}
             className="bg-brand-surface rounded-lg p-6 max-w-sm mx-4 shadow-xl border border-brand-border"
